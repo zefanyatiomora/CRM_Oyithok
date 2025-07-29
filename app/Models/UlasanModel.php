@@ -24,7 +24,6 @@ class UlasanModel extends Model
         'kebersihan',
         'kesesuaian_desain',
         'kepuasan_keseluruhan',
-        'catatan'
     ];
 
     // Relasi ke Interaksi
