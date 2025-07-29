@@ -70,13 +70,4 @@ class CustomerController extends Controller
 
         return redirect()->route('customers.index')->with('success', 'Customer berhasil diperbarui.');
     }
-
-    // Hapus customer (jika ingin pakai delete juga)
-    public function destroy($id)
-    {
-        $customer = CustomerModel::findOrFail($id);
-        $customer->delete();
-
-        return redirect()->route('customers.index')->with('success', 'Customer berhasil dihapus.');
-    }
 }
