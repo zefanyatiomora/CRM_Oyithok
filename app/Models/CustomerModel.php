@@ -16,6 +16,8 @@ class CustomerModel extends Model
         'customer_kode',
         'customer_alamat',
         'customer_nohp',
+        'informasi_media',
+        'loyalty_point'
         // tambahkan kolom lain sesuai migrasi kamu
     ];
 
