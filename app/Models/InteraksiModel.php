@@ -15,10 +15,10 @@ class InteraksiModel extends Model
     protected $fillable = [
         'customer_id',
         'produk_id',
-        'admin_id',       // jika ada
-        'tanggal',
-        'tahapan',        // misalnya: 'CS', 'Konsultan'
-        'catatan',        // jika ada catatan interaksi
+        'produk_kode',
+        'tanggal_chat',
+        'identifikasi_kebutuhan',
+        'media',
     ];
 
     // Relasi ke Customer
