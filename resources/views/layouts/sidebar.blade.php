@@ -32,13 +32,11 @@
               <p>Dashboard</p> 
             </a> 
           </li> 
-    
-              <li class="nav-header">Data Pengguna</li> 
               <li class="nav-item"> 
-                <a href="{{ url('/level') }}" class="nav-link {{ ($activeMenu == 'level')? 
+                <a href="{{ url('/customers') }}" class="nav-link {{ ($activeMenu == 'customers')? 
         'active' : '' }} "> 
                   <i class="nav-icon fas fa-layer-group"></i> 
-                  <p>Level User</p> 
+                  <p>Data Customer</p> 
                 </a> 
               </li> 
               <li class="nav-item"> 

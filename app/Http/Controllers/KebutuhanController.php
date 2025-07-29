@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InteraksiModel;
-use App\Models\CustomerModel;
+use App\Models\CustomersModel;
 use App\Models\ProdukModel;
 use Illuminate\Http\Request;
 
@@ -19,7 +19,7 @@ class KebutuhanController extends Controller
     // Menampilkan form tambah interaksi
     public function create()
     {
-        $customers = CustomerModel::all();
+        $customers = CustomersModel::all();
         $produks = ProdukModel::all();
         return view('interaksi.create', compact('customers', 'produks'));
     }
@@ -52,7 +52,7 @@ class KebutuhanController extends Controller
     public function edit($id)
     {
         $interaksi = InteraksiModel::findOrFail($id);
-        $customers = CustomerModel::all();
+        $customers = CustomersModel::all();
         $produks = ProdukModel::all();
         return view('interaksi.edit', compact('interaksi', 'customers', 'produks'));
     }

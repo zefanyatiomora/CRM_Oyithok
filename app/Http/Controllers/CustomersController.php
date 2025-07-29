@@ -2,19 +2,45 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CustomerModel;
+use App\Models\CustomersModel;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
 
-class CustomerController extends Controller
+class CustomersController extends Controller
 {
     // Tampilkan semua customer
     public function index()
     {
-        $customers = CustomerModel::all();
+        $customers = CustomersModel::all();
         return view('customers.index', compact('customers'));
     }
+
+    public function data(Request $request)
+{
+    $data = CustomersModel::select([
+        'customer_id',
+        'customer_nama',
+        'customer_kode',
+        'customer_alamat',
+        'customer_nohp',
+        'informasi_media',
+        'loyalty_point'
+    ]);
+
+    return DataTables::of($data)
+        ->addColumn('aksi', function($row) {
+            return '
+                <button onclick="modalAction(\''.route('customers.edit', $row->customer_id).'\')" class="btn btn-sm btn-warning">Edit</button>
+                <form action="'.route('customers.destroy', $row->customer_id).'" method="POST" style="display:inline;">
+                    '.csrf_field().method_field('DELETE').'
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Yakin ingin menghapus?\')">Hapus</button>
+                </form>
+            ';
+        })
+        ->rawColumns(['aksi'])
+        ->make(true);
+}
 
     // Tampilkan form tambah customer
     public function create()
@@ -34,7 +60,7 @@ class CustomerController extends Controller
             'loyalty_point' => 'nullable|integer|min:0',
         ]);
 
-        CustomerModel::create($request->all());
+        CustomersModel::create($request->all());
 
         return redirect()->route('customers.index')->with('success', 'Customer berhasil ditambahkan.');
     }
@@ -42,14 +68,14 @@ class CustomerController extends Controller
     // Tampilkan detail customer
     public function show($id)
     {
-        $customer = CustomerModel::findOrFail($id);
+        $customer = CustomersModel::findOrFail($id);
         return view('customers.show', compact('customer'));
     }
 
     // Tampilkan form edit
     public function edit($id)
     {
-        $customer = CustomerModel::findOrFail($id);
+        $customer = CustomersModel::findOrFail($id);
         return view('customers.edit', compact('customer'));
     }
 
@@ -65,7 +91,7 @@ class CustomerController extends Controller
             'loyalty_point' => 'nullable|integer|min:0',
         ]);
 
-        $customer = CustomerModel::findOrFail($id);
+        $customer = CustomersModel::findOrFail($id);
         $customer->update($request->all());
 
         return redirect()->route('customers.index')->with('success', 'Customer berhasil diperbarui.');

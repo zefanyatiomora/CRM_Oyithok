@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CustomerModel extends Model
+class CustomersModel extends Model
 {
     use HasFactory;
     protected $table = 'customers'; // nama tabel di database
