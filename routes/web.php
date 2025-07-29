@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CustomersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,3 +19,5 @@ Route::get('/', function () {
     return view('layouts.master');
 });
 Route::get('/', [WelcomeController::class, 'index']);
+
+Route::get('/customers', [CustomersController::class, 'index'])->name('customers.index');
