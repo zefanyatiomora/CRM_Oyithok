@@ -26,7 +26,11 @@ Route::get('/', [WelcomeController::class, 'index']);
 Route::get('/customers', [CustomersController::class, 'index'])->name('customers.index');
 
 //kebutuhan//
-Route::resource('interaksi', KebutuhanController::class);
+Route::get('/kebutuhan', [KebutuhanController::class, 'index'])->name('kebutuhan.index');
+Route::get('/kebutuhan/create', [KebutuhanController::class, 'create'])->name('kebutuhan.create');
+Route::post('/kebutuhan', [KebutuhanController::class, 'store'])->name('kebutuhan.store');
+Route::get('/kebutuhan/search-customer', [KebutuhanController::class, 'searchCustomer'])->name('kebutuhan.searchCustomer');
+Route::get('/kebutuhan/get-customer/{id}', [KebutuhanController::class, 'getCustomer'])->name('kebutuhan.getCustomer');
 
 Route::prefix('produk')->group(function () {
     Route::get('/', [ProdukController::class, 'index'])->name('produk.index');       // Halaman list produk

@@ -37,7 +37,7 @@
               </li> 
         
               <li class="nav-item"> 
-                <a href="{{ url('/form-kebutuhan') }}" class="nav-link {{ ($activeMenu == 'formkebutuhan')? 'active' : '' }}">
+                <a href="{{ url('/kebutuhan') }}" class="nav-link {{ ($activeMenu == 'interaksis') ? 'active' : '' }}">
                   <i class="nav-icon fas fa-cash-register"></i>
                     <p>Form Kebutuhan</p>
                   </a>
