@@ -10,12 +10,14 @@ use Illuminate\Http\Request;
 class KebutuhanController extends Controller
 {
     // Menampilkan semua data interaksi
-    public function index()
+     public function index()
     {
-        $interaksis = InteraksiModel::with('customer', 'produk')->get();
-        return view('interaksi.index', compact('interaksis'));
+        $data = InteraksiModel::all();
+        return view('formkebutuhan.index', [
+            'activeMenu' => 'formkebutuhan',
+            'data' => $data
+        ]);
     }
-
     // Menampilkan form tambah interaksi
     public function create()
     {

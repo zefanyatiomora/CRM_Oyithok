@@ -4,6 +4,7 @@ use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\ProdukController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomersController;
+use App\Http\Controllers\KebutuhanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,4 +22,9 @@ Route::get('/', function () {
 });
 Route::get('/', [WelcomeController::class, 'index']);
 
+//customer//
 Route::get('/customers', [CustomersController::class, 'index'])->name('customers.index');
+
+//kebutuhan//
+Route::resource('interaksi', KebutuhanController::class);
+

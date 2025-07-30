@@ -24,7 +24,7 @@ class InteraksiModel extends Model
     // Relasi ke Customer
     public function customer()
     {
-        return $this->belongsTo(CustomerModel::class, 'customer_id', 'customer_id');
+        return $this->belongsTo(CustomersModel::class, 'customer_id', 'customer_id');
     }
 
     // Relasi ke Produk
