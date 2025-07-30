@@ -10,11 +10,18 @@ use Yajra\DataTables\Facades\DataTables;
 class CustomersController extends Controller
 {
     // Tampilkan semua customer
-    public function index()
-    {
-        $customers = CustomersModel::all();
-        return view('customers.index', compact('customers'));
-    }
+  public function index()
+{
+    $customers = CustomersModel::all();
+    $activeMenu = 'customers';
+
+    $breadcrumb = (object)[
+        'title' => 'Data Customer',
+        'list' => ['Master Data', 'Customer']
+    ];
+
+    return view('customers.index', compact('customers', 'activeMenu', 'breadcrumb'));
+}
 
     public function data(Request $request)
 {

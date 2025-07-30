@@ -39,13 +39,7 @@
                   <p>Data Customer</p> 
                 </a> 
               </li> 
-              <li class="nav-item"> 
-                <a href="{{ url('/user') }}" class="nav-link {{ ($activeMenu == 'user')? 
-        'active' : '' }}"> 
-                  <i class="nav-icon far fa-user"></i> 
-                  <p>Data User</p> 
-                </a> 
-              </li> 
+
               <li class="nav-header">Data Produk</li> 
               <li class="nav-item"> 
                 <a href="{{ url('/kategori') }}" class="nav-link {{ ($activeMenu == 
@@ -54,34 +48,13 @@
                   <p>List Produk</p> 
                 </a> 
               </li> 
-              <li class="nav-item"> 
-                <a href="{{ url('/produk') }}" class="nav-link {{ ($activeMenu == 
-        'barang')? 'active' : '' }} "> 
-                  <i class="nav-icon far fa-list-alt"></i> 
-                  <p>Data Barang</p> 
-                </a> 
-              </li> 
-              <li class="nav-header">Data Transaksi</li> 
-              <li class="nav-item"> 
-                <a href="{{ url('/stok') }}" class="nav-link {{ ($activeMenu == 'stok')? 
-        'active' : '' }} "> 
-                  <i class="nav-icon fas fa-cubes"></i> 
-                  <p>Stok Barang</p> 
-                </a> 
-              </li> 
+        
               <li class="nav-item"> 
                 <a href="{{ url('/penjualan') }}" class="nav-link {{ ($activeMenu == 'penjualan')? 'active' : '' }} "> 
                   <i class="nav-icon fas fa-cash-register"></i> 
-                  <p>Transaksi Penjualan</p> 
+                  <p>Data Kebutuhan</p> 
                 </a> 
               </li> 
-              <li class="nav-header">Data Supplier</li>
-              <li class="nav-item"> 
-                  <a href="{{ url('/supplier') }}" class="nav-link {{ ($activeMenu == 'supplier') ? 'active' : '' }}"> 
-                      <i class="nav-icon fas fa-truck"></i> 
-                      <p>Data Supplier</p> 
-                  </a> 
-              </li>
               <li class="nav-item">
                 <a href="{{ url('logout') }}" class="nav-link"
                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
