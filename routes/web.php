@@ -4,7 +4,9 @@ use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\ProdukController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomersController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KebutuhanController;
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,7 +22,7 @@ use App\Http\Controllers\KebutuhanController;
 Route::get('/', function () {
     return view('layouts.master');
 });
-Route::get('/', [WelcomeController::class, 'index']);
+Route::get('/', [DashboardController::class, 'index']);
 
 //customer//
 Route::get('/customers', [CustomersController::class, 'index'])->name('customers.index');
@@ -34,3 +36,31 @@ Route::prefix('produk')->group(function () {
     Route::get('/create', [ProdukController::class, 'create'])->name('produk.create'); // Form tambah
     Route::post('/', [ProdukController::class, 'store'])->name('produk.store');      // Simpan produk
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Route::get('/profil', [DashboardController::class, 'index']);
