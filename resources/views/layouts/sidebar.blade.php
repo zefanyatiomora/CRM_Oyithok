@@ -26,9 +26,7 @@
                   <i class="nav-icon fas fa-layer-group"></i> 
                   <p>Data Customer</p> 
                 </a> 
-              </li> 
-
-              <li class="nav-header">Data Produk</li> 
+              </li>  
               <li class="nav-item"> 
                 <a href="{{ url('/produk') }}" class="nav-link {{ ($activeMenu == 'produk')? 'active' : '' }} "> 
                   <i class="nav-icon far fa-bookmark"></i> 

@@ -10,27 +10,31 @@ use Illuminate\Support\Facades\DB;
 
 class KebutuhanController extends Controller
 {
-    public function index()
-    {
-        $interaksis = InteraksiModel::with(['customer'])
-            ->orderByDesc('tanggal_chat')
-            ->get()
-            ->map(function ($item) {
-                $produkIds = json_decode($item->produk_id, true) ?? [];
-                $produkNames = ProdukModel::whereIn('id', $produkIds)->pluck('produk_nama')->toArray();
-                $item->produk_nama = implode(', ', $produkNames);
-                return $item;
-            });
+  public function index()
+{
+    $interaksis = InteraksiModel::with(['customers'])
+        ->orderByDesc('tanggal_chat')
+        ->get()
+        ->map(function ($item) {
+            $produkIds = json_decode($item->produk_id, true) ?? [];
+            $produkNames = ProdukModel::whereIn('id', $produkIds)->pluck('produk_nama')->toArray();
+            $item->produk_nama = implode(', ', $produkNames);
+            return $item;
+        });
 
-        return view('dashboard.index', ['interaksi' => $interaksis]);
-    }
+    $produks = ProdukModel::all(); // tambahkan baris ini!
 
-    public function create()
-    {
-        return view('formkebutuhan', [
-            'produks' => ProdukModel::all(),
-        ]);
-    }
+    return view('formkebutuhan.create', [
+        'interaksi' => $interaksis,
+        'produks' => $produks, // dan ini
+    ]);
+}
+
+   public function create()
+{
+    $produks = ProdukModel::all(); // harus 'produks', jamak
+    return view('formkebutuhan.create', compact('produks'));
+}
 
     public function store(Request $request)
     {

@@ -1,5 +1,4 @@
-@extends('layouts.app')
-
+@extends('layouts.template')
 @section('content')
 <div class="container-fluid">
     <div class="card card-primary mt-3">
@@ -39,9 +38,9 @@
                     <div class="form-group">
                         <label for="produk_id">Pilih Produk</label>
                         <select name="produk_id[]" id="produk_id" class="form-control select2" multiple required>
-                            @foreach ($produks as $produk)
-                                <option value="{{ $produk->id }}">{{ $produk->produk_nama }}</option>
-                            @endforeach
+                          @foreach ($produks as $produk)
+        <option value="{{ $produk->id }}">{{ $produk->produk_nama }}</option>
+    @endforeach
                         </select>
                     </div>
                     <div class="form-group">
