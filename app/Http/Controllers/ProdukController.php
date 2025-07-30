@@ -42,9 +42,10 @@ class ProdukController extends Controller
             ->make(true);
     }
 
-    public function create()
+    public function create_ajax()
     {
-        return view('produks.create');
+        $produk = ProdukModel::select('produk_id', 'produk_nama', 'produk_kategori', 'produk_kode')->get();
+        return view('produk.create_ajax')->with('produk', $produk);
     }
 
     // Simpan produk baru
