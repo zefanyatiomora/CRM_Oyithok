@@ -28,3 +28,9 @@ Route::get('/customers', [CustomersController::class, 'index'])->name('customers
 //kebutuhan//
 Route::resource('interaksi', KebutuhanController::class);
 
+Route::prefix('produk')->group(function () {
+    Route::get('/', [ProdukController::class, 'index'])->name('produk.index');       // Halaman list produk
+    Route::post('/list', [ProdukController::class, 'list'])->name('produk.list');    // DataTables JSON
+    Route::get('/create', [ProdukController::class, 'create'])->name('produk.create'); // Form tambah
+    Route::post('/', [ProdukController::class, 'store'])->name('produk.store');      // Simpan produk
+});
