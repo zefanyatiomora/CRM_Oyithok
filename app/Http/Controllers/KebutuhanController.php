@@ -22,7 +22,7 @@ class KebutuhanController extends Controller
                 return $item;
             });
 
-        return view('dashboard', ['interaksi' => $interaksis]);
+        return view('dashboard.index', ['interaksi' => $interaksis]);
     }
 
     public function create()
