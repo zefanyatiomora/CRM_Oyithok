@@ -22,3 +22,10 @@ Route::get('/', function () {
 Route::get('/', [WelcomeController::class, 'index']);
 
 Route::get('/customers', [CustomersController::class, 'index'])->name('customers.index');
+
+Route::group(['prefix' => 'produk'], function () {
+    Route::get('/', [ProdukController::class, 'index']);          //menampilkan halaman awal Produk
+    Route::post('/list', [ProdukController::class, 'list']);      //menampilkan data Produk dalam bentuk json untuk datatables
+    Route::get('/create', [ProdukController::class, 'create']);   //menammpilkan halaman form tambah Produk
+    Route::post('/', [ProdukController::class, 'store']);         //menyimpan data Produk baru
+});

@@ -4,17 +4,44 @@ namespace App\Http\Controllers;
 
 use App\Models\ProdukModel;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
+
 
 class ProdukController extends Controller
 {
     // Menampilkan semua produk
     public function index()
     {
-        $produks = ProdukModel::all();
-        return view('produks.index', compact('produks'));
+        $breadcrumb = (object) [
+            'title' => 'List Produk',
+            'list' => ['Home', 'Produk']
+        ];
+        $page = (object) [
+            'title' => 'List Produk dalam sistem'
+        ];
+        $activeMenu = 'produk'; // Set menu yang sedang aktif
+
+        return view('produk.index', ['breadcrumb' => $breadcrumb, 'page' => $page, 'activeMenu' => $activeMenu]);
+    }
+    public function list(Request $request)
+    {
+        $levels = ProdukModel::select('produk_id', 'produk_kode', 'produk_nama', 'produk_kategori');
+
+        return DataTables::of($levels)
+            ->addIndexColumn()
+            ->addColumn('aksi', function ($produk) { // menambahkan kolom aksi 
+                // $btn  = '<a href="'.url('/produk/' . $produk->produk_id).'" class="btn btn-info btn-sm">Detail</a> '; 
+                // $btn .= '<a href="'.url('/produk/' . $produk->produk_id . '/edit').'" class="btn btn-warning btn-sm">Edit</a> '; 
+                // $btn .= '<form class="d-inline-block" method="POST" action="'.url('/produk/'.$produk->produk_id).'">'.csrf_field().method_field('DELETE') .'<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah Anda yakin menghapus data ini?\');">Hapus</button></form>';      
+                $btn  = '<button onclick="modalAction(\'' . url('/produk/' . $produk->produk_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/produk/' . $produk->produk_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/produk/' . $produk->produk_id . '/delete_ajax') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
+                return $btn;
+            })
+            ->rawColumns(['aksi']) // memberitahu bahwa kolom aksi adalah html 
+            ->make(true);
     }
 
-    // Tampilkan form tambah produk
     public function create()
     {
         return view('produks.create');
