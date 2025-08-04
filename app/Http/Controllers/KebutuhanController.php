@@ -55,7 +55,7 @@ return view('formkebutuhan.create', [
             'tanggal_chat' => 'required|date',
             'produk_nama' => 'required',
             'identifikasi_kebutuhan' => 'required',
-            'media' => 'required',
+            'media' => 'nullable|string',
             'produk_id' => 'required|array',
             'produk_id.*' => 'required|exists:produks,id'
         ]);
