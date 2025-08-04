@@ -25,17 +25,26 @@ class KebutuhanController extends Controller
     $produks = ProdukModel::all(); // tambahkan baris ini!
 
     return view('formkebutuhan.create', [
-        'interaksi' => $interaksis,
-        'produks' => $produks, // dan ini
-    ]);
+    'produks' => $produks,
+    'activeMenu' => 'interaksis',
+    'breadcrumb' => (object)[
+        'title' => 'Form Kebutuhan',
+        'list' => [
+            'Dashboard' => route('dashboard'),
+            'Form Kebutuhan' => ''
+        ]
+    ]
+]);
 }
 
    public function create()
 {
     $produks = ProdukModel::all(); // harus 'produks', jamak
-    return view('formkebutuhan.create', compact('produks'));
+return view('formkebutuhan.create', [
+    'produks' => $produks,
+    'activeMenu' => 'interaksis'
+]);
 }
-
     public function store(Request $request)
     {
         $validated = $request->validate([
