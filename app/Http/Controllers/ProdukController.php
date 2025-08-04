@@ -69,11 +69,10 @@ class ProdukController extends Controller
         return view('produks.show', compact('produk'));
     }
 
-    // Tampilkan form edit
-    public function edit($id)
+    public function edit_ajax(string $id)
     {
-        $produk = ProdukModel::findOrFail($id);
-        return view('produks.edit', compact('produk'));
+        $produk = ProdukModel::find($id);
+        return view('produk.edit_ajax', ['produk' => $produk]);
     }
 
     // Simpan perubahan produk
