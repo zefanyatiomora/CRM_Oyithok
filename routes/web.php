@@ -38,6 +38,13 @@ Route::prefix('produk')->group(function () {
     Route::post('/list', [ProdukController::class, 'list'])->name('produk.list');    // DataTables JSON
     Route::get('/create', [ProdukController::class, 'create'])->name('produk.create'); // Form tambah
     Route::post('/', [ProdukController::class, 'store'])->name('produk.store');      // Simpan produk
+    Route::get('/create_ajax', [ProdukController::class, 'create_ajax']);  //menampilkan halaman form tambah Barang Ajax
+    Route::post('/ajax', [ProdukController::class, 'store_ajax']);         //menyimpan data Produk baru Ajax
+    Route::get('/{id}/delete_ajax', [ProdukController::class, 'confirm_ajax']);  //tampilan form confirm delete Barang Ajax
+    Route::delete('/{id}/delete_ajax', [ProdukController::class, 'delete_ajax']); //menghapus data Barang Ajax
+
+
+
 });
 
 

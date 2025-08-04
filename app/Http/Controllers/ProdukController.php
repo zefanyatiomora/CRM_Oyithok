@@ -6,6 +6,8 @@ use App\Models\ProdukModel;
 use App\Models\KategoriModel;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
+
 
 
 class ProdukController extends Controller
@@ -47,23 +49,46 @@ class ProdukController extends Controller
 
     public function create_ajax()
     {
-        $produk = ProdukModel::select('produk_id', 'produk_nama', 'produk_kategori', 'produk_kode')->get();
-        return view('produk.create_ajax')->with('produk', $produk);
+        $kategori = KategoriModel::select('kategori_id', 'kategori_nama')->get();
+        return view('produk.create_ajax')->with('kategori', $kategori);
     }
 
     // Simpan produk baru
     public function store(Request $request)
     {
-        $request->validate([
-            'produk_kode' => 'required|string|max:100|unique:produks',
-            'produk_nama' => 'required|string|max:255',
-            'kategori_id' => 'required|exists:kategoris,kategori_id',
-
-        ]);
+        $request->validate([]);
 
         ProdukModel::create($request->all());
 
         return redirect('/produk')->with('success', 'Data produk berhasil disimpan');
+    }
+    public function store_ajax(Request $request)
+    {
+        // Check if the request is an AJAX request
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'produk_kode' => 'required|string|max:100|unique:produks',
+                'produk_nama' => 'required|string|max:255',
+                'kategori_id' => 'required|exists:kategoris,kategori_id',
+            ];
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi Gagal',
+                    'msgField' => $validator->errors(),
+                ]);
+            }
+
+            ProdukModel::create($request->all());
+            return response()->json([
+                'status' => true,
+                'message' => 'Data produk berhasil disimpan'
+            ]);
+        }
+        return redirect('/');
     }
 
     // Tampilkan detail produk
@@ -100,5 +125,30 @@ class ProdukController extends Controller
         $produk->delete();
 
         return redirect()->route('produks.index')->with('success', 'Produk berhasil dihapus.');
+    }
+    public function confirm_ajax(string $id)
+    {
+        $produk = ProdukModel::find($id);
+        return view('produk.confirm_ajax', ['produk' => $produk]);
+    }
+    public function delete_ajax(Request $request, $id)
+    {
+        // Check if the request is an AJAX request
+        if ($request->ajax() || $request->wantsJson()) {
+            $produk = ProdukModel::find($id);
+            if ($produk) {
+                $produk->delete();
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Data berhasil dihapus'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data tidak ditemukan'
+                ]);
+            }
+        }
+        return redirect('/');
     }
 }
