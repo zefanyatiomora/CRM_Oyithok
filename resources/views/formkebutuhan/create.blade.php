@@ -18,6 +18,10 @@
                         <div id="customer_list" class="list-group mt-1 position-absolute w-100"></div>
                     </div>
                     <div class="form-group">
+                    <label for="customer_kode">Kode Pelanggan</label>
+                    <input type="text" class="form-control" id="customer_kode" name="customer_kode" value="{{ old('customer_kode') }}" required>
+                </div>
+                    <div class="form-group">
                         <label for="customer_nohp">No HP</label>
                         <input type="text" class="form-control" id="customer_nohp" name="customer_nohp" value="{{ old('customer_nohp') }}" required>
                     </div>
@@ -52,13 +56,14 @@
                         <input type="date" class="form-control" name="tanggal_chat" id="tanggal_chat" value="{{ old('tanggal_chat') }}" required>
                     </div>
                     <div class="form-group">
-                        <label for="produk_id">Pilih Produk</label>
-                        <select name="produk_id[]" id="produk_id" class="form-control select2" multiple required>
-                            @foreach ($produks as $produk)
-                                <option value="{{ $produk->produk_id }}">{{ $produk->produk_nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+    <label for="produk_id">Pilih Produk</label>
+    <select name="produk_id" id="produk_id" class="form-control select2" required>
+        <option value="">-- Pilih Produk --</option>
+        @foreach ($produks as $produk)
+            <option value="{{ $produk->produk_id }}">{{ $produk->produk_nama }}</option>
+        @endforeach
+    </select>
+</div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
@@ -111,6 +116,7 @@
                             list += `<a href="#" class="list-group-item list-group-item-action" 
                                         data-id="${customer.customer_id}" 
                                         data-nama="${customer.customer_nama}"
+                                        data-kode="${customer.customer_kode}"
                                         data-nohp="${customer.customer_nohp}" 
                                         data-alamat="${customer.customer_alamat}" 
                                         data-media="${customer.informasi_media}">
@@ -132,6 +138,7 @@
             e.preventDefault();
             $('#customer_id').val($(this).data('id'));
             $('#customer_nama').val($(this).data('nama'));
+            $('#customer_kode').val($(this).data('kode'));
             $('#customer_nohp').val($(this).data('nohp'));
             $('#customer_alamat').val($(this).data('alamat'));
             $('#informasi_media').val($(this).data('media')).trigger('change');
