@@ -15,8 +15,9 @@ class ProdukModel extends Model
     protected $primaryKey = 'produk_id'; // primary key-nya
 
     protected $fillable = [
+        'kategori_id',
+        'produk_kode',
         'produk_nama',
-        'kategori_id'
     ];
 
     public function interaksi()

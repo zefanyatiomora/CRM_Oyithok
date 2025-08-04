@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProdukModel;
+use App\Models\KategoriModel;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -19,13 +20,15 @@ class ProdukController extends Controller
         $page = (object) [
             'title' => 'List Produk dalam sistem'
         ];
+        $kategori = KategoriModel::all();
+
         $activeMenu = 'produk'; // Set menu yang sedang aktif
 
-        return view('produk.index', ['breadcrumb' => $breadcrumb, 'page' => $page, 'activeMenu' => $activeMenu]);
+        return view('produk.index', ['breadcrumb' => $breadcrumb, 'page' => $page, 'kategori' => $kategori, 'activeMenu' => $activeMenu]);
     }
     public function list(Request $request)
     {
-        $levels = ProdukModel::select('produk_id', 'produk_kode', 'produk_nama', 'produk_kategori');
+        $levels = ProdukModel::select('produk_id', 'produk_kode', 'produk_nama', 'kategori_id');
 
         return DataTables::of($levels)
             ->addIndexColumn()
@@ -54,7 +57,6 @@ class ProdukController extends Controller
         $request->validate([
             'produk_kode' => 'required|string|max:100|unique:produks',
             'produk_nama' => 'required|string|max:255',
-            'produk_kategori' => 'nullable|string|max:255',
         ]);
 
         ProdukModel::create($request->all());
@@ -81,7 +83,6 @@ class ProdukController extends Controller
         $request->validate([
             'produk_kode' => 'required|string|max:100|unique:produks,produk_kode,' . $id . ',produk_id',
             'produk_nama' => 'required|string|max:255',
-            'produk_kategori' => 'nullable|string|max:255',
         ]);
 
         $produk = ProdukModel::findOrFail($id);
