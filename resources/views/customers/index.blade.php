@@ -109,8 +109,8 @@
             },
             columns: [
                 { data: "customer_id", name: "customer_id" },
-                { data: "customer_nama", name: "customer_nama" },
                 { data: "customer_kode", name: "customer_kode" },
+                { data: "customer_nama", name: "customer_nama" },
                 { data: "customer_alamat", name: "customer_alamat" },
                 { data: "customer_nohp", name: "customer_nohp" },
                 { data: "informasi_media", name: "informasi_media" },

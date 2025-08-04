@@ -53,7 +53,6 @@ return view('formkebutuhan.create', [
             'customer_alamat' => 'required',
             'informasi_media' => 'required',
             'tanggal_chat' => 'required|date',
-            'produk_nama' => 'required',
             'identifikasi_kebutuhan' => 'required',
             'media' => 'nullable|string',
             'produk_id' => 'required|array',
@@ -73,8 +72,7 @@ return view('formkebutuhan.create', [
                     'customer_alamat' => $request->input('customer_alamat'),
                     'informasi_media' => $request->input('informasi_media')
                 ]);
-                $customer_id = $customer->id;
-            }
+                $customer_id = $customer->customer_id;            }
 
             InteraksiModel::create([
                 'customer_id' => $customer_id,

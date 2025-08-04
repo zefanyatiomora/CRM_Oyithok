@@ -28,9 +28,14 @@
                         <textarea class="form-control" name="customer_alamat" id="customer_alamat" required>{{ old('customer_alamat') }}</textarea>
                     </div>
                     <div class="form-group">
-                        <label for="informasi_media">Informasi Media</label>
-                        <input type="text" class="form-control" name="informasi_media" id="informasi_media" value="{{ old('informasi_media') }}" required>
-                    </div>
+    <label for="informasi_media">Informasi Media</label>
+    <select class="form-control" name="informasi_media" id="informasi_media" required>
+        <option value="">-- Pilih Media --</option>
+        <option value="google" {{ old('informasi_media') == 'google' ? 'selected' : '' }}>Google</option>
+        <option value="medsos" {{ old('informasi_media') == 'medsos' ? 'selected' : '' }}>Media Sosial</option>
+        <option value="offline" {{ old('informasi_media') == 'offline' ? 'selected' : '' }}>Offline</option>
+    </select>
+</div>
                 </div>
             </div>
         </div>
@@ -129,7 +134,7 @@
             $('#customer_nama').val($(this).data('nama'));
             $('#customer_nohp').val($(this).data('nohp'));
             $('#customer_alamat').val($(this).data('alamat'));
-            $('#informasi_media').val($(this).data('media'));
+            $('#informasi_media').val($(this).data('media')).trigger('change');
             $('#customer_list').hide();
         });
 
