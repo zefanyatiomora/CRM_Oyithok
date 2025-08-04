@@ -9,13 +9,12 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::table('interaksi', function (Blueprint $table) {
-            //
-        });
-    }
-
+    public function up()
+{
+    Schema::table('interaksi', function (Blueprint $table) {
+        $table->string('produk_nama')->nullable();
+    });
+}
     /**
      * Reverse the migrations.
      */

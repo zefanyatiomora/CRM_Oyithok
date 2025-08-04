@@ -16,6 +16,7 @@ class InteraksiModel extends Model
         'customer_id',
         'produk_id',
         'produk_kode',
+        'produk_nama',
         'tanggal_chat',
         'identifikasi_kebutuhan',
         'media',
@@ -30,7 +31,7 @@ class InteraksiModel extends Model
     // Relasi ke Produk
     public function produk()
     {
-        return $this->belongsTo(ProdukModel::class, 'produk_id', 'produk_id');
+        return $this->belongsTo(ProdukModel::class, 'produk_id', 'produk_id', 'produk_nama');
     }
 
     public function ulasan()
