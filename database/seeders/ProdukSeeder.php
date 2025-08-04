@@ -12,39 +12,42 @@ class ProdukSeeder extends Seeder
     {
         $now = Carbon::now();
 
+        // Ambil ID kategori berdasarkan kode
+        $kategoriMap = DB::table('kategoris')->pluck('kategori_id', 'kategori_kode');
+
         DB::table('produks')->insert([
             [
-                'produk_kode'     => 'W',
+                'produk_kode'     => 'W01',
                 'produk_nama'     => 'Wallpaper Vinyl',
-                'produk_kategori' => 'Wall',
+                'kategori_id'     => $kategoriMap['W'] ?? null,
                 'created_at'      => $now,
                 'updated_at'      => $now,
             ],
             [
-                'produk_kode'     => 'W',
+                'produk_kode'     => 'W02',
                 'produk_nama'     => 'Woodpanel',
-                'produk_kategori' => 'Wall',
+                'kategori_id'     => $kategoriMap['W'] ?? null,
                 'created_at'      => $now,
                 'updated_at'      => $now,
             ],
             [
-                'produk_kode'     => 'W',
+                'produk_kode'     => 'W03',
                 'produk_nama'     => 'Wallmoulding',
-                'produk_kategori' => 'Wall',
+                'kategori_id'     => $kategoriMap['W'] ?? null,
                 'created_at'      => $now,
                 'updated_at'      => $now,
             ],
             [
-                'produk_kode'     => 'SK',
+                'produk_kode'     => 'SK01',
                 'produk_nama'     => 'Stiker Kaca One Way',
-                'produk_kategori' => 'Stiker Kaca',
+                'kategori_id'     => $kategoriMap['SK'] ?? null,
                 'created_at'      => $now,
                 'updated_at'      => $now,
             ],
             [
-                'produk_kode'     => 'SK',
+                'produk_kode'     => 'SK02',
                 'produk_nama'     => 'Stiker Kaca Sandblast',
-                'produk_kategori' => 'Stiker Kaca',
+                'kategori_id'     => $kategoriMap['SK'] ?? null,
                 'created_at'      => $now,
                 'updated_at'      => $now,
             ],

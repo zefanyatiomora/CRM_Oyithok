@@ -28,7 +28,7 @@ class ProdukController extends Controller
     }
     public function list(Request $request)
     {
-        $levels = ProdukModel::select('produk_id', 'produk_kode', 'produk_nama', 'kategori_id');
+        $levels = ProdukModel::with('kategori')->select('produk_id', 'produk_kode', 'produk_nama', 'kategori_id');
 
         return DataTables::of($levels)
             ->addIndexColumn()
@@ -57,11 +57,13 @@ class ProdukController extends Controller
         $request->validate([
             'produk_kode' => 'required|string|max:100|unique:produks',
             'produk_nama' => 'required|string|max:255',
+            'kategori_id' => 'required|exists:kategoris,kategori_id',
+
         ]);
 
         ProdukModel::create($request->all());
 
-        return redirect()->route('produks.index')->with('success', 'Produk berhasil ditambahkan.');
+        return redirect('/produk')->with('success', 'Data produk berhasil disimpan');
     }
 
     // Tampilkan detail produk
