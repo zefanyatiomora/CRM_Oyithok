@@ -10,31 +10,31 @@ use Illuminate\Support\Facades\DB;
 
 class KebutuhanController extends Controller
 {
-  public function index()
+public function index()
 {
     $interaksis = InteraksiModel::with(['customers'])
         ->orderByDesc('tanggal_chat')
         ->get()
         ->map(function ($item) {
             $produkIds = json_decode($item->produk_id, true) ?? [];
-            $produkNames = ProdukModel::whereIn('id', $produkIds)->pluck('produk_nama')->toArray();
+            $produkNames = ProdukModel::whereIn('produk_id', $produkIds)->pluck('produk_nama')->toArray();
             $item->produk_nama = implode(', ', $produkNames);
             return $item;
         });
 
-    $produks = ProdukModel::all(); // tambahkan baris ini!
+    $produks = ProdukModel::all();
 
     return view('formkebutuhan.create', [
-    'produks' => $produks,
-    'activeMenu' => 'interaksis',
-    'breadcrumb' => (object)[
-        'title' => 'Form Kebutuhan',
-        'list' => [
-            'Dashboard' => route('dashboard'),
-            'Form Kebutuhan' => ''
+        'produks' => $produks,
+        'activeMenu' => 'interaksis',
+        'breadcrumb' => (object)[
+            'title' => 'Form Kebutuhan',
+            'list' => [
+                'Dashboard' => route('dashboard'),
+                'Form Kebutuhan' => ''
+            ]
         ]
-    ]
-]);
+    ]);
 }
 
    public function create()
@@ -57,7 +57,7 @@ return view('formkebutuhan.create', [
             'identifikasi_kebutuhan' => 'required',
             'media' => 'nullable|string',
             'produk_id' => 'required|array',
-            'produk_id.*' => 'required|exists:produks,id'
+            'produk_id.*' => 'required|exists:produks,produk_id'
         ]);
 
         DB::beginTransaction();
