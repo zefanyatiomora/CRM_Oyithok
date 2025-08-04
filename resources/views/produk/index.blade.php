@@ -47,9 +47,9 @@
                 $('#myModal').modal('show'); 
             }); 
         }
-        var dataproduk;
+        var dataProduk;
         $(document).ready(function() { 
-            dataproduk= $('#table-produk').DataTable({
+            dataProduk= $('#table-produk').DataTable({
                 // serverSide: true, if using server-side processing 
                 serverSide: true,      
                 ajax: { 

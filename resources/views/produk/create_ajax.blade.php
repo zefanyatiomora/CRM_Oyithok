@@ -8,6 +8,11 @@
             </div> 
             <div class="modal-body"> 
                 <div class="form-group"> 
+                    <label>Kode produk</label> 
+                    <input value="" type="text" name="produk_kode" id="produk_kode" class="form-control" required> 
+                    <small id="error-produk_kode" class="error-text form-text text-danger"></small> 
+                </div> 
+                <div class="form-group"> 
                     <label>Kategori</label> 
                     <select name="kategori_id" id="kategori_id" class="form-control" required> 
                         <option value="">- Pilih Kategori -</option> 
@@ -18,24 +23,9 @@
                     <small id="error-kategori_id" class="error-text form-text text-danger"></small> 
                 </div> 
                 <div class="form-group"> 
-                    <label>Kode produk</label> 
-                    <input value="" type="text" name="produk_kode" id="produk_kode" class="form-control" required> 
-                    <small id="error-produk_kode" class="error-text form-text text-danger"></small> 
-                </div> 
-                <div class="form-group"> 
                     <label>Nama produk</label> 
                     <input value="" type="text" name="produk_nama" id="produk_nama" class="form-control" required> 
                     <small id="error-produk_nama" class="error-text form-text text-danger"></small> 
-                </div> 
-                <div class="form-group"> 
-                    <label>Harga Beli</label> 
-                    <input value="" type="number" name="harga_beli" id="harga_beli" class="form-control" required> 
-                    <small id="error-harga_beli" class="error-text form-text text-danger"></small> 
-                </div> 
-                <div class="form-group"> 
-                    <label>Harga Jual</label> 
-                    <input value="" type="number" name="harga_jual" id="harga_jual" class="form-control" required> 
-                    <small id="error-harga_jual" class="error-text form-text text-danger"></small> 
                 </div> 
             </div> 
             <div class="modal-footer"> 
@@ -50,11 +40,9 @@
     $(document).ready(function() { 
         $("#form-tambah-produk").validate({ 
             rules: { 
-                kategori_id: {required: true, number: true}, 
                 produk_kode: {required: true, minlength: 3, maxlength: 20}, 
+                kategori_id: {required: true, number: true}, 
                 produk_nama: {required: true, minlength: 3, maxlength: 100}, 
-                harga_beli: {required: true, number: true}, 
-                harga_jual: {required: true, number: true} 
             }, 
             submitHandler: function(form) { 
                 $.ajax({ 
@@ -69,7 +57,7 @@
                                 title: 'Berhasil', 
                                 text: response.message 
                             }); 
-                            dataproduk.ajax.reload(); 
+                            dataProduk.ajax.reload(); 
                         }else{ 
                             $('.error-text').text(''); 
                             $.each(response.msgField, function(prefix, val) { 
