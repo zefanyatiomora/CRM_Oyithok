@@ -6,48 +6,47 @@ use App\Models\CustomersModel;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
-
 class CustomersController extends Controller
 {
     // Tampilkan semua customer
-  public function index()
-{
-    $customers = CustomersModel::all();
-    $activeMenu = 'customers';
+    public function index()
+    {
+        $activeMenu = 'customers';
 
-    $breadcrumb = (object)[
-        'title' => 'Data Customer',
-        'list' => ['Master Data', 'Customer']
-    ];
+        $breadcrumb = (object)[
+            'title' => 'Data Customer',
+            'list' => ['Master Data', 'Customer']
+        ];
 
-    return view('customers.index', compact('customers', 'activeMenu', 'breadcrumb'));
-}
+        return view('customers.index', compact('activeMenu', 'breadcrumb'));
+    }
 
+    // Load data untuk DataTables
     public function data(Request $request)
-{
-    $data = CustomersModel::select([
-        'customer_id',
-        'customer_nama',
-        'customer_kode',
-        'customer_alamat',
-        'customer_nohp',
-        'informasi_media',
-        'loyalty_point'
-    ]);
+    {
+        $data = CustomersModel::select([
+            'customer_id',
+            'customer_kode',
+            'customer_nama',
+            'customer_alamat',
+            'customer_nohp',
+            'informasi_media',
+            'loyalty_point'
+        ]);
 
-    return DataTables::of($data)
-        ->addColumn('aksi', function($row) {
-            return '
-                <button onclick="modalAction(\''.route('customers.edit', $row->customer_id).'\')" class="btn btn-sm btn-warning">Edit</button>
-                <form action="'.route('customers.destroy', $row->customer_id).'" method="POST" style="display:inline;">
-                    '.csrf_field().method_field('DELETE').'
-                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Yakin ingin menghapus?\')">Hapus</button>
-                </form>
-            ';
-        })
-        ->rawColumns(['aksi'])
-        ->make(true);
-}
+        return DataTables::of($data)
+            ->addColumn('aksi', function ($row) {
+                return '
+                    <button onclick="modalAction(\'' . route('customers.edit', $row->customer_id) . '\')" class="btn btn-sm btn-warning">Edit</button>
+                    <form action="' . route('customers.destroy', $row->customer_id) . '" method="POST" style="display:inline;">
+                        ' . csrf_field() . method_field('DELETE') . '
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Yakin ingin menghapus?\')">Hapus</button>
+                    </form>
+                ';
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
+    }
 
     // Tampilkan form tambah customer
     public function create()
@@ -72,14 +71,7 @@ class CustomersController extends Controller
         return redirect()->route('customers.index')->with('success', 'Customer berhasil ditambahkan.');
     }
 
-    // Tampilkan detail customer
-    public function show($id)
-    {
-        $customer = CustomersModel::findOrFail($id);
-        return view('customers.show', compact('customer'));
-    }
-
-    // Tampilkan form edit
+    // Tampilkan form edit customer
     public function edit($id)
     {
         $customer = CustomersModel::findOrFail($id);
@@ -102,5 +94,21 @@ class CustomersController extends Controller
         $customer->update($request->all());
 
         return redirect()->route('customers.index')->with('success', 'Customer berhasil diperbarui.');
+    }
+
+    // Hapus customer
+    public function destroy($id)
+    {
+        $customer = CustomersModel::findOrFail($id);
+        $customer->delete();
+
+        return redirect()->route('customers.index')->with('success', 'Customer berhasil dihapus.');
+    }
+
+    // Tampilkan detail customer (jika perlu)
+    public function show($id)
+    {
+        $customer = CustomersModel::findOrFail($id);
+        return view('customers.show', compact('customer'));
     }
 }

@@ -12,7 +12,7 @@
             <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
             
-        <table class="table table-bordered table-striped table-hover table-sm" id="table_jenis_pengguna">
+        <table class="table table-bordered table-striped table-hover table-sm" id="table_customers">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -36,19 +36,19 @@
 
 @push('css')
 <style>
-    #table_customer th, #table_customer td {
+    #table_customers th, #table_customers td {
         text-align: center; 
         vertical-align: middle; 
         padding: 10px;
     }
 
-    #table_customer th {
+    #table_customers th {
         background-color: #11315F;
         color: white;
         font-weight: bold;
     }
 
-    #table_customer tbody tr:hover {
+    #table_customers tbody tr:hover {
         background-color: #f1f1f1;
     }
 
@@ -92,12 +92,12 @@
 
     $(document).ready(function() {
         // Cek apakah DataTable sudah diinisialisasi
-        if ($.fn.DataTable.isDataTable('#table_customer')) {
-            $('#table_customer').DataTable().destroy();
+        if ($.fn.DataTable.isDataTable('#table_customers')) {
+            $('#table_customers').DataTable().destroy();
         }
 
         // Inisialisasi DataTable
-        $('#table_customer').DataTable({
+        $('#table_customers').DataTable({
             processing: true, // Tampilkan animasi loading
             serverSide: true, // Server-side processing
             ajax: {
