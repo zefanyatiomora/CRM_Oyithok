@@ -36,14 +36,10 @@ class CustomersController extends Controller
 
         return DataTables::of($data)
             ->addColumn('aksi', function ($row) {
-                return '
-                    <button onclick="modalAction(\'' . route('customers.edit', $row->customer_id) . '\')" class="btn btn-sm btn-warning">Edit</button>
-                    <form action="' . route('customers.destroy', $row->customer_id) . '" method="POST" style="display:inline;">
-                        ' . csrf_field() . method_field('DELETE') . '
-                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Yakin ingin menghapus?\')">Hapus</button>
-                    </form>
-                ';
-            })
+            return '
+                <button onclick="modalAction(\'' . route('customers.edit', $row->customer_id) . '\')" class="btn btn-sm btn-warning">Edit</button>
+                <button onclick="modalAction(\'' . route('customers.show', $row->customer_id) . '\')" class="btn btn-sm btn-info">Detail</button>
+                ';})
             ->rawColumns(['aksi'])
             ->make(true);
     }
@@ -106,9 +102,11 @@ class CustomersController extends Controller
     }
 
     // Tampilkan detail customer (jika perlu)
-    public function show($id)
-    {
-        $customer = CustomersModel::findOrFail($id);
-        return view('customers.show', compact('customer'));
-    }
+   public function show($id)
+{
+    $customer = CustomersModel::findOrFail($id);
+
+    return view('customers.show', compact('customer'));
+}
+
 }

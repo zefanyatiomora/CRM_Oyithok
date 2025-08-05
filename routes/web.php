@@ -25,6 +25,8 @@ Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 Route::resource('customers', CustomersController::class);
 Route::post('/customers/list', [CustomersController::class, 'data'])->name('customers.data');
 Route::get('/customers', [CustomersController::class, 'index'])->name('customers.index');
+Route::get('/customers/{id}', [CustomersController::class, 'show'])->name('customers.show');
+
 
 //kebutuhan//
 Route::get('/kebutuhan', [KebutuhanController::class, 'index'])->name('kebutuhan.index');
