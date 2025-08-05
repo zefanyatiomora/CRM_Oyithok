@@ -24,7 +24,7 @@ class CustomersController extends Controller
     // Load data untuk DataTables
     public function data(Request $request)
     {
-        $data = CustomersModel::select([
+        $customer = CustomersModel::select([
             'customer_id',
             'customer_kode',
             'customer_nama',
@@ -34,12 +34,14 @@ class CustomersController extends Controller
             'loyalty_point'
         ]);
 
-        return DataTables::of($data)
-            ->addColumn('aksi', function ($row) {
-            return '
-                <button onclick="modalAction(\'' . route('customers.edit', $row->customer_id) . '\')" class="btn btn-sm btn-warning">Edit</button>
-                <button onclick="modalAction(\'' . route('customers.show', $row->customer_id) . '\')" class="btn btn-sm btn-info">Detail</button>
-                ';})
+        return DataTables::of($customer)
+            ->addIndexColumn()
+            ->addColumn('aksi', function ($customer) {
+                $btn  = '<button onclick="modalAction(\'' . url('/customers/' . $customer->customer_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
+                $btn  = '<button onclick="modalAction(\'' . url('/customers/' . $customer->customer_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+
+                return $btn;
+            })
             ->rawColumns(['aksi'])
             ->make(true);
     }
@@ -102,11 +104,13 @@ class CustomersController extends Controller
     }
 
     // Tampilkan detail customer (jika perlu)
-   public function show($id)
-{
-    $customer = CustomersModel::findOrFail($id);
+    public function show_ajax(Request $request, string $id)
+    {
+        $customer = CustomersModel::find($id);
 
-    return view('customers.show', compact('customer'));
-}
-
+        if (!$customer) {
+            return response()->json(['status' => false, 'message' => 'customer not found'], 404);
+        }
+        return view('customers.show_ajax', compact('customer'));
+    }
 }

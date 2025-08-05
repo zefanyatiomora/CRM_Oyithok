@@ -30,9 +30,9 @@ class ProdukController extends Controller
     }
     public function list(Request $request)
     {
-        $levels = ProdukModel::with('kategori')->select('produk_id', 'produk_kode', 'produk_nama', 'kategori_id');
+        $produks = ProdukModel::with('kategori')->select('produk_id', 'produk_kode', 'produk_nama', 'kategori_id');
 
-        return DataTables::of($levels)
+        return DataTables::of($produks)
             ->addIndexColumn()
             ->addColumn('aksi', function ($produk) { // menambahkan kolom aksi 
                 // $btn  = '<a href="'.url('/produk/' . $produk->produk_id).'" class="btn btn-info btn-sm">Detail</a> '; 

@@ -25,7 +25,7 @@ Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 Route::resource('customers', CustomersController::class);
 Route::post('/customers/list', [CustomersController::class, 'data'])->name('customers.data');
 Route::get('/customers', [CustomersController::class, 'index'])->name('customers.index');
-Route::get('/customers/{id}', [CustomersController::class, 'show'])->name('customers.show');
+Route::get('/customers/{id}/show_ajax', [ProdukController::class, 'show_ajax']);
 
 
 //kebutuhan//
