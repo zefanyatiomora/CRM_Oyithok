@@ -41,7 +41,7 @@
 <script>
 function modalAction(url) {
     $.ajax({
-        url: url,
+        url: '/customers/' + userId,
         type: 'GET',
         success: function (response) {
             $('#globalModal .modal-content').html(response);
