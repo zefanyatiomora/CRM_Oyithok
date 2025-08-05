@@ -42,9 +42,7 @@ Route::prefix('produk')->group(function () {
     Route::post('/ajax', [ProdukController::class, 'store_ajax']);         //menyimpan data Produk baru Ajax
     Route::get('/{id}/delete_ajax', [ProdukController::class, 'confirm_ajax']);  //tampilan form confirm delete Barang Ajax
     Route::delete('/{id}/delete_ajax', [ProdukController::class, 'delete_ajax']); //menghapus data Barang Ajax
-
-
-
+    Route::get('/{id}/show_ajax', [ProdukController::class, 'show_ajax']);
 });
 
 

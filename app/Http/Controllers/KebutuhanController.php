@@ -12,30 +12,30 @@ use Illuminate\Support\Facades\Log; // Tambahkan di paling atas
 class KebutuhanController extends Controller
 {
     public function index()
-{
-    $interaksis = InteraksiModel::with(['customer'])
-        ->orderByDesc('tanggal_chat')
-        ->get()
-        ->map(function ($item) {
-            $produks = ProdukModel::find($item->produk_id);
-            $item->produk_nama = $produks?->produk_nama ?? '-';
-            return $item;
-        });
+    {
+        $interaksis = InteraksiModel::with(['customer'])
+            ->orderByDesc('tanggal_chat')
+            ->get()
+            ->map(function ($item) {
+                $produks = ProdukModel::find($item->produk_id);
+                $item->produk_nama = $produks?->produk_nama ?? '-';
+                return $item;
+            });
 
-    $produks = ProdukModel::all();
+        $produks = ProdukModel::all();
 
-    return view('formkebutuhan.create', [
-        'produks' => $produks,
-        'activeMenu' => 'interaksis',
-        'breadcrumb' => (object)[
-            'title' => 'Form Kebutuhan',
-            'list' => [
-                'Dashboard' => route('dashboard'),
-                'Form Kebutuhan' => ''
+        return view('formkebutuhan.create', [
+            'produks' => $produks,
+            'activeMenu' => 'interaksis',
+            'breadcrumb' => (object)[
+                'title' => 'Form Kebutuhan',
+                'list' => [
+                    'Dashboard' => route('dashboard'),
+                    'Form Kebutuhan' => ''
+                ]
             ]
-        ]
-    ]);
-}
+        ]);
+    }
 
     public function create()
     {
@@ -57,7 +57,7 @@ class KebutuhanController extends Controller
             'tanggal_chat' => 'required|date',
             'identifikasi_kebutuhan' => 'required',
             'media' => 'nullable|string',
-            'produk_id' => 'required|integer|exists:produks,produk_id',        
+            'produk_id' => 'required|integer|exists:produks,produk_id',
         ]);
 
         DB::beginTransaction();
@@ -85,13 +85,16 @@ class KebutuhanController extends Controller
                 'customer_id'             => $customer_id,
                 'tanggal_chat'           => $request->input('tanggal_chat'),
                 'produk_id'               => $produks->produk_id,
-                'produk_nama'             => $produks->produk_nama,                
+                'produk_nama'             => $produks->produk_nama,
                 'identifikasi_kebutuhan' => $request->input('identifikasi_kebutuhan'),
                 'media'                   => $request->input('media'),
             ]);
 
             DB::commit();
-            return redirect()->route('kebutuhan.create')->with('success', 'Data berhasil disimpan.');
+            return response()->json([
+                'status' => true,
+                'message' => 'Data interaksi berhasil disimpan'
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
