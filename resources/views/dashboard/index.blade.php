@@ -11,15 +11,33 @@
                 <!-- small box -->
                 <div class="small-box bg-info">
                     <div class="inner">
-                        <h3>150</h3>
-                        
-                        <p>New Orders</p>
+                        <h3>{{ $jumlahInteraksi }}</h3>
+                        <p>Jumlah Interaksi ({{ $bulanList[$bulan] }} {{ $tahun }})</p>
                     </div>
                     <div class="icon">
-                        <i class="ion ion-bag"></i>
+                        <i class="fas fa-shopping-cart"></i>
                     </div>
                     <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
+                <form method="GET" action="{{ route('dashboard') }}">
+                    <select name="tahun">
+                        @foreach($availableYears as $year)
+                            <option value="{{ $year }}" {{ $year == $tahun ? 'selected' : '' }}>
+                                {{ $year }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <select name="bulan">
+                        @foreach($bulanList as $key => $label)
+                            <option value="{{ $key }}" {{ $key == $bulan ? 'selected' : '' }}>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <button type="submit">Filter</button>
+                </form>
             </div>
             <!-- ./col -->
             <div class="col-lg-3 col-6">
