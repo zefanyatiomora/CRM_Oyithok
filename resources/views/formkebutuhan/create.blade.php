@@ -55,15 +55,12 @@
                         <label for="tanggal_chat">Tanggal Chat</label>
                         <input type="date" class="form-control" name="tanggal_chat" id="tanggal_chat" value="{{ old('tanggal_chat') }}" required>
                     </div>
-                    <div class="form-group">
-    <label for="produk_id">Pilih Produk</label>
-    <select name="produk_id" id="produk_id" class="form-control select2" required>
-        <option value="">-- Pilih Produk --</option>
-        @foreach ($produks as $produk)
-            <option value="{{ $produk->produk_id }}">{{ $produk->produk_nama }}</option>
-        @endforeach
-    </select>
-</div>
+                   <select name="produk_id" class="form-control" required>
+    <option value="">Pilih Produk</option>
+    @foreach ($produks as $produk)
+        <option value="{{ $produk->produk_id }}">{{ $produk->produk_nama }}</option>
+    @endforeach
+</select>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">

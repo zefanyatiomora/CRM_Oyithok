@@ -12,8 +12,8 @@ class CustomersModel extends Model
     protected $primaryKey = 'customer_id'; // primary key-nya
 
     protected $fillable = [
-        'customer_nama',
         'customer_kode',
+        'customer_nama',
         'customer_alamat',
         'customer_nohp',
         'informasi_media',
