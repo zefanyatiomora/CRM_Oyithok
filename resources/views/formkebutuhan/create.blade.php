@@ -1,10 +1,8 @@
 @extends('layouts.template')
 @section('content')
 <div class="container-fluid">
-    <form action="{{ route('kebutuhan.store') }}" method="POST">
+    <form id="formKebutuhan" action="{{ route('kebutuhan.store') }}" method="POST">
         @csrf
-
-        {{-- Data Customer --}}
         <div class="card card-info mt-3">
             <div class="card-header">
                 <h3 class="card-title">Data Customer</h3>
@@ -96,58 +94,110 @@
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-    $(function () {
-        $('#produk_id').select2({
-            placeholder: 'Pilih produk yang dibutuhkan',
-            allowClear: true
-        });
-
-        // Auto-suggest nama pelanggan
-        $('#customer_nama').on('input', function () {
-            let keyword = $(this).val();
-            if (keyword.length >= 2) {
-                $.get('{{ route("kebutuhan.searchCustomer") }}', { keyword: keyword }, function (data) {
-                    let list = '';
-                    if (data.length > 0) {
-                        data.forEach(customer => {
-                            list += `<a href="#" class="list-group-item list-group-item-action" 
-                                        data-id="${customer.customer_id}" 
-                                        data-nama="${customer.customer_nama}"
-                                        data-kode="${customer.customer_kode}"
-                                        data-nohp="${customer.customer_nohp}" 
-                                        data-alamat="${customer.customer_alamat}" 
-                                        data-media="${customer.informasi_media}">
-                                        ${customer.customer_nama} - ${customer.customer_nohp}
-                                     </a>`;
-                        });
-                    } else {
-                        list = `<a href="#" class="list-group-item list-group-item-action disabled">Tidak ditemukan</a>`;
-                    }
-                    $('#customer_list').html(list).show();
-                });
-            } else {
-                $('#customer_list').hide();
-            }
-        });
-
-        // Ketika dipilih dari hasil pencarian
-        $('#customer_list').on('click', '.list-group-item', function (e) {
-            e.preventDefault();
-            $('#customer_id').val($(this).data('id'));
-            $('#customer_nama').val($(this).data('nama'));
-            $('#customer_kode').val($(this).data('kode'));
-            $('#customer_nohp').val($(this).data('nohp'));
-            $('#customer_alamat').val($(this).data('alamat'));
-            $('#informasi_media').val($(this).data('media')).trigger('change');
-            $('#customer_list').hide();
-        });
-
-        // Menyembunyikan daftar saat klik di luar
-        $(document).click(function (e) {
-            if (!$(e.target).closest('#customer_nama, #customer_list').length) {
-                $('#customer_list').hide();
-            }
-        });
+$(function () {
+    // Inisialisasi select2
+    $('#produk_id').select2({
+        placeholder: 'Pilih produk yang dibutuhkan',
+        allowClear: true
     });
+
+    // Auto-suggest nama pelanggan
+    $('#customer_nama').on('input', function () {
+        let keyword = $(this).val();
+        if (keyword.length >= 2) {
+            $.get('{{ route("kebutuhan.searchCustomer") }}', { keyword: keyword }, function (data) {
+                let list = '';
+                if (data.length > 0) {
+                    data.forEach(customer => {
+                        list += `<a href="#" class="list-group-item list-group-item-action" 
+                                    data-id="${customer.customer_id}" 
+                                    data-nama="${customer.customer_nama}"
+                                    data-kode="${customer.customer_kode}"
+                                    data-nohp="${customer.customer_nohp}" 
+                                    data-alamat="${customer.customer_alamat}" 
+                                    data-media="${customer.informasi_media}">
+                                    ${customer.customer_nama} - ${customer.customer_nohp}
+                                 </a>`;
+                    });
+                } else {
+                    list = `<a href="#" class="list-group-item list-group-item-action disabled">Tidak ditemukan</a>`;
+                }
+                $('#customer_list').html(list).show();
+            });
+        } else {
+            $('#customer_list').hide();
+        }
+    });
+
+    // Ketika dipilih dari hasil pencarian
+    $('#customer_list').on('click', '.list-group-item', function (e) {
+        e.preventDefault();
+        $('#customer_id').val($(this).data('id'));
+        $('#customer_nama').val($(this).data('nama'));
+        $('#customer_kode').val($(this).data('kode'));
+        $('#customer_nohp').val($(this).data('nohp'));
+        $('#customer_alamat').val($(this).data('alamat'));
+        $('#informasi_media').val($(this).data('media')).trigger('change');
+        $('#customer_list').hide();
+    });
+
+    // Menyembunyikan daftar saat klik di luar
+    $(document).click(function (e) {
+        if (!$(e.target).closest('#customer_nama, #customer_list').length) {
+            $('#customer_list').hide();
+        }
+    });
+
+    console.log('📦 Memulai validasi form...');
+
+$('#formKebutuhan').validate({
+    submitHandler: function(form) {
+        console.log('✅ Form tervalidasi, siap submit...');
+
+        $.ajax({
+            url: form.action,
+            type: form.method,
+            data: $(form).serialize(),
+            beforeSend: function () {
+                console.log('⏳ Mengirim AJAX...');
+            },
+            success: function(response) {
+                console.log('🎉 AJAX sukses:', response);
+
+                if (response.status) {
+                    $('#myModal').modal('hide');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: response.message
+                    });
+                } else {
+                    $('.error-text').text('');
+                    $.each(response.msgField, function(prefix, val) {
+                        $('#error-' + prefix).text(val[0]);
+                    });
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Terjadi Kesalahan',
+                        text: response.message
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('❌ AJAX error:', status, error);
+                console.error('🔎 Full error:', xhr.responseText);
+            }
+        });
+
+        return false; // prevent default form submit
+    },
+    invalidHandler: function(event, validator) {
+        console.warn('⚠️ Form tidak valid. Error:', validator.errorList);
+    }
+});
+
+
+});
 </script>
+
 @endpush

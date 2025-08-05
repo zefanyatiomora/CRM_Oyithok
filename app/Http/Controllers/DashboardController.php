@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\InteraksiModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Validator;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $activeMenu = 'dashboard';
         $breadcrumb = (object) [
@@ -21,8 +22,49 @@ class DashboardController extends Controller
         $page = (object) [
             'title' => 'Dashboard'
         ];
-        return view('dashboard.index', ['breadcrumb' => $breadcrumb, 'page' => $page, 'activeMenu' => $activeMenu]);
+
+        $tahun = $request->get('tahun', date('Y'));
+        $bulan = $request->get('bulan', date('m'));
+
+        // Ambil data order sesuai bulan & tahun
+        $jumlahInteraksi = InteraksiModel::whereYear('tanggal_chat', $tahun)
+            ->whereMonth('tanggal_chat', $bulan)
+            ->count();
+
+        // Daftar tahun untuk dropdown
+        $availableYears = InteraksiModel::selectRaw('YEAR(tanggal_chat) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+
+        // Daftar bulan
+        $bulanList = [
+            '01' => 'Januari',
+            '02' => 'Februari',
+            '03' => 'Maret',
+            '04' => 'April',
+            '05' => 'Mei',
+            '06' => 'Juni',
+            '07' => 'Juli',
+            '08' => 'Agustus',
+            '09' => 'September',
+            '10' => 'Oktober',
+            '11' => 'November',
+            '12' => 'Desember'
+        ];
+
+        return view('dashboard.index', [
+            'breadcrumb' => $breadcrumb,
+            'page' => $page,
+            'activeMenu' => $activeMenu,
+            'jumlahInteraksi' => $jumlahInteraksi,
+            'tahun' => $tahun,
+            'bulan' => $bulan,
+            'availableYears' => $availableYears,
+            'bulanList' => $bulanList
+        ]);
     }
+
     public function update(Request $request)
     {
         $request->validate([

@@ -39,7 +39,6 @@ class ProdukController extends Controller
                 // $btn .= '<a href="'.url('/produk/' . $produk->produk_id . '/edit').'" class="btn btn-warning btn-sm">Edit</a> '; 
                 // $btn .= '<form class="d-inline-block" method="POST" action="'.url('/produk/'.$produk->produk_id).'">'.csrf_field().method_field('DELETE') .'<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah Anda yakin menghapus data ini?\');">Hapus</button></form>';      
                 $btn  = '<button onclick="modalAction(\'' . url('/produk/' . $produk->produk_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/produk/' . $produk->produk_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
                 $btn .= '<button onclick="modalAction(\'' . url('/produk/' . $produk->produk_id . '/delete_ajax') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
                 return $btn;
             })
@@ -91,31 +90,14 @@ class ProdukController extends Controller
         return redirect('/');
     }
 
-    // Tampilkan detail produk
-    public function show($id)
-    {
-        $produk = ProdukModel::findOrFail($id);
-        return view('produks.show', compact('produk'));
-    }
-
-    public function edit_ajax(string $id)
+    public function show_ajax(Request $request, string $id)
     {
         $produk = ProdukModel::find($id);
-        return view('produk.edit_ajax', ['produk' => $produk]);
-    }
 
-    // Simpan perubahan produk
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'produk_kode' => 'required|string|max:100|unique:produks,produk_kode,' . $id . ',produk_id',
-            'produk_nama' => 'required|string|max:255',
-        ]);
-
-        $produk = ProdukModel::findOrFail($id);
-        $produk->update($request->all());
-
-        return redirect()->route('produks.index')->with('success', 'Produk berhasil diperbarui.');
+        if (!$produk) {
+            return response()->json(['status' => false, 'message' => 'produk not found'], 404);
+        }
+        return view('produk.show_ajax', compact('produk'));
     }
 
     // (Opsional) Hapus produk
