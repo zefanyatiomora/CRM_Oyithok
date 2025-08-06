@@ -5,6 +5,7 @@ use App\Http\Controllers\ProdukController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RekapController;
 use App\Http\Controllers\KebutuhanController;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
@@ -47,6 +48,10 @@ Route::prefix('produk')->group(function () {
     Route::get('/{id}/show_ajax', [ProdukController::class, 'show_ajax']);
 });
 
+Route::prefix('rekap')->group(function () {
+    Route::get('/', [RekapController::class, 'index'])->name('rekap.index');       // Halaman list monthrekap
+    Route::post('/list', [RekapController::class, 'list'])->name('rekap.list');
+});
 
 
 

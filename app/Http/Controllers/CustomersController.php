@@ -39,7 +39,6 @@ class CustomersController extends Controller
             ->addColumn('aksi', function ($customer) {
                 $btn  = '<button onclick="modalAction(\'' . url('/customers/' . $customer->customer_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
                 $btn  = '<button onclick="modalAction(\'' . url('/customers/' . $customer->customer_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
-
                 return $btn;
             })
             ->rawColumns(['aksi'])

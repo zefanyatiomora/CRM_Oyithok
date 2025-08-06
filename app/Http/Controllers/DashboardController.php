@@ -24,12 +24,16 @@ class DashboardController extends Controller
         ];
 
         $tahun = $request->get('tahun', date('Y'));
-        $bulan = $request->get('bulan', date('m'));
+        $bulan = $request->get('bulan'); //bisa null
 
+        // Query fleksibel berdasarkan input
+        $query = InteraksiModel::whereYear('tanggal_chat', $tahun);
+
+        if ($bulan) {
+            $query->whereMonth('tanggal_chat', $bulan);
+        }
         // Ambil data order sesuai bulan & tahun
-        $jumlahInteraksi = InteraksiModel::whereYear('tanggal_chat', $tahun)
-            ->whereMonth('tanggal_chat', $bulan)
-            ->count();
+        $jumlahInteraksi = $query->count();
 
         // Daftar tahun untuk dropdown
         $availableYears = InteraksiModel::selectRaw('YEAR(tanggal_chat) as year')
