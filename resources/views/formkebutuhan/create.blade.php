@@ -4,7 +4,7 @@
     <form id="formKebutuhan" action="{{ route('kebutuhan.store') }}" method="POST">
         @csrf
         <div class="card card-info mt-3">
-            <div class="card-header">
+            <div class="card-header bg-purple text-white">
                 <h3 class="card-title">Data Customer</h3>
             </div>
             <div class="card-body row">
@@ -44,7 +44,7 @@
 
         {{-- Data Kebutuhan --}}
         <div class="card card-primary mt-3">
-            <div class="card-header">
+            <div class="card-header bg-purple text-white">
                 <h3 class="card-title">Data Kebutuhan</h3>
             </div>
             <div class="card-body row">

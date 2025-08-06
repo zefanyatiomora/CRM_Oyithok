@@ -5,7 +5,44 @@
 <!-- Main content -->
 <section class="content">
     <div class="container-fluid">
-        <!-- Small boxes (Stat box) -->
+        <!-- Filter Tahun & Bulan -->
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <form method="GET" action="{{ route('dashboard') }}" class="form-inline">
+                    <select name="tahun" class="form-control mr-2" required>
+                        <option value="">-- Pilih Tahun --</option>
+                        @foreach($availableYears as $year)
+                            <option value="{{ $year }}" {{ $year == $tahun ? 'selected' : '' }}>
+                                {{ $year }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <select name="bulan" class="form-control mr-2">
+                        <option value="">-- Semua Bulan --</option>
+                        @foreach($bulanList as $key => $label)
+                            <option value="{{ $key }}" {{ $key == $bulan ? 'selected' : '' }}>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <div class="btn-group mr-2">
+                        <button type="submit" class="btn btn-info">Filter</button>
+                        <button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{{ route('dashboard') }}">Reset Filter</a>
+                            <a class="dropdown-item" href="#">Cetak Laporan</a>
+                            <a class="dropdown-item" href="#">Export Excel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Kotak Statistik -->
         <div class="row">
             <div class="col-lg-3 col-6">
                 <!-- small box -->
@@ -14,10 +51,11 @@
                         <h3>{{ $jumlahInteraksi }}</h3>
                         <p>Jumlah Interaksi
                             @if ($bulan)
-                            ({{ $bulanList[$bulan] }} {{ $tahun }})</p>
-                        @else
-                            (Tahun {{ $tahun}})
-                        @endif
+                            ({{ $bulanList[$bulan] }} {{ $tahun }})
+                            @else
+                            (Tahun {{ $tahun }})
+                            @endif
+                        </p>
                     </div>
                     <div class="icon">
                         <i class="fas fa-shopping-cart"></i>
@@ -25,51 +63,13 @@
                     <a href="{{ route('rekap.index', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
                     class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
-                <form method="GET" action="{{ route('dashboard') }}">
-                    <div class="form-inline">
-                        <select name="tahun" class="form-control mr-2" required>
-                            <option value="">-- Pilih Tahun --</option>
-                            @foreach($availableYears as $year)
-                                <option value="{{ $year }}" {{ $year == $tahun ? 'selected' : '' }}>
-                                    {{ $year }}
-                                </option>
-                            @endforeach
-                        </select>
-
-                        <select name="bulan" class="form-control mr-2">
-                            <option value="">-- Semua Bulan --</option>
-                            @foreach($bulanList as $key => $label)
-                                <option value="{{ $key }}" {{ $key == $bulan ? 'selected' : '' }}>
-                                    {{ $label }}
-                                </option>
-                            @endforeach
-                        </select>
-
-                        <div class="btn-group">
-                            <!-- Tombol utama untuk submit -->
-                            <button type="submit" class="btn btn-info">Filter</button>
-
-                            <!-- Tombol dropdown tambahan -->
-                            <button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
-                                <span class="sr-only">Toggle Dropdown</span>
-                            </button>
-
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="{{ route('dashboard') }}">Reset Filter</a>
-                                <a class="dropdown-item" href="#">Cetak Laporan</a>
-                                <a class="dropdown-item" href="#">Export Excel</a>
-                            </div>
-                        </div>
-                    </div>
-                </form>
             </div>
-            <!-- ./col -->
+
             <div class="col-lg-3 col-6">
                 <!-- small box -->
                 <div class="small-box bg-success">
                     <div class="inner">
                         <h3>53<sup style="font-size: 20px">%</sup></h3>
-                        
                         <p>Bounce Rate</p>
                     </div>
                     <div class="icon">
@@ -78,6 +78,9 @@
                     <a href="{{ url('/monthreport') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
+
+            <!-- ... kotak lainnya -->
+
             <!-- ./col -->
             <div class="col-lg-3 col-6">
                 <!-- small box -->
