@@ -50,6 +50,7 @@ Route::prefix('produk')->group(function () {
 Route::prefix('rekap')->group(function () {
     Route::get('/', [RekapController::class, 'index'])->name('rekap.index');       // Halaman list monthrekap
     Route::post('/list', [RekapController::class, 'list'])->name('rekap.list');
+    Route::get('/{id}/show_ajax', [RekapController::class, 'show_ajax']);
 });
 
 

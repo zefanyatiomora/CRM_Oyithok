@@ -22,6 +22,8 @@
                         <th>Nama</th>
                         <th>Produk</th>
                         <th>Identifikasi Kebutuhan</th>
+                        <th>Aksi</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
             </table>
@@ -97,6 +99,12 @@
                         className: "", 
                         orderable: false,     
                         searchable: false     
+                    }, 
+                    { 
+                        data: "aksi",                
+                        className: "", 
+                        orderable: false,     
+                        searchable: false
                     } 
                 ] 
             }); 

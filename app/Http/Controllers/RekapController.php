@@ -73,6 +73,13 @@ class RekapController extends Controller
             ->addColumn('produk_nama', function ($row) {
                 return is_array($row->produk_id) ? implode(', ', $row->produk_id) : $row->produk_id;
             })
+            ->addColumn('aksi', function ($row) {
+                $btn = '<button onclick="modalAction(\'' . url('/rekap/' . $row->interaksi_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/rekap/' . $row->interaksi_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/rekap/' . $row->interaksi_id . '/followup_ajax') . '\')" class="btn btn-danger btn-sm">FollowUp</button> ';
+                return $btn;
+            })
+            ->rawColumns(['aksi'])
             ->make(true);
     }
 }
