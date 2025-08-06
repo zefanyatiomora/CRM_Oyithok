@@ -23,12 +23,11 @@ use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
 //customer//
-Route::resource('customers', CustomersController::class);
 Route::post('/customers/list', [CustomersController::class, 'data'])->name('customers.data');
 Route::get('/customers', [CustomersController::class, 'index'])->name('customers.index');
 Route::get('/customers/{id}/show_ajax', [CustomersController::class, 'show_ajax']);
-
-
+Route::get('/customers/{id}/edit', [CustomersController::class, 'edit'])->name('customers.edit');
+Route::put('/customers/{id}/update', [CustomersController::class, 'update'])->name('customers.update');
 //kebutuhan//
 Route::get('/kebutuhan', [KebutuhanController::class, 'index'])->name('kebutuhan.index');
 Route::get('/kebutuhan/create', [KebutuhanController::class, 'create'])->name('kebutuhan.create');
@@ -52,7 +51,6 @@ Route::prefix('rekap')->group(function () {
     Route::get('/', [RekapController::class, 'index'])->name('rekap.index');       // Halaman list monthrekap
     Route::post('/list', [RekapController::class, 'list'])->name('rekap.list');
 });
-
 
 
 

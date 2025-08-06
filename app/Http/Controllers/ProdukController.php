@@ -9,7 +9,6 @@ use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 
-
 class ProdukController extends Controller
 {
     // Menampilkan semua produk
