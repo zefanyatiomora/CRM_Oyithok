@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CustomersModel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator; 
+use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
 class CustomersController extends Controller
@@ -38,7 +38,7 @@ class CustomersController extends Controller
         return DataTables::of($customer)
             ->addIndexColumn()
             ->addColumn('aksi', function ($customer) {
-                $btn  = '<button onclick="modalAction(\''.url('/customers/' . $customer->customer_id . '/edit').'\')" class="btn btn-warning btn-sm">Edit</i></button> ';
+                $btn  = '<button onclick="modalAction(\'' . url('/customers/' . $customer->customer_id . '/edit') . '\')" class="btn btn-warning btn-sm">Edit</i></button> ';
                 $btn .= '<button onclick="modalAction(\'' . url('/customers/' . $customer->customer_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button>';
                 return $btn;
             })
@@ -69,7 +69,7 @@ class CustomersController extends Controller
         return redirect()->route('customers.index')->with('success', 'Customer berhasil ditambahkan.');
     }
 
-public function edit($id)
+    public function edit($id)
     {
         $customer = CustomersModel::find($id);
 

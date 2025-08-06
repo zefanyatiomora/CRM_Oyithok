@@ -12,31 +12,55 @@
                 <div class="small-box bg-info">
                     <div class="inner">
                         <h3>{{ $jumlahInteraksi }}</h3>
-                        <p>Jumlah Interaksi ({{ $bulanList[$bulan] }} {{ $tahun }})</p>
+                        <p>Jumlah Interaksi
+                            @if ($bulan)
+                            ({{ $bulanList[$bulan] }} {{ $tahun }})</p>
+                        @else
+                            (Tahun {{ $tahun}})
+                        @endif
                     </div>
                     <div class="icon">
                         <i class="fas fa-shopping-cart"></i>
                     </div>
-                    <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                    <a href="{{ route('rekap.index', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
+                    class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
                 <form method="GET" action="{{ route('dashboard') }}">
-                    <select name="tahun">
-                        @foreach($availableYears as $year)
-                            <option value="{{ $year }}" {{ $year == $tahun ? 'selected' : '' }}>
-                                {{ $year }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <div class="form-inline">
+                        <select name="tahun" class="form-control mr-2" required>
+                            <option value="">-- Pilih Tahun --</option>
+                            @foreach($availableYears as $year)
+                                <option value="{{ $year }}" {{ $year == $tahun ? 'selected' : '' }}>
+                                    {{ $year }}
+                                </option>
+                            @endforeach
+                        </select>
 
-                    <select name="bulan">
-                        @foreach($bulanList as $key => $label)
-                            <option value="{{ $key }}" {{ $key == $bulan ? 'selected' : '' }}>
-                                {{ $label }}
-                            </option>
-                        @endforeach
-                    </select>
+                        <select name="bulan" class="form-control mr-2">
+                            <option value="">-- Semua Bulan --</option>
+                            @foreach($bulanList as $key => $label)
+                                <option value="{{ $key }}" {{ $key == $bulan ? 'selected' : '' }}>
+                                    {{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
 
-                    <button type="submit">Filter</button>
+                        <div class="btn-group">
+                            <!-- Tombol utama untuk submit -->
+                            <button type="submit" class="btn btn-info">Filter</button>
+
+                            <!-- Tombol dropdown tambahan -->
+                            <button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+                                <span class="sr-only">Toggle Dropdown</span>
+                            </button>
+
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="{{ route('dashboard') }}">Reset Filter</a>
+                                <a class="dropdown-item" href="#">Cetak Laporan</a>
+                                <a class="dropdown-item" href="#">Export Excel</a>
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
             <!-- ./col -->
@@ -51,7 +75,7 @@
                     <div class="icon">
                         <i class="ion ion-stats-bars"></i>
                     </div>
-                    <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                    <a href="{{ url('/monthreport') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
             <!-- ./col -->
