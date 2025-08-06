@@ -26,7 +26,32 @@
 @stack('css')
  
 </head>
-<body class="hold-transition sidebar-mini">
+@push('css')
+<style>
+  .main-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      overflow-y: auto;
+  }
+
+  .content-wrapper {
+      margin-left: 250px; /* atau sesuai lebar sidebar */
+      padding-top: 1rem;
+  }
+
+  body {
+      overflow-x: hidden;
+  }
+
+  .sidebar {
+      padding-bottom: 50px;
+  }
+</style>
+@endpush
+
+<body class="hold-transition sidebar-mini layout-fixed">
 <!-- Site wrapper -->
 <div class="wrapper">
   <!-- Navbar -->
@@ -45,6 +70,7 @@
 
     <!-- Sidebar -->
     @include('layouts.sidebar')
+    
     <!-- /.sidebar -->
   </aside>
 
