@@ -1,0 +1,43 @@
+/* SIDEBAR LATAR GRADIENT */
+.custom-sidebar {
+    background: linear-gradient(180deg, #a66dd4, #9c27b0) !important;
+    color: #ffffff !important;
+}
+
+/* HILANGKAN BORDER & SHADOW */
+.custom-sidebar,
+.custom-sidebar .brand-link,
+.custom-sidebar .nav-sidebar {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* WARNA TEKS DEFAULT */
+.custom-sidebar .nav-link,
+.custom-sidebar .brand-link {
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-weight: 500;
+}
+
+/* WARNA TEKS AKTIF */
+.custom-sidebar .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: white !important;
+    border-radius: 8px;
+}
+
+/* WARNA IKON */
+.custom-sidebar .nav-icon {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* WARNA IKON AKTIF */
+.custom-sidebar .nav-link.active .nav-icon {
+    color: white !important;
+}
+
+/* HOVER EFFECT */
+.custom-sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+}

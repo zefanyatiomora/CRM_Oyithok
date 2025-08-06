@@ -20,6 +20,9 @@
 <link rel="stylesheet" href="{{ asset('adminlte/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
 <!-- Theme style -->
 <link rel="stylesheet" href="{{ asset('adminlte/dist/css/adminlte.min.css') }}">
+<!-- Custom CSS -->
+<link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+
 @stack('css')
  
 </head>
@@ -31,11 +34,13 @@
   <!-- /.navbar -->
 
   <!-- Main Sidebar Container -->
-  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+  {{-- <aside class="main-sidebar sidebar-light-success elevation-4"> --}}
+  <aside class="main-sidebar custom-sidebar elevation-4">
+">
     <!-- Brand Logo -->
     <a href="{{ url('/') }}" class="brand-link">
       <img src="{{ asset('adminlte/dist/img/AdminLTELogo.png') }}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-      <span class="brand-text font-weight-light">PWL - Starter Code</span>
+      <span class="brand-text font-weight-light">CRM</span>
     </a>
 
     <!-- Sidebar -->
