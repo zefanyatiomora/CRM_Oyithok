@@ -48,38 +48,42 @@ class RekapController extends Controller
         return view('rekap.index', ['breadcrumb' => $breadcrumb, 'page' => $page, 'activeMenu' => $activeMenu, 'tahun' => $tahun, 'bulan' => $bulan, 'bulanList' => $bulanList, 'customer' => $customer]);
     }
 
-    public function list(Request $request)
-    {
-        $tahun = $request->input('tahun');
-        $bulan = $request->input('bulan');
+   public function list(Request $request)
+{
+    $tahun = $request->input('tahun');
+    $bulan = $request->input('bulan');
 
-        Log::info('RekapController@list: Filter Tahun = ' . $tahun . ', Bulan = ' . $bulan);
+    Log::info('RekapController@list: Filter Tahun = ' . $tahun . ', Bulan = ' . $bulan);
 
-        $query = InteraksiModel::with('customer');
-        $interaksi = InteraksiModel::with('customer')->select('interaksi_id', 'customer_id', 'produk_id', 'produk_nama', 'tanggal_chat', 'identifikasi_kebutuhan');
+    $query = InteraksiModel::with('customer')->select(
+        'interaksi_id',
+        'customer_id',
+        'produk_id',
+        'produk_nama',
+        'tanggal_chat',
+        'identifikasi_kebutuhan'
+    );
 
-        Log::info('Query Preview:', ['sql' => $query->toSql(), 'bindings' => $query->getBindings()]);
-
-        if ($tahun) {
-            $query->whereYear('tanggal_chat', $tahun);
-        }
-
-        if ($bulan) {
-            $query->whereMonth('tanggal_chat', $bulan);
-        }
-
-        return DataTables::of($query)
-            ->addIndexColumn()
-            ->addColumn('produk_nama', function ($row) {
-                return is_array($row->produk_id) ? implode(', ', $row->produk_id) : $row->produk_id;
-            })
-            ->addColumn('aksi', function ($row) {
-                $btn = '<button onclick="modalAction(\'' . url('/rekap/' . $row->interaksi_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/rekap/' . $row->interaksi_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/rekap/' . $row->interaksi_id . '/followup_ajax') . '\')" class="btn btn-danger btn-sm">FollowUp</button> ';
-                return $btn;
-            })
-            ->rawColumns(['aksi'])
-            ->make(true);
+    if ($tahun) {
+        $query->whereYear('tanggal_chat', $tahun);
     }
+
+    if ($bulan) {
+        $query->whereMonth('tanggal_chat', $bulan);
+    }
+
+    return DataTables::of($query)
+        ->addIndexColumn()
+        ->addColumn('produk_nama', function ($row) {
+            return $row->produk_nama ?? '-';
+        })
+        ->addColumn('aksi', function ($row) {
+            $btn = '<button onclick="modalAction(\'' . url('/rekap/' . $row->interaksi_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+            $btn .= '<button onclick="modalAction(\'' . url('/rekap/' . $row->interaksi_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
+            $btn .= '<button onclick="modalAction(\'' . url('/rekap/' . $row->interaksi_id . '/followup_ajax') . '\')" class="btn btn-danger btn-sm">FollowUp</button> ';
+            return $btn;
+        })
+        ->rawColumns(['aksi'])
+        ->make(true);
+}
 }
