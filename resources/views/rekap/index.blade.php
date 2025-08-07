@@ -22,8 +22,9 @@
                         <th>Nama</th>
                         <th>Produk</th>
                         <th>Identifikasi Kebutuhan</th>
+                        <th>Follow Up</th>
+                        <th>Close</th>
                         <th>Aksi</th>
-                        <th>Status</th>
                     </tr>
                 </thead>
             </table>
@@ -35,79 +36,72 @@
 @push('css')
 @endpush
 
-
 @push('js') 
-    <script> 
-        function modalAction(url = ''){ 
-            $('#myModal').load(url,function(){ 
-                $('#myModal').modal('show'); 
-            }); 
-        }
-        var dataRekap;
-        $(document).ready(function() { 
-            dataRekap= $('#table-rekap').DataTable({
-                // serverSide: true, if using server-side processing 
-                serverSide: true,      
-                ajax: { 
-                    url: "{{ url('rekap/list') }}", 
-                    type: "POST", 
-                    dataType: "json",
-                    data: {
+<script> 
+    function modalAction(url = ''){ 
+        $('#myModal').load(url,function(){ 
+            $('#myModal').modal('show'); 
+        }); 
+    }
+
+    var dataRekap;
+
+    $(document).ready(function() { 
+        dataRekap = $('#table-rekap').DataTable({
+            serverSide: true,      
+            ajax: { 
+                url: "{{ url('rekap/list') }}", 
+                type: "POST", 
+                dataType: "json",
+                data: {
                     tahun: "{{ $tahun }}",
                     bulan: "{{ $bulan }}"
-                    },
-                    error: function (xhr, error, thrown) {
+                },
+                error: function (xhr, error, thrown) {
                     console.error("AJAX error:", error);
                     console.error("Status:", xhr.status);
                     console.error("Response:", xhr.responseText);
-                    }
-                }, 
-                columns: [ 
-                    {
-                        // nomor urut from Laravel datatable addIndexColumn() 
-                        data: "DT_RowIndex",             
-                        className: "text-center", 
-                        orderable: false, 
-                        searchable: false     
-                    },
-                    { 
-                        data: "tanggal_chat",                
-                        className: "", 
-                        orderable: true,     
-                        searchable: true     
-                    },
-                    { 
-                        data: "customer.customer_kode",                
-                        className: "", 
-                        orderable: true,     
-                        searchable: true     
-                    },
-                    { 
-                        data: "customer.customer_nama",                
-                        className: "", 
-                        orderable: true,     
-                        searchable: true     
-                    },
-                    { 
-                        data: "produk_nama",                
-                        className: "", 
-                        orderable: false,     
-                        searchable: false     
-                    }, 
-                    { 
-                        data: "identifikasi_kebutuhan",                
-                        className: "", 
-                        orderable: false,     
-                        searchable: false     
-                    }, 
-                    { 
-                        data: "aksi",                
-                        className: "", 
-                        orderable: false,     
-                        searchable: false
-                    } 
-                ] 
-            }); 
-        }); 
-    </script> 
+                }
+            }, 
+            columns: [ 
+                { data: "DT_RowIndex", className: "text-center", orderable: false, searchable: false },
+                { data: "tanggal_chat", orderable: true, searchable: true },
+                { data: "customer.customer_kode", orderable: true, searchable: true },
+                { data: "customer.customer_nama", orderable: true, searchable: true },
+                { data: "produk_nama", orderable: false, searchable: false },
+                { data: "identifikasi_kebutuhan", orderable: false, searchable: false },
+                { data: "follow_up", orderable: false, searchable: false },
+                { data: "close", orderable: false, searchable: false },
+                { data: "aksi", orderable: false, searchable: false }
+            ] 
+        });
+
+        // Event listener dropdown follow-up
+        $('#table-rekap').on('change', '.follow-up-select', function () {
+            let followUpVal = $(this).val();
+            let closeVal = '';
+
+            switch (followUpVal) {
+                case 'Follow Up 1':
+                    closeVal = 'Follow Up 2';
+                    break;
+                case 'Follow Up 2':
+                    closeVal = 'Broadcast';
+                    break;
+                case 'Closing Survey':
+                case 'Closing Pasang':
+                case 'Closing Product':
+                case 'Closing ALL':
+                    closeVal = 'Closing';
+                    break;
+                default:
+                    closeVal = 'Follow Up 1';
+                    break;
+            }
+
+            let row = $(this).closest('tr');
+            row.find('.close-input').val(closeVal);
+        });
+    }); 
+</script> 
 @endpush
