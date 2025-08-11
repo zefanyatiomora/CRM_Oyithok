@@ -31,8 +31,4 @@ class CustomersModel extends Model
     {
         return $this->hasMany(UlasanModel::class, 'customer_id', 'customer_id');
     }
-    public function followup()
-    {
-        return $this->hasMany(FollowupModel::class, 'customer_id', 'customer_id');
-    }
 }
