@@ -21,6 +21,10 @@ class InteraksiModel extends Model
         'tanggal_chat',
         'identifikasi_kebutuhan',
         'media',
+        'follow_up',
+        'tahapan',
+        'pic',
+        'close',
     ];
 
     // Relasi ke Customer
@@ -41,8 +45,4 @@ class InteraksiModel extends Model
     }
 
     // Relasi ke Followup (jika interaksi bisa memiliki banyak follow-up)
-    public function followups()
-    {
-        return $this->hasMany(FollowupModel::class, 'interaksi_id', 'interaksi_id');
-    }
 }

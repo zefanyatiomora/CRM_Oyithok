@@ -21,16 +21,16 @@
                         <th>Kode Customer</th>
                         <th>Nama</th>
                         <th>Produk</th>
+                        <th>Media</th>
                         <th>Identifikasi Kebutuhan</th>
-                        <th>Follow Up</th>
-                        <th>Close</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
             </table>
         </div>
     </div>
-    <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" data-width="75%" aria-hidden="true"></div> 
+    <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog"
+         data-backdrop="static" data-keyboard="false" data-width="75%" aria-hidden="true"></div> 
 @endsection
 
 @push('css')
@@ -44,16 +44,16 @@
         }); 
     }
 
-    var dataRekap;
-
     $(document).ready(function() { 
-        dataRekap = $('#table-rekap').DataTable({
+        $('#table-rekap').DataTable({
+            processing: true,
             serverSide: true,      
             ajax: { 
                 url: "{{ url('rekap/list') }}", 
                 type: "POST", 
                 dataType: "json",
                 data: {
+                    _token: "{{ csrf_token() }}",
                     tahun: "{{ $tahun }}",
                     bulan: "{{ $bulan }}"
                 },
@@ -66,41 +66,13 @@
             columns: [ 
                 { data: "DT_RowIndex", className: "text-center", orderable: false, searchable: false },
                 { data: "tanggal_chat", orderable: true, searchable: true },
-                { data: "customer.customer_kode", orderable: true, searchable: true },
-                { data: "customer.customer_nama", orderable: true, searchable: true },
+                { data: "customer_kode", orderable: true, searchable: true },
+                { data: "customer_nama", orderable: true, searchable: true },
                 { data: "produk_nama", orderable: false, searchable: false },
+                { data: "media", orderable: true, searchable: true },
                 { data: "identifikasi_kebutuhan", orderable: false, searchable: false },
-                { data: "follow_up", orderable: false, searchable: false },
-                { data: "close", orderable: false, searchable: false },
                 { data: "aksi", orderable: false, searchable: false }
             ] 
-        });
-
-        // Event listener dropdown follow-up
-        $('#table-rekap').on('change', '.follow-up-select', function () {
-            let followUpVal = $(this).val();
-            let closeVal = '';
-
-            switch (followUpVal) {
-                case 'Follow Up 1':
-                    closeVal = 'Follow Up 2';
-                    break;
-                case 'Follow Up 2':
-                    closeVal = 'Broadcast';
-                    break;
-                case 'Closing Survey':
-                case 'Closing Pasang':
-                case 'Closing Product':
-                case 'Closing ALL':
-                    closeVal = 'Closing';
-                    break;
-                default:
-                    closeVal = 'Follow Up 1';
-                    break;
-            }
-
-            let row = $(this).closest('tr');
-            row.find('.close-input').val(closeVal);
         });
     }); 
 </script> 
