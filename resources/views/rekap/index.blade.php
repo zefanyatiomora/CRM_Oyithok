@@ -69,7 +69,7 @@
                 { data: "customer.customer_kode", orderable: true, searchable: true },
                 { data: "customer.customer_nama", orderable: true, searchable: true },
                 { data: "produk_nama", orderable: false, searchable: false },
-                { data: "media", orderable: true, searchable: true },
+                { data: "media", orderable: false, searchable: false },
                 { data: "identifikasi_kebutuhan", orderable: false, searchable: false },
                 { data: "aksi", orderable: false, searchable: false }
             ] 
