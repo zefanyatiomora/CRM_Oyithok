@@ -66,8 +66,8 @@
             columns: [ 
                 { data: "DT_RowIndex", className: "text-center", orderable: false, searchable: false },
                 { data: "tanggal_chat", orderable: true, searchable: true },
-                { data: "customer_kode", orderable: true, searchable: true },
-                { data: "customer_nama", orderable: true, searchable: true },
+                { data: "customer.customer_kode", orderable: true, searchable: true },
+                { data: "customer.customer_nama", orderable: true, searchable: true },
                 { data: "produk_nama", orderable: false, searchable: false },
                 { data: "media", orderable: true, searchable: true },
                 { data: "identifikasi_kebutuhan", orderable: false, searchable: false },
