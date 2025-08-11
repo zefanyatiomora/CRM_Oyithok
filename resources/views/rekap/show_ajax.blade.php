@@ -24,26 +24,31 @@
                     <th>Nama produk</th> 
                     <td>{{ $interaksi->produk->produk_nama ?? '-' }}</td> 
                 </tr> 
+<tr> 
+    <th>Media</th> 
+    <td>{{ $interaksi->media ?? '-' }}</td> 
+</tr>
 
                 {{-- Kolom Tahapan --}}
-                <tr>
-                    <th>Tahapan</th>
-                    <td>
-                        <select id="tahapan-select" class="form-control form-control-sm">
-                            <option value="identifikasi" {{ strtolower($interaksi->tahapan ?? '') === 'identifikasi' ? 'selected' : '' }}>identifikasi</option>
-                            <option value="rincian" {{ strtolower($interaksi->tahapan ?? '') === 'rincian' ? 'selected' : '' }}>rincian</option>
-                        </select>
-                    </td>
-                </tr>
+                {{-- Kolom Tahapan --}}
+<tr>
+    <th>Tahapan</th>
+    <td>
+        <select id="tahapan-select" class="form-control form-control-sm">
+            <option value="identifikasi" {{ strtolower($interaksi->tahapan ?? '') === 'identifikasi' ? 'selected' : '' }}>identifikasi</option>
+            <option value="rincian" {{ strtolower($interaksi->tahapan ?? '') === 'rincian' ? 'selected' : '' }}>rincian</option>
+        </select>
+    </td>
+</tr>
 
-                {{-- Kolom PIC --}}
-                <tr>
-                    <th>PIC</th>
-                    <td>
-                        <input type="text" id="pic-input" class="form-control form-control-sm" 
-                               value="{{ $interaksi->pic ?? (auth()->user()->name ?? '-') }}" readonly>
-                    </td>
-                </tr>
+{{-- Kolom PIC --}}
+<tr>
+    <th>PIC</th>
+    <td>
+        <input type="text" id="pic-input" class="form-control form-control-sm" 
+               value="{{ $interaksi->pic ?? (auth()->user()->name ?? '-') }}" readonly>
+    </td>
+</tr>
 
                 {{-- Kolom Follow Up --}}
                 <tr>
@@ -77,25 +82,47 @@
         </div>
     </div>
 </div>
+<!-- Tambahkan di layout atau sebelum script -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+// Event untuk follow-up -> close otomatis
 $(document).on('change', '#follow-up-select', function () {
-    let followUpVal = $(this).val();
-    let closeVal = '';
+    let followUpVal = ($(this).val() || '').trim();
+    let closeVal = 'Follow Up 1'; // default
 
-    switch (followUpVal) {
-        case 'Follow Up 1': closeVal = 'Follow Up 2'; break;
-        case 'Follow Up 2': closeVal = 'Broadcast'; break;
-        case 'Closing Survey':
-        case 'Closing Pasang':
-        case 'Closing Product':
-        case 'Closing ALL': closeVal = 'Closing'; break;
-        default: closeVal = 'Follow Up 1'; break;
+    switch (followUpVal.toLowerCase()) {
+        case 'follow up 1':
+            closeVal = 'Follow Up 2';
+            break;
+        case 'follow up 2':
+            closeVal = 'Broadcast';
+            break;
+        case 'closing survey':
+        case 'closing pasang':
+        case 'closing product':
+        case 'closing all':
+            closeVal = 'Closing';
+            break;
     }
 
     $('#close-input').val(closeVal);
 });
 
+// Event untuk tahapan -> PIC otomatis
+$(document).on('change', '#tahapan-select', function () {
+    let tahapanVal = ($(this).val() || '').trim().toLowerCase();
+
+    if (tahapanVal === 'identifikasi') {
+        $('#pic-input').val('CS');
+    } else if (tahapanVal === 'rincian') {
+        $('#pic-input').val('Konsultan');
+    } else {
+        $('#pic-input').val('-'); // fallback
+    }
+});
+
+// Simpan data follow-up
 $(document).on('click', '#btn-save-followup', function () {
     $.ajax({
         url: "{{ route('rekap.updateFollowUp') }}",
@@ -110,15 +137,32 @@ $(document).on('click', '#btn-save-followup', function () {
         },
         success: function(res) {
             if (res.status === 'success') {
-                alert('Follow up berhasil disimpan');
-                $('#modal-user').modal('hide');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Follow up berhasil disimpan',
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    $('#modal-user').modal('hide');
+                    // Bisa tambahkan reload data table kalau perlu
+                    // $('#datatable').DataTable().ajax.reload();
+                });
             } else {
-                alert('Gagal menyimpan follow up');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Gagal menyimpan follow up'
+                });
             }
         },
         error: function(err) {
             console.error(err);
-            alert('Terjadi kesalahan saat menyimpan');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Terjadi kesalahan saat menyimpan'
+            });
         }
     });
 });

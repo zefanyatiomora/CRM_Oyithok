@@ -72,7 +72,6 @@ class RekapController extends Controller
             ->addColumn('produk_nama', fn($row) => $row->produk_nama ?? '-')
             ->addColumn('aksi', function ($row) {
                 $btn = '<button onclick="modalAction(\'' . url('/rekap/' . $row->interaksi_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/rekap/' . $row->interaksi_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
                 return $btn;
             })
             ->rawColumns(['aksi'])
