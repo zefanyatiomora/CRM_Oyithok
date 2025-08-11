@@ -43,6 +43,4 @@ class InteraksiModel extends Model
     {
         return $this->hasOne(UlasanModel::class, 'interaksi_id', 'interaksi_id');
     }
-
-    // Relasi ke Followup (jika interaksi bisa memiliki banyak follow-up)
 }
