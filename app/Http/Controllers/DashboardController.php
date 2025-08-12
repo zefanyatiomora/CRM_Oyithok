@@ -27,13 +27,28 @@ class DashboardController extends Controller
         $bulan = $request->get('bulan'); //bisa null
 
         // Query fleksibel berdasarkan input
-        $query = InteraksiModel::whereYear('tanggal_chat', $tahun);
+        $queryBase = InteraksiModel::whereYear('tanggal_chat', $tahun);
 
         if ($bulan) {
-            $query->whereMonth('tanggal_chat', $bulan);
+            $queryBase->whereMonth('tanggal_chat', $bulan);
         }
         // Ambil data order sesuai bulan & tahun
-        $jumlahInteraksi = $query->count();
+        $jumlahInteraksi = (clone $queryBase)->count();
+
+        // Proses Survey
+        $prosesSurvey = (clone $queryBase)
+            ->where('tahapan', 'survey')
+            ->count();
+
+        // Proses Pasang
+        $prosesPasang = (clone $queryBase)
+            ->where('tahapan', 'pasang')
+            ->count();
+
+        // Proses Survey
+        $prosesOrder = (clone $queryBase)
+            ->where('tahapan', 'order')
+            ->count();
 
         // Daftar tahun untuk dropdown
         $availableYears = InteraksiModel::selectRaw('YEAR(tanggal_chat) as year')
@@ -62,6 +77,9 @@ class DashboardController extends Controller
             'page' => $page,
             'activeMenu' => $activeMenu,
             'jumlahInteraksi' => $jumlahInteraksi,
+            'prosesSurvey' => $prosesSurvey,
+            'prosesPasang' => $prosesPasang,
+            'prosesOrder' => $prosesOrder,
             'tahun' => $tahun,
             'bulan' => $bulan,
             'availableYears' => $availableYears,

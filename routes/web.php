@@ -7,6 +7,8 @@ use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RekapController;
 use App\Http\Controllers\KebutuhanController;
+use App\Http\Controllers\SurveyController;
+use App\Http\Controllers\PasangController;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 /*
@@ -52,26 +54,17 @@ Route::prefix('rekap')->group(function () {
     Route::post('/list', [RekapController::class, 'list'])->name('rekap.list');
     Route::get('/{id}/show_ajax', [RekapController::class, 'show_ajax']);
     Route::post('/rekap/update-followup', [RekapController::class, 'updateFollowUp'])->name('rekap.updateFollowUp');
-
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Route::prefix('survey')->group(function () {
+    Route::get('/', [SurveyController::class, 'index'])->name('survey.index');       // Halaman list monthSurvey
+    Route::post('/list', [SurveyController::class, 'list'])->name('survey.list');
+    Route::get('/{id}/show_ajax', [SurveyController::class, 'show_ajax']);
+});
+Route::prefix('pasang')->group(function () {
+    Route::get('/', [PasangController::class, 'index'])->name('pasang.index');       // Halaman list monthPasang
+    Route::post('/list', [PasangController::class, 'list'])->name('pasang.list');
+    Route::get('/{id}/show_ajax', [PasangController::class, 'show_ajax']);
+});
 
 
 

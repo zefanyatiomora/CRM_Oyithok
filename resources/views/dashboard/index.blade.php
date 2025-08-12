@@ -64,18 +64,39 @@
                     class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
+            <!-- prosesSSurvey -->
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h3>{{ $prosesSurvey }}</h3>
+                        <p>Proses Survey
+                            @if ($bulan)
+                            ({{ $bulanList[$bulan] }} {{ $tahun }})
+                            @else
+                            (Tahun {{ $tahun }})
+                            @endif
+                        </p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-search-location"></i>
+                    </div>
+                    <a href="{{ route('survey.index', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
+                    class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
 
             <div class="col-lg-3 col-6">
                 <!-- small box -->
                 <div class="small-box bg-success">
                     <div class="inner">
-                        <h3>53<sup style="font-size: 20px">%</sup></h3>
-                        <p>Bounce Rate</p>
+                        <h3>{{ $prosesPasang }}</h3>
+                        <p>Proses Pasang</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-stats-bars"></i>
                     </div>
-                    <a href="{{ url('/monthreport') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                    <a href="{{ route('pasang.index', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
+                    class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
 

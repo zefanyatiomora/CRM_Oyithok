@@ -25,6 +25,9 @@ class InteraksiModel extends Model
         'tahapan',
         'pic',
         'close',
+        'alamat',
+        'waktu_survey',
+        'waktu_pasang',
     ];
 
     // Relasi ke Customer
