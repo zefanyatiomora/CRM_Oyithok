@@ -1,4 +1,4 @@
-<div id="modal-user" class="modal-dialog modal-lg" role="document">
+<div id="modal-master" class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
         {{-- HEADER --}}
         <div class="modal-header">
@@ -171,16 +171,15 @@ $(document).on('click', '#btn-save-followup', function () {
         },
         success: function(res) {
             if (res.status === 'success') {
+                tableRekap.ajax.reload(null, false);
+                $('#myModal').modal('hide');
+
                 Swal.fire({
                     icon: 'success',
                     title: 'Berhasil!',
                     text: 'Follow up berhasil disimpan',
                     showConfirmButton: false,
                     timer: 1500
-                }).then(() => {
-                    $('#modal-user').modal('hide');
-                    // Bisa tambahkan reload data table kalau perlu
-                    // $('#datatable').DataTable().ajax.reload();
                 });
             } else {
                 Swal.fire({

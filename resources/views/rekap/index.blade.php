@@ -43,9 +43,9 @@
             $('#myModal').modal('show'); 
         }); 
     }
-
+    var tableRekap;
     $(document).ready(function() { 
-        $('#table-rekap').DataTable({
+        tableRekap = $('#table-rekap').DataTable({
             processing: true,
             serverSide: true,      
             ajax: { 
