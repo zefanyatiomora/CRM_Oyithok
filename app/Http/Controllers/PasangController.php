@@ -33,17 +33,17 @@ class PasangController extends Controller
 
         $customer = CustomersModel::all();
 
-        $judulRekap = $bulan
-            ? "Rekap Bulan " . $bulanList[$bulan] . " $tahun"
-            : "Rekap Tahun $tahun";
+        $judul = $bulan
+            ? "Pemasangan Bulan " . $bulanList[$bulan] . " $tahun"
+            : "Pemasangan Tahun $tahun";
 
         $breadcrumb = (object) [
-            'title' => $judulRekap,
-            'list' => ['Home', $judulRekap]
+            'title' => $judul,
+            'list' => ['Home', $judul]
         ];
 
         $page = (object) [
-            'title' => $judulRekap
+            'title' => $judul
         ];
 
         return view('pasang.index', compact('breadcrumb', 'page', 'activeMenu', 'tahun', 'bulan', 'bulanList', 'customer'));
@@ -53,8 +53,6 @@ class PasangController extends Controller
     {
         $tahun = $request->input('tahun');
         $bulan = $request->input('bulan');
-
-        Log::info('RekapController@list: Filter Tahun = ' . $tahun . ', Bulan = ' . $bulan);
 
         $query = InteraksiModel::with(['customer'])
             ->select('interaksi_id', 'customer_id', 'produk_id', 'produk_nama', 'tanggal_chat', 'media', 'close', 'identifikasi_kebutuhan', 'alamat', 'waktu_pasang');

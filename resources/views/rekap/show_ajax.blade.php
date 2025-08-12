@@ -37,6 +37,9 @@
         <select id="tahapan-select" class="form-control form-control-sm">
             <option value="identifikasi" {{ strtolower($interaksi->tahapan ?? '') === 'identifikasi' ? 'selected' : '' }}>identifikasi</option>
             <option value="rincian" {{ strtolower($interaksi->tahapan ?? '') === 'rincian' ? 'selected' : '' }}>rincian</option>
+            <option value="survey" {{ strtolower($interaksi->tahapan ?? '') === 'survey' ? 'selected' : '' }}>survey</option>
+            <option value="pasang" {{ strtolower($interaksi->tahapan ?? '') === 'pasang' ? 'selected' : '' }}>pasang</option>
+            <option value="order" {{ strtolower($interaksi->tahapan ?? '') === 'rincian' ? 'selected' : '' }}>rincian</option>
         </select>
     </td>
 </tr>
@@ -114,12 +117,18 @@ $(document).on('change', '#tahapan-select', function () {
     let tahapanVal = ($(this).val() || '').trim().toLowerCase();
 
     if (tahapanVal === 'identifikasi') {
-        $('#pic-input').val('CS');
-    } else if (tahapanVal === 'rincian') {
+    $('#pic-input').val('CS');
+    } else if (
+        tahapanVal === 'rincian' ||
+        tahapanVal === 'survey' ||
+        tahapanVal === 'pasang' ||
+        tahapanVal === 'order'
+    ) {
         $('#pic-input').val('Konsultan');
     } else {
         $('#pic-input').val('-'); // fallback
     }
+
 });
 
 // Simpan data follow-up

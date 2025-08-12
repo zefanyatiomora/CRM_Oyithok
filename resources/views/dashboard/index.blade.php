@@ -90,7 +90,13 @@
                 <div class="small-box bg-success">
                     <div class="inner">
                         <h3>{{ $prosesPasang }}</h3>
-                        <p>Proses Pasang</p>
+                        <p>Proses Pasang
+                            @if ($bulan)
+                            ({{ $bulanList[$bulan] }} {{ $tahun }})
+                            @else
+                            (Tahun {{ $tahun }})
+                            @endif
+                        </p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-stats-bars"></i>

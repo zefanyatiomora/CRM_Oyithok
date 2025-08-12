@@ -15,7 +15,13 @@ class RekapController extends Controller
         $activeMenu = 'dashboard';
         $tahun = $request->get('tahun', date('Y'));
         $bulan = $request->get('bulan'); // nullable
+        $interaksiId = $request->input('interaksi_id');
 
+        Log::info('RekapController index params', [
+            'tahun' => $tahun,
+            'bulan' => $bulan,
+            'interaksi_id' => $interaksiId
+        ]);
         $bulanList = [
             '01' => 'Januari',
             '02' => 'Februari',
@@ -31,8 +37,6 @@ class RekapController extends Controller
             '12' => 'Desember',
         ];
 
-        $customer = CustomersModel::all();
-
         $judulRekap = $bulan
             ? "Rekap Bulan " . $bulanList[$bulan] . " $tahun"
             : "Rekap Tahun $tahun";
@@ -45,16 +49,31 @@ class RekapController extends Controller
         $page = (object) [
             'title' => $judulRekap
         ];
+        // Query data interaksi
+        $query = InteraksiModel::with(['customer'])
+            ->whereYear('tanggal_chat', $tahun);
 
-        return view('rekap.index', compact('breadcrumb', 'page', 'activeMenu', 'tahun', 'bulan', 'bulanList', 'customer'));
+        if ($bulan) {
+            $query->whereMonth('tanggal_chat', $bulan);
+        }
+
+        if ($interaksiId) {
+            $query->where('interaksi_id', $interaksiId);
+        }
+
+        $interaksi = $query->get();
+        Log::info('Jumlah interaksi hasil filter', ['count' => $interaksi->count()]);
+
+        return view('rekap.index', compact('breadcrumb', 'page', 'activeMenu', 'tahun', 'bulan', 'bulanList', 'interaksi', 'interaksiId'));
     }
 
     public function list(Request $request)
     {
         $tahun = $request->input('tahun');
         $bulan = $request->input('bulan');
+        $interaksiId = $request->input('interaksi_id');
 
-        Log::info('RekapController@list: Filter Tahun = ' . $tahun . ', Bulan = ' . $bulan);
+        Log::info('RekapController@list: Filter Tahun = ' . $tahun . ', Bulan = ' . $bulan . ',Interaksi ID = ' . $interaksiId);
 
         $query = InteraksiModel::with(['customer'])
             ->select('interaksi_id', 'customer_id', 'produk_id', 'produk_nama', 'tanggal_chat', 'media', 'tahapan', 'identifikasi_kebutuhan');
@@ -66,10 +85,12 @@ class RekapController extends Controller
         if ($bulan) {
             $query->whereMonth('tanggal_chat', $bulan);
         }
+        if ($interaksiId) {
+            $query->where('interaksi_id', $interaksiId);
+        }
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->addColumn('produk_nama', fn($row) => $row->produk_nama ?? '-')
             ->addColumn('aksi', function ($row) {
                 $btn = '<button onclick="modalAction(\'' . url('/rekap/' . $row->interaksi_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
                 return $btn;

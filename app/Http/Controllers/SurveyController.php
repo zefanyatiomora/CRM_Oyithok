@@ -33,17 +33,17 @@ class SurveyController extends Controller
 
         $customer = CustomersModel::all();
 
-        $judulRekap = $bulan
-            ? "Rekap Bulan " . $bulanList[$bulan] . " $tahun"
-            : "Rekap Tahun $tahun";
+        $judul = $bulan
+            ? "Survey Bulan " . $bulanList[$bulan] . " $tahun"
+            : "Survey Tahun $tahun";
 
         $breadcrumb = (object) [
-            'title' => $judulRekap,
-            'list' => ['Home', $judulRekap]
+            'title' => $judul,
+            'list' => ['Home', $judul]
         ];
 
         $page = (object) [
-            'title' => $judulRekap
+            'title' => $judul
         ];
 
         return view('survey.index', compact('breadcrumb', 'page', 'activeMenu', 'tahun', 'bulan', 'bulanList', 'customer'));
@@ -54,10 +54,14 @@ class SurveyController extends Controller
         $tahun = $request->input('tahun');
         $bulan = $request->input('bulan');
 
-        Log::info('RekapController@list: Filter Tahun = ' . $tahun . ', Bulan = ' . $bulan);
+        Log::info('SurveyController list params', [
+            'tahun' => $tahun,
+            'bulan' => $bulan
+        ]);
 
         $query = InteraksiModel::with(['customer'])
-            ->select('interaksi_id', 'customer_id', 'produk_id', 'produk_nama', 'tanggal_chat', 'media', 'close', 'identifikasi_kebutuhan', 'alamat', 'waktu_survey');
+            ->select('interaksi_id', 'customer_id', 'produk_id', 'produk_nama', 'tanggal_chat', 'media', 'close', 'identifikasi_kebutuhan', 'alamat', 'waktu_survey')
+            ->where('tahapan', 'survey');
 
         if ($tahun) {
             $query->whereYear('tanggal_chat', $tahun);
@@ -69,10 +73,14 @@ class SurveyController extends Controller
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->addColumn('produk_nama', fn($row) => $row->produk_nama ?? '-')
             ->addColumn('aksi', function ($row) {
-                $btn = '<button onclick="modalAction(\'' . url('/rekap/' . $row->interaksi_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
-                return $btn;
+                $url = route('rekap.index', [
+                    'tahun' => request('tahun'),
+                    'bulan' => request('bulan'),
+                    'interaksi_id' => $row->interaksi_id
+                ]);
+                Log::info('Generated Detail URL', ['url' => $url]); // cek URL yang dibentuk
+                return '<a href="' . $url . '" class="btn btn-info btn-sm">Detail</a>';
             })
             ->rawColumns(['aksi'])
             ->make(true);
