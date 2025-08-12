@@ -28,7 +28,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <!-- Form Fields -->
+
                 <div class="form-group">
                     <label>Kode Customer</label>
                     <input type="text" name="customer_kode" class="form-control" value="{{ $customer->customer_kode }}" readonly>
@@ -46,10 +46,13 @@
                     <input type="text" name="customer_alamat" class="form-control" value="{{ $customer->customer_alamat }}">
                 </div>
 
-                <div class="form-group">
-                    <label>No HP</label>
-                    <input type="text" name="customer_nohp" class="form-control" value="{{ $customer->customer_nohp }}">
-                </div>
+<div class="input-group">
+    <span class="input-group-text">+62</span>
+    <input type="number" name="customer_nohp" id="customer_nohp"
+           class="form-control"
+           value="{{ preg_replace('/^0/', '', $customer->customer_nohp) }}"
+           placeholder="8123456789">
+</div>
 
                 <div class="form-group">
                     <label>Informasi Media</label>
@@ -60,6 +63,7 @@
                     <label>Loyalty Point</label>
                     <input type="number" name="loyalty_point" class="form-control" value="{{ $customer->loyalty_point }}" readonly>
                 </div>
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-warning" data-dismiss="modal">Batal</button>
@@ -69,12 +73,14 @@
     </div>
 </form>
 
-<!-- Script Ajax -->
 <script>
 $(document).ready(function () {
     $("#form-edit-customer").submit(function (e) {
         e.preventDefault();
 
+        // Ambil input tanpa prefix +62
+  let nohp = $("#customer_nohp").val().replace(/^0+/, ''); 
+        $(this).find("#customer_nohp").val(nohp);
         let form = this;
 
         $.ajax({
@@ -82,25 +88,21 @@ $(document).ready(function () {
             method: form.method,
             data: $(form).serialize(),
             success: function (response) {
-                $('.error-text').text(''); // bersihkan error lama
+                $('.error-text').text('');
 
                 if (response.status) {
-                    $('#modal-master').closest('.modal').modal('hide'); // tutup modal
+                    $('#modal-master').closest('.modal').modal('hide');
                     Swal.fire({
                         icon: 'success',
                         title: 'Berhasil',
                         text: response.message,
                         timer: 1500,
                         showConfirmButton: false
-                    }).then(() => {
-                        location.reload(); // reload datatable / halaman
-                    });
+                    }).then(() => location.reload());
                 } else {
-                    // Tampilkan error validasi
                     $.each(response.msgField, function (prefix, val) {
                         $('#error-' + prefix).text(val[0]);
                     });
-
                     Swal.fire({
                         icon: 'error',
                         title: 'Gagal',
