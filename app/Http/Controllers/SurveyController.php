@@ -38,8 +38,8 @@ class SurveyController extends Controller
             : "Survey Tahun $tahun";
 
         $breadcrumb = (object) [
-            'title' => $judul,
-            'list' => ['Home', $judul]
+            'title' => 'Daftar Survey',
+            'list' => ['Home' => url('/'), $judul]
         ];
 
         $page = (object) [
@@ -53,11 +53,6 @@ class SurveyController extends Controller
     {
         $tahun = $request->input('tahun');
         $bulan = $request->input('bulan');
-
-        Log::info('SurveyController list params', [
-            'tahun' => $tahun,
-            'bulan' => $bulan
-        ]);
 
         $query = InteraksiModel::with(['customer'])
             ->select('interaksi_id', 'customer_id', 'produk_id', 'produk_nama', 'tanggal_chat', 'media', 'close', 'identifikasi_kebutuhan', 'alamat', 'waktu_survey')

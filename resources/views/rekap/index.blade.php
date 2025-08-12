@@ -56,7 +56,7 @@
                     _token: "{{ csrf_token() }}",
                     tahun: "{{ $tahun }}",
                     bulan: "{{ $bulan }}",
-                    interaksi_id: "{{ $interaksi_id ?? '' }}"
+                    interaksi_id: "{{ request('interaksi_id') }}"
                 },
                 error: function (xhr, error, thrown) {
                     console.error("AJAX error:", error);

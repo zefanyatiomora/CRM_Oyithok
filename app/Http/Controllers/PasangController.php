@@ -38,8 +38,8 @@ class PasangController extends Controller
             : "Pemasangan Tahun $tahun";
 
         $breadcrumb = (object) [
-            'title' => $judul,
-            'list' => ['Home', $judul]
+            'title' => 'Daftar Pemasangan',
+            'list' => ['Home' => url('/'), $judul]
         ];
 
         $page = (object) [
@@ -54,8 +54,10 @@ class PasangController extends Controller
         $tahun = $request->input('tahun');
         $bulan = $request->input('bulan');
 
+        //Query untuk filter pemasangan sesuai input
         $query = InteraksiModel::with(['customer'])
-            ->select('interaksi_id', 'customer_id', 'produk_id', 'produk_nama', 'tanggal_chat', 'media', 'close', 'identifikasi_kebutuhan', 'alamat', 'waktu_pasang');
+            ->select('interaksi_id', 'customer_id', 'produk_id', 'produk_nama', 'tanggal_chat', 'media', 'close', 'identifikasi_kebutuhan', 'alamat', 'waktu_survey')
+            ->where('tahapan', 'pasang');
 
         if ($tahun) {
             $query->whereYear('tanggal_chat', $tahun);
@@ -67,10 +69,14 @@ class PasangController extends Controller
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->addColumn('produk_nama', fn($row) => $row->produk_nama ?? '-')
             ->addColumn('aksi', function ($row) {
-                $btn = '<button onclick="modalAction(\'' . url('/rekap/' . $row->interaksi_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
-                return $btn;
+                $url = route('rekap.index', [
+                    'tahun' => request('tahun'),
+                    'bulan' => request('bulan'),
+                    'interaksi_id' => $row->interaksi_id
+                ]);
+                Log::info('Generated Detail URL', ['url' => $url]); // cek URL yang dibentuk
+                return '<a href="' . $url . '" class="btn btn-info btn-sm">Detail</a>';
             })
             ->rawColumns(['aksi'])
             ->make(true);

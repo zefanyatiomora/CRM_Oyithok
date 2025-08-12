@@ -42,8 +42,11 @@ class RekapController extends Controller
             : "Rekap Tahun $tahun";
 
         $breadcrumb = (object) [
-            'title' => $judulRekap,
-            'list' => ['Home', $judulRekap]
+            'title' => 'Daftar Rekap',
+            'list' => [
+                'Home' => url('/'),       // link ke home
+                $judulRekap // aktif, tidak ada link
+            ]
         ];
 
         $page = (object) [

@@ -35,6 +35,9 @@
             <select id="tahapan-select" class="form-control form-control-sm">
                 <option value="identifikasi" {{ strtolower($interaksi->tahapan ?? '') === 'identifikasi' ? 'selected' : '' }}>identifikasi</option>
                 <option value="rincian" {{ strtolower($interaksi->tahapan ?? '') === 'rincian' ? 'selected' : '' }}>rincian</option>
+                <option value="survey" {{ strtolower($interaksi->tahapan ?? '') === 'survey' ? 'selected' : '' }}>survey</option>
+                <option value="pasang" {{ strtolower($interaksi->tahapan ?? '') === 'pasang' ? 'selected' : '' }}>pasang</option>
+                <option value="order" {{ strtolower($interaksi->tahapan ?? '') === 'order' ? 'selected' : '' }}>order</option>
             </select>
         </td>
     </tr>
@@ -159,7 +162,7 @@ $(document).on('click', '#btn-save-followup', function () {
         url: "{{ route('rekap.updateFollowUp') }}",
         type: "POST",
         data: {
-            _token: "{{ csrf_token() }}",
+            token: "{{ csrf_token() }}",
             interaksi_id: $('#follow-up-select').data('id'),
             customer_id: $('#follow-up-select').data('customer-id'),
             tahapan: $('#tahapan-select').val(),
