@@ -86,6 +86,7 @@ class KebutuhanController extends Controller
                 'tanggal_chat'            => $request->input('tanggal_chat'),
                 'produk_id'               => $produks->produk_id,
                 'produk_nama'             => $produks->produk_nama,
+                'tahapan'                 => 'identifikasi',
                 'identifikasi_kebutuhan'  => $request->input('identifikasi_kebutuhan'),
                 'media'                   => $request->input('media'),
             ]);
