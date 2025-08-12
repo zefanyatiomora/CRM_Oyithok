@@ -1,90 +1,112 @@
 <div id="modal-user" class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
+        {{-- HEADER --}}
         <div class="modal-header">
-            <h5 class="modal-title">Detail Produk</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+            <h5 class="modal-title">Detail Kebutuhan & Survey/Pasang</h5>
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
         </div>
+
         <div class="modal-body">
-            <table class="table table-bordered table-striped table-hover table-sm"> 
-                <tr> 
-                    <th>ID produk</th> 
-                    <td>{{ $interaksi->produk_id }}</td> 
-                </tr> 
-                <tr> 
-                    <th>Kategori</th> 
-                    <td>{{ $interaksi->produk->kategori->kategori_nama ?? '-' }}</td> 
-                </tr> 
-                <tr> 
-                    <th>Kode produk</th> 
-                    <td>{{ $interaksi->produk->produk_kode ?? '-' }}</td> 
-                </tr> 
-                <tr> 
-                    <th>Nama produk</th> 
-                    <td>{{ $interaksi->produk->produk_nama ?? '-' }}</td> 
-                </tr> 
-<tr> 
-    <th>Media</th> 
-    <td>{{ $interaksi->media ?? '-' }}</td> 
-</tr>
-
-                {{-- Kolom Tahapan --}}
-                {{-- Kolom Tahapan --}}
-<tr>
-    <th>Tahapan</th>
-    <td>
-        <select id="tahapan-select" class="form-control form-control-sm">
-            <option value="identifikasi" {{ strtolower($interaksi->tahapan ?? '') === 'identifikasi' ? 'selected' : '' }}>identifikasi</option>
-            <option value="rincian" {{ strtolower($interaksi->tahapan ?? '') === 'rincian' ? 'selected' : '' }}>rincian</option>
-            <option value="survey" {{ strtolower($interaksi->tahapan ?? '') === 'survey' ? 'selected' : '' }}>survey</option>
-            <option value="pasang" {{ strtolower($interaksi->tahapan ?? '') === 'pasang' ? 'selected' : '' }}>pasang</option>
-            <option value="order" {{ strtolower($interaksi->tahapan ?? '') === 'rincian' ? 'selected' : '' }}>rincian</option>
-        </select>
-    </td>
-</tr>
-
-{{-- Kolom PIC --}}
-<tr>
-    <th>PIC</th>
-    <td>
-        <input type="text" id="pic-input" class="form-control form-control-sm" 
-               value="{{ $interaksi->pic ?? (auth()->user()->name ?? '-') }}" readonly>
-    </td>
-</tr>
-
-                {{-- Kolom Follow Up --}}
-                <tr>
-                    <th>Follow Up</th>
-                    <td>
-                        <select id="follow-up-select" class="form-control form-control-sm"
-                                data-id="{{ $interaksi->interaksi_id }}"
-                                data-customer-id="{{ $interaksi->customer_id }}">
-                            @foreach($followUpOptions as $option)
-                                <option value="{{ $option }}" {{ $selectedFollowUp == $option ? 'selected' : '' }}>
-                                    {{ $option }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </td>
-                </tr>
-
-                {{-- Kolom Close --}}
-                <tr>
-                    <th>Close</th>
-                    <td>
-                        <input type="text" id="close-input" class="form-control form-control-sm"
-                               value="{{ $closeValue }}" readonly>
-                    </td>
-                </tr>
-            </table>
+            
+          {{-- ========== DETAIL PRODUK ========== --}}
+<div class="bg-primary text-white px-3 py-2 mb-2 rounded">
+    <strong>Detail Kebutuhan</strong>
+</div>
+<table class="table table-bordered table-striped table-hover table-sm mb-4"> 
+    <tr> 
+        <th>ID produk</th> 
+        <td>{{ $interaksi->produk_id }}</td> 
+    </tr> 
+    <tr> 
+        <th>Kategori</th> 
+        <td>{{ $interaksi->produk->kategori->kategori_nama ?? '-' }}</td> 
+    </tr> 
+    <tr> 
+        <th>Nama produk</th> 
+        <td>{{ $interaksi->produk->produk_nama ?? '-' }}</td> 
+    </tr> 
+    <tr> 
+        <th>Media</th> 
+        <td>{{ $interaksi->media ?? '-' }}</td> 
+    </tr>
+    <tr>
+        <th>Tahapan</th>
+        <td>
+            <select id="tahapan-select" class="form-control form-control-sm">
+                <option value="identifikasi" {{ strtolower($interaksi->tahapan ?? '') === 'identifikasi' ? 'selected' : '' }}>identifikasi</option>
+                <option value="rincian" {{ strtolower($interaksi->tahapan ?? '') === 'rincian' ? 'selected' : '' }}>rincian</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <th>PIC</th>
+        <td>
+            <input type="text" id="pic-input" class="form-control form-control-sm" 
+                   value="{{ $interaksi->pic ?? (auth()->user()->name ?? '-') }}" readonly>
+        </td>
+    </tr>
+    <tr>
+        <th>Follow Up</th>
+        <td>
+            <select id="follow-up-select" class="form-control form-control-sm"
+                    data-id="{{ $interaksi->interaksi_id }}"
+                    data-customer-id="{{ $interaksi->customer_id }}">
+                @foreach($followUpOptions as $option)
+                    <option value="{{ $option }}" {{ $selectedFollowUp == $option ? 'selected' : '' }}>
+                        {{ $option }}
+                    </option>
+                @endforeach
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <th>Close</th>
+        <td>
+            <input type="text" id="close-input" class="form-control form-control-sm"
+                   value="{{ $closeValue }}" readonly>
+        </td>
+    </tr>
+</table>
+{{-- ========== DATA SURVEY/PASANG ========== --}}
+<div class="bg-success text-white px-3 py-2 mb-2 rounded">
+    <strong>Data Survey / Pasang</strong>
+</div>
+<form id="form-survey">
+    @csrf
+    <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
+    
+    <table class="table table-bordered table-striped table-hover table-sm mb-4">
+        <tr>
+            <th>Alamat</th>
+            <td>
+                <textarea name="alamat" class="form-control form-control-sm" rows="2">{{ $interaksi->alamat ?? '' }}</textarea>
+            </td>
+        </tr>
+        <tr>
+            <th>Waktu Survey</th>
+            <td>
+                <input type="datetime-local" name="waktu_survey" class="form-control form-control-sm"
+                       value="{{ $interaksi->waktu_survey ? date('Y-m-d\TH:i', strtotime($interaksi->waktu_survey)) : '' }}">
+            </td>
+        </tr>
+        <tr>
+            <th>Waktu Pasang</th>
+            <td>
+                <input type="datetime-local" name="waktu_pasang" class="form-control form-control-sm"
+                       value="{{ $interaksi->waktu_pasang ? date('Y-m-d\TH:i', strtotime($interaksi->waktu_pasang)) : '' }}">
+            </td>
+        </tr>
+    </table>
+</form>
         </div>
 
+        {{-- FOOTER --}}
         <div class="modal-footer">
             <button type="button" id="btn-save-followup" class="btn btn-primary">Simpan</button>
         </div>
     </div>
 </div>
+
 <!-- Tambahkan di layout atau sebelum script -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
