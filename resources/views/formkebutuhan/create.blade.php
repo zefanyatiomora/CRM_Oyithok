@@ -69,12 +69,33 @@
                         <label for="tanggal_chat">Tanggal Chat</label>
                         <input type="date" class="form-control" name="tanggal_chat" id="tanggal_chat" value="{{ old('tanggal_chat') }}" required>
                     </div>
-                   <select name="produk_id" class="form-control" required>
-    <option value="">Pilih Produk</option>
-    @foreach ($produks as $produk)
-        <option value="{{ $produk->produk_id }}">{{ $produk->produk_nama }}</option>
-    @endforeach
-</select>
+                    {{-- Item Type --}}
+                    <div class="form-group">
+                        <label for="item_type">Jenis Item</label>
+                        <select name="item_type" id="item_type" class="form-control" required>
+                            <option value="">Pilih Jenis</option>
+                            <option value="produk">Produk Saja</option>
+                            <option value="jasa">Jasa Pasang Saja</option>
+                            <option value="produk+jasa">Produk + Jasa Pasang</option>
+                        </select>
+                    </div>
+
+                    {{-- Pilih Produk --}}
+                    <div class="form-group">
+                        <label for="produk_id">Pilih Produk</label>
+                        <select name="produk_id" id="produk_id" class="form-control" required>
+                            <option value="">Pilih Produk</option>
+                            @foreach ($produks as $produk)
+                                <option value="{{ $produk->produk_id }}">{{ $produk->produk_nama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                   {{-- <select name="produk_id" class="form-control" required>
+                        <option value="">Pilih Produk</option>
+                        @foreach ($produks as $produk)
+                            <option value="{{ $produk->produk_id }}">{{ $produk->produk_nama }}</option>
+                        @endforeach
+                    </select> --}}
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
@@ -123,7 +144,16 @@
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-$(function () {
+    $(function () {
+        document.getElementById('item_type').addEventListener('change', function() {
+        let produkSelect = document.getElementById('produk_id');
+        if (this.value === 'jasa') {
+            produkSelect.value = "";
+            produkSelect.disabled = true;
+        } else {
+            produkSelect.disabled = false;
+        }
+    });
     // Select2
     $('#produk_id').select2({
         placeholder: 'Pilih produk yang dibutuhkan',

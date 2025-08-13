@@ -7,16 +7,41 @@
         </div>
 
         <div class="modal-body">
+            {{-- Progress Steps --}}
+        @php
+            $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang', 'Done'];
+            $currentStep = array_search(strtolower($interaksi->tahapan), array_map('strtolower', $steps));
+        @endphp
+
+        <div class="d-flex align-items-center justify-content-center mb-4">
+            @foreach ($steps as $index => $step)
+                <div class="text-center" style="min-width: 80px;">
+                    <div class="rounded-circle 
+                        {{ $index < $currentStep ? 'bg-success text-white' : '' }}
+                        {{ $index == $currentStep ? 'bg-primary text-white' : '' }}
+                        {{ $index > $currentStep ? 'bg-light text-dark' : '' }}
+                        d-flex align-items-center justify-content-center"
+                        style="width: 40px; height: 40px; margin: auto;">
+                        @if($index < $currentStep)
+                            <i class="fas fa-check"></i>
+                        @else
+                            {{ $index + 1 }}
+                        @endif
+                    </div>
+                    <small>{{ $step }}</small>
+                </div>
+
+                @if ($index < count($steps) - 1)
+                    <div class="flex-grow-1 border-top mx-2" style="height: 2px;"></div>
+                @endif
+            @endforeach
+        </div>
             
           {{-- ========== DETAIL PRODUK ========== --}}
 <div class="bg-primary text-white px-3 py-2 mb-2 rounded">
     <strong>Detail Kebutuhan</strong>
 </div>
 <table class="table table-bordered table-striped table-hover table-sm mb-4"> 
-    <tr> 
-        <th>ID produk</th> 
-        <td>{{ $interaksi->produk_id }}</td> 
-    </tr> 
     <tr> 
         <th>Kategori</th> 
         <td>{{ $interaksi->produk->kategori->kategori_nama ?? '-' }}</td> 

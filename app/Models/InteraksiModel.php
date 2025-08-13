@@ -21,6 +21,7 @@ class InteraksiModel extends Model
         'tanggal_chat',
         'identifikasi_kebutuhan',
         'media',
+        'item_type',
         'follow_up',
         'tahapan',
         'pic',
@@ -28,6 +29,9 @@ class InteraksiModel extends Model
         'alamat',
         'waktu_survey',
         'waktu_pasang',
+        'pending_until',
+        'pending_reason',
+        'pending_status',
     ];
 
     // Relasi ke Customer

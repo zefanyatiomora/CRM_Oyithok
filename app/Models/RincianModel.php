@@ -13,7 +13,6 @@ class RincianModel extends Model
     protected $primaryKey = 'rincian_id';
     protected $fillable = [
         'interaksi_id',
-        'item_type',
         'produk_id',
         'motif_id',
         'kuantitas',
