@@ -108,9 +108,8 @@ class RekapController extends Controller
 
         return view('rekap.show_ajax', [
             'interaksi' => $interaksi,
-            'followUpOptions' => ['Follow Up 1', 'Follow Up 2', 'Closing Survey', 'Closing Pasang', 'Closing Product', 'Closing ALL'],
+            'followUpOptions' => ['Ask', 'Follow Up', 'Closing Survey', 'Closing Pasang', 'Closing Product', 'Closing ALL'],
             'selectedFollowUp' => $interaksi->follow_up ?? '',
-            'closeValue'       => $interaksi->close ?? ''
         ]);
     }
     public function updateFollowUp(Request $request)
@@ -125,23 +124,12 @@ class RekapController extends Controller
             'pic'          => 'required|string',
         ]);
 
-        $closeValue = match ($validated['follow_up']) {
-            'Follow Up 1'    => 'Follow Up 2',
-            'Follow Up 2'    => 'Broadcast',
-            'Closing Survey',
-            'Closing Pasang',
-            'Closing Product',
-            'Closing ALL'    => 'Closing',
-            default          => 'Follow Up 1',
-        };
-
         try {
             InteraksiModel::where('interaksi_id', $validated['interaksi_id'])
                 ->update([
                     'tahapan'   => $validated['tahapan'],
                     'pic'       => $validated['pic'],
-                    'follow_up' => $validated['follow_up'],
-                    'close'     => $closeValue,
+                    'follow_up' => $validated['follow_up']
                 ]);
 
             return response()->json([

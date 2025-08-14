@@ -25,7 +25,6 @@ class InteraksiModel extends Model
         'follow_up',
         'tahapan',
         'pic',
-        'close',
         'alamat',
         'waktu_survey',
         'waktu_pasang',
