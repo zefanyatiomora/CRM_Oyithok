@@ -46,63 +46,74 @@
                 @endforeach
             </div>
 
-    {{-- <form action="{{ url('/stok/' . $stock->stok_id . '/update_ajax') }}" method="POST" id="form-edit-stok"> --}}
-{{-- ========== DETAIL CUSTOMER ========== --}}
-<div class="bg-primary text-white px-3 py-2 mb-2 rounded">
-    <strong>Detail Customer</strong>
-</div>
-<table class="table table-bordered table-striped table-hover table-sm mb-4"> 
-    <tr> 
-        <th>Kode Customer</th> 
-        <td>{{ $interaksi->customer->customer_kode ?? '-' }}</td> 
-    </tr> 
-    <tr> 
-        <th>Nama Customer</th> 
-        <td>{{ $interaksi->customer->customer_nama ?? '-' }}</td> 
-    </tr> 
-    <tr> 
-        <th>Alamat</th> 
-        <td>{{ $interaksi->customer->customer_alamat ?? '-' }}</td> 
-    </tr>
-    <tr>
-        <th>No. HP</th>
-        <td>{{ $interaksi->customer->customer_hp ?? '-' }}</td>
-    </tr>
-    <tr>
-        <th>Tahapan</th>
-        <td>
-            <select id="tahapan-select" class="form-control form-control-sm">
-                <option value="identifikasi" {{ strtolower($interaksi->tahapan ?? '') === 'identifikasi' ? 'selected' : '' }}>identifikasi</option>
-                <option value="rincian" {{ strtolower($interaksi->tahapan ?? '') === 'rincian' ? 'selected' : '' }}>rincian</option>
-                <option value="survey" {{ strtolower($interaksi->tahapan ?? '') === 'survey' ? 'selected' : '' }}>survey</option>
-                <option value="pasang" {{ strtolower($interaksi->tahapan ?? '') === 'pasang' ? 'selected' : '' }}>pasang</option>
-                <option value="order" {{ strtolower($interaksi->tahapan ?? '') === 'order' ? 'selected' : '' }}>order</option>
-                <option value="done" {{ strtolower($interaksi->tahapan ?? '') === 'done' ? 'selected' : '' }}>done</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <th>PIC</th>
-        <td>
-            <input type="text" id="pic-input" class="form-control form-control-sm" 
-                   value="{{ $interaksi->pic ?? (auth()->user()->name ?? '-') }}" readonly>
-        </td>
-    </tr>
-    <tr>
-        <th>Status</th>
-        <td>
-            <select id="follow-up-select" class="form-control form-control-sm"
-                    data-id="{{ $interaksi->interaksi_id }}"
-                    data-customer-id="{{ $interaksi->customer_id }}">
-                @foreach($followUpOptions as $option)
-                    <option value="{{ $option }}" {{ $selectedFollowUp == $option ? 'selected' : '' }}>
-                        {{ $option }}
-                    </option>
-                @endforeach
-            </select>
-        </td>
-    </tr>
-</table>
+            {{-- ========== DETAIL CUSTOMER ========== --}}
+            <div class="card card-primary collapsed-card">
+              <div class="card-header">
+                <h3 class="card-title">Detail Customer</h3>
+                
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <!-- /.card-tools -->
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                  <table class="table table-bordered table-striped table-hover table-sm mb-4"> 
+                      <tr> 
+                          <th>Kode Customer</th> 
+                          <td>{{ $interaksi->customer->customer_kode ?? '-' }}</td> 
+                      </tr> 
+                      <tr> 
+                          <th>Nama Customer</th> 
+                          <td>{{ $interaksi->customer->customer_nama ?? '-' }}</td> 
+                      </tr> 
+                      <tr> 
+                          <th>Alamat</th> 
+                          <td>{{ $interaksi->customer->customer_alamat ?? '-' }}</td> 
+                      </tr>
+                      <tr>
+                          <th>No. HP</th>
+                          <td>{{ $interaksi->customer->customer_hp ?? '-' }}</td>
+                      </tr>
+                      <tr>
+                          <th>Tahapan</th>
+                          <td>
+                              <select id="tahapan-select" class="form-control form-control-sm">
+                                  <option value="identifikasi" {{ strtolower($interaksi->tahapan ?? '') === 'identifikasi' ? 'selected' : '' }}>identifikasi</option>
+                                  <option value="rincian" {{ strtolower($interaksi->tahapan ?? '') === 'rincian' ? 'selected' : '' }}>rincian</option>
+                                  <option value="survey" {{ strtolower($interaksi->tahapan ?? '') === 'survey' ? 'selected' : '' }}>survey</option>
+                                  <option value="pasang" {{ strtolower($interaksi->tahapan ?? '') === 'pasang' ? 'selected' : '' }}>pasang</option>
+                                  <option value="order" {{ strtolower($interaksi->tahapan ?? '') === 'order' ? 'selected' : '' }}>order</option>
+                                  <option value="done" {{ strtolower($interaksi->tahapan ?? '') === 'done' ? 'selected' : '' }}>done</option>
+                              </select>
+                          </td>
+                      </tr>
+                      <tr>
+                          <th>PIC</th>
+                          <td>
+                              <input type="text" id="pic-input" class="form-control form-control-sm" 
+                                     value="{{ $interaksi->pic ?? (auth()->user()->name ?? '-') }}" readonly>
+                          </td>
+                      </tr>
+                      <tr>
+                          <th>Status</th>
+                          <td>
+                              <select id="follow-up-select" class="form-control form-control-sm"
+                                      data-id="{{ $interaksi->interaksi_id }}"
+                                      data-customer-id="{{ $interaksi->customer_id }}">
+                                  @foreach($followUpOptions as $option)
+                                      <option value="{{ $option }}" {{ $selectedFollowUp == $option ? 'selected' : '' }}>
+                                          {{ $option }}
+                                      </option>
+                                  @endforeach
+                              </select>
+                          </td>
+                      </tr>
+                  </table>
+              </div>
+              <!-- /.card-body -->
+            </div>
    {{-- ========== KEBUTUHAN HARIAN ========== --}}
         <div class="bg-warning text-dark px-3 py-2 mb-2 rounded">
     <strong>Kebutuhan Harian</strong>
@@ -150,7 +161,7 @@
         </form>
 
 {{-- ========== DATA RINCIAN ========== --}}
-<div class="bg-success text-white px-3 py-2 mb-2 rounded">
+{{-- <div class="bg-success text-white px-3 py-2 mb-2 rounded">
     <strong>Data Rincian</strong>
 </div>
 
@@ -164,22 +175,26 @@
                 <th>Produk</th>
                 <th>Keterangan</th>
                 <th>Kuantitas</th>
-                <th>Status</th>
                 <th>Aksi</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td><input type="text" name="produk[]" class="form-control form-control-sm"></td>
+                <td>
+                <select name="produk_id[]" id="produk_id" class="form-control form-control-sm" required>
+                    <option value="">-- Pilih Produk --</option>
+                    @foreach($produkList as $produk)
+                        <option value="{{ $produk->produk_id }}"
+                            {{ (isset($interaksi->produk) && $interaksi->produk->produk_id == $produk->produk_id) ? 'selected' : '' }}>
+                            {{ $produk->produk_nama }}
+                        </option>
+                    @endforeach
+                </select>
+                <small id="error-produk_id" class="error-text form-text text-danger"></small>
+            </td>
+
                 <td><input type="text" name="keterangan[]" class="form-control form-control-sm"></td>
                 <td><input type="number" name="kuantitas[]" class="form-control form-control-sm" min="1"></td>
-                <td>
-                    <select name="status[]" class="form-control form-control-sm">
-                        <option value="pending">Pending</option>
-                        <option value="ready">Ready</option>
-                        <option value="done">Done</option>
-                    </select>
-                </td>
                 <td class="text-center">
                     <button type="button" class="btn btn-sm btn-success btn-add">
                         +
@@ -188,7 +203,7 @@
             </tr>
         </tbody>
     </table>
-</form>
+</form> --}}
 
 {{-- ========== DATA PASANG ========== --}}
 <div class="bg-info text-white px-3 py-2 mb-2 rounded">
@@ -269,23 +284,33 @@ $(document).on('click', '.btn-add-row', function(){
 $(document).on('click', '.btn-remove-row', function(){
     $(this).closest('.kebutuhan-row').remove();
 });
-$(document).ready(function() {
-    // Tambah baris
-    $(document).on('click', '.btn-add', function() {
-        let row = $(this).closest('tr').clone();
-        row.find('input').val(''); // reset input
-        row.find('select').val('pending'); // default status
-        row.find('.btn-add')
-            .removeClass('btn-success btn-add').addClass('btn-danger btn-remove')
-            .text('-'); // ganti jadi tombol hapus
-        $('#table-rincian tbody').append(row);
-    });
+// $(document).ready(function() {
+//     // Tambah baris
+//     $(document).on('click', '.btn-add', function() {
+//         let row = $(this).closest('tr').clone();
+//         row.find('input').val(''); // reset input
+//         row.find('select').val('pending'); // default status
+//         row.find('.btn-add')
+//             .removeClass('btn-success btn-add').addClass('btn-danger btn-remove')
+//             .text('-'); // ganti jadi tombol hapus
+//         $('#table-rincian tbody').append(row);
+//     });
 
-    // Hapus baris
-    $(document).on('click', '.btn-remove', function() {
-        $(this).closest('tr').remove();
-    });
-});
+//     // Hapus baris
+//     $(document).on('click', '.btn-remove', function() {
+//         $(this).closest('tr').remove();
+//     });
+// });
+// $(document).ready(function() { 
+//         $("#form-rincian").validate({ 
+//             rules: { 
+//                 produk_kode: {required: true, minlength: 3, maxlength: 20}, 
+//                 kategori_id: {required: true, number: true}, 
+//                 produk_nama: {required: true, minlength: 3, maxlength: 100}, 
+//             }, 
+//         });
+// });
+
 
 // Submit form (sama seperti sebelumnya)
 $(document).on('submit', '#form-interaksi-realtime', function(e){
