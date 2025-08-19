@@ -103,27 +103,42 @@
         </td>
     </tr>
 </table>
-   {{-- ========== KEBUTUHAN HARIAN ========== --}}
-        <div class="bg-warning text-dark px-3 py-2 mb-2 rounded">
+{{-- ========== KEBUTUHAN HARIAN ========== --}}
+<div class="bg-warning text-dark px-3 py-2 mb-2 rounded">
     <strong>Kebutuhan Harian</strong>
 </div>
-<form id="form-interaksi-realtime">
-    @csrf
     <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
     <div id="kebutuhan-container">
         <div class="row mb-2 kebutuhan-row">
-            <div class="col-md-4 mb-1">
-                <input type="date" name="tanggal[]" class="form-control form-control-sm" required>
-            </div>
-            <div class="col-md-6 mb-1">
-                <input type="text" name="keterangan[]" class="form-control form-control-sm" placeholder="Keterangan">
-            </div>
             <div class="col-md-2 mb-1">
                 <button type="button" class="btn btn-success btn-sm w-100 btn-add-row">Tambah</button>
             </div>
         </div>
     </div>
-</form>
+<style>
+    .thead-purple {
+        background-color: #6f42c1; /* Warna ungu bootstrap */
+        color: white;
+    }
+</style>
+
+{{-- LIST DATA KEBUTUHAN --}}
+<table class="table table-bordered table-striped table-hover table-sm mt-3">
+    <thead class="thead-purple">
+        <tr>
+            <th>Produk</th>
+            <th>Media</th>
+            <th>Tahapan</th>
+            <th>PIC</th>
+            <th>Status</th>
+            <th>Detail</th>
+        </tr>
+    </thead>
+    <tbody id="list-realtime">
+        {{-- Akan diload via AJAX loadRealtimeList() --}}
+    </tbody>
+</table>
+
 {{-- ========== DATA SURVEY ========== --}}
 <div class="bg-success text-white px-3 py-2 mb-2 rounded">
     <strong>Data Survey</strong>
@@ -208,59 +223,6 @@ $(document)
     }
 
 });
-// Tambah baris baru
-$(document).on('click', '.btn-add-row', function(){
-    let newRow = `<div class="row mb-2 kebutuhan-row">
-        <div class="col-md-4 mb-1">
-            <input type="date" name="tanggal[]" class="form-control form-control-sm" required>
-        </div>
-        <div class="col-md-6 mb-1">
-            <input type="text" name="keterangan[]" class="form-control form-control-sm" placeholder="Keterangan">
-        </div>
-        <div class="col-md-2 mb-1">
-            <button type="button" class="btn btn-danger btn-sm w-100 btn-remove-row">Hapus</button>
-        </div>
-    </div>`;
-    $('#kebutuhan-container').append(newRow);
-});
-
-// Hapus baris
-$(document).on('click', '.btn-remove-row', function(){
-    $(this).closest('.kebutuhan-row').remove();
-});
-
-// Submit form (sama seperti sebelumnya)
-$(document).on('submit', '#form-interaksi-realtime', function(e){
-    e.preventDefault();
-    $.post("{{ route('rekap.storeRealtime') }}", $(this).serialize(), function(res){
-        if(res.status === 'success'){
-            Swal.fire({icon:'success',title:'Berhasil!',text:'Data kebutuhan harian berhasil ditambahkan',timer:1500,showConfirmButton:false});
-            $('#form-interaksi-realtime')[0].reset();
-            $('#kebutuhan-container').html(` 
-                <div class="row mb-2 kebutuhan-row">
-                    <div class="col-md-4 mb-1">
-                        <input type="date" name="tanggal[]" class="form-control form-control-sm" required>
-                    </div>
-                    <div class="col-md-6 mb-1">
-                        <input type="text" name="keterangan[]" class="form-control form-control-sm" placeholder="Keterangan">
-                    </div>
-                    <div class="col-md-2 mb-1">
-                        <button type="button" class="btn btn-success btn-sm w-100 btn-add-row">Tambah</button>
-                    </div>
-                </div>
-            `);
-            loadRealtimeList();
-        }else Swal.fire({icon:'error',title:'Gagal!',text:res.message||'Tidak bisa menyimpan data'});
-    }).fail(function(){ Swal.fire({icon:'error',title:'Error!',text:'Terjadi kesalahan saat menyimpan'}); });
-});
-
-
-// Load list realtime
-function loadRealtimeList(){
-    let id = $('input[name="interaksi_id"]').val();
-    $.get("{{ url('/rekap/realtime/list') }}/"+id, function(html){ $('#list-realtime').html(html); });
-}
-
 // Simpan data follow-up
 $(document).on('click', '#btn-save-followup', function () {
     $.ajax({
