@@ -47,23 +47,26 @@
             </div>
 
     {{-- <form action="{{ url('/stok/' . $stock->stok_id . '/update_ajax') }}" method="POST" id="form-edit-stok"> --}}
-    
-{{-- ========== DETAIL PRODUK ========== --}}
+{{-- ========== DETAIL CUSTOMER ========== --}}
 <div class="bg-primary text-white px-3 py-2 mb-2 rounded">
-    <strong>Detail Kebutuhan</strong>
+    <strong>Detail Customer</strong>
 </div>
 <table class="table table-bordered table-striped table-hover table-sm mb-4"> 
     <tr> 
-        <th>Kategori</th> 
-        <td>{{ $interaksi->produk->kategori->kategori_nama ?? '-' }}</td> 
+        <th>Kode Customer</th> 
+        <td>{{ $interaksi->customer->customer_kode ?? '-' }}</td> 
     </tr> 
     <tr> 
-        <th>Nama produk</th> 
-        <td>{{ $interaksi->produk->produk_nama ?? '-' }}</td> 
+        <th>Nama Customer</th> 
+        <td>{{ $interaksi->customer->customer_nama ?? '-' }}</td> 
     </tr> 
     <tr> 
-        <th>Media</th> 
-        <td>{{ $interaksi->media ?? '-' }}</td> 
+        <th>Alamat</th> 
+        <td>{{ $interaksi->customer->customer_alamat ?? '-' }}</td> 
+    </tr>
+    <tr>
+        <th>No. HP</th>
+        <td>{{ $interaksi->customer->customer_hp ?? '-' }}</td>
     </tr>
     <tr>
         <th>Tahapan</th>
@@ -98,8 +101,6 @@
                 @endforeach
             </select>
         </td>
-    </tr>
-    <tr>
     </tr>
 </table>
    {{-- ========== KEBUTUHAN HARIAN ========== --}}
