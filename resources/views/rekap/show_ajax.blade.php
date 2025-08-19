@@ -144,8 +144,49 @@
             <td>
                 <input type="datetime-local" name="waktu_survey" class="form-control form-control-sm"
                        value="{{ $interaksi->waktu_survey ? date('Y-m-d\TH:i', strtotime($interaksi->waktu_survey)) : '' }}">
-            </td>
-        </tr>
+                    </td>
+                </tr>
+            </table>
+        </form>
+
+{{-- ========== DATA RINCIAN ========== --}}
+<div class="bg-success text-white px-3 py-2 mb-2 rounded">
+    <strong>Data Rincian</strong>
+</div>
+
+<form id="form-rincian">
+    @csrf
+    <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
+
+    <table class="table table-bordered table-striped table-hover table-sm" id="table-rincian">
+        <thead>
+            <tr>
+                <th>Produk</th>
+                <th>Keterangan</th>
+                <th>Kuantitas</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input type="text" name="produk[]" class="form-control form-control-sm"></td>
+                <td><input type="text" name="keterangan[]" class="form-control form-control-sm"></td>
+                <td><input type="number" name="kuantitas[]" class="form-control form-control-sm" min="1"></td>
+                <td>
+                    <select name="status[]" class="form-control form-control-sm">
+                        <option value="pending">Pending</option>
+                        <option value="ready">Ready</option>
+                        <option value="done">Done</option>
+                    </select>
+                </td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-success btn-add">
+                        +
+                    </button>
+                </td>
+            </tr>
+        </tbody>
     </table>
 </form>
 
@@ -227,6 +268,23 @@ $(document).on('click', '.btn-add-row', function(){
 // Hapus baris
 $(document).on('click', '.btn-remove-row', function(){
     $(this).closest('.kebutuhan-row').remove();
+});
+$(document).ready(function() {
+    // Tambah baris
+    $(document).on('click', '.btn-add', function() {
+        let row = $(this).closest('tr').clone();
+        row.find('input').val(''); // reset input
+        row.find('select').val('pending'); // default status
+        row.find('.btn-add')
+            .removeClass('btn-success btn-add').addClass('btn-danger btn-remove')
+            .text('-'); // ganti jadi tombol hapus
+        $('#table-rincian tbody').append(row);
+    });
+
+    // Hapus baris
+    $(document).on('click', '.btn-remove', function() {
+        $(this).closest('tr').remove();
+    });
 });
 
 // Submit form (sama seperti sebelumnya)
