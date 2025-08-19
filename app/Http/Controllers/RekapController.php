@@ -123,7 +123,7 @@ class RekapController extends Controller
         ]);
         return view('rekap.show_ajax', [
             'interaksi' => $interaksi,
-            'followUpOptions' => ['Follow Up 1', 'Follow Up 2', 'Closing Survey', 'Closing Pasang', 'Closing Product', 'Closing ALL'],
+            'followUpOptions' => ['Ask', 'Follow Up', 'Closing Survey', 'Closing Pasang', 'Closing Product', 'Closing ALL'],
             'selectedFollowUp' => $interaksi->follow_up ?? '',
             'closeValue'       => $interaksi->close ?? '',
             'steps'       => $steps,

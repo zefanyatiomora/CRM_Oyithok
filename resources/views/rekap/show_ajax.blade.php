@@ -86,7 +86,7 @@
         </td>
     </tr>
     <tr>
-        <th>Follow Up</th>
+        <th>Status</th>
         <td>
             <select id="follow-up-select" class="form-control form-control-sm"
                     data-id="{{ $interaksi->interaksi_id }}"
@@ -100,11 +100,6 @@
         </td>
     </tr>
     <tr>
-        <th>Close</th>
-        <td>
-            <input type="text" id="close-input" class="form-control form-control-sm"
-                   value="{{ $closeValue }}" readonly>
-        </td>
     </tr>
 </table>
 {{-- ========== DATA SURVEY/PASANG ========== --}}
@@ -151,29 +146,6 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-// Event untuk follow-up -> close otomatis
-$(document).on('change', '#follow-up-select', function () {
-    let followUpVal = ($(this).val() || '').trim();
-    let closeVal = 'Follow Up 1'; // default
-
-    switch (followUpVal.toLowerCase()) {
-        case 'follow up 1':
-            closeVal = 'Follow Up 2';
-            break;
-        case 'follow up 2':
-            closeVal = 'Broadcast';
-            break;
-        case 'closing survey':
-        case 'closing pasang':
-        case 'closing product':
-        case 'closing all':
-            closeVal = 'Closing';
-            break;
-    }
-
-    $('#close-input').val(closeVal);
-});
-
 // Event untuk tahapan -> PIC otomatis
 $(document)
 .off('click', '#btn-save-followup') // hapus event lama
