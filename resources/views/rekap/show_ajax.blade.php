@@ -8,36 +8,47 @@
 
         <div class="modal-body">
             {{-- Progress Steps --}}
-        @php
-            $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang', 'Done'];
-            $currentStep = array_search(strtolower($interaksi->tahapan), array_map('strtolower', $steps));
-        @endphp
+            @php
+                $originalStep = session('originalStep', $originalStep ?? 0);
+                $currentStep = session('currentStep', $currentStep ?? 0);
+            @endphp
+            <div class="d-flex align-items-center justify-content-center mb-4">
+                @foreach ($steps as $index => $step)
+                    <div class="text-center" style="min-width: 80px;">
+                        <div class="rounded-circle 
+                            {{ $index < $currentStep ? 'bg-success text-white' : '' }}
+                            {{ $index == $currentStep ? 'bg-primary text-white' : '' }}
+                            {{ $index > $currentStep ? 'bg-light text-dark' : '' }}
+                            d-flex align-items-center justify-content-center"
+                            style="width: 40px; height: 40px; margin: auto;">
 
-        <div class="d-flex align-items-center justify-content-center mb-4">
-            @foreach ($steps as $index => $step)
-                <div class="text-center" style="min-width: 80px;">
-                    <div class="rounded-circle 
-                        {{ $index < $currentStep ? 'bg-success text-white' : '' }}
-                        {{ $index == $currentStep ? 'bg-primary text-white' : '' }}
-                        {{ $index > $currentStep ? 'bg-light text-dark' : '' }}
-                        d-flex align-items-center justify-content-center"
-                        style="width: 40px; height: 40px; margin: auto;">
-                        @if($index < $currentStep)
-                            <i class="fas fa-check"></i>
-                        @else
-                            {{ $index + 1 }}
-                        @endif
+                            {{-- LOGIKA ICON --}}
+                            @if ($index < $originalStep)
+                                {{-- Sudah dilewati sebelumnya --}}
+                                <i class="fas fa-check"></i>
+                            @elseif ($index > $originalStep && $index < $currentStep)
+                                {{-- Tahapan dilewati (skip) --}}
+                                <i class="fas fa-times"></i>
+                            @elseif ($index == $currentStep)
+                                {{-- Step saat ini, tampilkan angka --}}
+                                {{ $index + 1 }}
+                            @else
+                                {{-- Step belum sampai --}}
+                                {{ $index + 1 }}
+                            @endif
+                        </div>
+                        <small>{{ $step }}</small>
                     </div>
-                    <small>{{ $step }}</small>
-                </div>
+                    {{-- Garis penghubung antar step --}}
+                    @if ($index < count($steps) - 1)
+                        <div class="flex-grow-1 border-top mx-2" style="height: 2px;"></div>
+                    @endif
+                @endforeach
+            </div>
 
-                @if ($index < count($steps) - 1)
-                    <div class="flex-grow-1 border-top mx-2" style="height: 2px;"></div>
-                @endif
-            @endforeach
-        </div>
-            
-          {{-- ========== DETAIL PRODUK ========== --}}
+    {{-- <form action="{{ url('/stok/' . $stock->stok_id . '/update_ajax') }}" method="POST" id="form-edit-stok"> --}}
+    
+{{-- ========== DETAIL PRODUK ========== --}}
 <div class="bg-primary text-white px-3 py-2 mb-2 rounded">
     <strong>Detail Kebutuhan</strong>
 </div>
@@ -63,6 +74,7 @@
                 <option value="survey" {{ strtolower($interaksi->tahapan ?? '') === 'survey' ? 'selected' : '' }}>survey</option>
                 <option value="pasang" {{ strtolower($interaksi->tahapan ?? '') === 'pasang' ? 'selected' : '' }}>pasang</option>
                 <option value="order" {{ strtolower($interaksi->tahapan ?? '') === 'order' ? 'selected' : '' }}>order</option>
+                <option value="done" {{ strtolower($interaksi->tahapan ?? '') === 'done' ? 'selected' : '' }}>done</option>
             </select>
         </td>
     </tr>
@@ -175,7 +187,9 @@
 
 <script>
 // Event untuk tahapan -> PIC otomatis
-$(document).on('change', '#tahapan-select', function () {
+$(document)
+.off('click', '#btn-save-followup') // hapus event lama
+.on('change', '#tahapan-select', function () {
     let tahapanVal = ($(this).val() || '').trim().toLowerCase();
 
     if (tahapanVal === 'identifikasi') {
@@ -184,7 +198,8 @@ $(document).on('change', '#tahapan-select', function () {
         tahapanVal === 'rincian' ||
         tahapanVal === 'survey' ||
         tahapanVal === 'pasang' ||
-        tahapanVal === 'order'
+        tahapanVal === 'order' ||
+        tahapanVal === 'done'
     ) {
         $('#pic-input').val('Konsultan');
     } else {
