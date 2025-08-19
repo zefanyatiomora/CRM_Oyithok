@@ -17,11 +17,11 @@ class RekapController extends Controller
         $bulan = $request->get('bulan'); // nullable
         $interaksiId = $request->input('interaksi_id');
 
-        Log::info('RekapController index params', [
-            'tahun' => $tahun,
-            'bulan' => $bulan,
-            'interaksi_id' => $interaksiId
-        ]);
+        // Log::info('RekapController index params', [
+        //     'tahun' => $tahun,
+        //     'bulan' => $bulan,
+        //     'interaksi_id' => $interaksiId
+        // ]);
         $bulanList = [
             '01' => 'Januari',
             '02' => 'Februari',
@@ -65,7 +65,7 @@ class RekapController extends Controller
         }
 
         $interaksi = $query->get();
-        Log::info('Jumlah interaksi hasil filter', ['count' => $interaksi->count()]);
+        // Log::info('Jumlah interaksi hasil filter', ['count' => $interaksi->count()]);
 
         return view('rekap.index', compact('breadcrumb', 'page', 'activeMenu', 'tahun', 'bulan', 'bulanList', 'interaksi', 'interaksiId'));
     }
@@ -76,7 +76,7 @@ class RekapController extends Controller
         $bulan = $request->input('bulan');
         $interaksiId = $request->input('interaksi_id');
 
-        Log::info('RekapController@list: Filter Tahun = ' . $tahun . ', Bulan = ' . $bulan . ',Interaksi ID = ' . $interaksiId);
+        // Log::info('RekapController@list: Filter Tahun = ' . $tahun . ', Bulan = ' . $bulan . ',Interaksi ID = ' . $interaksiId);
 
         $query = InteraksiModel::with(['customer'])
             ->select('interaksi_id', 'customer_id', 'produk_id', 'produk_nama', 'tanggal_chat', 'media', 'tahapan', 'identifikasi_kebutuhan', 'item_type');
@@ -106,11 +106,29 @@ class RekapController extends Controller
     {
         $interaksi = InteraksiModel::with('customer')->findOrFail($id);
 
+        $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang', 'Done'];
+
+        $originalStep = array_search(
+            strtolower($interaksi->tahapan),
+            array_map('strtolower', $steps)
+        );
+
+        $currentStep = $originalStep; // default sama, nanti berubah di update
+
+        Log::info('[Edit Interaksi]', [
+            'interaksi_id' => $id,
+            'tahapan'      => $interaksi->tahapan,
+            'originalStep' => $originalStep,
+            'currentStep'  => $currentStep,
+        ]);
         return view('rekap.show_ajax', [
             'interaksi' => $interaksi,
             'followUpOptions' => ['Follow Up 1', 'Follow Up 2', 'Closing Survey', 'Closing Pasang', 'Closing Product', 'Closing ALL'],
             'selectedFollowUp' => $interaksi->follow_up ?? '',
-            'closeValue'       => $interaksi->close ?? ''
+            'closeValue'       => $interaksi->close ?? '',
+            'steps'       => $steps,
+            'originalStep'       => $originalStep,
+            'currentStep'       => $currentStep
         ]);
     }
     public function updateFollowUp(Request $request)
@@ -125,6 +143,32 @@ class RekapController extends Controller
             'pic'          => 'required|string',
         ]);
 
+        // Tentukan tahapan proses
+        $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang', 'Done'];
+
+        $interaksi = InteraksiModel::findOrFail($validated['interaksi_id']);
+
+        // Hitung step lama dan step baru
+        $originalStep = array_search(
+            strtolower($interaksi->tahapan),
+            array_map('strtolower', $steps)
+        );
+
+        $currentStep = array_search(
+            strtolower($validated['tahapan']),
+            array_map('strtolower', $steps)
+        );
+
+        Log::info('Progress Step Update:', [
+            'interaksi_id'   => $validated['interaksi_id'],
+            'originalTahapan' => $interaksi->tahapan,
+            'currentTahapan' => $validated['tahapan'],
+            'originalStep'   => $originalStep,
+            'currentStep'    => $currentStep,
+            'steps'          => $steps
+        ]);
+
+        // Tentukan nilai "close"
         $closeValue = match ($validated['follow_up']) {
             'Follow Up 1'    => 'Follow Up 2',
             'Follow Up 2'    => 'Broadcast',
@@ -136,7 +180,7 @@ class RekapController extends Controller
         };
 
         try {
-            InteraksiModel::where('interaksi_id', $validated['interaksi_id'])
+            $updateResult = InteraksiModel::where('interaksi_id', $validated['interaksi_id'])
                 ->update([
                     'tahapan'   => $validated['tahapan'],
                     'pic'       => $validated['pic'],
@@ -144,9 +188,15 @@ class RekapController extends Controller
                     'close'     => $closeValue,
                 ]);
 
+            Log::info('Update result:', [
+                'rows_affected' => $updateResult
+            ]);
+
             return response()->json([
-                'status'  => 'success',
-                'message' => 'Data follow up berhasil disimpan',
+                'status'       => 'success',
+                'message'      => 'Data follow up berhasil disimpan',
+                'originalStep' => $originalStep,
+                'currentStep'  => $currentStep
             ]);
         } catch (\Exception $e) {
             Log::error('Gagal menyimpan follow up: ' . $e->getMessage());
