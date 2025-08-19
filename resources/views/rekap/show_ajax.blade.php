@@ -90,9 +90,30 @@
     <tr>
     </tr>
 </table>
-{{-- ========== DATA SURVEY/PASANG ========== --}}
+   {{-- ========== KEBUTUHAN HARIAN ========== --}}
+        <div class="bg-warning text-dark px-3 py-2 mb-2 rounded">
+    <strong>Kebutuhan Harian</strong>
+</div>
+<form id="form-interaksi-realtime">
+    @csrf
+    <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
+    <div id="kebutuhan-container">
+        <div class="row mb-2 kebutuhan-row">
+            <div class="col-md-4 mb-1">
+                <input type="date" name="tanggal[]" class="form-control form-control-sm" required>
+            </div>
+            <div class="col-md-6 mb-1">
+                <input type="text" name="keterangan[]" class="form-control form-control-sm" placeholder="Keterangan">
+            </div>
+            <div class="col-md-2 mb-1">
+                <button type="button" class="btn btn-success btn-sm w-100 btn-add-row">Tambah</button>
+            </div>
+        </div>
+    </div>
+</form>
+{{-- ========== DATA SURVEY ========== --}}
 <div class="bg-success text-white px-3 py-2 mb-2 rounded">
-    <strong>Data Survey / Pasang</strong>
+    <strong>Data Survey</strong>
 </div>
 <form id="form-survey">
     @csrf
@@ -100,9 +121,9 @@
     
     <table class="table table-bordered table-striped table-hover table-sm mb-4">
         <tr>
-            <th>Alamat</th>
+            <th>Alamat Survey</th>
             <td>
-                <textarea name="alamat" class="form-control form-control-sm" rows="2">{{ $interaksi->alamat ?? '' }}</textarea>
+                <textarea name="alamat_survey" class="form-control form-control-sm" rows="2">{{ $interaksi->alamat ?? '' }}</textarea>
             </td>
         </tr>
         <tr>
@@ -110,6 +131,24 @@
             <td>
                 <input type="datetime-local" name="waktu_survey" class="form-control form-control-sm"
                        value="{{ $interaksi->waktu_survey ? date('Y-m-d\TH:i', strtotime($interaksi->waktu_survey)) : '' }}">
+            </td>
+        </tr>
+    </table>
+</form>
+
+{{-- ========== DATA PASANG ========== --}}
+<div class="bg-info text-white px-3 py-2 mb-2 rounded">
+    <strong>Data Pasang</strong>
+</div>
+<form id="form-pasang">
+    @csrf
+    <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
+    
+    <table class="table table-bordered table-striped table-hover table-sm mb-4">
+        <tr>
+            <th>Alamat Pasang</th>
+            <td>
+                <textarea name="alamat_pasang" class="form-control form-control-sm" rows="2">{{ $interaksi->alamat ?? '' }}</textarea>
             </td>
         </tr>
         <tr>
@@ -121,12 +160,13 @@
         </tr>
     </table>
 </form>
-        </div>
+        </div> {{-- end modal-body --}}
 
         {{-- FOOTER --}}
         <div class="modal-footer">
             <button type="button" id="btn-save-followup" class="btn btn-primary">Simpan</button>
         </div>
+
     </div>
 </div>
 
@@ -152,6 +192,58 @@ $(document).on('change', '#tahapan-select', function () {
     }
 
 });
+// Tambah baris baru
+$(document).on('click', '.btn-add-row', function(){
+    let newRow = `<div class="row mb-2 kebutuhan-row">
+        <div class="col-md-4 mb-1">
+            <input type="date" name="tanggal[]" class="form-control form-control-sm" required>
+        </div>
+        <div class="col-md-6 mb-1">
+            <input type="text" name="keterangan[]" class="form-control form-control-sm" placeholder="Keterangan">
+        </div>
+        <div class="col-md-2 mb-1">
+            <button type="button" class="btn btn-danger btn-sm w-100 btn-remove-row">Hapus</button>
+        </div>
+    </div>`;
+    $('#kebutuhan-container').append(newRow);
+});
+
+// Hapus baris
+$(document).on('click', '.btn-remove-row', function(){
+    $(this).closest('.kebutuhan-row').remove();
+});
+
+// Submit form (sama seperti sebelumnya)
+$(document).on('submit', '#form-interaksi-realtime', function(e){
+    e.preventDefault();
+    $.post("{{ route('rekap.storeRealtime') }}", $(this).serialize(), function(res){
+        if(res.status === 'success'){
+            Swal.fire({icon:'success',title:'Berhasil!',text:'Data kebutuhan harian berhasil ditambahkan',timer:1500,showConfirmButton:false});
+            $('#form-interaksi-realtime')[0].reset();
+            $('#kebutuhan-container').html(` 
+                <div class="row mb-2 kebutuhan-row">
+                    <div class="col-md-4 mb-1">
+                        <input type="date" name="tanggal[]" class="form-control form-control-sm" required>
+                    </div>
+                    <div class="col-md-6 mb-1">
+                        <input type="text" name="keterangan[]" class="form-control form-control-sm" placeholder="Keterangan">
+                    </div>
+                    <div class="col-md-2 mb-1">
+                        <button type="button" class="btn btn-success btn-sm w-100 btn-add-row">Tambah</button>
+                    </div>
+                </div>
+            `);
+            loadRealtimeList();
+        }else Swal.fire({icon:'error',title:'Gagal!',text:res.message||'Tidak bisa menyimpan data'});
+    }).fail(function(){ Swal.fire({icon:'error',title:'Error!',text:'Terjadi kesalahan saat menyimpan'}); });
+});
+
+
+// Load list realtime
+function loadRealtimeList(){
+    let id = $('input[name="interaksi_id"]').val();
+    $.get("{{ url('/rekap/realtime/list') }}/"+id, function(html){ $('#list-realtime').html(html); });
+}
 
 // Simpan data follow-up
 $(document).on('click', '#btn-save-followup', function () {
@@ -159,12 +251,12 @@ $(document).on('click', '#btn-save-followup', function () {
         url: "{{ route('rekap.updateFollowUp') }}",
         type: "POST",
         data: {
-            token: "{{ csrf_token() }}",
+            _token: "{{ csrf_token() }}",
             interaksi_id: $('#follow-up-select').data('id'),
             customer_id: $('#follow-up-select').data('customer-id'),
             tahapan: $('#tahapan-select').val(),
             pic: $('#pic-input').val(),
-            follow_up: $('#follow-up-select').val()
+            status: $('#follow-up-select').val()
         },
         success: function(res) {
             if (res.status === 'success') {

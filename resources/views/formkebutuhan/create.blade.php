@@ -56,59 +56,6 @@
         </div>
     </div>
 </div>
-
-
-        {{-- Data Kebutuhan --}}
-        <div class="card card-primary mt-3">
-            <div class="card-header bg-purple text-white">
-                <h3 class="card-title">Data Kebutuhan</h3>
-            </div>
-            <div class="card-body row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="tanggal_chat">Tanggal Chat</label>
-                        <input type="date" class="form-control" name="tanggal_chat" id="tanggal_chat" value="{{ old('tanggal_chat') }}" required>
-                    </div>
-                    {{-- Item Type --}}
-                    <div class="form-group">
-                        <label for="item_type">Jenis Item</label>
-                        <select name="item_type" id="item_type" class="form-control" required>
-                            <option value="">Pilih Jenis</option>
-                            <option value="produk">Produk Saja</option>
-                            <option value="jasa">Jasa Pasang Saja</option>
-                            <option value="produk+jasa">Produk + Jasa Pasang</option>
-                        </select>
-                    </div>
-
-                    {{-- Pilih Produk --}}
-                    <div class="form-group">
-                        <label for="produk_id">Pilih Produk</label>
-                        <select name="produk_id" id="produk_id" class="form-control" required>
-                            <option value="">Pilih Produk</option>
-                            @foreach ($produks as $produk)
-                                <option value="{{ $produk->produk_id }}">{{ $produk->produk_nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                   {{-- <select name="produk_id" class="form-control" required>
-                        <option value="">Pilih Produk</option>
-                        @foreach ($produks as $produk)
-                            <option value="{{ $produk->produk_id }}">{{ $produk->produk_nama }}</option>
-                        @endforeach
-                    </select> --}}
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="identifikasi_kebutuhan">Identifikasi Kebutuhan</label>
-                        <textarea class="form-control" name="identifikasi_kebutuhan" id="identifikasi_kebutuhan" required>{{ old('identifikasi_kebutuhan') }}</textarea>
-                    </div>
-                <div class="form-group">
-                    <label for="media">Media</label>
-                    <input type="text" class="form-control" name="media" id="media" value="{{ old('media') }}">
-                </div>
-            <div class="card-footer text-right">
-                <button type="submit" class="btn btn-primary">Simpan</button>
-            </div>
         </div>
     </form>
 </div>

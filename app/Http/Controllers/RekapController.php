@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InteraksiModel;
+use App\Models\InteraksiRealtime;
 use App\Models\CustomersModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -59,17 +60,19 @@ class RekapController extends Controller
         if ($bulan) {
             $query->whereMonth('tanggal_chat', $bulan);
         }
-
         if ($interaksiId) {
             $query->where('interaksi_id', $interaksiId);
         }
-
         $interaksi = $query->get();
         Log::info('Jumlah interaksi hasil filter', ['count' => $interaksi->count()]);
 
         return view('rekap.index', compact('breadcrumb', 'page', 'activeMenu', 'tahun', 'bulan', 'bulanList', 'interaksi', 'interaksiId'));
     }
-
+  public function indexInteraksi()
+    {
+        $data = InteraksiRealtime::latest()->get();
+        return view('rekap.interaksi_realtime.index', compact('data'));
+    }
     public function list(Request $request)
     {
         $tahun = $request->input('tahun');
@@ -119,7 +122,7 @@ class RekapController extends Controller
         $validated = $request->validate([
             'interaksi_id' => 'required|exists:interaksi,interaksi_id',
             'customer_id'  => 'required|exists:customers,customer_id',
-            'follow_up'    => 'required|string',
+            'status'    => 'required|string',
             'tahapan'      => 'required|string',
             'pic'          => 'required|string',
         ]);
@@ -129,7 +132,7 @@ class RekapController extends Controller
                 ->update([
                     'tahapan'   => $validated['tahapan'],
                     'pic'       => $validated['pic'],
-                    'follow_up' => $validated['follow_up']
+                    'status' => $validated['status']
                 ]);
 
             return response()->json([
@@ -145,5 +148,36 @@ class RekapController extends Controller
                 'error'   => $e->getMessage()
             ], 500);
         }
+    }
+    // Tambah kebutuhan harian
+   public function storeRealtime(Request $request)
+{
+    $interaksi_id = $request->interaksi_id;
+    $tanggals = $request->tanggal;      // array
+    $keterangans = $request->keterangan; // array
+
+    if(is_array($tanggals) && is_array($keterangans)){
+        foreach($tanggals as $i => $tgl){
+            $keterangan = $keterangans[$i] ?? null;
+            if($tgl){ // pastikan tanggal diisi
+                InteraksiRealtime::create([
+                    'interaksi_id' => $interaksi_id,
+                    'tanggal' => $tgl,
+                    'keterangan' => $keterangan,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+    }
+
+    return response()->json(['status'=>'success']);
+}
+
+    // List realtime
+    public function getRealtimeList($interaksi_id)
+    {
+        $interaksi = InteraksiModel::with('realtime')->findOrFail($interaksi_id);
+        return view('rekap.realtime_list', ['realtime'=>$interaksi->realtime]);
     }
 }

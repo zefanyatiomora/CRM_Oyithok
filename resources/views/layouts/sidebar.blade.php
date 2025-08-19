@@ -33,13 +33,6 @@
                   <p>List Produk</p> 
                 </a> 
               </li> 
-        
-              <li class="nav-item"> 
-                <a href="{{ url('/kebutuhan') }}" class="nav-link {{ (isset($activeMenu) && $activeMenu == 'interaksis') ? 'active' : '' }}">
-                  <i class="nav-icon fas fa-cash-register"></i>
-                    <p>Form Kebutuhan</p>
-                  </a>
-              </li> 
               <li class="nav-item">
                 <a href="{{ url('logout') }}" class="nav-link"
                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

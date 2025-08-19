@@ -54,6 +54,8 @@ Route::prefix('rekap')->group(function () {
     Route::post('/list', [RekapController::class, 'list'])->name('rekap.list');
     Route::get('/{id}/show_ajax', [RekapController::class, 'show_ajax']);
     Route::post('/rekap/update-followup', [RekapController::class, 'updateFollowUp'])->name('rekap.updateFollowUp');
+    Route::post('store-realtime', [RekapController::class, 'storeRealtime'])->name('rekap.storeRealtime');
+    Route::get('realtime/list/{interaksi}', [RekapController::class, 'getRealtimeList']);
 });
 Route::prefix('survey')->group(function () {
     Route::get('/', [SurveyController::class, 'index'])->name('survey.index');       // Halaman list monthSurvey

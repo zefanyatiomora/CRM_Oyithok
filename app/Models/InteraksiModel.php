@@ -22,7 +22,7 @@ class InteraksiModel extends Model
         'identifikasi_kebutuhan',
         'media',
         'item_type',
-        'follow_up',
+        'status',
         'tahapan',
         'pic',
         'alamat',
@@ -49,4 +49,9 @@ class InteraksiModel extends Model
     {
         return $this->hasOne(UlasanModel::class, 'interaksi_id', 'interaksi_id');
     }
+    public function realtime()
+{
+    return $this->hasMany(InteraksiRealtime::class, 'interaksi_id', 'interaksi_id');
+}
+
 }
