@@ -68,76 +68,9 @@
         <th>No. HP</th>
         <td>{{ $interaksi->customer->customer_hp ?? '-' }}</td>
     </tr>
-    <tr>
-        <th>Tahapan</th>
-        <td>
-            <select id="tahapan-select" class="form-control form-control-sm">
-                <option value="identifikasi" {{ strtolower($interaksi->tahapan ?? '') === 'identifikasi' ? 'selected' : '' }}>identifikasi</option>
-                <option value="rincian" {{ strtolower($interaksi->tahapan ?? '') === 'rincian' ? 'selected' : '' }}>rincian</option>
-                <option value="survey" {{ strtolower($interaksi->tahapan ?? '') === 'survey' ? 'selected' : '' }}>survey</option>
-                <option value="pasang" {{ strtolower($interaksi->tahapan ?? '') === 'pasang' ? 'selected' : '' }}>pasang</option>
-                <option value="order" {{ strtolower($interaksi->tahapan ?? '') === 'order' ? 'selected' : '' }}>order</option>
-                <option value="done" {{ strtolower($interaksi->tahapan ?? '') === 'done' ? 'selected' : '' }}>done</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <th>PIC</th>
-        <td>
-            <input type="text" id="pic-input" class="form-control form-control-sm" 
-                   value="{{ $interaksi->pic ?? (auth()->user()->name ?? '-') }}" readonly>
-        </td>
-    </tr>
-    <tr>
-        <th>Status</th>
-        <td>
-            <select id="follow-up-select" class="form-control form-control-sm"
-                    data-id="{{ $interaksi->interaksi_id }}"
-                    data-customer-id="{{ $interaksi->customer_id }}">
-                @foreach($followUpOptions as $option)
-                    <option value="{{ $option }}" {{ $selectedFollowUp == $option ? 'selected' : '' }}>
-                        {{ $option }}
-                    </option>
-                @endforeach
-            </select>
-        </td>
-    </tr>
 </table>
-{{-- ========== KEBUTUHAN HARIAN ========== --}}
-<div class="bg-warning text-dark px-3 py-2 mb-2 rounded">
-    <strong>Kebutuhan Harian</strong>
-</div>
-    <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
-    <div id="kebutuhan-container">
-        <div class="row mb-2 kebutuhan-row">
-            <div class="col-md-2 mb-1">
-                <button type="button" class="btn btn-success btn-sm w-100 btn-add-row">Tambah</button>
-            </div>
-        </div>
-    </div>
-<style>
-    .thead-purple {
-        background-color: #6f42c1; /* Warna ungu bootstrap */
-        color: white;
-    }
-</style>
-
-{{-- LIST DATA KEBUTUHAN --}}
-<table class="table table-bordered table-striped table-hover table-sm mt-3">
-    <thead class="thead-purple">
-        <tr>
-            <th>Produk</th>
-            <th>Media</th>
-            <th>Tahapan</th>
-            <th>PIC</th>
-            <th>Status</th>
-            <th>Detail</th>
-        </tr>
-    </thead>
-    <tbody id="list-realtime">
-        {{-- Akan diload via AJAX loadRealtimeList() --}}
-    </tbody>
-</table>
+{{-- Kebutuhan Harian (include partial) --}}
+@include('rekap.index_realtime')
 
 {{-- ========== DATA SURVEY ========== --}}
 <div class="bg-success text-white px-3 py-2 mb-2 rounded">
