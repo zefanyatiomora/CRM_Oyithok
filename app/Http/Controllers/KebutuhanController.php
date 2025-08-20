@@ -49,7 +49,7 @@ class KebutuhanController extends Controller
         // 3. Coba simpan interaksi
         $interaksi = InteraksiModel::create([
             'customer_id' => $validated['customer_id'],
-            'produk_id' => 6,
+            'produk_id' => 11,
             'tanggal_chat' => now(),
             // Kolom lain akan diisi NULL atau nilai default oleh database
         ]);

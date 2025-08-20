@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\ProdukController;
+use App\Http\Controllers\TambahKebutuhanController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
@@ -39,6 +40,14 @@ Route::post('/kebutuhan', [KebutuhanController::class, 'store'])->name('kebutuha
 Route::get('/kebutuhan/search-customer', [KebutuhanController::class, 'searchCustomer'])->name('kebutuhan.searchCustomer');
 Route::get('/kebutuhan/get-customer/{id}', [KebutuhanController::class, 'getCustomer'])->name('kebutuhan.getCustomer');
 
+Route::prefix('tambahkebutuhan')->group(function () {
+    Route::get('/{customer_id}', [TambahKebutuhanController::class, 'index'])->name('tambahkebutuhan.index');
+    Route::get('/tambah/{customer_id}', [TambahKebutuhanController::class, 'create'])->name('tambahkebutuhan.create');
+    Route::post('/', [TambahKebutuhanController::class, 'store'])->name('tambahkebutuhan.store');
+
+    Route::get('/{interaksi_id}/edit', [TambahKebutuhanController::class, 'edit'])->name('tambahkebutuhan.edit');
+    Route::put('/{interaksi_id}', [TambahKebutuhanController::class, 'update'])->name('tambahkebutuhan.update');
+});
 // kalau mau detail berdasarkan customer_id, kasih nama route beda
 Route::get('/kebutuhan/customer/{customer_id}', [KebutuhanController::class, 'showByCustomer'])->name('kebutuhan.byCustomer');
 Route::get('/rekap/{interaksi_id}/realtime', [KebutuhanController::class, 'index'])->name('rekap.realtime');
