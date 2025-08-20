@@ -34,55 +34,52 @@ class KebutuhanController extends Controller
 
     public function store(Request $request)
     {
-        // 1. Log data yang masuk dari request
         Log::info('Mencoba membuat interaksi baru.', ['request_data' => $request->all()]);
 
-        // try {
-        // 2. Lakukan validasi seperti biasa
-        $validated = $request->validate([
-            'customer_id' => 'required|integer|exists:customers,customer_id',
-        ]);
+        $customerId = $request->input('customer_id');
 
-        // Log data yang sudah lolos validasi
-        Log::info('Validasi berhasil.', ['validated_data' => $validated]);
+        // SCENARIO 1: CUSTOMER BARU (customer_id tidak ada atau kosong)
+        if (empty($customerId)) {
+            // Validasi data untuk customer baru
+            $validatedCustomer = $request->validate([
+                'customer_nama'   => 'required|string|max:255',
+                'customer_kode'   => 'required|string|unique:customers,customer_kode', // Pastikan kode unik
+                'customer_nohp'   => 'required|string',
+                'customer_alamat' => 'nullable|string',
+                'informasi_media' => 'nullable|string',
+            ]);
 
-        // 3. Coba simpan interaksi
+            // Buat customer baru di tabel 'customers'
+            $newCustomer = CustomersModel::create($validatedCustomer);
+
+            // Ambil ID dari customer yang baru saja dibuat
+            $customerId = $newCustomer->customer_id;
+
+            Log::info('Customer baru berhasil dibuat.', ['customer_id' => $customerId]);
+        }
+        // SCENARIO 2: CUSTOMER LAMA (customer_id sudah ada)
+        else {
+            // Validasi bahwa customer_id yang dikirim memang ada di database
+            $request->validate([
+                'customer_id' => 'required|integer|exists:customers,customer_id',
+            ]);
+            Log::info('Menggunakan customer yang sudah ada.', ['customer_id' => $customerId]);
+        }
+
+        // -- BAGIAN INI BERJALAN UNTUK KEDUA SCENARIO --
+        // Buat interaksi menggunakan customerId yang sudah didapat
         $interaksi = InteraksiModel::create([
             'customer_id' => $validated['customer_id'],
             'produk_id' => 11,
             'tanggal_chat' => now(),
-            // Kolom lain akan diisi NULL atau nilai default oleh database
         ]);
 
-        // Jika berhasil, log informasinya
         Log::info('Interaksi berhasil disimpan.', ['interaksi_id' => $interaksi->interaksi_id]);
 
-        return response()->json(
-            [
-                'status' => true,
-                'message' => 'Interaksi berhasil disimpan'
-            ]
-        );
-        // } catch (ValidationException $e) {
-        //     // 4. Tangkap dan log jika validasi gagal
-        //     Log::error('Validasi gagal.', [
-        //         'errors' => $e->errors(),
-        //         'request_data' => $request->all()
-        //     ]);
-        //     // Redirect kembali dengan error validasi
-        //     return redirect()->back()->withErrors($e->errors())->withInput();
-        // } catch (\Exception $e) {
-        //     // 5. Tangkap SEMUA error lain (termasuk error database)
-        //     Log::error('GAGAL MENYIMPAN INTERAKSI: Terjadi exception.', [
-        //         'error_message' => $e->getMessage(), // Pesan error yang paling penting!
-        //         'error_trace' => $e->getTraceAsString(), // Detail error untuk debug mendalam
-        //         'request_data' => $request->all()
-        //     ]);
-
-        //     // Redirect kembali dengan pesan error umum
-        //     return redirect()->back()
-        //         ->with('error', 'Terjadi kesalahan pada server. Silakan coba lagi.');
-        // }
+        return response()->json([
+            'status'  => true,
+            'message' => 'Interaksi berhasil disimpan untuk Customer ID: '
+        ]);
     }
 
     public function searchCustomer(Request $request)
