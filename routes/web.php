@@ -31,12 +31,17 @@ Route::get('/customers/{id}/show_ajax', [CustomersController::class, 'show_ajax'
 Route::get('/customers/{id}/edit', [CustomersController::class, 'edit'])->name('customers.edit');
 Route::put('/customers/{id}/update', [CustomersController::class, 'update'])->name('customers.update');
 //kebutuhan//
-Route::get('/kebutuhan', [KebutuhanController::class, 'index'])->name('kebutuhan.index');
+// routes/web.php
+Route::get('/kebutuhan', [KebutuhanController::class, 'index'])->name('kebutuhan.index'); // daftar semua customer
 Route::get('/kebutuhan/create', [KebutuhanController::class, 'create'])->name('kebutuhan.create');
 Route::post('/kebutuhan', [KebutuhanController::class, 'store'])->name('kebutuhan.store');
+
 Route::get('/kebutuhan/search-customer', [KebutuhanController::class, 'searchCustomer'])->name('kebutuhan.searchCustomer');
 Route::get('/kebutuhan/get-customer/{id}', [KebutuhanController::class, 'getCustomer'])->name('kebutuhan.getCustomer');
 
+// kalau mau detail berdasarkan customer_id, kasih nama route beda
+Route::get('/kebutuhan/customer/{customer_id}', [KebutuhanController::class, 'showByCustomer'])->name('kebutuhan.byCustomer');
+Route::get('/rekap/{interaksi_id}/realtime', [KebutuhanController::class, 'index'])->name('rekap.realtime');
 Route::prefix('produk')->group(function () {
     Route::get('/', [ProdukController::class, 'index'])->name('produk.index');       // Halaman list produk
     Route::post('/list', [ProdukController::class, 'list'])->name('produk.list');    // DataTables JSON
@@ -56,6 +61,8 @@ Route::prefix('rekap')->group(function () {
     Route::post('/rekap/update-followup', [RekapController::class, 'updateFollowUp'])->name('rekap.updateFollowUp');
     Route::post('store-realtime', [RekapController::class, 'storeRealtime'])->name('rekap.storeRealtime');
     Route::get('realtime/list/{interaksi}', [RekapController::class, 'getRealtimeList']);
+    Route::get('/rekap/realtime/{interaksi_id}', [RekapController::class, 'indexRealtime'])->name('rekap.indexRealtime');
+
 });
 Route::prefix('survey')->group(function () {
     Route::get('/', [SurveyController::class, 'index'])->name('survey.index');       // Halaman list monthSurvey

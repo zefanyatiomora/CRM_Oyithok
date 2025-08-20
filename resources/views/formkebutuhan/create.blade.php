@@ -80,32 +80,10 @@
 </style>
 @endpush
 
-@push('css')
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<style>
-    #customer_list {
-        max-height: 200px;
-        overflow-y: auto;
-        background-color: white;
-        border: 1px solid #ced4da;
-        z-index: 9999;
-    }
-</style>
-@endpush
-
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-    $(function () {
-        document.getElementById('item_type').addEventListener('change', function() {
-        let produkSelect = document.getElementById('produk_id');
-        if (this.value === 'jasa') {
-            produkSelect.value = "";
-            produkSelect.disabled = true;
-        } else {
-            produkSelect.disabled = false;
-        }
-    });
+$(function () {
     // Select2
     $('#produk_id').select2({
         placeholder: 'Pilih produk yang dibutuhkan',
@@ -131,6 +109,7 @@
                                  </a>`;
                     });
                 } else {
+                    $('#customer_id').val(''); // reset kalau tidak ada
                     list = `<a href="#" class="list-group-item list-group-item-action disabled">Tidak ditemukan</a>`;
                 }
                 $('#customer_list').html(list).show();
@@ -143,6 +122,8 @@
     // Pilih dari hasil pencarian
     $('#customer_list').on('click', '.list-group-item', function (e) {
         e.preventDefault();
+        if ($(this).hasClass('disabled')) return;
+
         $('#customer_id').val($(this).data('id'));
         $('#customer_nama').val($(this).data('nama'));
         $('#customer_kode').val($(this).data('kode'));
@@ -174,34 +155,31 @@
         $(this).val(val);
     });
 
-    // Validasi form + AJAX submit
-    $('#formKebutuhan').validate({
-        submitHandler: function(form) {
-            $.ajax({
-                url: form.action,
-                type: form.method,
-                data: $(form).serialize(),
-                success: function(response) {
-                    if (response.status) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil',
-                            text: response.message
-                        });
-                    } else {
-                        $.each(response.msgField, function(prefix, val) {
-                            $('#error-' + prefix).text(val[0]);
-                        });
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Terjadi Kesalahan',
-                            text: response.message
-                        });
-                    }
+    // Submit via AJAX
+    $('#formKebutuhan').on('submit', function(e){
+        e.preventDefault();
+        $.ajax({
+            url: this.action,
+            type: this.method,
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response.status) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: response.message
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Terjadi Kesalahan',
+                        text: response.message
+                    });
                 }
-            });
-            return false;
-        }
+            }
+        });
     });
 });
 </script>

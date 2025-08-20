@@ -3,7 +3,15 @@
     <strong>Kebutuhan Harian</strong>
 </div>
 
-<input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
+{{-- Pastikan $interaksi tidak null --}}
+@if(isset($interaksi))
+    <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
+@else
+    <div class="alert alert-danger">
+        Data interaksi tidak ditemukan.
+    </div>
+@endif
+
 <div id="kebutuhan-container">
     <div class="row mb-2 kebutuhan-row">
         <div class="col-md-2 mb-1">

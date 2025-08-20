@@ -70,11 +70,15 @@ class RekapController extends Controller
 
         return view('rekap.index', compact('breadcrumb', 'page', 'activeMenu', 'tahun', 'bulan', 'bulanList', 'interaksi', 'interaksiId'));
     }
-    public function indexInteraksi()
-    {
-        $data = InteraksiRealtime::latest()->get();
-        return view('rekap.interaksi_realtime.index', compact('data'));
-    }
+    public function indexRealtime($interaksi_id)
+{
+    $interaksi = InteraksiModel::findOrFail($interaksi_id);
+
+    return view('rekap.index_realtime', [
+        'interaksi' => $interaksi,
+        'activeMenu' => 'dashboard'
+    ]);
+}
     public function list(Request $request)
     {
         $tahun = $request->input('tahun');

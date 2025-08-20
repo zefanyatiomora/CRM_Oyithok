@@ -11,32 +11,17 @@ use Illuminate\Support\Facades\Log; // Tambahkan di paling atas
 
 class KebutuhanController extends Controller
 {
-    public function index()
-    {
-        $interaksis = InteraksiModel::with(['customer'])
-            ->orderByDesc('tanggal_chat')
-            ->get()
-            ->map(function ($item) {
-                $produks = ProdukModel::find($item->produk_id);
-                $item->produk_nama = $produks?->produk_nama ?? '-';
-                return $item;
-            });
+    public function index(Request $request)
+{
+    $activeMenu = 'dashboard';
 
-        $produks = ProdukModel::all();
+    // Ambil interaksi pertama atau sesuai kebutuhan
+    $interaksi = InteraksiModel::first();  
+    // Kalau pakai ID tertentu:
+    // $interaksi = InteraksiModel::find($request->id);
 
-        return view('formkebutuhan.create', [
-            'produks' => $produks,
-            'activeMenu' => 'interaksis',
-            'breadcrumb' => (object)[
-                'title' => 'Form Kebutuhan',
-                'list' => [
-                    'Dashboard' => route('dashboard'),
-                    'Form Kebutuhan' => ''
-                ]
-            ]
-        ]);
-    }
-
+    return view('formkebutuhan.create', compact('activeMenu', 'interaksi'));
+}
     public function create()
     {
         $produks = ProdukModel::all(); // harus 'produks', jamak
@@ -46,66 +31,21 @@ class KebutuhanController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+   public function store(Request $request)
     {
+        // Validasi hanya customer_id
         $validated = $request->validate([
-            'customer_nama' => 'required',
-            'customer_kode' => 'required',
-            'customer_nohp' => 'required',
-            'customer_alamat' => 'required',
-            'informasi_media' => 'required',
-            'tanggal_chat' => 'required|date',
-            'identifikasi_kebutuhan' => 'required',
-            'media' => 'nullable|string',
-            'produk_id' => 'required|integer|exists:produks,produk_id',
+            'customer_id' => 'required|integer|exists:customers,customer_id',
         ]);
 
-        DB::beginTransaction();
+        // Simpan interaksi hanya dengan customer_id
+        $interaksi = InteraksiModel::create([
+            'customer_id' => $validated['customer_id']
+        ]);
 
-        try {
-            // Cek pelanggan lama atau buat baru
-            if ($request->filled('customer_id')) {
-                $customer_id = $request->input('customer_id');
-            } else {
-                $customer = CustomersModel::create([
-                    'customer_nama'   => $request->input('customer_nama'),
-                    'customer_kode'   => $request->input('customer_kode'),
-                    'customer_nohp'   => $request->input('customer_nohp'),
-                    'customer_alamat' => $request->input('customer_alamat'),
-                    'informasi_media' => $request->input('informasi_media')
-                ]);
-                $customer_id = $customer->customer_id;
-            }
-
-            // Ambil nama produk berdasarkan ID
-            $produkId = $request->input('produk_id');
-            $produks = ProdukModel::find($produkId);
-            // Simpan ke tabel interaksi
-            InteraksiModel::create([
-                'customer_id'             => $customer_id,
-                'tanggal_chat'           => $request->input('tanggal_chat'),
-                'produk_id'               => $produks->produk_id,
-                'produk_nama'             => $produks->produk_nama,
-                'identifikasi_kebutuhan' => $request->input('identifikasi_kebutuhan'),
-                'media'                   => $request->input('media'),
-            ]);
-
-            DB::commit();
-            return redirect()->route('kebutuhan.create')->with('success', 'Data berhasil disimpan.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            // Simpan log error ke laravel.log
-            Log::error('Gagal menyimpan data interaksi/customer', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'request' => $request->all()
-            ]);
-
-            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
+        return redirect()->route('kebutuhan.index')
+            ->with('success', 'Customer berhasil ditambahkan ke tabel interaksi. ID: ' . $interaksi->interaksi_id);
     }
-
 
     public function searchCustomer(Request $request)
     {
