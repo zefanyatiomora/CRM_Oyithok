@@ -10,24 +10,25 @@ use Illuminate\Http\Request;
 class TambahKebutuhanController extends Controller
 {
     // Menampilkan daftar kebutuhan customer
-public function index(Request $request)
-{
-    $interaksi = InteraksiModel::with('customer')->first(); // Contoh ambil satu data interaksi
-    $produks = ProdukModel::all();
+    public function index()
+    {
+        $customer = CustomersModel::first();
+        $produks = ProdukModel::all();
+        $interaksis = $customer 
+            ? InteraksiModel::where('customer_id', $customer->customer_id)
+                ->orderBy('tanggal_chat','desc')
+                ->get()
+            : [];
 
-    // Ambil customer dari interaksi jika ada
-    $customer = $interaksi ? $interaksi->customer : null;
-
-    return view('rekap.index_realtime', compact('interaksi', 'produks', 'customer'));
-}
+        return view('rekap.index_realtime', compact('customer','produks','interaksis'));
+    }
 
     // Form tambah kebutuhan baru
     public function create($customer_id)
     {
         $customer = CustomersModel::findOrFail($customer_id);
         $produks = ProdukModel::all();
-
-        return view('rekap.tambah_kebutuhan', compact('customer', 'produks'));
+        return view('rekap.tambah_kebutuhan', compact('customer','produks'));
     }
 
     // Simpan kebutuhan baru
@@ -47,31 +48,32 @@ public function index(Request $request)
             'produk_nama' => $produk->produk_nama,
         ]);
 
-        return redirect()->route('tambahkebutuhan.index', $validated['customer_id'])
-                         ->with('success', 'Kebutuhan berhasil ditambahkan!');
+        return response()->json([
+            'success' => 'Kebutuhan berhasil ditambahkan!'
+        ]);
     }
 
     // Form edit identifikasi kebutuhan
     public function edit($interaksi_id)
     {
         $interaksi = InteraksiModel::findOrFail($interaksi_id);
-        return view('rekap.edit_kebutuhan', compact('interaksi'));
+        return view('rekap.tambah_kebutuhan', compact('interaksi'));
     }
 
     // Update identifikasi kebutuhan
-public function update(Request $request, $interaksi_id)
-{
-    $validated = $request->validate([
-        'identifikasi_kebutuhan' => 'required|string',
-        'tanggal_chat' => 'required|date',
-    ]);
+    public function update(Request $request, $interaksi_id)
+    {
+        $validated = $request->validate([
+            'identifikasi_kebutuhan' => 'required|string',
+            'tanggal_chat' => 'required|date',
+        ]);
 
-    $interaksi = InteraksiModel::findOrFail($interaksi_id);
-    $interaksi->identifikasi_kebutuhan = $validated['identifikasi_kebutuhan'];
-    $interaksi->tanggal_chat = $validated['tanggal_chat'];
-    $interaksi->save();
+        $interaksi = InteraksiModel::findOrFail($interaksi_id);
+        $interaksi->identifikasi_kebutuhan = $validated['identifikasi_kebutuhan'];
+        $interaksi->tanggal_chat = $validated['tanggal_chat'];
+        $interaksi->save();
 
-    return redirect()->route('tambahkebutuhan.index', $interaksi->customer_id)
-                     ->with('success', 'Identifikasi kebutuhan berhasil diperbarui!');
-}
+        return redirect()->route('tambahkebutuhan.index')
+                         ->with('success','Identifikasi kebutuhan berhasil diperbarui!');
+    }
 }

@@ -40,13 +40,12 @@ Route::post('/kebutuhan', [KebutuhanController::class, 'store'])->name('kebutuha
 Route::get('/kebutuhan/search-customer', [KebutuhanController::class, 'searchCustomer'])->name('kebutuhan.searchCustomer');
 Route::get('/kebutuhan/get-customer/{id}', [KebutuhanController::class, 'getCustomer'])->name('kebutuhan.getCustomer');
 
-Route::prefix('tambahkebutuhan')->group(function () {
-    Route::get('/{customer_id}', [TambahKebutuhanController::class, 'index'])->name('tambahkebutuhan.index');
-    Route::get('/tambah/{customer_id}', [TambahKebutuhanController::class, 'create'])->name('tambahkebutuhan.create');
-    Route::post('/', [TambahKebutuhanController::class, 'store'])->name('tambahkebutuhan.store');
-
-    Route::get('/{interaksi_id}/edit', [TambahKebutuhanController::class, 'edit'])->name('tambahkebutuhan.edit');
-    Route::put('/{interaksi_id}', [TambahKebutuhanController::class, 'update'])->name('tambahkebutuhan.update');
+Route::prefix('tambahkebutuhan')->name('tambahkebutuhan.')->group(function() {
+    Route::get('/', [TambahKebutuhanController::class,'index'])->name('index');
+    Route::get('/create/{customer_id}', [TambahKebutuhanController::class,'create'])->name('create');
+    Route::post('/store', [TambahKebutuhanController::class,'store'])->name('store');
+    Route::get('/edit/{interaksi_id}', [TambahKebutuhanController::class,'edit'])->name('edit');
+    Route::post('/update/{interaksi_id}', [TambahKebutuhanController::class,'update'])->name('update');
 });
 // kalau mau detail berdasarkan customer_id, kasih nama route beda
 Route::get('/kebutuhan/customer/{customer_id}', [KebutuhanController::class, 'showByCustomer'])->name('kebutuhan.byCustomer');

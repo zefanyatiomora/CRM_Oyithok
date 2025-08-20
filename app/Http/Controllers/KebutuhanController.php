@@ -69,7 +69,7 @@ class KebutuhanController extends Controller
         // -- BAGIAN INI BERJALAN UNTUK KEDUA SCENARIO --
         // Buat interaksi menggunakan customerId yang sudah didapat
         $interaksi = InteraksiModel::create([
-            'customer_id' => $validated['customer_id'],
+            'customer_id' => $customerId,
             'produk_id' => 11,
             'tanggal_chat' => now(),
         ]);
