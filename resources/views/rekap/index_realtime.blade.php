@@ -1,7 +1,4 @@
-@extends('layouts.template')
-
-@section('content')
-<div class="card card-outline card-warning">
+<div class="card card-warning">
     <div class="card-header d-flex justify-content-between">
         <h3 class="card-title">Kebutuhan Harian</h3>
         @if(isset($customer))
@@ -24,7 +21,20 @@
                 </tr>
             </thead>
             <tbody>
-            @forelse($interaksis as $interaksi)
+                <tr>
+                <td>
+                <select name="produk_id[]" id="produk_id" class="form-control form-control-sm" required>
+                    <option value="">-- Pilih Produk --</option>
+                    @foreach($produkList as $produk)
+                        <option value="{{ $produk->produk_id }}"
+                            {{ (isset($interaksi->produk) && $interaksi->produk->produk_id == $produk->produk_id) ? 'selected' : '' }}>
+                            {{ $produk->produk_nama }}
+                        </option>
+                    @endforeach
+                </select>
+                <small id="error-produk_id" class="error-text form-text text-danger"></small>
+            </td>  
+            {{-- @forelse($interaksis as $interaksi)
                 <tr>
                     <td>{{ $interaksi->produk_nama }}</td>
                     <td>{{ $interaksi->tahapan ?? '-' }}</td>
@@ -51,7 +61,8 @@
                 <tr>
                     <td colspan="5" class="text-center">Belum ada data interaksi</td>
                 </tr>
-            @endforelse
+            @endforelse --}}
+
             </tbody>
         </table>
     </div>
@@ -60,7 +71,6 @@
 {{-- Modal --}}
 <div id="myModal" class="modal fade" tabindex="-1" role="dialog"></div>
 
-@endsection
 
 @push('css')
 <style>
