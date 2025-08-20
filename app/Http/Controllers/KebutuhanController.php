@@ -80,23 +80,18 @@ class KebutuhanController extends Controller
             // Ambil nama produk berdasarkan ID
             $produkId = $request->input('produk_id');
             $produks = ProdukModel::find($produkId);
-            // Simpan ke tabel interaksi dan simpan hasilnya
-            $interaksi = InteraksiModel::create([
+            // Simpan ke tabel interaksi
+            InteraksiModel::create([
                 'customer_id'             => $customer_id,
-                'tanggal_chat'            => $request->input('tanggal_chat'),
+                'tanggal_chat'           => $request->input('tanggal_chat'),
                 'produk_id'               => $produks->produk_id,
                 'produk_nama'             => $produks->produk_nama,
-                'tahapan'                 => 'identifikasi',
-                'identifikasi_kebutuhan'  => $request->input('identifikasi_kebutuhan'),
+                'identifikasi_kebutuhan' => $request->input('identifikasi_kebutuhan'),
                 'media'                   => $request->input('media'),
             ]);
 
-
             DB::commit();
-            return response()->json([
-                'status' => true,
-                'message' => 'Data interaksi berhasil disimpan'
-            ]);
+            return redirect()->route('kebutuhan.create')->with('success', 'Data berhasil disimpan.');
         } catch (\Exception $e) {
             DB::rollBack();
 
