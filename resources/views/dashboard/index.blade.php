@@ -105,40 +105,7 @@
                     class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
-
             <!-- ... kotak lainnya -->
-
-            <!-- ./col -->
-            <div class="col-lg-3 col-6">
-                <!-- small box -->
-            <div class="small-box bg-warning">
-              <div class="inner">
-                  <h3>44</h3>
-                  
-                  <p>User Registrations</p>
-                </div>
-                <div class="icon">
-                    <i class="ion ion-person-add"></i>
-                </div>
-                <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-danger">
-                <div class="inner">
-                    <h3>65</h3>
-                    
-                    <p>Unique Visitors</p>
-                </div>
-                <div class="icon">
-                    <i class="ion ion-pie-graph"></i>
-                </div>
-                <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
     </div>
     <!-- /.row -->
     <!-- Main row -->
@@ -186,12 +153,13 @@
 <script src="{{ asset('adminlte/plugins/chart.js/Chart.min.js') }}"></script>
 <script>
     $(function () {
-        // Contoh data dummy, bisa kamu ganti dari Controller / Ajax
+        // Ganti data dummy dengan data dinamis dari Controller
         var areaChartData = {
-            labels  : ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            // Gunakan data label dari controller
+            labels  : {!! json_encode($chartLabels) !!},
             datasets: [
                 {
-                    label               : 'Leads Lama',
+                    label               : 'Leads Baru',
                     backgroundColor     : 'rgba(60,141,188,0.9)',
                     borderColor         : 'rgba(60,141,188,0.8)',
                     pointRadius         : false,
@@ -199,10 +167,11 @@
                     pointStrokeColor    : 'rgba(60,141,188,1)',
                     pointHighlightFill  : '#fff',
                     pointHighlightStroke: 'rgba(60,141,188,1)',
-                    data                : [28, 48, 40, 19, 86, 27, 90]
+                    // Gunakan data leads lama dari controller
+                    data                : {!! json_encode($dataLeadsLama) !!}
                 },
                 {
-                    label               : 'Leads Baru',
+                    label               : 'Leads Lama',
                     backgroundColor     : 'rgba(210, 214, 222, 1)',
                     borderColor         : 'rgba(210, 214, 222, 1)',
                     pointRadius         : false,
@@ -210,12 +179,13 @@
                     pointStrokeColor    : '#c1c7d1',
                     pointHighlightFill  : '#fff',
                     pointHighlightStroke: 'rgba(220,220,220,1)',
-                    data                : [65, 59, 80, 81, 56, 55, 40]
+                    // Gunakan data leads baru dari controller
+                    data                : {!! json_encode($dataLeadsBaru) !!}
                 }
             ]
         }
         
-        // Swap dataset (seperti contohmu)
+        // Kode di bawah ini tidak perlu diubah
         var barChartData = $.extend(true, {}, areaChartData)
         var temp0 = areaChartData.datasets[0]
         var temp1 = areaChartData.datasets[1]
@@ -223,16 +193,31 @@
         barChartData.datasets[1] = temp0
         
         var barChartCanvas = $('#barChart').get(0).getContext('2d')
+        // --- MODIFIKASI DI SINI ---
         var barChartOptions = {
             responsive              : true,
             maintainAspectRatio     : false,
-            datasetFill             : false
+            datasetFill             : false,
+            // Tambahkan konfigurasi scales berikut:
+            scales: {
+                y: { // Konfigurasi untuk sumbu Y
+                    ticks: {
+                        // Memastikan sumbu Y dimulai dari angka 0
+                        beginAtZero: true,
+                        // Memaksa langkah antar-label menjadi kelipatan 1 (menghilangkan desimal)
+                        stepSize: 2,
+                        // Opsi tambahan untuk memastikan tidak ada desimal jika stepSize tidak cukup
+                        precision: 0
+                    }
+                }
+            }
         }
+        // --- AKHIR MODIFIKASI ---
         
         new Chart(barChartCanvas, {
             type: 'bar',
             data: barChartData,
-            options: barChartOptions
+            options: barChartOptions // Gunakan options yang sudah dimodifikasi
         })
     })
 </script>

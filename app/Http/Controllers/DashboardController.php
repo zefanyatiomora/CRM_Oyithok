@@ -9,11 +9,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     public function index(Request $request)
     {
+        // ... (Kode untuk $activeMenu, $breadcrumb, $page tidak berubah) ...
         $activeMenu = 'dashboard';
         $breadcrumb = (object) [
             'title' => 'Dashboard',
@@ -23,56 +25,78 @@ class DashboardController extends Controller
             'title' => 'Dashboard'
         ];
 
+
         $tahun = $request->get('tahun', date('Y'));
-        $bulan = $request->get('bulan'); //bisa null
+        $bulan = $request->get('bulan');
 
-        // Query fleksibel berdasarkan input
         $queryBase = InteraksiModel::whereYear('tanggal_chat', $tahun);
-
         if ($bulan) {
             $queryBase->whereMonth('tanggal_chat', $bulan);
         }
-        // Ambil data order sesuai bulan & tahun
+
         $jumlahInteraksi = (clone $queryBase)->count();
+        $prosesSurvey = (clone $queryBase)->where('tahapan', 'survey')->count();
+        $prosesPasang = (clone $queryBase)->where('tahapan', 'pasang')->count();
+        $prosesOrder = (clone $queryBase)->where('tahapan', 'order')->count();
 
-        // Proses Survey
-        $prosesSurvey = (clone $queryBase)
-            ->where('tahapan', 'survey')
-            ->count();
-
-        // Proses Pasang
-        $prosesPasang = (clone $queryBase)
-            ->where('tahapan', 'pasang')
-            ->count();
-
-        // Proses Survey
-        $prosesOrder = (clone $queryBase)
-            ->where('tahapan', 'order')
-            ->count();
-
-        // Daftar tahun untuk dropdown
         $availableYears = InteraksiModel::selectRaw('YEAR(tanggal_chat) as year')
-            ->distinct()
-            ->orderBy('year', 'desc')
-            ->pluck('year');
+            ->distinct()->orderBy('year', 'desc')->pluck('year');
+        $bulanList = ['01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April', '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus', '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'];
 
-        // Daftar bulan
-        $bulanList = [
-            '01' => 'Januari',
-            '02' => 'Februari',
-            '03' => 'Maret',
-            '04' => 'April',
-            '05' => 'Mei',
-            '06' => 'Juni',
-            '07' => 'Juli',
-            '08' => 'Agustus',
-            '09' => 'September',
-            '10' => 'Oktober',
-            '11' => 'November',
-            '12' => 'Desember'
-        ];
+        // --- LOGIKA BARU UNTUK DATA CHART ---
+        $chartLabels = [];
+        $dataLeadsBaru = [];
+        $dataLeadsLama = [];
+
+        if ($bulan) {
+            // =======================================================================
+            // PERUBAHAN DI SINI: Jika filter per bulan, tampilkan data per tanggal
+            // =======================================================================
+
+            // Dapatkan jumlah hari dalam bulan yang dipilih
+            $jumlahHari = Carbon::create($tahun, $bulan)->daysInMonth;
+
+            // Looping untuk setiap hari dalam sebulan
+            for ($hari = 1; $hari <= $jumlahHari; $hari++) {
+                // Label untuk x-axis adalah tanggal (1, 2, 3, ...)
+                $chartLabels[] = $hari;
+
+                // Query interaksi khusus untuk hari ini
+                $queryPerHari = InteraksiModel::whereYear('tanggal_chat', $tahun)
+                    ->whereMonth('tanggal_chat', $bulan)
+                    ->whereDay('tanggal_chat', $hari);
+
+                $totalInteraksiHariIni = (clone $queryPerHari)->count();
+
+                // Leads Baru: Pelanggan dibuat di bulan & tahun yg sama dengan interaksi
+                $leadsBaruHariIni = (clone $queryPerHari)->whereHas('customer', function ($q) use ($tahun, $bulan) {
+                    $q->whereYear('created_at', $tahun)->whereMonth('created_at', $bulan);
+                })->count();
+
+                // Tambahkan data harian ke array
+                $dataLeadsBaru[] = $leadsBaruHariIni;
+                $dataLeadsLama[] = $totalInteraksiHariIni - $leadsBaruHariIni; // Sisanya adalah leads lama
+            }
+        } else {
+            // --- Logika ini tetap sama: Filter hanya berdasarkan TAHUN ---
+            foreach ($bulanList as $key => $namaBulan) {
+                $chartLabels[] = $namaBulan;
+
+                $queryPerBulan = InteraksiModel::whereYear('tanggal_chat', $tahun)->whereMonth('tanggal_chat', $key);
+                $totalInteraksiBulanIni = (clone $queryPerBulan)->count();
+
+                $leadsBaruBulanIni = (clone $queryPerBulan)->whereHas('customer', function ($q) use ($tahun, $key) {
+                    $q->whereYear('created_at', $tahun)->whereMonth('created_at', $key);
+                })->count();
+
+                $dataLeadsBaru[] = $leadsBaruBulanIni;
+                $dataLeadsLama[] = $totalInteraksiBulanIni - $leadsBaruBulanIni;
+            }
+        }
+        // --- AKHIR LOGIKA CHART ---
 
         return view('dashboard.index', [
+            // ... (variabel lain yang sudah ada)
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
@@ -83,7 +107,12 @@ class DashboardController extends Controller
             'tahun' => $tahun,
             'bulan' => $bulan,
             'availableYears' => $availableYears,
-            'bulanList' => $bulanList
+            'bulanList' => $bulanList,
+
+            // Kirim data chart yang sudah disiapkan ke view
+            'chartLabels' => $chartLabels,
+            'dataLeadsLama' => $dataLeadsLama,
+            'dataLeadsBaru' => $dataLeadsBaru,
         ]);
     }
 
