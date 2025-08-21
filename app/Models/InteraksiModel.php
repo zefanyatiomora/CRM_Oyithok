@@ -53,5 +53,8 @@ class InteraksiModel extends Model
 {
     return $this->hasMany(InteraksiRealtime::class, 'interaksi_id', 'interaksi_id');
 }
-
+public function interaksi_detail()
+{
+    return $this->hasMany(InteraksiDetailModel::class, 'detail_id', 'detail_id');
+}
 }

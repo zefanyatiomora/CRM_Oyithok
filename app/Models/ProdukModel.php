@@ -33,4 +33,8 @@ class ProdukModel extends Model
     {
         return $this->belongsTo(KategoriModel::class, 'kategori_id', 'kategori_id');
     }
+    public function interaksi_detail()
+{
+    return $this->hasMany(InteraksiDetailModel::class, 'detail_id', 'detail_id');
+}
 }

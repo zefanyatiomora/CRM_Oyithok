@@ -70,6 +70,8 @@ Route::prefix('rekap')->group(function () {
     Route::post('store-realtime', [RekapController::class, 'storeRealtime'])->name('rekap.storeRealtime');
     Route::get('realtime/list/{interaksi}', [RekapController::class, 'getRealtimeList']);
     Route::get('/rekap/realtime/{interaksi_id}', [RekapController::class, 'indexRealtime'])->name('rekap.indexRealtime');
+    Route::post('/rekap/store-kebutuhan', [RekapController::class, 'storeKebutuhanProduk'])->name('rekap.storeKebutuhanProduk');
+    Route::get('/rekap/{interaksi_id}/kebutuhan', [RekapController::class, 'showKebutuhanProduk'])->name('rekap.showKebutuhanProduk');
 
 });
 Route::prefix('survey')->group(function () {
