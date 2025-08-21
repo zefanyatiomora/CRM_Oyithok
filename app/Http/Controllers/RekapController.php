@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\InteraksiModel;
 use App\Models\InteraksiRealtime;
+use App\Models\InteraksiDetailModel;
 use App\Models\CustomersModel;
 use App\Models\ProdukModel;
 use App\Models\RincianModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\DB;
 
 class RekapController extends Controller
 {
@@ -243,8 +245,107 @@ class RekapController extends Controller
 
         return response()->json(['status' => 'success']);
     }
+public function storeKebutuhanProduk(Request $request)
+    {
+        // Validasi request
+        $validated = $request->validate([
+            'interaksi_id' => 'required|exists:interaksi,interaksi_id',
+            'produk_id'    => 'required|array',
+            'produk_id.*'  => 'required|exists:produks,produk_id',
+            'tahapan'      => 'required|array',
+            'tahapan.*'    => 'required|string',
+            'status'       => 'required|array',
+            'status.*'     => 'required|string',
+            'pic'          => 'required|array',
+            'pic.*'        => 'required|string',
+        ]);
 
-    // List realtime
+        $interaksi_id = $validated['interaksi_id'];
+        $produk_ids   = $validated['produk_id'];
+        $tahapans     = $validated['tahapan'];
+        $statuses     = $validated['status'];
+        $pics         = $validated['pic'];
+
+        try {
+            // Gunakan transaksi biar lebih aman
+            DB::transaction(function () use (
+                $interaksi_id, 
+                $produk_ids, 
+                $tahapans, 
+                $statuses, 
+                $pics
+            ) {
+                foreach ($produk_ids as $i => $produk_id) {
+                    InteraksiDetailModel::updateOrCreate(
+                        [
+                            'interaksi_id' => $interaksi_id,
+                            'produk_id'    => $produk_id,
+                        ],
+                        [
+                            'tahapan'    => $tahapans[$i] ?? null,
+                            'status'     => $statuses[$i] ?? null,
+                            'pic'        => $pics[$i] ?? null,
+                            'updated_at' => now(),
+                        ]
+                    );
+                }
+
+                // update kolom terakhir di tabel interaksi
+                $lastIndex = count($produk_ids) - 1;
+                InteraksiModel::where('interaksi_id', $interaksi_id)
+                    ->update([
+                        'tahapan' => $tahapans[$lastIndex] ?? null,
+                        'status'  => $statuses[$lastIndex] ?? null,
+                        'updated_at' => now(),
+                    ]);
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Kebutuhan produk berhasil disimpan!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error'   => 'Gagal menyimpan kebutuhan produk: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+public function showKebutuhanProduk($interaksi_id)
+{
+    $interaksi = InteraksiModel::with('customer')->findOrFail($interaksi_id);
+    $produkList = ProdukModel::all();
+
+    // ambil kebutuhan produk yang sudah tersimpan
+    $kebutuhanList = \App\Models\InteraksiDetailModel::with('produk')
+        ->where('interaksi_id', $interaksi_id)
+        ->get();
+
+    return view('rekap.index_realtime', [
+        'interaksi'     => $interaksi,
+        'produkList'    => $produkList,
+        'kebutuhanList' => $kebutuhanList,
+        'followUpOptions' => ['Ask', 'Follow Up', 'Closing Survey', 'Closing Pasang', 'Closing Product', 'Closing ALL']
+    ]);
+}
+
+public function updateKebutuhanProduk(Request $request, $id)
+{
+    $validated = $request->validate([
+        'produk_id' => 'required|exists:produk,produk_id',
+        'tahapan'   => 'required|string',
+        'pic'       => 'required|string',
+        'status'    => 'required|string',
+    ]);
+
+    $detail = \App\Models\InteraksiDetailModel::findOrFail($id);
+    $detail->update($validated);
+
+    return response()->json([
+        'success' => 'Kebutuhan produk berhasil diperbarui'
+    ]);
+}
+   // List realtime
     public function getRealtimeList($interaksi_id)
     {
         $interaksi = InteraksiModel::with('realtime')->findOrFail($interaksi_id);
