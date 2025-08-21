@@ -250,4 +250,32 @@ class RekapController extends Controller
         $interaksi = InteraksiModel::with('realtime')->findOrFail($interaksi_id);
         return view('rekap.realtime_list', ['realtime' => $interaksi->realtime]);
     }
+    public function searchProduct(Request $request)
+    {
+        try {
+
+            // LOG 1: Catat bahwa fungsi ini berhasil diakses
+            Log::info('API searchProduct diakses.', ['query' => $request->all()]);
+
+            $search = $request->input('search_term');
+
+            $produks = ProdukModel::where('produk_nama', 'LIKE', "%{$search}%")
+                ->limit(10) // Batasi hasil agar tidak terlalu banyak
+                ->get();
+
+            // LOG 2: Catat jumlah produk yang ditemukan
+            Log::info('Pencarian produk selesai.', ['ditemukan' => $produks->count()]);
+            return response()->json($produks);
+        } catch (\Exception $e) {
+            // LOG 3: Jika terjadi error di dalam blok try, catat errornya
+            Log::error('GAGAL saat mencari produk!', [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+            ]);
+
+            // Kembalikan respons error ke Select2
+            return response()->json(['error' => 'Terjadi kesalahan pada server'], 500);
+        }
+    }
 }

@@ -40,12 +40,12 @@ Route::post('/kebutuhan', [KebutuhanController::class, 'store'])->name('kebutuha
 Route::get('/kebutuhan/search-customer', [KebutuhanController::class, 'searchCustomer'])->name('kebutuhan.searchCustomer');
 Route::get('/kebutuhan/get-customer/{id}', [KebutuhanController::class, 'getCustomer'])->name('kebutuhan.getCustomer');
 
-Route::prefix('tambahkebutuhan')->name('tambahkebutuhan.')->group(function() {
-    Route::get('/', [TambahKebutuhanController::class,'index'])->name('index');
-    Route::get('/create/{customer_id}', [TambahKebutuhanController::class,'create'])->name('create');
-    Route::post('/store', [TambahKebutuhanController::class,'store'])->name('store');
-    Route::get('/edit/{interaksi_id}', [TambahKebutuhanController::class,'edit'])->name('edit');
-    Route::post('/update/{interaksi_id}', [TambahKebutuhanController::class,'update'])->name('update');
+Route::prefix('tambahkebutuhan')->name('tambahkebutuhan.')->group(function () {
+    Route::get('/', [TambahKebutuhanController::class, 'index'])->name('index');
+    Route::get('/create/{customer_id}', [TambahKebutuhanController::class, 'create'])->name('create');
+    Route::post('/store', [TambahKebutuhanController::class, 'store'])->name('store');
+    Route::get('/edit/{interaksi_id}', [TambahKebutuhanController::class, 'edit'])->name('edit');
+    Route::post('/update/{interaksi_id}', [TambahKebutuhanController::class, 'update'])->name('update');
 });
 // kalau mau detail berdasarkan customer_id, kasih nama route beda
 Route::get('/kebutuhan/customer/{customer_id}', [KebutuhanController::class, 'showByCustomer'])->name('kebutuhan.byCustomer');
@@ -66,11 +66,11 @@ Route::prefix('rekap')->group(function () {
     Route::get('/', [RekapController::class, 'index'])->name('rekap.index');       // Halaman list monthrekap
     Route::post('/list', [RekapController::class, 'list'])->name('rekap.list');
     Route::get('/{id}/show_ajax', [RekapController::class, 'show_ajax']);
+    Route::get('/search-product', [RekapController::class, 'searchProduct'])->name('rekap.searchProduct');
     Route::post('/rekap/update-followup', [RekapController::class, 'updateFollowUp'])->name('rekap.updateFollowUp');
     Route::post('store-realtime', [RekapController::class, 'storeRealtime'])->name('rekap.storeRealtime');
     Route::get('realtime/list/{interaksi}', [RekapController::class, 'getRealtimeList']);
     Route::get('/rekap/realtime/{interaksi_id}', [RekapController::class, 'indexRealtime'])->name('rekap.indexRealtime');
-
 });
 Route::prefix('survey')->group(function () {
     Route::get('/', [SurveyController::class, 'index'])->name('survey.index');       // Halaman list monthSurvey
