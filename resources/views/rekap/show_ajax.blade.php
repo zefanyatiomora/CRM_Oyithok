@@ -1,10 +1,31 @@
 <div id="modal-master" class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
         {{-- HEADER --}}
-        <div class="modal-header">
-            <h5 class="modal-title">Detail Kebutuhan & Survey/Pasang</h5>
-            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-        </div>
+       <div class="modal-header">
+    <h5 class="modal-title fw-bold">
+        Detail Kebutuhan Customer : {{ $interaksi->customer->customer_nama ?? '-' }}
+    </h5>
+    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+</div>
+
+        <style>
+    .card-purple {
+        background-color: #ffffff; /* ungu utama */
+        color: rgb(0, 0, 0); /* teks putih agar terbaca */
+    }
+    .card-purple .card-header {
+        background-color: #5a32a3; /* ungu header lebih gelap */
+        color: white;
+    }
+    .card-purple .card-tools .btn-tool {
+        color: white; /* tombol collapse putih */
+    }
+    .card-purple .table th {
+        background-color: #ffffff; /* header tabel ungu */
+        color: rgb(0, 0, 0);
+    }
+</style>
+
 
         <div class="modal-body">
             {{-- Progress Steps --}}
@@ -47,18 +68,16 @@
             </div>
 
             {{-- ========== DETAIL CUSTOMER ========== --}}
-            <div class="card card-primary collapsed-card">
-              <div class="card-header">
-                <h3 class="card-title">Detail Customer</h3>
-                
-                <div class="card-tools">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
-                    </button>
-                </div>
-                <!-- /.card-tools -->
-            </div>
-            <!-- /.card-header -->
-            <div class="card-body">
+<div class="card card-purple collapsed-card">
+    <div class="card-header">
+        <h3 class="card-title">Detail Customer</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
                   <table class="table table-bordered table-striped table-hover table-sm mb-4"> 
                       <tr> 
                           <th>Kode Customer</th> 
@@ -77,26 +96,6 @@
                           <td>{{ $interaksi->customer->customer_hp ?? '-' }}</td>
                       </tr>
                       <tr>
-                          <th>Tahapan</th>
-                          <td>
-                              <select id="tahapan-select" class="form-control form-control-sm">
-                                  <option value="identifikasi" {{ strtolower($interaksi->tahapan ?? '') === 'identifikasi' ? 'selected' : '' }}>identifikasi</option>
-                                  <option value="rincian" {{ strtolower($interaksi->tahapan ?? '') === 'rincian' ? 'selected' : '' }}>rincian</option>
-                                  <option value="survey" {{ strtolower($interaksi->tahapan ?? '') === 'survey' ? 'selected' : '' }}>survey</option>
-                                  <option value="pasang" {{ strtolower($interaksi->tahapan ?? '') === 'pasang' ? 'selected' : '' }}>pasang</option>
-                                  <option value="order" {{ strtolower($interaksi->tahapan ?? '') === 'order' ? 'selected' : '' }}>order</option>
-                                  <option value="done" {{ strtolower($interaksi->tahapan ?? '') === 'done' ? 'selected' : '' }}>done</option>
-                              </select>
-                          </td>
-                      </tr>
-                      <tr>
-                          <th>PIC</th>
-                          <td>
-                              <input type="text" id="pic-input" class="form-control form-control-sm" 
-                                     value="{{ $interaksi->pic ?? (auth()->user()->name ?? '-') }}" readonly>
-                          </td>
-                      </tr>
-                      <tr>
                           <th>Status</th>
                           <td>
                               <select id="follow-up-select" class="form-control form-control-sm"
@@ -111,16 +110,159 @@
                           </td>
                       </tr>
                   </table>
-              </div>
+            </div>
               <!-- /.card-body -->
             </div>
+
+{{-- ========== IDENTIFIKASI AWAL ========== --}}
+<div class="card card-purple collapsed-card">
+    <div class="card-header">
+        <h3 class="card-title">Identifikasi Awal</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+ <button type="button" class="btn btn-sm btn-success" id="btn-toggle-identifikasi">
+        <i class="fas fa-plus"></i> Tambah Kategori
+    </button>
+@php
+    // Ambil data interaksi awal berdasarkan interaksi_id
+    $interaksiAwalList = \App\Models\InteraksiAwalModel::where('interaksi_id', $interaksi->interaksi_id)->get();
+@endphp
+
+@if($interaksiAwalList->isEmpty())
+    <div class="alert alert-secondary">Belum ada data identifikasi awal.</div>
+@else
+    <table class="table table-bordered table-striped table-hover table-sm mb-4">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Nama Kategori</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($interaksiAwalList as $index => $awal)
+            <tr>
+                <td>{{ $index + 1 }}</td>
+                <td>{{ $awal->kategori_nama }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+            </div>
+@endif
+            </div>
 {{-- ========== KEBUTUHAN HARIAN ========== --}}
-@include('rekap.index_realtime')
+<div class="card card-purple collapsed-card">
+    <div class="card-header">
+        <h3 class="card-title">Identifikasi Kebutuhan</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+            <!-- Tombol tambah hanya di header -->
+            <button type="button" class="btn btn-sm btn-success" id="btn-add-row-header">
+                <i class="fas fa-plus"></i> Tambah Baris
+            </button>
+        <table class="table table-bordered table-striped table-hover table-sm" id="table-kebutuhan-harian">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Tanggal</th>
+                    <th>Keterangan</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="kebutuhan-container">
+                @php
+                    $kebutuhanList = \App\Models\InteraksiRealtime::where('interaksi_id', $interaksi->interaksi_id)
+                                        ->orderBy('tanggal', 'asc')
+                                        ->get();
+                @endphp
+
+                @if($kebutuhanList->isEmpty())
+                    <tr>
+                        <td>1</td>
+                        <td><input type="date" name="tanggal[]" class="form-control form-control-sm"></td>
+                        <td><input type="text" name="keterangan[]" class="form-control form-control-sm"></td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-danger btn-remove-row">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </td>
+                    </tr>
+                @else
+                    @foreach($kebutuhanList as $index => $item)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td><input type="date" name="tanggal[]" class="form-control form-control-sm" value="{{ $item->tanggal }}"></td>
+                            <td><input type="text" name="keterangan[]" class="form-control form-control-sm" value="{{ $item->keterangan }}"></td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-danger btn-remove-row">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    @endforeach
+                @endif
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    function updateNomor() {
+        $('#kebutuhan-container tr').each(function(index){
+            $(this).find('td:first').text(index + 1);
+        });
+    }
+
+    // Tambah baris hanya dari tombol header
+    $('#btn-add-row-header').click(function() {
+        let newRow = `<tr>
+            <td></td>
+            <td><input type="date" name="tanggal[]" class="form-control form-control-sm"></td>
+            <td><input type="text" name="keterangan[]" class="form-control form-control-sm"></td>
+            <td class="text-center">
+                <button type="button" class="btn btn-sm btn-danger btn-remove-row">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </td>
+        </tr>`;
+        $('#kebutuhan-container').append(newRow);
+        updateNomor();
+    });
+
+    // Hapus baris
+    $(document).on('click', '.btn-remove-row', function() {
+        $(this).closest('tr').remove();
+        updateNomor();
+    });
+
+    updateNomor();
+});
+</script>
+
+
 
 {{-- ========== DATA SURVEY ========== --}}
-<div class="bg-success text-white px-3 py-2 mb-2 rounded">
-    <strong>Data Survey</strong>
-</div>
+<div class="card card-purple collapsed-card">
+    <div class="card-header">
+        <h3 class="card-title">Data Survey</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
 <form id="form-survey">
     @csrf
     <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
@@ -141,6 +283,8 @@
                 </tr>
             </table>
         </form>
+            </div>
+            </div>
 
 {{-- ========== DATA RINCIAN ========== --}}
 {{-- <div class="bg-success text-white px-3 py-2 mb-2 rounded">
@@ -185,9 +329,16 @@
 
 
 {{-- ========== DATA PASANG ========== --}}
-<div class="bg-info text-white px-3 py-2 mb-2 rounded">
-    <strong>Data Pasang</strong>
-</div>
+<div class="card card-purple collapsed-card">
+    <div class="card-header">
+        <h3 class="card-title">Data Pasang</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
 <form id="form-pasang">
     @csrf
     <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
@@ -214,7 +365,7 @@
         <div class="modal-footer">
             <button type="button" id="btn-save-followup" class="btn btn-primary">Simpan</button>
         </div>
-        
+ </div>
     </div>
 </div>
 

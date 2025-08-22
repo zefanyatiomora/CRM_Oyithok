@@ -22,4 +22,8 @@ class KategoriModel extends Model
     {
         return $this->hasMany(ProdukModel::class, 'kategori_id', 'kategori_id');
     }
+    public function interaksi_awal()
+{
+    return $this->hasMany(InteraksiAwalModel::class, 'kategori_id', 'kategori_id');
+}
 }

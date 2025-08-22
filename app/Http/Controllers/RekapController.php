@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\InteraksiModel;
 use App\Models\InteraksiRealtime;
-use App\Models\InteraksiDetailModel;
-use App\Models\CustomersModel;
+use App\Models\InteraksiAwalModel;
+use App\Models\KategoriModel;
+use App\Models\ProdukModel;
 use App\Models\RincianModel;
 use App\Models\ProdukModel;
 use Illuminate\Http\Request;
@@ -275,11 +276,11 @@ class RekapController extends Controller
                 $statuses,
                 $pics
             ) {
-                foreach ($produk_ids as $i => $produk_id) {
-                    InteraksiDetailModel::updateOrCreate(
+                foreach ($produk_ids as $i => $kategori_id) {
+                    InteraksiAwalModel::updateOrCreate(
                         [
                             'interaksi_id' => $interaksi_id,
-                            'produk_id'    => $produk_id,
+                            'kategori_id'    => $kategori_id,
                         ],
                         [
                             'tahapan'    => $tahapans[$i] ?? null,
@@ -317,7 +318,7 @@ class RekapController extends Controller
         $produkList = ProdukModel::all();
 
         // ambil kebutuhan produk yang sudah tersimpan
-        $kebutuhanList = \App\Models\InteraksiDetailModel::with('produk')
+        $kebutuhanList = \App\Models\InteraksiModel::with('produk')
             ->where('interaksi_id', $interaksi_id)
             ->get();
 
@@ -338,13 +339,55 @@ class RekapController extends Controller
             'status'    => 'required|string',
         ]);
 
-        $detail = \App\Models\InteraksiDetailModel::findOrFail($id);
+        $detail = \App\Models\InteraksiAwalModel::findOrFail($id);
         $detail->update($validated);
 
         return response()->json([
             'success' => 'Kebutuhan produk berhasil diperbarui'
         ]);
     }
+    public function showIdentifikasiAwal($interaksi_id)
+    {
+        $interaksi = InteraksiModel::with('customer')->findOrFail($interaksi_id);
+        $kategoriList = KategoriModel::all(); // ambil semua kategori
+        $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)->get();
+
+        return view('rekap.show_ajax', compact(
+            'interaksi',
+            'kategoriList',
+            'interaksiAwalList',
+        ));
+    }
+
+    public function storeIdentifikasiAwal(Request $request)
+    {
+        $request->validate([
+            'interaksi_id' => 'required|exists:interaksi,interaksi_id',
+            'kategori_id' => 'required|array',
+            'kategori_id.*' => 'exists:m_kategori,kategori_id'
+        ]);
+
+        $interaksi_id = $request->interaksi_id;
+        $kategori_ids = $request->kategori_id;
+
+        foreach ($kategori_ids as $kategori_id) {
+            $kategori = \App\Models\KategoriModel::find($kategori_id);
+
+            \App\Models\InteraksiAwalModel::updateOrCreate(
+                [
+                    'interaksi_id' => $interaksi_id,
+                    'kategori_id' => $kategori_id,
+                ],
+                [
+                    'kategori_nama' => $kategori->kategori_nama
+                ]
+            );
+        }
+
+        return redirect()->back()->with('success', 'Kategori berhasil ditambahkan ke identifikasi awal');
+    }
+
+
     // List realtime
     public function getRealtimeList($interaksi_id)
     {
