@@ -20,12 +20,9 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Tanggal Chat</th>
                         <th>Kode Customer</th>
                         <th>Nama</th>
-                        <th>Produk</th>
-                        <th>Identifikasi Kebutuhan</th>
-                        <th>Tahapan</th>
+                        <th>Status</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -69,18 +66,15 @@
             }, 
             columns: [ 
                 { data: "DT_RowIndex", className: "text-center", orderable: false, searchable: false },
-                { data: "tanggal_chat", orderable: true, searchable: true },
                 { data: "customer.customer_kode", orderable: true, searchable: true },
                 { data: "customer.customer_nama", orderable: true, searchable: true },
-                { data: "produk_nama", orderable: false, searchable: false },
-                { data: "identifikasi_kebutuhan", orderable: false, searchable: false },
-                { data: "tahapan", 
+                { data: "status", 
                     orderable: false, 
                     searchable: false,
                     render: function(data, type, row) {
-                        if (data === 'identifikasi') {
+                        if (data === 'Ask') {
                             return `<span class="badge" style="background-color:#FFD580; color:#000;">${data}</span>`;
-                        } else if (data === 'rincian') {
+                        } else if (data === 'Follow Up') {
                             return `<span class="badge" style="background-color:#E6CCFF; color:#000;">${data}</span>`;
                         } else {
                             return data ?? '';
