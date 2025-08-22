@@ -6,8 +6,8 @@ use App\Models\InteraksiModel;
 use App\Models\InteraksiRealtime;
 use App\Models\InteraksiDetailModel;
 use App\Models\CustomersModel;
-use App\Models\ProdukModel;
 use App\Models\RincianModel;
+use App\Models\ProdukModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
@@ -245,7 +245,7 @@ class RekapController extends Controller
 
         return response()->json(['status' => 'success']);
     }
-public function storeKebutuhanProduk(Request $request)
+    public function storeKebutuhanProduk(Request $request)
     {
         // Validasi request
         $validated = $request->validate([
@@ -269,10 +269,10 @@ public function storeKebutuhanProduk(Request $request)
         try {
             // Gunakan transaksi biar lebih aman
             DB::transaction(function () use (
-                $interaksi_id, 
-                $produk_ids, 
-                $tahapans, 
-                $statuses, 
+                $interaksi_id,
+                $produk_ids,
+                $tahapans,
+                $statuses,
                 $pics
             ) {
                 foreach ($produk_ids as $i => $produk_id) {
@@ -311,41 +311,41 @@ public function storeKebutuhanProduk(Request $request)
             ], 500);
         }
     }
-public function showKebutuhanProduk($interaksi_id)
-{
-    $interaksi = InteraksiModel::with('customer')->findOrFail($interaksi_id);
-    $produkList = ProdukModel::all();
+    public function showKebutuhanProduk($interaksi_id)
+    {
+        $interaksi = InteraksiModel::with('customer')->findOrFail($interaksi_id);
+        $produkList = ProdukModel::all();
 
-    // ambil kebutuhan produk yang sudah tersimpan
-    $kebutuhanList = \App\Models\InteraksiDetailModel::with('produk')
-        ->where('interaksi_id', $interaksi_id)
-        ->get();
+        // ambil kebutuhan produk yang sudah tersimpan
+        $kebutuhanList = \App\Models\InteraksiDetailModel::with('produk')
+            ->where('interaksi_id', $interaksi_id)
+            ->get();
 
-    return view('rekap.index_realtime', [
-        'interaksi'     => $interaksi,
-        'produkList'    => $produkList,
-        'kebutuhanList' => $kebutuhanList,
-        'followUpOptions' => ['Ask', 'Follow Up', 'Closing Survey', 'Closing Pasang', 'Closing Product', 'Closing ALL']
-    ]);
-}
+        return view('rekap.index_realtime', [
+            'interaksi'     => $interaksi,
+            'produkList'    => $produkList,
+            'kebutuhanList' => $kebutuhanList,
+            'followUpOptions' => ['Ask', 'Follow Up', 'Closing Survey', 'Closing Pasang', 'Closing Product', 'Closing ALL']
+        ]);
+    }
 
-public function updateKebutuhanProduk(Request $request, $id)
-{
-    $validated = $request->validate([
-        'produk_id' => 'required|exists:produk,produk_id',
-        'tahapan'   => 'required|string',
-        'pic'       => 'required|string',
-        'status'    => 'required|string',
-    ]);
+    public function updateKebutuhanProduk(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'produk_id' => 'required|exists:produk,produk_id',
+            'tahapan'   => 'required|string',
+            'pic'       => 'required|string',
+            'status'    => 'required|string',
+        ]);
 
-    $detail = \App\Models\InteraksiDetailModel::findOrFail($id);
-    $detail->update($validated);
+        $detail = \App\Models\InteraksiDetailModel::findOrFail($id);
+        $detail->update($validated);
 
-    return response()->json([
-        'success' => 'Kebutuhan produk berhasil diperbarui'
-    ]);
-}
-   // List realtime
+        return response()->json([
+            'success' => 'Kebutuhan produk berhasil diperbarui'
+        ]);
+    }
+    // List realtime
     public function getRealtimeList($interaksi_id)
     {
         $interaksi = InteraksiModel::with('realtime')->findOrFail($interaksi_id);
@@ -353,30 +353,11 @@ public function updateKebutuhanProduk(Request $request, $id)
     }
     public function searchProduct(Request $request)
     {
-        try {
+        $keyword = $request->get('keyword');
 
-            // LOG 1: Catat bahwa fungsi ini berhasil diakses
-            Log::info('API searchProduct diakses.', ['query' => $request->all()]);
+        $produks = ProdukModel::where('produk_nama', 'like', "%$keyword%")
+            ->get(['produk_id as id', 'produk_nama as text']);
 
-            $search = $request->input('search_term');
-
-            $produks = ProdukModel::where('produk_nama', 'LIKE', "%{$search}%")
-                ->limit(10) // Batasi hasil agar tidak terlalu banyak
-                ->get();
-
-            // LOG 2: Catat jumlah produk yang ditemukan
-            Log::info('Pencarian produk selesai.', ['ditemukan' => $produks->count()]);
-            return response()->json($produks);
-        } catch (\Exception $e) {
-            // LOG 3: Jika terjadi error di dalam blok try, catat errornya
-            Log::error('GAGAL saat mencari produk!', [
-                'message' => $e->getMessage(),
-                'file'    => $e->getFile(),
-                'line'    => $e->getLine(),
-            ]);
-
-            // Kembalikan respons error ke Select2
-            return response()->json(['error' => 'Terjadi kesalahan pada server'], 500);
-        }
+        return response()->json(['results' => $produks]);
     }
 }

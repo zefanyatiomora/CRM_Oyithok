@@ -162,30 +162,27 @@
         </thead>
         <tbody>
             <tr>
-                <td>
-                <select name="produk_id[]" id="produk_id" class="form-control form-control-sm" required>
-                    <option value="">-- Pilih Produk --</option>
-                    @foreach($produkList as $produk)
-                        <option value="{{ $produk->produk_id }}"
-                            {{ (isset($interaksi->produk) && $interaksi->produk->produk_id == $produk->produk_id) ? 'selected' : '' }}>
-                            {{ $produk->produk_nama }}
-                        </option>
-                    @endforeach
-                </select>
-                <small id="error-produk_id" class="error-text form-text text-danger"></small>
-            </td>
+                <td class="position-relative"> 
+                    <label for="produk_nama">Nama Produk</label>
+                    <input type="text" class="form-control produk_nama" name="produk_nama[]"
+                        required autocomplete="off">
+                    <input type="hidden" class="produk_id" name="produk_id[]">
 
+                    <div class="produk-list list-group position-absolute w-100" style="z-index: 1000; display:none;"></div>
+                    
+                    <small class="error-text form-text text-danger"></small>
+                </td>
                 <td><input type="text" name="keterangan[]" class="form-control form-control-sm"></td>
                 <td><input type="number" name="kuantitas[]" class="form-control form-control-sm" min="1"></td>
                 <td class="text-center">
-                    <button type="button" class="btn btn-sm btn-success btn-add">
-                        +
-                    </button>
+                    <button type="button" class="btn btn-sm btn-success btn-add">+</button>
                 </td>
             </tr>
         </tbody>
     </table>
 </form> --}}
+@include('rekap.index_rincian')
+
 
 {{-- ========== DATA PASANG ========== --}}
 <div class="bg-info text-white px-3 py-2 mb-2 rounded">
@@ -217,156 +214,145 @@
         <div class="modal-footer">
             <button type="button" id="btn-save-followup" class="btn btn-primary">Simpan</button>
         </div>
-
+        
     </div>
 </div>
+
+@push('css')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{{-- <style>
+    #customer_list {
+        max-height: 200px;
+        overflow-y: auto;
+        background-color: white;
+        border: 1px solid #ced4da;
+        z-index: 9999;
+        }
+    </style> --}}
+@endpush
+    
+@push('js')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <!-- Tambahkan di layout atau sebelum script -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-// Event untuk tahapan -> PIC otomatis
-$(document)
-.off('click', '#btn-save-followup') // hapus event lama
-.on('change', '#tahapan-select', function () {
-    let tahapanVal = ($(this).val() || '').trim().toLowerCase();
+    $(document)
+    .off('click', '#btn-save-followup') // hapus event lama
+    .on('change', '#tahapan-select', function () {
+        let tahapanVal = ($(this).val() || '').trim().toLowerCase();
 
-    if (tahapanVal === 'identifikasi') {
-    $('#pic-input').val('CS');
-    } else if (
-        tahapanVal === 'rincian' ||
-        tahapanVal === 'survey' ||
-        tahapanVal === 'pasang' ||
-        tahapanVal === 'order' ||
-        tahapanVal === 'done'
-    ) {
-        $('#pic-input').val('Konsultan');
-    } else {
-        $('#pic-input').val('-'); // fallback
+        if (tahapanVal === 'identifikasi') {
+        $('#pic-input').val('CS');
+        } else if (
+            tahapanVal === 'rincian' ||
+            tahapanVal === 'survey' ||
+            tahapanVal === 'pasang' ||
+            tahapanVal === 'order' ||
+            tahapanVal === 'done'
+        ) {
+            $('#pic-input').val('Konsultan');
+        } else {
+            $('#pic-input').val('-'); // fallback
+        }
+
+    });
+    // Tambah baris baru
+    $(document).on('click', '.btn-add-row', function(){
+        let newRow = `<div class="row mb-2 kebutuhan-row">
+            <div class="col-md-4 mb-1">
+                <input type="date" name="tanggal[]" class="form-control form-control-sm" required>
+            </div>
+            <div class="col-md-6 mb-1">
+                <input type="text" name="keterangan[]" class="form-control form-control-sm" placeholder="Keterangan">
+            </div>
+            <div class="col-md-2 mb-1">
+                <button type="button" class="btn btn-danger btn-sm w-100 btn-remove-row">Hapus</button>
+            </div>
+        </div>`;
+        $('#kebutuhan-container').append(newRow);
+    });
+
+    // Hapus baris
+    $(document).on('click', '.btn-remove-row', function(){
+        $(this).closest('.kebutuhan-row').remove();
+    });
+
+    // Submit form (sama seperti sebelumnya)
+    $(document).on('submit', '#form-interaksi-realtime', function(e){
+        e.preventDefault();
+        $.post("{{ route('rekap.storeRealtime') }}", $(this).serialize(), function(res){
+            if(res.status === 'success'){
+                Swal.fire({icon:'success',title:'Berhasil!',text:'Data kebutuhan harian berhasil ditambahkan',timer:1500,showConfirmButton:false});
+                $('#form-interaksi-realtime')[0].reset();
+                $('#kebutuhan-container').html(` 
+                    <div class="row mb-2 kebutuhan-row">
+                        <div class="col-md-4 mb-1">
+                            <input type="date" name="tanggal[]" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="col-md-6 mb-1">
+                            <input type="text" name="keterangan[]" class="form-control form-control-sm" placeholder="Keterangan">
+                        </div>
+                        <div class="col-md-2 mb-1">
+                            <button type="button" class="btn btn-success btn-sm w-100 btn-add-row">Tambah</button>
+                        </div>
+                    </div>
+                `);
+                loadRealtimeList();
+            }else Swal.fire({icon:'error',title:'Gagal!',text:res.message||'Tidak bisa menyimpan data'});
+        }).fail(function(){ Swal.fire({icon:'error',title:'Error!',text:'Terjadi kesalahan saat menyimpan'}); });
+    });
+
+
+    // Load list realtime
+    function loadRealtimeList(){
+        let id = $('input[name="interaksi_id"]').val();
+        $.get("{{ url('/rekap/realtime/list') }}/"+id, function(html){ $('#list-realtime').html(html); });
     }
 
-});
-// Tambah baris baru
-$(document).on('click', '.btn-add-row', function(){
-    let newRow = `<div class="row mb-2 kebutuhan-row">
-        <div class="col-md-4 mb-1">
-            <input type="date" name="tanggal[]" class="form-control form-control-sm" required>
-        </div>
-        <div class="col-md-6 mb-1">
-            <input type="text" name="keterangan[]" class="form-control form-control-sm" placeholder="Keterangan">
-        </div>
-        <div class="col-md-2 mb-1">
-            <button type="button" class="btn btn-danger btn-sm w-100 btn-remove-row">Hapus</button>
-        </div>
-    </div>`;
-    $('#kebutuhan-container').append(newRow);
-});
+    // Simpan data follow-up
+    $(document).on('click', '#btn-save-followup', function () {
+        $.ajax({
+            url: "{{ route('rekap.updateFollowUp') }}",
+            type: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                interaksi_id: $('#follow-up-select').data('id'),
+                customer_id: $('#follow-up-select').data('customer-id'),
+                tahapan: $('#tahapan-select').val(),
+                pic: $('#pic-input').val(),
+                status: $('#follow-up-select').val()
+            },
+            success: function(res) {
+                if (res.status === 'success') {
+                    tableRekap.ajax.reload(null, false);
+                    $('#myModal').modal('hide');
 
-// Hapus baris
-$(document).on('click', '.btn-remove-row', function(){
-    $(this).closest('.kebutuhan-row').remove();
-});
-// $(document).ready(function() {
-//     // Tambah baris
-//     $(document).on('click', '.btn-add', function() {
-//         let row = $(this).closest('tr').clone();
-//         row.find('input').val(''); // reset input
-//         row.find('select').val('pending'); // default status
-//         row.find('.btn-add')
-//             .removeClass('btn-success btn-add').addClass('btn-danger btn-remove')
-//             .text('-'); // ganti jadi tombol hapus
-//         $('#table-rincian tbody').append(row);
-//     });
-
-//     // Hapus baris
-//     $(document).on('click', '.btn-remove', function() {
-//         $(this).closest('tr').remove();
-//     });
-// });
-// $(document).ready(function() { 
-//         $("#form-rincian").validate({ 
-//             rules: { 
-//                 produk_kode: {required: true, minlength: 3, maxlength: 20}, 
-//                 kategori_id: {required: true, number: true}, 
-//                 produk_nama: {required: true, minlength: 3, maxlength: 100}, 
-//             }, 
-//         });
-// });
-
-
-// Submit form (sama seperti sebelumnya)
-$(document).on('submit', '#form-interaksi-realtime', function(e){
-    e.preventDefault();
-    $.post("{{ route('rekap.storeRealtime') }}", $(this).serialize(), function(res){
-        if(res.status === 'success'){
-            Swal.fire({icon:'success',title:'Berhasil!',text:'Data kebutuhan harian berhasil ditambahkan',timer:1500,showConfirmButton:false});
-            $('#form-interaksi-realtime')[0].reset();
-            $('#kebutuhan-container').html(` 
-                <div class="row mb-2 kebutuhan-row">
-                    <div class="col-md-4 mb-1">
-                        <input type="date" name="tanggal[]" class="form-control form-control-sm" required>
-                    </div>
-                    <div class="col-md-6 mb-1">
-                        <input type="text" name="keterangan[]" class="form-control form-control-sm" placeholder="Keterangan">
-                    </div>
-                    <div class="col-md-2 mb-1">
-                        <button type="button" class="btn btn-success btn-sm w-100 btn-add-row">Tambah</button>
-                    </div>
-                </div>
-            `);
-            loadRealtimeList();
-        }else Swal.fire({icon:'error',title:'Gagal!',text:res.message||'Tidak bisa menyimpan data'});
-    }).fail(function(){ Swal.fire({icon:'error',title:'Error!',text:'Terjadi kesalahan saat menyimpan'}); });
-});
-
-
-// Load list realtime
-function loadRealtimeList(){
-    let id = $('input[name="interaksi_id"]').val();
-    $.get("{{ url('/rekap/realtime/list') }}/"+id, function(html){ $('#list-realtime').html(html); });
-}
-
-// Simpan data follow-up
-$(document).on('click', '#btn-save-followup', function () {
-    $.ajax({
-        url: "{{ route('rekap.updateFollowUp') }}",
-        type: "POST",
-        data: {
-            _token: "{{ csrf_token() }}",
-            interaksi_id: $('#follow-up-select').data('id'),
-            customer_id: $('#follow-up-select').data('customer-id'),
-            tahapan: $('#tahapan-select').val(),
-            pic: $('#pic-input').val(),
-            status: $('#follow-up-select').val()
-        },
-        success: function(res) {
-            if (res.status === 'success') {
-                tableRekap.ajax.reload(null, false);
-                $('#myModal').modal('hide');
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: 'Follow up berhasil disimpan',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            } else {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: 'Follow up berhasil disimpan',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: 'Gagal menyimpan follow up'
+                    });
+                }
+            },
+            error: function(err) {
+                console.error(err);
                 Swal.fire({
                     icon: 'error',
-                    title: 'Gagal!',
-                    text: 'Gagal menyimpan follow up'
+                    title: 'Error!',
+                    text: 'Terjadi kesalahan saat menyimpan'
                 });
             }
-        },
-        error: function(err) {
-            console.error(err);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: 'Terjadi kesalahan saat menyimpan'
-            });
-        }
+        });
     });
-});
 </script>
+@endpush
