@@ -263,29 +263,39 @@ $(document).ready(function() {
         </div>
     </div>
     <div class="card-body">
-<form id="form-survey">
-    @csrf
-    <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
-    
-    <table class="table table-bordered table-striped table-hover table-sm mb-4">
-        <tr>
-            <th>Alamat Survey</th>
-            <td>
-                <textarea name="alamat_survey" class="form-control form-control-sm" rows="2">{{ $interaksi->alamat ?? '' }}</textarea>
-            </td>
-        </tr>
-        <tr>
-            <th>Waktu Survey</th>
-            <td>
-                <input type="datetime-local" name="waktu_survey" class="form-control form-control-sm"
-                       value="{{ $interaksi->waktu_survey ? date('Y-m-d\TH:i', strtotime($interaksi->waktu_survey)) : '' }}">
+        <form id="form-survey">
+            @csrf
+            <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
+            
+            <table class="table table-bordered table-striped table-hover table-sm mb-4">
+                <tr>
+                    <th style="width: 25%">Alamat Survey</th>
+                    <td>
+                        <textarea name="alamat_survey" class="form-control form-control-sm" rows="2">{{ $interaksi->alamat ?? '' }}</textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Waktu Survey</th>
+                    <td>
+                        <input type="datetime-local" name="waktu_survey" class="form-control form-control-sm"
+                               value="{{ $interaksi->waktu_survey ? date('Y-m-d\TH:i', strtotime($interaksi->waktu_survey)) : '' }}">
+                    </td>
+                </tr>
+                <tr>
+                    <th>Rincian</th>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-primary" id="btn-add-rincian">
+                            <i class="fas fa-plus"></i> Tambah Rincian
+                        </button>
+                        <div id="rincian-container" class="mt-2">
+                            {{-- konten rincian hasil AJAX akan muncul di sini --}}
+                        </div>
                     </td>
                 </tr>
             </table>
         </form>
-            </div>
-            </div>
-
+    </div>
+</div>
 {{-- ========== DATA RINCIAN ========== --}}
 {{-- <div class="bg-success text-white px-3 py-2 mb-2 rounded">
     <strong>Data Rincian</strong>
@@ -325,7 +335,7 @@ $(document).ready(function() {
         </tbody>
     </table>
 </form> --}}
-@include('rekap.index_rincian')
+{{-- @include('rekap.index_rincian') --}}
 
 
 {{-- ========== DATA PASANG ========== --}}
@@ -429,6 +439,22 @@ $(document).ready(function() {
     $(document).on('click', '.btn-remove-row', function(){
         $(this).closest('.kebutuhan-row').remove();
     });
+    $(document).on('click', '#btn-add-rincian', function () {
+    let interaksi_id = $('input[name="interaksi_id"]').val();
+
+    $.ajax({
+        url: '{{ route("rekap.createRincian") }}', // route ke controller untuk form rincian
+        type: 'GET',
+        data: { interaksi_id: interaksi_id },
+        success: function (response) {
+            // tampilkan form rincian yang diterima dari server
+            $('#rincian-container').append(response.html);
+        },
+        error: function () {
+            alert('Gagal memuat rincian');
+        }
+    });
+});
 
     // Submit form (sama seperti sebelumnya)
     $(document).on('submit', '#form-interaksi-realtime', function(e){

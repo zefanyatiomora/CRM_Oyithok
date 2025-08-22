@@ -8,7 +8,6 @@ use App\Models\InteraksiAwalModel;
 use App\Models\KategoriModel;
 use App\Models\ProdukModel;
 use App\Models\RincianModel;
-use App\Models\ProdukModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
@@ -402,5 +401,21 @@ class RekapController extends Controller
             ->get(['produk_id as id', 'produk_nama as text']);
 
         return response()->json(['results' => $produks]);
+    }
+    // public function createRincian(Request $request)
+    // {
+    //     $interaksi = InteraksiModel::select('interaksi_id', 'supplier_nama')->get();
+    //     $produk = ProdukModel::select('produk_id', 'produk_nama')->get();
+
+    //     return view('rekap.create_rincian', compact('interaksi', 'produk'))->render();
+    // }
+    public function createRincian(Request $request)
+    {
+        $interaksi = InteraksiModel::select('interaksi_id', 'supplier_nama')->get();
+        $produk = ProdukModel::select('produk_id', 'produk_nama')->get();
+
+        $html = view('rekap.create_rincian', compact('interaksi', 'produk'))->render();
+
+        return response()->json(['html' => $html]);
     }
 }
