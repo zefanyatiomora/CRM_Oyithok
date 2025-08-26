@@ -280,8 +280,6 @@ $(document).ready(function() {
         </div>
     </div>
     <div class="card-body">
-        <form id="form-survey">
-            @csrf
             <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
             
             <table class="table table-bordered table-striped table-hover table-sm mb-4">
@@ -298,61 +296,56 @@ $(document).ready(function() {
                                value="{{ $interaksi->waktu_survey ? date('Y-m-d\TH:i', strtotime($interaksi->waktu_survey)) : '' }}">
                     </td>
                 </tr>
-                <tr>
-                    <th>Rincian</th>
-                    <td>
-                        <button type="button" class="btn btn-sm btn-primary" id="btn-add-rincian">
-                            <i class="fas fa-plus"></i> Tambah Rincian
-                        </button>
-                        <div id="rincian-container" class="mt-2">
-                            {{-- konten rincian hasil AJAX akan muncul di sini --}}
-                        </div>
-                    </td>
-                </tr>
             </table>
-        </form>
+
+            <h4 class="mt-4 d-flex justify-content-between">
+                <span style="fs-6;">Rincian Produk</span>
+                <!-- Icon Tambah Rincian -->
+                <a href="javascript:void(0);" 
+                onclick="openModal('{{ route('rincian.create', $interaksi->interaksi_id) }}')" 
+                class="text-primary" 
+                title="Tambah Rincian">
+                    <i class="fas fa-plus fa-xs"></i>
+                </a>
+            </h4>
+
+                <table class="table table-bordered table-striped table-hover table-sm">
+                    <thead>
+                        <tr>
+                            <th>Produk</th>
+                            <th>Jumlah</th>
+                            <th>Keterangan</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($interaksi->rincian as $rincian)
+                            <tr class="produk-row">
+                                <td>{{ $rincian->produk->produk_nama}}</td>
+                                <td>{{ $rincian->kuantitas}} {{ $rincian->satuan}}</td>
+                                <td>{{ $rincian->deskripsi}}</td>
+                                <td>
+                                    <!-- Tombol Edit -->
+                                    <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ url('/rincian/' . $rincian->_id . '/edit') }}')">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <!-- Tombol Hapus -->
+                                    <a href="javascript:void(0);" class="btn btn-danger btn-sm" onclick="openModal('{{ url('/rincian/' . $rincian->_id . '/delete') }}')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4">Tidak ada rincian produk.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+                </div> {{-- card-body rincian --}}
+            </div> {{-- card rincian produk --}}
     </div>
 </div>
-{{-- ========== DATA RINCIAN ========== --}}
-{{-- <div class="bg-success text-white px-3 py-2 mb-2 rounded">
-    <strong>Data Rincian</strong>
-</div>
-
-<form id="form-rincian">
-    @csrf
-    <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
-
-    <table class="table table-bordered table-striped table-hover table-sm" id="table-rincian">
-        <thead>
-            <tr>
-                <th>Produk</th>
-                <th>Keterangan</th>
-                <th>Kuantitas</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td class="position-relative"> 
-                    <label for="produk_nama">Nama Produk</label>
-                    <input type="text" class="form-control produk_nama" name="produk_nama[]"
-                        required autocomplete="off">
-                    <input type="hidden" class="produk_id" name="produk_id[]">
-
-                    <div class="produk-list list-group position-absolute w-100" style="z-index: 1000; display:none;"></div>
-                    
-                    <small class="error-text form-text text-danger"></small>
-                </td>
-                <td><input type="text" name="keterangan[]" class="form-control form-control-sm"></td>
-                <td><input type="number" name="kuantitas[]" class="form-control form-control-sm" min="1"></td>
-                <td class="text-center">
-                    <button type="button" class="btn btn-sm btn-success btn-add">+</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</form> --}}
-{{-- @include('rekap.index_rincian') --}}
 
 
 {{-- ========== DATA PASANG ========== --}}
@@ -398,15 +391,13 @@ $(document).ready(function() {
 
 @push('css')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-{{-- <style>
-    #customer_list {
-        max-height: 200px;
-        overflow-y: auto;
-        background-color: white;
-        border: 1px solid #ced4da;
-        z-index: 9999;
-        }
-    </style> --}}
+<style>
+    .custom-modal .modal-content {
+            background-color: none;
+            border: none;
+            box-shadow: none;
+    }
+</style>
 @endpush
     
 @push('js')
@@ -414,7 +405,6 @@ $(document).ready(function() {
 
 <!-- Tambahkan di layout atau sebelum script -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
     $(document)
     .off('click', '#btn-save-followup') // hapus event lama
@@ -456,22 +446,30 @@ $(document).ready(function() {
     $(document).on('click', '.btn-remove-row', function(){
         $(this).closest('.kebutuhan-row').remove();
     });
-    $(document).on('click', '#btn-add-rincian', function () {
-    let interaksi_id = $('input[name="interaksi_id"]').val();
+    function modalAction(url) {
+        $.get(url, function (res) {
+            $('#mainModal .modal-body').html(res);   // load view dari controller
+            $('#mainModal').modal('show');           // tampilkan modal
+        });
+    }
+        // Tambah baris produk survey
+    $(document).on('click', '.add-row-survey', function() {
+        let row = $(this).closest('tr.produk-row').clone();
+        row.find('input, select').val('');
+        $(this).closest('tbody').append(row);
+        row.find('.select2').select2({ width: '100%' }); // re-init select2
+    });
 
-    $.ajax({
-        url: '{{ route("rekap.createRincian") }}', // route ke controller untuk form rincian
-        type: 'GET',
-        data: { interaksi_id: interaksi_id },
-        success: function (response) {
-            // tampilkan form rincian yang diterima dari server
-            $('#rincian-container').append(response.html);
-        },
-        error: function () {
-            alert('Gagal memuat rincian');
+    // Hapus baris produk survey
+    $(document).on('click', '.remove-row-survey', function() {
+        let tbody = $(this).closest('tbody');
+        if (tbody.find('tr.produk-row').length > 1) {
+            $(this).closest('tr.produk-row').remove();
+        } else {
+            alert('Minimal 1 produk harus ada.');
         }
     });
-});
+
 
     // Submit form (sama seperti sebelumnya)
     $(document).on('submit', '#form-interaksi-realtime', function(e){
@@ -504,6 +502,11 @@ $(document).ready(function() {
         let id = $('input[name="interaksi_id"]').val();
         $.get("{{ url('/rekap/realtime/list') }}/"+id, function(html){ $('#list-realtime').html(html); });
     }
+    $('#produk_id').select2({
+    placeholder: 'Cari produk...',
+    width: '100%'
+});
+
 
     // Simpan data follow-up
     $(document).on('click', '#btn-save-followup', function () {

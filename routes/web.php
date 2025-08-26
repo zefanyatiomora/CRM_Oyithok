@@ -67,8 +67,7 @@ Route::prefix('rekap')->group(function () {
     Route::get('/', [RekapController::class, 'index'])->name('rekap.index');       // Halaman list monthrekap
     Route::post('/list', [RekapController::class, 'list'])->name('rekap.list');
     Route::get('/{id}/show_ajax', [RekapController::class, 'show_ajax']);
-    Route::get('/create-rincian', [RekapController::class, 'createRincian'])->name('rekap.createRincian');
-    Route::get('/search-product', [RekapController::class, 'searchProduct'])->name('rekap.searchProduct');
+    // Route::get('/search-product', [RekapController::class, 'searchProduct'])->name('rekap.searchProduct');
     Route::post('/rekap/update-followup', [RekapController::class, 'updateFollowUp'])->name('rekap.updateFollowUp');
     Route::post('store-realtime', [RekapController::class, 'storeRealtime'])->name('rekap.storeRealtime');
     Route::get('realtime/list/{interaksi}', [RekapController::class, 'getRealtimeList']);
@@ -108,3 +107,12 @@ Route::prefix('pic')->group(function () {
 
 
 Route::get('/profil', [DashboardController::class, 'index']);
+
+Route::prefix('rincian')->group(function () {
+    Route::get('/create/{id_interaksi}', [RekapController::class, 'createRincian'])->name('rincian.create');
+    Route::post('/store', [RekapController::class, 'storeRincian'])->name('rincian.store');
+    Route::get('/{id}/edit', [RekapController::class, 'editRincian'])->name('rincian.edit');
+    Route::put('/{id}/update', [RekapController::class, 'updateRincian'])->name('rincian.update');
+    Route::get('/{id}/delete', [RekapController::class, 'confirmRincian'])->name('rincian.confirm');
+    Route::delete('/{id}/delete', [RekapController::class, 'deleteRincian'])->name('rincian.delete');
+});

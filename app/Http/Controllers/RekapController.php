@@ -90,7 +90,7 @@ class RekapController extends Controller
         // Log::info('RekapController@list: Filter Tahun = ' . $tahun . ', Bulan = ' . $bulan . ',Interaksi ID = ' . $interaksiId);
 
         $query = InteraksiModel::with(['customer'])
-            ->select('interaksi_id', 'customer_id', 'awal_id', 'realtime_id','rincian_id', 'tanggal_chat', 'media', 'status');
+            ->select('interaksi_id', 'customer_id', 'awal_id', 'realtime_id', 'rincian_id', 'tanggal_chat', 'media', 'status');
 
         if ($tahun) {
             $query->whereYear('tanggal_chat', $tahun);
@@ -118,6 +118,8 @@ class RekapController extends Controller
         $interaksi = InteraksiModel::with('customer', 'produk')->findOrFail($interaksi_id);
         $produkList = ProdukModel::all(); // ambil semua produk untuk dropdown
         $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)->get();
+        $interaksi = InteraksiModel::with('customer', 'produk', 'rincian')->findOrFail($id);
+        $produkList = ProdukModel::select('produk_id', 'produk_nama')->get();
 
         $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang', 'Done'];
 
@@ -134,6 +136,12 @@ class RekapController extends Controller
             'originalStep' => $originalStep,
             'currentStep'  => $currentStep,
         ]);
+        // Log::info('[Edit Interaksi]', [
+        //     'interaksi_id' => $id,
+        //     'tahapan'      => $interaksi->tahapan,
+        //     'originalStep' => $originalStep,
+        //     'currentStep'  => $currentStep,
+        // ]);
         return view('rekap.show_ajax', [
             'interaksi' => $interaksi,
             'produkList' => $produkList,
@@ -347,11 +355,11 @@ class RekapController extends Controller
     //     ]);
     // }
     public function createIdentifikasiAwal(Request $request)
-{
-    $interaksi_id = $request->interaksi_id;
-    $kategoriList = KategoriModel::all(); // ambil semua kategori
-    return view('rekap.identifikasi_awal', compact('interaksi_id', 'kategoriList'));
-}
+    {
+        $interaksi_id = $request->interaksi_id;
+        $kategoriList = KategoriModel::all(); // ambil semua kategori
+        return view('rekap.identifikasi_awal', compact('interaksi_id', 'kategoriList'));
+    }
 
     public function showIdentifikasiAwal($interaksi_id)
     {
@@ -360,60 +368,60 @@ class RekapController extends Controller
         $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)->get();
 
         return view('rekap.show_ajax', [
-    'interaksi' => $interaksi,
-    'kategoriList' => $kategoriList,
-    'interaksiAwalList' => $interaksiAwalList,
-]);
+            'interaksi' => $interaksi,
+            'kategoriList' => $kategoriList,
+            'interaksiAwalList' => $interaksiAwalList,
+        ]);
     }
-public function storeIdentifikasiAwal(Request $request)
-{
-    $request->validate([
-        'interaksi_id' => 'required|exists:interaksi,interaksi_id',
-        'kategori_id'  => 'required|array',
-        'kategori_id.*'=> 'exists:kategoris,kategori_id'
-    ]);
+    public function storeIdentifikasiAwal(Request $request)
+    {
+        $request->validate([
+            'interaksi_id' => 'required|exists:interaksi,interaksi_id',
+            'kategori_id'  => 'required|array',
+            'kategori_id.*' => 'exists:kategoris,kategori_id'
+        ]);
 
-    $interaksi_id = $request->interaksi_id;
-    $kategori_ids = $request->kategori_id;
+        $interaksi_id = $request->interaksi_id;
+        $kategori_ids = $request->kategori_id;
 
-    $awal = null; // siapkan variabel untuk menampung hasil terakhir
+        $awal = null; // siapkan variabel untuk menampung hasil terakhir
 
-    foreach ($kategori_ids as $kategori_id) {
-        $kategori = KategoriModel::find($kategori_id);
+        foreach ($kategori_ids as $kategori_id) {
+            $kategori = KategoriModel::find($kategori_id);
 
-        $awal = InteraksiAwalModel::updateOrCreate(
-            [
-                'interaksi_id' => $interaksi_id,
-                'kategori_id'  => $kategori_id,
-            ],
-            [
-                'kategori_nama' => $kategori->kategori_nama
-            ]
-        );
-    }
-
-    // update FK di tabel interaksi pakai awal terakhir
-    if ($awal) {
-        $interaksi = InteraksiModel::find($interaksi_id);
-        if ($interaksi) {
-            $interaksi->awal_id = $awal->awal_id;
-            $interaksi->save();
+            $awal = InteraksiAwalModel::updateOrCreate(
+                [
+                    'interaksi_id' => $interaksi_id,
+                    'kategori_id'  => $kategori_id,
+                ],
+                [
+                    'kategori_nama' => $kategori->kategori_nama
+                ]
+            );
         }
+
+        // update FK di tabel interaksi pakai awal terakhir
+        if ($awal) {
+            $interaksi = InteraksiModel::find($interaksi_id);
+            if ($interaksi) {
+                $interaksi->awal_id = $awal->awal_id;
+                $interaksi->save();
+            }
+        }
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Kategori berhasil ditambahkan ke identifikasi awal'
+        ]);
     }
+    public function listIdentifikasiAwal($interaksi_id)
+    {
+        $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)
+            ->with('kategoris')
+            ->get();
 
-    return response()->json([
-        'status'  => 'success',
-        'message' => 'Kategori berhasil ditambahkan ke identifikasi awal'
-    ]);
-}
-public function listIdentifikasiAwal($interaksi_id)
-{
-    $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)
-        ->with('kategoris')
-        ->get();
-
-    return view('rekap.identifikasi_list', compact('interaksiAwalList'));
-}
+        return view('rekap.identifikasi_list', compact('interaksiAwalList'));
+    }
 
     // List realtime
     public function getRealtimeList($interaksi_id)
@@ -430,20 +438,64 @@ public function listIdentifikasiAwal($interaksi_id)
 
         return response()->json(['results' => $produks]);
     }
-    // public function createRincian(Request $request)
-    // {
-    //     $interaksi = InteraksiModel::select('interaksi_id', 'supplier_nama')->get();
-    //     $produk = ProdukModel::select('produk_id', 'produk_nama')->get();
-
-    //     return view('rekap.create_rincian', compact('interaksi', 'produk'))->render();
-    // }
-    public function createRincian(Request $request)
+    public function createRincian($id_interaksi)
     {
-        $interaksi = InteraksiModel::select('interaksi_id', 'supplier_nama')->get();
-        $produk = ProdukModel::select('produk_id', 'produk_nama')->get();
+        try {
+            // Log::info('Create Rincian dipanggil.', ['id_interaksi' => $id_interaksi]);
 
-        $html = view('rekap.create_rincian', compact('interaksi', 'produk'))->render();
+            $interaksi = InteraksiModel::findOrFail($id_interaksi);
+            // Log::info('Interaksi ditemukan.', ['interaksi' => $interaksi]);
 
-        return response()->json(['html' => $html]);
+            $produk = ProdukModel::select('produk_id', 'produk_nama')->get();
+
+            $rincian = RincianModel::with('produk')
+                ->where('interaksi_id', $id_interaksi)
+                ->get();
+
+            return view('rekap.create_rincian', compact('interaksi', 'produk', 'rincian'));
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Interaksi tidak ditemukan.',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
+    public function storeRincian(Request $request)
+    {
+        $request->validate([
+            'interaksi_id' => 'required|integer',
+            'produk_id' => 'required|integer',
+            'motif_id' => 'nullable|integer',
+            'kuantitas' => 'required|numeric',
+            'satuan' => 'required|string',
+            'deskripsi' => 'required|string|max:255'
+        ]);
+
+        try {
+            // Log input request
+            Log::info('Store Rincian - Input request:', $request->all());
+
+            // Simpan data ke database
+            $rincian = RincianModel::create($request->all());
+
+            // Log hasil setelah create
+            Log::info('Store Rincian - Data berhasil disimpan:', $rincian->toArray());
+
+            return response()->json([
+                'message' => 'Data Rincian berhasil disimpan.',
+            ], 200);
+        } catch (\Exception $e) {
+            // Log error lengkap
+            Log::error('Store Rincian - Gagal menyimpan data', [
+                'error_message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'input' => $request->all()
+            ]);
+
+            return response()->json([
+                'message' => 'Terjadi kesalahan saat menyimpan data.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

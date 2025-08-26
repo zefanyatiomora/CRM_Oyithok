@@ -57,38 +57,47 @@
   <!-- Navbar -->
   @include('layouts.header')
   <!-- /.navbar -->
-
+  
   <!-- Main Sidebar Container -->
   {{-- <aside class="main-sidebar sidebar-light-success elevation-4"> --}}
-  <aside class="main-sidebar custom-sidebar elevation-4">
-    <!-- Brand Logo -->
-    <a href="{{ url('/') }}" class="brand-link">
+    <aside class="main-sidebar custom-sidebar elevation-4">
+      <!-- Brand Logo -->
+      <a href="{{ url('/') }}" class="brand-link">
       <img src="{{ asset('adminlte/dist/img/AdminLTELogo.png') }}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">CRM</span>
     </a>
-
+    
     <!-- Sidebar -->
     @include('layouts.sidebar')
     
     <!-- /.sidebar -->
   </aside>
-
+  
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     @include('layouts.breadcrumb')
-
+    
     <!-- Main content -->
     <section class="content">
-        @yield('content')
+      @yield('content')
     </section>
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-
+  
   @include('layouts.footer')
 </div>
 <!-- ./wrapper -->
+
+<!-- Global Modal -->
+<div class="modal fade" id="crudModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="modalContent">
+            <!-- Konten akan dimuat via AJAX -->
+        </div>
+    </div>
+</div>
 
 <!-- jQuery -->
 <script src="{{ asset('adminlte/plugins/jquery/jquery.min.js') }}"></script>
@@ -119,6 +128,29 @@
 <script>
   // untuk mengirimkan token Laravel CSRF pada setiap request ajax
   $.ajaxSetup({headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}});
+  
+  // === FUNGSI GLOBAL UNTUK MODAL CRUD ===
+  window.openModal = function(url) {
+    $('#modalContent').html(`
+          <div class="text-center p-3">
+            <div class="spinner-border text-primary" role="status">
+                  <span class="sr-only">Loading...</span>
+                  </div>
+                  </div>
+                  `);
+                  $('#crudModal').modal('show');
+                  $.ajax({
+          url: url,
+          type: 'GET',
+          success: function(response) {
+              $('#modalContent').html(response);
+            },
+          error: function() {
+              $('#modalContent').html('<div class="alert alert-danger">Terjadi kesalahan saat memuat data.</div>');
+          }
+      });
+  }
+
 </script>
 @stack('js')
 </body>
