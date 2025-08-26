@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.template')
 
 @section('content')
 <div class="container-fluid">
@@ -46,6 +46,9 @@
   </div>
 </div>
 @endsection
+
+@push('css')
+@endpush
 
 @push('js')
 <script>
