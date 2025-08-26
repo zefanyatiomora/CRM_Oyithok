@@ -115,8 +115,8 @@ class RekapController extends Controller
 
     public function show_ajax($id)
     {
-        $interaksi = InteraksiModel::with('customer', 'produk')->findOrFail($id);
-        $produkList = ProdukModel::all(); // ambil semua produk untuk dropdown
+        $interaksi = InteraksiModel::with('customer', 'produk', 'rincian')->findOrFail($id);
+        $produkList = ProdukModel::select('produk_id', 'produk_nama')->get();
 
         $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang', 'Done'];
 
@@ -127,12 +127,12 @@ class RekapController extends Controller
 
         $currentStep = $originalStep; // default sama, nanti berubah di update
 
-        Log::info('[Edit Interaksi]', [
-            'interaksi_id' => $id,
-            'tahapan'      => $interaksi->tahapan,
-            'originalStep' => $originalStep,
-            'currentStep'  => $currentStep,
-        ]);
+        // Log::info('[Edit Interaksi]', [
+        //     'interaksi_id' => $id,
+        //     'tahapan'      => $interaksi->tahapan,
+        //     'originalStep' => $originalStep,
+        //     'currentStep'  => $currentStep,
+        // ]);
         return view('rekap.show_ajax', [
             'interaksi' => $interaksi,
             'produkList' => $produkList,
@@ -402,20 +402,64 @@ class RekapController extends Controller
 
         return response()->json(['results' => $produks]);
     }
-    // public function createRincian(Request $request)
-    // {
-    //     $interaksi = InteraksiModel::select('interaksi_id', 'supplier_nama')->get();
-    //     $produk = ProdukModel::select('produk_id', 'produk_nama')->get();
-
-    //     return view('rekap.create_rincian', compact('interaksi', 'produk'))->render();
-    // }
-    public function createRincian(Request $request)
+    public function createRincian($id_interaksi)
     {
-        $interaksi = InteraksiModel::select('interaksi_id', 'supplier_nama')->get();
-        $produk = ProdukModel::select('produk_id', 'produk_nama')->get();
+        try {
+            // Log::info('Create Rincian dipanggil.', ['id_interaksi' => $id_interaksi]);
 
-        $html = view('rekap.create_rincian', compact('interaksi', 'produk'))->render();
+            $interaksi = InteraksiModel::findOrFail($id_interaksi);
+            // Log::info('Interaksi ditemukan.', ['interaksi' => $interaksi]);
 
-        return response()->json(['html' => $html]);
+            $produk = ProdukModel::select('produk_id', 'produk_nama')->get();
+
+            $rincian = RincianModel::with('produk')
+                ->where('interaksi_id', $id_interaksi)
+                ->get();
+
+            return view('rekap.create_rincian', compact('interaksi', 'produk', 'rincian'));
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Interaksi tidak ditemukan.',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
+    public function storeRincian(Request $request)
+    {
+        $request->validate([
+            'interaksi_id' => 'required|integer',
+            'produk_id' => 'required|integer',
+            'motif_id' => 'nullable|integer',
+            'kuantitas' => 'required|numeric',
+            'satuan' => 'required|string',
+            'deskripsi' => 'required|string|max:255'
+        ]);
+
+        try {
+            // Log input request
+            Log::info('Store Rincian - Input request:', $request->all());
+
+            // Simpan data ke database
+            $rincian = RincianModel::create($request->all());
+
+            // Log hasil setelah create
+            Log::info('Store Rincian - Data berhasil disimpan:', $rincian->toArray());
+
+            return response()->json([
+                'message' => 'Data Rincian berhasil disimpan.',
+            ], 200);
+        } catch (\Exception $e) {
+            // Log error lengkap
+            Log::error('Store Rincian - Gagal menyimpan data', [
+                'error_message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'input' => $request->all()
+            ]);
+
+            return response()->json([
+                'message' => 'Terjadi kesalahan saat menyimpan data.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

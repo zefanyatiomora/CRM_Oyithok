@@ -1,115 +1,111 @@
-{{-- ========================================================== --}}
-{{-- File: resources/views/rekap/index_rincian.blade.php        --}}
-{{-- ========================================================== --}}
-
-<div class="bg-success text-white px-3 py-2 mb-2 rounded">
-    <strong>Data Rincian</strong>
-</div>
-
-<form id="form-rincian">
+<form id="form-create-rincian" enctype="multipart/form-data">
     @csrf
+    <!-- Hidden input untuk ID Interaksi -->
     <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
 
-    <table class="table table-bordered table-striped table-hover table-sm" id="table-rincian">
-        <thead class="table-success">
-            <tr>
-                <th style="width: 40%">Produk</th>
-                <th style="width: 30%">Keterangan</th>
-                <th style="width: 15%">Kuantitas</th>
-                <th style="width: 10%">Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>
-                    <select class="form-control select2-produk" name="produk_id[]" required></select>
-                    <small class="error-text form-text text-danger"></small>
-                </td>
-                <td><input type="text" name="keterangan[]" class="form-control form-control-sm"></td>
-                <td><input type="number" name="kuantitas[]" class="form-control form-control-sm" min="1" value="1"></td>
-                <td class="text-center">
-                    <button type="button" class="btn btn-sm btn-success btn-add">+</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+
+    <!-- Produk -->
+    <div class="form-group">
+        <label>Produk</label>
+        <select name="produk_id" id="produk_id" class="form-control" required>
+            <option value="">-- Pilih Produk --</option>
+            @foreach($produk as $prd)
+                <option value="{{ $prd->produk_id }}">{{ $prd->produk_nama }}</option>
+            @endforeach
+        </select>
+        <small id="error-produk_id" class="text-danger"></small>
+    </div>
+
+    <!-- Satuan -->
+    <div class="form-group">
+        <label>Satuan</label>
+        <select name="satuan" id="satuan" class="form-control" required>
+            <option value="">-- Pilih Satuan --</option>
+            <option value="pcs">PCS</option>
+            <option value="roll">Roll</option>
+            <option value="box">Box</option>
+        </select>
+        <small id="error-satuan" class="text-danger"></small>
+    </div>
+
+    <!-- Kuantitas -->
+    <div class="form-group">
+        <label>Kuantitas</label>
+        <input type="number" name="kuantitas" id="kuantitas" class="form-control" min="1" required>
+        <small id="error-kuantitas" class="text-danger"></small>
+    </div>
+
+    <!-- Deskripsi -->
+    <div class="form-group">
+        <label>Deskripsi</label>
+        <input type="text" name="deskripsi" id="deskripsi" class="form-control">
+        <small id="error-deskripsi" class="text-danger"></small>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-success">Simpan</button>
+
 </form>
 
-@push('css')
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<style>
-    .select2-container {
-        width: 100% !important;
-        max-height: 200px;
-        overflow-y: auto;
-        background-color: white;
-        border: 1px solid #ced4da;
-        z-index: 9999;
-    }
-</style>
-@endpush
-
-@push('js')
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-function initSelect2Produk(container) {
-    $(container).find('.select2-produk').select2({
-        placeholder: 'Cari produk...',
-        allowClear: true,
-        dropdownParent: $(container).closest('.modal').length 
-                        ? $(container).closest('.modal')   // jika di modal
-                        : $(document.body),                // jika bukan modal
-        ajax: {
-            url: '{{ route("rekap.searchProduct") }}',
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return { keyword: params.term };
-            },
-            processResults: function (data) {
-    // 'data' adalah seluruh respons: { "results": [...] }
-    // Kita perlu memberitahu Select2 bahwa datanya ada di dalam 'data.results'
-    return {
-        results: data.results 
-    };
-},
-            cache: true
-        }
-    });
-}
-
-// init pertama kali
 $(document).ready(function () {
-    initSelect2Produk(document);
-});
+    // Tambah baris baru
+    $("#add-row").click(function () {
+        let newRow = `
+            <tr>
+                <td>
+                    <select name="produk_id[]" class="form-control" required>
+                        <option value="">-- Pilih Produk --</option>
+                        @foreach($produk as $prd)
+                            <option value="{{ $prd->produk_id }}">{{ $prd->produk_nama }}</option>
+                        @endforeach
+                    </select>
+                </td>
+                <td>
+                    <select name="satuan[]" class="form-control" required>
+                        <option value="pcs">PCS</option>
+                        <option value="roll">Roll</option>
+                        <option value="box">Box</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="number" name="qty[]" class="form-control" min="1" required>
+                </td>
+                <td>
+                    <input type="text" name="keterangan[]" class="form-control">
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger remove-row">Hapus</button>
+                </td>
+            </tr>`;
+        $("#rincian-body").append(newRow);
+    });
 
-// jika ada modal dengan id #myModal
-$(document).on('shown.bs.modal', '#myModal', function () {
-    initSelect2Produk(this);
-});
+    // Hapus baris
+    $(document).on("click", ".remove-row", function () {
+        $(this).closest("tr").remove();
+    });
 
-// tambah row baru
-$(document).on('click', '.btn-add', function () {
-    let row = `
-        <tr>
-            <td>
-                <select class="form-control select2-produk" name="produk_id[]" required></select>
-                <small class="error-text form-text text-danger"></small>
-            </td>
-            <td><input type="text" name="keterangan[]" class="form-control form-control-sm"></td>
-            <td><input type="number" name="kuantitas[]" class="form-control form-control-sm" min="1" value="1"></td>
-            <td class="text-center">
-                <button type="button" class="btn btn-sm btn-danger btn-remove">-</button>
-            </td>
-        </tr>
-    `;
-    $('#table-rincian tbody').append(row);
-    initSelect2Produk($('#table-rincian tbody tr:last'));
-});
+    // Submit Form dengan AJAX
+    $("#form-create-rincian").submit(function (e) {
+        e.preventDefault();
 
-// hapus row
-$(document).on('click', '.btn-remove', function () {
-    $(this).closest('tr').remove();
+        let formData = new FormData(this);
+
+        $.ajax({
+            url: "{{ route('rincian.store') }}",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                Swal.fire("Sukses", response.message, "success").then(() => location.reload());
+            },
+            error: function (xhr) {
+                Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
+                console.error("Server Error:", xhr.responseText);
+            }
+        });
+    });
 });
 </script>
-@endpush

@@ -50,12 +50,15 @@ class InteraksiModel extends Model
         return $this->hasOne(UlasanModel::class, 'interaksi_id', 'interaksi_id');
     }
     public function realtime()
-{
-    return $this->hasMany(InteraksiRealtime::class, 'interaksi_id', 'interaksi_id');
-}
-public function interaksi_awal()
-{
-    return $this->hasMany(InteraksiAwalModel::class, 'interaksi_id', 'interaksi_id');
-}
-
+    {
+        return $this->hasMany(InteraksiRealtime::class, 'interaksi_id', 'interaksi_id');
+    }
+    public function interaksi_awal()
+    {
+        return $this->hasMany(InteraksiAwalModel::class, 'interaksi_id', 'interaksi_id');
+    }
+    public function rincian()
+    {
+        return $this->hasMany(RincianModel::class, 'interaksi_id', 'interaksi_id');
+    }
 }
