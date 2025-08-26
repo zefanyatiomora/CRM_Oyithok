@@ -90,7 +90,7 @@ class RekapController extends Controller
         // Log::info('RekapController@list: Filter Tahun = ' . $tahun . ', Bulan = ' . $bulan . ',Interaksi ID = ' . $interaksiId);
 
         $query = InteraksiModel::with(['customer'])
-            ->select('interaksi_id', 'customer_id', 'produk_id', 'produk_nama', 'tanggal_chat', 'media', 'tahapan', 'identifikasi_kebutuhan', 'item_type');
+            ->select('interaksi_id', 'customer_id', 'awal_id', 'realtime_id', 'rincian_id', 'tanggal_chat', 'media', 'status');
 
         if ($tahun) {
             $query->whereYear('tanggal_chat', $tahun);
@@ -113,8 +113,11 @@ class RekapController extends Controller
             ->make(true);
     }
 
-    public function show_ajax($id)
+    public function show_ajax($interaksi_id)
     {
+        $interaksi = InteraksiModel::with('customer', 'produk')->findOrFail($interaksi_id);
+        $produkList = ProdukModel::all(); // ambil semua produk untuk dropdown
+        $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)->get();
         $interaksi = InteraksiModel::with('customer', 'produk', 'rincian')->findOrFail($id);
         $produkList = ProdukModel::select('produk_id', 'produk_nama')->get();
 
@@ -127,6 +130,12 @@ class RekapController extends Controller
 
         $currentStep = $originalStep; // default sama, nanti berubah di update
 
+        Log::info('[Edit Interaksi]', [
+            'interaksi_id' => $interaksi_id,
+            'tahapan'      => $interaksi->tahapan,
+            'originalStep' => $originalStep,
+            'currentStep'  => $currentStep,
+        ]);
         // Log::info('[Edit Interaksi]', [
         //     'interaksi_id' => $id,
         //     'tahapan'      => $interaksi->tahapan,
@@ -141,7 +150,8 @@ class RekapController extends Controller
             'closeValue'       => $interaksi->close ?? '',
             'steps'       => $steps,
             'originalStep'       => $originalStep,
-            'currentStep'       => $currentStep
+            'currentStep'       => $currentStep,
+            'interaksiAwalList' => $interaksiAwalList // <-- pastikan dikirim
         ]);
     }
     public function updateFollowUp(Request $request)
@@ -151,7 +161,7 @@ class RekapController extends Controller
         $validated = $request->validate([
             'interaksi_id' => 'required|exists:interaksi,interaksi_id',
             'customer_id'  => 'required|exists:customers,customer_id',
-            'status'    => 'required|string',
+            'status'       => 'required|string',
             'tahapan'      => 'required|string',
             'pic'          => 'required|string',
         ]);
@@ -245,137 +255,144 @@ class RekapController extends Controller
 
         return response()->json(['status' => 'success']);
     }
-    public function storeKebutuhanProduk(Request $request)
+    // public function storeKebutuhanProduk(Request $request)
+    // {
+    //     // Validasi request
+    //     $validated = $request->validate([
+    //         'interaksi_id' => 'required|exists:interaksi,interaksi_id',
+    //         'produk_id'    => 'required|array',
+    //         'produk_id.*'  => 'required|exists:produks,produk_id',
+    //         'tahapan'      => 'required|array',
+    //         'tahapan.*'    => 'required|string',
+    //         'status'       => 'required|array',
+    //         'status.*'     => 'required|string',
+    //         'pic'          => 'required|array',
+    //         'pic.*'        => 'required|string',
+    //     ]);
+
+    //     $interaksi_id = $validated['interaksi_id'];
+    //     $produk_ids   = $validated['produk_id'];
+    //     $tahapans     = $validated['tahapan'];
+    //     $statuses     = $validated['status'];
+    //     $pics         = $validated['pic'];
+
+    //     try {
+    //         // Gunakan transaksi biar lebih aman
+    //         DB::transaction(function () use (
+    //             $interaksi_id,
+    //             $produk_ids,
+    //             $tahapans,
+    //             $statuses,
+    //             $pics
+    //         ) {
+    //             foreach ($produk_ids as $i => $kategori_id) {
+    //                 InteraksiAwalModel::updateOrCreate(
+    //                     [
+    //                         'interaksi_id' => $interaksi_id,
+    //                         'kategori_id'    => $kategori_id,
+    //                     ],
+    //                     [
+    //                         'tahapan'    => $tahapans[$i] ?? null,
+    //                         'status'     => $statuses[$i] ?? null,
+    //                         'pic'        => $pics[$i] ?? null,
+    //                         'updated_at' => now(),
+    //                     ]
+    //                 );
+    //             }
+
+    //             // update kolom terakhir di tabel interaksi
+    //             $lastIndex = count($produk_ids) - 1;
+    //             InteraksiModel::where('interaksi_id', $interaksi_id)
+    //                 ->update([
+    //                     'tahapan' => $tahapans[$lastIndex] ?? null,
+    //                     'status'  => $statuses[$lastIndex] ?? null,
+    //                     'updated_at' => now(),
+    //                 ]);
+    //         });
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Kebutuhan produk berhasil disimpan!'
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'error'   => 'Gagal menyimpan kebutuhan produk: ' . $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+    // public function showKebutuhanProduk($interaksi_id)
+    // {
+    //     $interaksi = InteraksiModel::with('customer')->findOrFail($interaksi_id);
+    //     $produkList = ProdukModel::all();
+
+    //     $kebutuhanList = \App\Models\InteraksiModel::with('produk')
+    //         ->where('interaksi_id', $interaksi_id)
+    //         ->get();
+
+    //     return view('rekap.index_realtime', [
+    //         'interaksi'     => $interaksi,
+    //         'produkList'    => $produkList,
+    //         'kebutuhanList' => $kebutuhanList,
+    //         'followUpOptions' => ['Ask', 'Follow Up', 'Closing Survey', 'Closing Pasang', 'Closing Product', 'Closing ALL']
+    //     ]);
+    // }
+
+    // public function updateKebutuhanProduk(Request $request, $id)
+    // {
+    //     $validated = $request->validate([
+    //         'produk_id' => 'required|exists:produk,produk_id',
+    //         'tahapan'   => 'required|string',
+    //         'pic'       => 'required|string',
+    //         'status'    => 'required|string',
+    //     ]);
+
+    //     $detail = \App\Models\InteraksiAwalModel::findOrFail($id);
+    //     $detail->update($validated);
+
+    //     return response()->json([
+    //         'success' => 'Kebutuhan produk berhasil diperbarui'
+    //     ]);
+    // }
+    public function createIdentifikasiAwal(Request $request)
     {
-        // Validasi request
-        $validated = $request->validate([
-            'interaksi_id' => 'required|exists:interaksi,interaksi_id',
-            'produk_id'    => 'required|array',
-            'produk_id.*'  => 'required|exists:produks,produk_id',
-            'tahapan'      => 'required|array',
-            'tahapan.*'    => 'required|string',
-            'status'       => 'required|array',
-            'status.*'     => 'required|string',
-            'pic'          => 'required|array',
-            'pic.*'        => 'required|string',
-        ]);
-
-        $interaksi_id = $validated['interaksi_id'];
-        $produk_ids   = $validated['produk_id'];
-        $tahapans     = $validated['tahapan'];
-        $statuses     = $validated['status'];
-        $pics         = $validated['pic'];
-
-        try {
-            // Gunakan transaksi biar lebih aman
-            DB::transaction(function () use (
-                $interaksi_id,
-                $produk_ids,
-                $tahapans,
-                $statuses,
-                $pics
-            ) {
-                foreach ($produk_ids as $i => $kategori_id) {
-                    InteraksiAwalModel::updateOrCreate(
-                        [
-                            'interaksi_id' => $interaksi_id,
-                            'kategori_id'    => $kategori_id,
-                        ],
-                        [
-                            'tahapan'    => $tahapans[$i] ?? null,
-                            'status'     => $statuses[$i] ?? null,
-                            'pic'        => $pics[$i] ?? null,
-                            'updated_at' => now(),
-                        ]
-                    );
-                }
-
-                // update kolom terakhir di tabel interaksi
-                $lastIndex = count($produk_ids) - 1;
-                InteraksiModel::where('interaksi_id', $interaksi_id)
-                    ->update([
-                        'tahapan' => $tahapans[$lastIndex] ?? null,
-                        'status'  => $statuses[$lastIndex] ?? null,
-                        'updated_at' => now(),
-                    ]);
-            });
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Kebutuhan produk berhasil disimpan!'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error'   => 'Gagal menyimpan kebutuhan produk: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-    public function showKebutuhanProduk($interaksi_id)
-    {
-        $interaksi = InteraksiModel::with('customer')->findOrFail($interaksi_id);
-        $produkList = ProdukModel::all();
-
-        // ambil kebutuhan produk yang sudah tersimpan
-        $kebutuhanList = \App\Models\InteraksiModel::with('produk')
-            ->where('interaksi_id', $interaksi_id)
-            ->get();
-
-        return view('rekap.index_realtime', [
-            'interaksi'     => $interaksi,
-            'produkList'    => $produkList,
-            'kebutuhanList' => $kebutuhanList,
-            'followUpOptions' => ['Ask', 'Follow Up', 'Closing Survey', 'Closing Pasang', 'Closing Product', 'Closing ALL']
-        ]);
+        $interaksi_id = $request->interaksi_id;
+        $kategoriList = KategoriModel::all(); // ambil semua kategori
+        return view('rekap.identifikasi_awal', compact('interaksi_id', 'kategoriList'));
     }
 
-    public function updateKebutuhanProduk(Request $request, $id)
-    {
-        $validated = $request->validate([
-            'produk_id' => 'required|exists:produk,produk_id',
-            'tahapan'   => 'required|string',
-            'pic'       => 'required|string',
-            'status'    => 'required|string',
-        ]);
-
-        $detail = \App\Models\InteraksiAwalModel::findOrFail($id);
-        $detail->update($validated);
-
-        return response()->json([
-            'success' => 'Kebutuhan produk berhasil diperbarui'
-        ]);
-    }
     public function showIdentifikasiAwal($interaksi_id)
     {
         $interaksi = InteraksiModel::with('customer')->findOrFail($interaksi_id);
         $kategoriList = KategoriModel::all(); // ambil semua kategori
         $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)->get();
 
-        return view('rekap.show_ajax', compact(
-            'interaksi',
-            'kategoriList',
-            'interaksiAwalList',
-        ));
+        return view('rekap.show_ajax', [
+            'interaksi' => $interaksi,
+            'kategoriList' => $kategoriList,
+            'interaksiAwalList' => $interaksiAwalList,
+        ]);
     }
-
     public function storeIdentifikasiAwal(Request $request)
     {
         $request->validate([
             'interaksi_id' => 'required|exists:interaksi,interaksi_id',
-            'kategori_id' => 'required|array',
-            'kategori_id.*' => 'exists:m_kategori,kategori_id'
+            'kategori_id'  => 'required|array',
+            'kategori_id.*' => 'exists:kategoris,kategori_id'
         ]);
 
         $interaksi_id = $request->interaksi_id;
         $kategori_ids = $request->kategori_id;
 
-        foreach ($kategori_ids as $kategori_id) {
-            $kategori = \App\Models\KategoriModel::find($kategori_id);
+        $awal = null; // siapkan variabel untuk menampung hasil terakhir
 
-            \App\Models\InteraksiAwalModel::updateOrCreate(
+        foreach ($kategori_ids as $kategori_id) {
+            $kategori = KategoriModel::find($kategori_id);
+
+            $awal = InteraksiAwalModel::updateOrCreate(
                 [
                     'interaksi_id' => $interaksi_id,
-                    'kategori_id' => $kategori_id,
+                    'kategori_id'  => $kategori_id,
                 ],
                 [
                     'kategori_nama' => $kategori->kategori_nama
@@ -383,9 +400,28 @@ class RekapController extends Controller
             );
         }
 
-        return redirect()->back()->with('success', 'Kategori berhasil ditambahkan ke identifikasi awal');
-    }
+        // update FK di tabel interaksi pakai awal terakhir
+        if ($awal) {
+            $interaksi = InteraksiModel::find($interaksi_id);
+            if ($interaksi) {
+                $interaksi->awal_id = $awal->awal_id;
+                $interaksi->save();
+            }
+        }
 
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Kategori berhasil ditambahkan ke identifikasi awal'
+        ]);
+    }
+    public function listIdentifikasiAwal($interaksi_id)
+    {
+        $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)
+            ->with('kategoris')
+            ->get();
+
+        return view('rekap.identifikasi_list', compact('interaksiAwalList'));
+    }
 
     // List realtime
     public function getRealtimeList($interaksi_id)

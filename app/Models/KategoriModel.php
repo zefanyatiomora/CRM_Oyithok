@@ -15,7 +15,7 @@ class KategoriModel extends Model
     protected $primaryKey = 'kategori_id';
 
     protected $fillable = [
-        'kategori_kode',  // Tambahkan kategori_kode di sini
+        'kategori_kode',  
         'kategori_nama',
     ];
     public function produks(): HasMany

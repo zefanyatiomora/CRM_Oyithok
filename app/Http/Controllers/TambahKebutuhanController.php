@@ -20,7 +20,7 @@ class TambahKebutuhanController extends Controller
                 ->get()
             : [];
 
-        return view('rekap.index_realtime', compact('customer','produks','interaksis'));
+        return view('rekap.index_realtime', compact('customer','interaksis'));
     }
 
     // Form tambah kebutuhan baru
