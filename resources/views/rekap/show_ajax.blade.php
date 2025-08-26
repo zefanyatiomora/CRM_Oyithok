@@ -124,19 +124,19 @@
             </button>
         </div>
     </div>
-    <div class="card-body">
- <button type="button" class="btn btn-sm btn-success" id="btn-toggle-identifikasi">
+<div class="card-body">
+    <button type="button" class="btn btn-sm btn-success" id="btn-toggle-identifikasi">
         <i class="fas fa-plus"></i> Tambah Kategori
     </button>
-@php
-    // Ambil data interaksi awal berdasarkan interaksi_id
-    $interaksiAwalList = \App\Models\InteraksiAwalModel::where('interaksi_id', $interaksi->interaksi_id)->get();
-@endphp
 
-@if($interaksiAwalList->isEmpty())
-    <div class="alert alert-secondary">Belum ada data identifikasi awal.</div>
+    <!-- Container form -->
+    <div id="form-identifikasi-container" style="display:none; margin-top:10px;"></div>
+
+        @if($interaksiAwalList->isEmpty())
+    <div class="alert alert-secondary mt-2">Belum ada data identifikasi awal.</div>
 @else
-    <table class="table table-bordered table-striped table-hover table-sm mb-4">
+<div id="identifikasi-tabel-container">
+    <table id="tabel-identifikasi" class="table table-bordered table-striped table-hover table-sm mt-2">
         <thead>
             <tr>
                 <th>No</th>
@@ -145,16 +145,30 @@
         </thead>
         <tbody>
             @foreach($interaksiAwalList as $index => $awal)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $awal->kategori_nama }}</td>
-            </tr>
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $awal->kategori_nama }}</td>
+                </tr>
             @endforeach
         </tbody>
     </table>
-            </div>
+</div>
 @endif
-            </div>
+    </div>
+</div>
+
+<script>
+    // Handler tombol tambah kategori
+$('#btn-toggle-identifikasi').click(function () {
+    let interaksi_id = "{{ $interaksi->interaksi_id }}";
+    $.get("{{ route('rekap.createIdentifikasiAwal') }}", { interaksi_id: interaksi_id }, function(res){
+        $('#form-identifikasi-container').html(res).slideDown();
+    }).fail(function(xhr){
+        console.error(xhr.responseText);
+        Swal.fire('Error!', 'Gagal memuat form identifikasi awal', 'error');
+    });
+});
+</script>
 {{-- ========== KEBUTUHAN HARIAN ========== --}}
 <div class="card card-purple collapsed-card">
     <div class="card-header">
@@ -176,6 +190,7 @@
                     <th>No</th>
                     <th>Tanggal</th>
                     <th>Keterangan</th>
+                    <th>PIC</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -191,6 +206,7 @@
                         <td>1</td>
                         <td><input type="date" name="tanggal[]" class="form-control form-control-sm"></td>
                         <td><input type="text" name="keterangan[]" class="form-control form-control-sm"></td>
+                        <td><input type="text" name="pic[]" class="form-control form-control-sm"></td>
                         <td class="text-center">
                             <button type="button" class="btn btn-sm btn-danger btn-remove-row">
                                 <i class="fas fa-minus"></i>
@@ -203,6 +219,7 @@
                             <td>{{ $index + 1 }}</td>
                             <td><input type="date" name="tanggal[]" class="form-control form-control-sm" value="{{ $item->tanggal }}"></td>
                             <td><input type="text" name="keterangan[]" class="form-control form-control-sm" value="{{ $item->keterangan }}"></td>
+                            <td><input type="text" name="pic[]" class="form-control form-control-sm" value="{{ $item->pic }}"></td>
                             <td class="text-center">
                                 <button type="button" class="btn btn-sm btn-danger btn-remove-row">
                                     <i class="fas fa-minus"></i>

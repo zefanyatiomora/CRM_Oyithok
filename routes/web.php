@@ -3,6 +3,7 @@
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\TambahKebutuhanController;
+use App\Http\Controllers\PICController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
@@ -77,6 +78,9 @@ Route::prefix('rekap')->group(function () {
     Route::get('/rekap/{interaksi_id}/identifikasi-awal/', [RekapController::class, 'showIdentifikasiAwal'])->name('rekap.showIdentifikasiAwal');
     Route::post('/rekap/store-identifikasi-awal', [RekapController::class, 'storeIdentifikasiAwal'])->name('rekap.storeIdentifikasiAwal');
     Route::delete('/rekap/identifikasi-awal/{awal_id}/delete', [RekapController::class, 'deleteIdentifikasiAwal'])->name('rekap.deleteIdentifikasiAwal');
+    Route::get('/rekap/identifikasi-awal/create', [RekapController::class, 'createIdentifikasiAwal'])->name('rekap.createIdentifikasiAwal');
+    Route::post('/rekap/identifikasi-awal/store', [RekapController::class, 'storeIdentifikasiAwal'])->name('interaksiAwal.store');
+    Route::get('/rekap/identifikasi-awal/list/{interaksi_id}', [RekapController::class, 'listIdentifikasiAwal'])->name('interaksiAwal.list');
 });
 Route::prefix('survey')->group(function () {
     Route::get('/', [SurveyController::class, 'index'])->name('survey.index');       // Halaman list monthSurvey
@@ -87,6 +91,14 @@ Route::prefix('pasang')->group(function () {
     Route::get('/', [PasangController::class, 'index'])->name('pasang.index');       // Halaman list monthPasang
     Route::post('/list', [PasangController::class, 'list'])->name('pasang.list');
     Route::get('/{id}/show_ajax', [PasangController::class, 'show_ajax']);
+});
+Route::prefix('pic')->group(function () {
+    Route::get('/', [PICController::class, 'index'])->name('pic.index');
+    Route::get('/data', [PICController::class, 'getData'])->name('pic.data');
+    Route::post('/store', [PICController::class, 'store'])->name('pic.store');
+    Route::get('/edit/{id}', [PICController::class, 'edit'])->name('pic.edit');
+    Route::post('/update/{id}', [PICController::class, 'update'])->name('pic.update');
+    Route::delete('/delete/{id}', [PICController::class, 'destroy'])->name('pic.delete');
 });
 
 

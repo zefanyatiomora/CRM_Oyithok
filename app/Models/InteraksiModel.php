@@ -15,22 +15,16 @@ class InteraksiModel extends Model
 
     protected $fillable = [
         'customer_id',
-        'produk_id',
-        'produk_kode',
-        'produk_nama',
-        'tanggal_chat',
-        'identifikasi_kebutuhan',
+        'awal_id',
+        'realtime_id',
+        'rincian_id',
         'media',
-        'item_type',
-        'status',
-        'tahapan',
-        'pic',
-        'alamat',
-        'waktu_survey',
-        'waktu_pasang',
+        'tanggal_chat',
         'pending_until',
         'pending_reason',
         'pending_status',
+        'status',
+        'tahapan'
     ];
 
     // Relasi ke Customer
