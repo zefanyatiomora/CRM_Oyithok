@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+
 
 class RekapController extends Controller
 {
@@ -115,45 +117,45 @@ class RekapController extends Controller
 
     public function show_ajax($interaksi_id)
     {
-        $interaksi = InteraksiModel::with('customer', 'produk')->findOrFail($interaksi_id);
-        $produkList = ProdukModel::all(); // ambil semua produk untuk dropdown
-        $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)->get();
-        $interaksi = InteraksiModel::with('customer', 'produk', 'rincian')->findOrFail($id);
+        $interaksi = InteraksiModel::with('customer', 'produk', 'rincian')
+            ->findOrFail($interaksi_id);
+
         $produkList = ProdukModel::select('produk_id', 'produk_nama')->get();
+        $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)->get();
 
         $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang', 'Done'];
 
-        $originalStep = array_search(
+        $currentStep = array_search(
             strtolower($interaksi->tahapan),
             array_map('strtolower', $steps)
         );
 
-        $currentStep = $originalStep; // default sama, nanti berubah di update
+        // Ambil skipped steps dari DB
+        $skippedSteps = $interaksi->skipsteps
+            ? json_decode($interaksi->skipsteps, true)
+            : [];
 
         Log::info('[Edit Interaksi]', [
             'interaksi_id' => $interaksi_id,
             'tahapan'      => $interaksi->tahapan,
-            'originalStep' => $originalStep,
             'currentStep'  => $currentStep,
+            'skippedSteps' => $skippedSteps,
         ]);
-        // Log::info('[Edit Interaksi]', [
-        //     'interaksi_id' => $id,
-        //     'tahapan'      => $interaksi->tahapan,
-        //     'originalStep' => $originalStep,
-        //     'currentStep'  => $currentStep,
-        // ]);
+
         return view('rekap.show_ajax', [
-            'interaksi' => $interaksi,
-            'produkList' => $produkList,
-            'followUpOptions' => ['Ask', 'Follow Up', 'Closing Survey', 'Closing Pasang', 'Closing Product', 'Closing ALL'],
-            'selectedFollowUp' => $interaksi->status ?? '',
-            'closeValue'       => $interaksi->close ?? '',
-            'steps'       => $steps,
-            'originalStep'       => $originalStep,
+            'interaksi'         => $interaksi,
+            'produkList'        => $produkList,
+            'steps'             => $steps,
             'currentStep'       => $currentStep,
-            'interaksiAwalList' => $interaksiAwalList // <-- pastikan dikirim
+            'skippedSteps'      => $skippedSteps,  // cuma ini yang dipakai di blade
+            'followUpOptions'   => ['Ask', 'Follow Up', 'Closing Survey', 'Closing Pasang', 'Closing Product', 'Closing ALL'],
+            'selectedFollowUp'  => $interaksi->status ?? '',
+            'closeValue'        => $interaksi->close ?? '',
+            'interaksiAwalList' => $interaksiAwalList
         ]);
     }
+
+
     public function updateFollowUp(Request $request)
     {
         Log::info('updateFollowUp data diterima:', $request->all());
@@ -201,20 +203,6 @@ class RekapController extends Controller
             Log::info('Update result:', [
                 'rows_affected' => $updateResult
             ]);
-            // Simpan rincian produk baru
-            // if (!empty($request->produk_id)) {
-            //     foreach ($request->produk_id as $idx => $produkId) {
-            //         if ($produkId) {
-            //             RincianModel::create([
-            //                 'interaksi_id' => $interaksi->interaksi_id,
-            //                 'produk_id'    => $produkId,
-            //                 'deskripsi'    => $request->keterangan[$idx] ?? null,
-            //                 'kuantitas'    => $request->kuantitas[$idx] ?? 1,
-            //             ]);
-            //         }
-            //     }
-            // }
-
             return response()->json([
                 'status'       => 'success',
                 'message'      => 'Data follow up berhasil disimpan',
@@ -472,30 +460,91 @@ class RekapController extends Controller
         ]);
 
         try {
-            // Log input request
-            Log::info('Store Rincian - Input request:', $request->all());
-
             // Simpan data ke database
             $rincian = RincianModel::create($request->all());
 
-            // Log hasil setelah create
-            Log::info('Store Rincian - Data berhasil disimpan:', $rincian->toArray());
+            // Panggil fungsi updateTahapan
+            $this->updateTahapan($rincian->interaksi_id, 'Rincian');
 
-            return response()->json([
-                'message' => 'Data Rincian berhasil disimpan.',
-            ], 200);
+            return redirect()->back()->with('success', 'Rincian berhasil disimpan!');
         } catch (\Exception $e) {
-            // Log error lengkap
-            Log::error('Store Rincian - Gagal menyimpan data', [
-                'error_message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'input' => $request->all()
-            ]);
-
-            return response()->json([
-                'message' => 'Terjadi kesalahan saat menyimpan data.',
-                'error' => $e->getMessage(),
-            ], 500);
+            Log::error('Store Rincian - Error:', ['message' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan rincian.');
         }
+    }
+
+    public function editRincian(string $rincian_id)
+    {
+        $rincian = RincianModel::findOrFail($rincian_id);
+        $produk = ProdukModel::select('produk_id', 'produk_nama')->get();
+
+        return view('rekap.edit_rincian', compact('rincian', 'produk'));
+    }
+    public function updateRincian(Request $request, $rincian_id)
+    {
+        $rincian = RincianModel::findOrFail($rincian_id);
+
+        $rules = [
+            'interaksi_id' => 'required|integer',
+            'produk_id' => 'required|integer',
+            'motif_id' => 'nullable|integer',
+            'kuantitas' => 'required|numeric',
+            'satuan' => 'required|string',
+            'deskripsi' => 'required|string|max:255'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validasi gagal.',
+                'msgField' => $validator->errors(),
+            ]);
+        }
+        $rincian->update($request->all());
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Data rincian berhasil diperbarui',
+        ]);
+    }
+    public function updateTahapan($interaksi_id, $tahapanBaru)
+    {
+        $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang', 'Done'];
+
+        $interaksi = InteraksiModel::findOrFail($interaksi_id);
+
+        $originalStep = $interaksi->original_step ?? 0;
+        $currentStep = array_search(strtolower($tahapanBaru), array_map('strtolower', $steps));
+
+        // Hitung skip
+        $skippedSteps = [];
+        if ($currentStep > $originalStep + 1) {
+            for ($i = $originalStep + 1; $i < $currentStep; $i++) {
+                $skippedSteps[] = $i;
+            }
+        }
+
+        // Merge skip lama dengan skip baru
+        $existingSkips = $interaksi->steps_skips ? json_decode($interaksi->steps_skips, true) : [];
+        $allSkips = array_unique(array_merge($existingSkips, $skippedSteps));
+
+        // Update interaksi
+        $interaksi->update([
+            'tahapan'       => $steps[$currentStep],
+            'original_step' => $currentStep,
+            'skipsteps'   => json_encode($allSkips),
+        ]);
+
+        Log::info('[Update Tahapan]', [
+            'interaksi_id' => $interaksi_id,
+            'tahapan'      => $steps[$currentStep],
+            'originalStep' => $originalStep,
+            'currentStep'  => $currentStep,
+            'skipped'      => $allSkips,
+        ]);
+
+        return $interaksi;
     }
 }

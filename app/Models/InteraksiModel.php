@@ -24,7 +24,12 @@ class InteraksiModel extends Model
         'pending_reason',
         'pending_status',
         'status',
-        'tahapan'
+        'tahapan',
+        'original_step',
+        'skipsteps',
+    ];
+    protected $casts = [
+        'skipsteps' => 'array', //  otomatis cast ke array saat ambil/simpan
     ];
 
     // Relasi ke Customer

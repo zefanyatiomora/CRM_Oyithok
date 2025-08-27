@@ -113,6 +113,4 @@ Route::prefix('rincian')->group(function () {
     Route::post('/store', [RekapController::class, 'storeRincian'])->name('rincian.store');
     Route::get('/{id}/edit', [RekapController::class, 'editRincian'])->name('rincian.edit');
     Route::put('/{id}/update', [RekapController::class, 'updateRincian'])->name('rincian.update');
-    Route::get('/{id}/delete', [RekapController::class, 'confirmRincian'])->name('rincian.confirm');
-    Route::delete('/{id}/delete', [RekapController::class, 'deleteRincian'])->name('rincian.delete');
 });

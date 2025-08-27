@@ -72,6 +72,8 @@ class KebutuhanController extends Controller
             'customer_id' => $customerId,
             'produk_id' => 11,
             'tanggal_chat' => now(),
+            'original_step' => 0,
+            'tahapan' => 'identifikasi',
         ]);
 
         Log::info('Interaksi berhasil disimpan.', ['interaksi_id' => $interaksi->interaksi_id]);

@@ -91,10 +91,13 @@
 <!-- ./wrapper -->
 
 <!-- Global Modal -->
-<div class="modal fade" id="crudModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content" id="modalContent">
-            <!-- Konten akan dimuat via AJAX -->
+<div class="modal fade custom-modal" id="crudModal" tabindex="-1" aria-labelledby="crudModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body" id="modalContent">
+                <div class="text-center">
+                </div>
+            </div>
         </div>
     </div>
 </div>

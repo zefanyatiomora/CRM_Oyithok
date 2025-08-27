@@ -29,43 +29,42 @@
 
         <div class="modal-body">
             {{-- Progress Steps --}}
-            @php
-                $originalStep = session('originalStep', $originalStep ?? 0);
-                $currentStep = session('currentStep', $currentStep ?? 0);
-            @endphp
             <div class="d-flex align-items-center justify-content-center mb-4">
                 @foreach ($steps as $index => $step)
                     <div class="text-center" style="min-width: 80px;">
                         <div class="rounded-circle 
-                            {{ $index < $currentStep ? 'bg-success text-white' : '' }}
-                            {{ $index == $currentStep ? 'bg-primary text-white' : '' }}
-                            {{ $index > $currentStep ? 'bg-light text-dark' : '' }}
+                            {{-- warna background --}}
+                            @if(in_array($index, $skippedSteps))
+                                bg-danger text-white
+                            @elseif($index == $currentStep)
+                                bg-primary text-white
+                            @elseif($index < $currentStep)
+                                bg-success text-white
+                            @else
+                                bg-light text-dark
+                            @endif
                             d-flex align-items-center justify-content-center"
                             style="width: 40px; height: 40px; margin: auto;">
 
-                            {{-- LOGIKA ICON --}}
-                            @if ($index < $originalStep)
-                                {{-- Sudah dilewati sebelumnya --}}
-                                <i class="fas fa-check"></i>
-                            @elseif ($index > $originalStep && $index < $currentStep)
-                                {{-- Tahapan dilewati (skip) --}}
+                            {{-- ICON / ANGKA --}}
+                            @if(in_array($index, $skippedSteps))
                                 <i class="fas fa-times"></i>
-                            @elseif ($index == $currentStep)
-                                {{-- Step saat ini, tampilkan angka --}}
-                                {{ $index + 1 }}
+                            @elseif($index < $currentStep)
+                                <i class="fas fa-check"></i>
                             @else
-                                {{-- Step belum sampai --}}
                                 {{ $index + 1 }}
                             @endif
                         </div>
                         <small>{{ $step }}</small>
                     </div>
+
                     {{-- Garis penghubung antar step --}}
                     @if ($index < count($steps) - 1)
                         <div class="flex-grow-1 border-top mx-2" style="height: 2px;"></div>
                     @endif
                 @endforeach
             </div>
+
 
             {{-- ========== DETAIL CUSTOMER ========== --}}
 <div class="card card-purple collapsed-card">
@@ -299,7 +298,7 @@ $(document).ready(function() {
             </table>
 
             <h4 class="mt-4 d-flex justify-content-between">
-                <span style="fs-6;">Rincian Produk</span>
+                <span style="font-size:17px;">Rincian Produk</span>
                 <!-- Icon Tambah Rincian -->
                 <a href="javascript:void(0);" 
                 onclick="openModal('{{ route('rincian.create', $interaksi->interaksi_id) }}')" 
@@ -315,6 +314,7 @@ $(document).ready(function() {
                             <th>Produk</th>
                             <th>Jumlah</th>
                             <th>Keterangan</th>
+                            <th>Status</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -325,13 +325,18 @@ $(document).ready(function() {
                                 <td>{{ $rincian->kuantitas}} {{ $rincian->satuan}}</td>
                                 <td>{{ $rincian->deskripsi}}</td>
                                 <td>
+                                    @if($rincian->status == 'hold')
+                                        <span class="badge bg-warning text-dark">Hold</span>
+                                    @elseif(in_array($rincian->status, ['closing all', 'closing produk', 'closing pasang']))
+                                        <span class="badge bg-success"> {{ ucfirst($rincian->status) }} </span>
+                                    @else
+                                        <span class="badge bg-secondary">{{ ucfirst($rincian->status) }}</span>
+                                    @endif
+                                </td>
+                                <td>
                                     <!-- Tombol Edit -->
-                                    <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ url('/rincian/' . $rincian->_id . '/edit') }}')">
+                                    <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ url('/rincian/' . $rincian->rincian_id . '/edit') }}')">
                                         <i class="fas fa-edit"></i>
-                                    </a>
-                                    <!-- Tombol Hapus -->
-                                    <a href="javascript:void(0);" class="btn btn-danger btn-sm" onclick="openModal('{{ url('/rincian/' . $rincian->_id . '/delete') }}')">
-                                        <i class="fas fa-trash"></i>
                                     </a>
                                 </td>
                             </tr>
