@@ -346,7 +346,7 @@ function loadRealtimeList(){
                         <th>Alamat Survey</th>
                         <th>Waktu Survey</th>
                         <th>Status</th>
-                        <th>Aksi</th>
+                        {{-- <th>Aksi</th> --}}
                     </tr>
                 </thead>
                 <tbody>
@@ -355,12 +355,11 @@ function loadRealtimeList(){
                             <td>{{ $interaksi->alamat}}</td>
                             <td>{{ $interaksi->jadwal_survey}}</td>
                             <td>{{ $interaksi->status}}</td>
-                            <td>
-                                <!-- Tombol Edit -->
-                                <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ url('/rincian/' . $rincian->rincian_id . '/edit') }}')">
+                            {{-- <td>
+                                <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ route() }}')">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                            </td>
+                            </td> --}}
                         </tr>
                     @else
                         <tr>

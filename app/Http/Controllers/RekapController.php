@@ -125,9 +125,9 @@ class RekapController extends Controller
         $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)->get();
         $picList = PICModel::orderBy('pic_nama')->get();
         $kebutuhanList = InteraksiRealtime::where('interaksi_id', $interaksi_id)
-                        ->with('pic')
-                        ->orderBy('tanggal','asc')
-                        ->get();
+            ->with('pic')
+            ->orderBy('tanggal', 'asc')
+            ->get();
 
         $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang', 'Done'];
 
@@ -228,36 +228,36 @@ class RekapController extends Controller
         }
     }
     // Tambah kebutuhan harian
-   public function storeRealtime(Request $request)
-{
-    $request->validate([
-        'interaksi_id' => 'required|exists:interaksi,interaksi_id',
-        'tanggal'      => 'required|array',
-        'tanggal.*'    => 'nullable|date',
-        'keterangan'   => 'required|array',
-        'keterangan.*' => 'nullable|string',
-        'pic'          => 'required|array',
-        'pic.*'        => 'nullable|exists:pic,pic_id',
-    ]);
+    public function storeRealtime(Request $request)
+    {
+        $request->validate([
+            'interaksi_id' => 'required|exists:interaksi,interaksi_id',
+            'tanggal'      => 'required|array',
+            'tanggal.*'    => 'nullable|date',
+            'keterangan'   => 'required|array',
+            'keterangan.*' => 'nullable|string',
+            'pic'          => 'required|array',
+            'pic.*'        => 'nullable|exists:pic,pic_id',
+        ]);
 
-    $interaksi_id = $request->interaksi_id;
-    $tanggals     = $request->tanggal;
-    $keterangans  = $request->keterangan;
-    $pics         = $request->pic;
+        $interaksi_id = $request->interaksi_id;
+        $tanggals     = $request->tanggal;
+        $keterangans  = $request->keterangan;
+        $pics         = $request->pic;
 
-    foreach ($tanggals as $i => $tgl) {
-        if ($tgl) {
-            InteraksiRealtime::create([
-                'interaksi_id' => $interaksi_id,
-                'tanggal'      => $tgl,
-                'keterangan'   => $keterangans[$i] ?? null,
-                'pic_id'       => $pics[$i] ?? null,
-            ]);
+        foreach ($tanggals as $i => $tgl) {
+            if ($tgl) {
+                InteraksiRealtime::create([
+                    'interaksi_id' => $interaksi_id,
+                    'tanggal'      => $tgl,
+                    'keterangan'   => $keterangans[$i] ?? null,
+                    'pic_id'       => $pics[$i] ?? null,
+                ]);
+            }
         }
-    }
 
-    return response()->json(['status' => 'success']);
-}
+        return response()->json(['status' => 'success']);
+    }
 
     public function createIdentifikasiAwal(Request $request)
     {
@@ -365,6 +365,11 @@ class RekapController extends Controller
             ], 500);
         }
     }
+    public function createSurvey($id_interaksi)
+    {
+        $interaksi = InteraksiModel::findOrFail($id_interaksi);
+        return view('rekap.create_survey', compact('interaksi'));
+    }
     public function storeRincian(Request $request)
     {
         $request->validate([
@@ -389,6 +394,24 @@ class RekapController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan rincian.');
         }
     }
+    public function updateSurvey(Request $request, $id)
+    {
+        $interaksi = InteraksiModel::findOrFail($id);
+        $validated = $request->validate([
+            'interaksi_id' => 'required|integer',
+            'alamat'        => 'required|string|max:255',
+            'jadwal_survey' => 'required|date',
+        ]);
+
+
+        $interaksi->update($validated);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Data Survey berhasil dibuat',
+        ]);
+    }
+
 
     public function editRincian(string $rincian_id)
     {
