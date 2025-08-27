@@ -37,12 +37,7 @@
                             @if(in_array($index, $skippedSteps))
                                 bg-danger text-white
                             @elseif($index <= $currentStep)
-                            @elseif($index <= $currentStep)
                                 bg-success text-white
-                            {{-- @elseif($index < $currentStep)
-                                bg-success text-white --}}
-                            {{-- @elseif($index < $currentStep)
-                                bg-success text-white --}}
                             @else
                                 bg-light text-dark
                             @endif
@@ -52,7 +47,6 @@
                             {{-- ICON / ANGKA --}}
                             @if(in_array($index, $skippedSteps))
                                 <i class="fas fa-times"></i>
-                            @elseif($index <= $currentStep)
                             @elseif($index <= $currentStep)
                                 <i class="fas fa-check"></i>
                             @else
