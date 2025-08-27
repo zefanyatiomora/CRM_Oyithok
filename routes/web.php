@@ -71,7 +71,6 @@ Route::prefix('rekap')->group(function () {
     Route::post('/rekap/update-followup', [RekapController::class, 'updateFollowUp'])->name('rekap.updateFollowUp');
     Route::get('realtime/list/{interaksi}', [RekapController::class, 'getRealtimeList']);
     Route::get('/rekap/realtime/{interaksi_id}', [RekapController::class, 'indexRealtime'])->name('rekap.indexRealtime');
-    Route::post('/rekap/store-kebutuhan', [RekapController::class, 'storeKebutuhanProduk'])->name('rekap.storeKebutuhanProduk');
     Route::get('/rekap/{interaksi_id}/kebutuhan', [RekapController::class, 'showKebutuhanProduk'])->name('rekap.showKebutuhanProduk');
     Route::get('/rekap/{interaksi_id}/identifikasi-awal/', [RekapController::class, 'showIdentifikasiAwal'])->name('rekap.showIdentifikasiAwal');
     Route::post('/rekap/store-identifikasi-awal', [RekapController::class, 'storeIdentifikasiAwal'])->name('rekap.storeIdentifikasiAwal');
@@ -82,6 +81,7 @@ Route::prefix('rekap')->group(function () {
     Route::post('/realtime/store', [RekapController::class, 'storeRealtime'])->name('rekap.storeRealtime');
     Route::get('/realtime/list/{id}', [RekapController::class, 'listRealtime'])->name('rekap.listRealtime');
     Route::delete('/realtime/delete/{id}', [RekapController::class, 'deleteRealtime'])->name('rekap.deleteRealtime');
+
 });
 
 Route::prefix('survey')->group(function () {

@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\InteraksiModel;
 use App\Models\InteraksiRealtime;
 use App\Models\InteraksiAwalModel;
-use App\Models\KategoriModel;
 use App\Models\PICModel;
+use App\Models\KategoriModel;
 use App\Models\ProdukModel;
 use App\Models\RincianModel;
 use Illuminate\Http\Request;
@@ -123,9 +123,11 @@ class RekapController extends Controller
 
         $produkList = ProdukModel::select('produk_id', 'produk_nama')->get();
         $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)->get();
-        $interaksi = InteraksiModel::with('customer', 'produk', 'rincian')->findOrFail($interaksi_id);
-        $produkList = ProdukModel::select('produk_id', 'produk_nama')->get();
-           $picList = PICModel::select('pic_id', 'pic_nama')->orderBy('pic_nama')->get(); 
+        $picList = PICModel::orderBy('pic_nama')->get();
+        $kebutuhanList = InteraksiRealtime::where('interaksi_id', $interaksi_id)
+                        ->with('pic')
+                        ->orderBy('tanggal','asc')
+                        ->get();
 
         $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang', 'Done'];
 
@@ -148,11 +150,16 @@ class RekapController extends Controller
 
         return view('rekap.show_ajax', [
             'interaksi'         => $interaksi,
+            'kebutuhanList'     => $kebutuhanList,
             'produkList'        => $produkList,
+            'picList'           => $picList,
             'steps'             => $steps,
             'currentStep'       => $currentStep,
-            'interaksiAwalList' => $interaksiAwalList, // <-- pastikan dikirim
-            'picList'          => $picList
+            'skippedSteps'      => $skippedSteps,  // cuma ini yang dipakai di blade
+            'followUpOptions'   => ['Ask', 'Follow Up', 'Closing Survey', 'Closing Pasang', 'Closing Product', 'Closing ALL'],
+            'selectedFollowUp'  => $interaksi->status ?? '',
+            'closeValue'        => $interaksi->close ?? '',
+            'interaksiAwalList' => $interaksiAwalList
         ]);
     }
 
@@ -220,6 +227,38 @@ class RekapController extends Controller
             ], 500);
         }
     }
+    // Tambah kebutuhan harian
+   public function storeRealtime(Request $request)
+{
+    $request->validate([
+        'interaksi_id' => 'required|exists:interaksi,interaksi_id',
+        'tanggal'      => 'required|array',
+        'tanggal.*'    => 'nullable|date',
+        'keterangan'   => 'required|array',
+        'keterangan.*' => 'nullable|string',
+        'pic'          => 'required|array',
+        'pic.*'        => 'nullable|exists:pic,pic_id',
+    ]);
+
+    $interaksi_id = $request->interaksi_id;
+    $tanggals     = $request->tanggal;
+    $keterangans  = $request->keterangan;
+    $pics         = $request->pic;
+
+    foreach ($tanggals as $i => $tgl) {
+        if ($tgl) {
+            InteraksiRealtime::create([
+                'interaksi_id' => $interaksi_id,
+                'tanggal'      => $tgl,
+                'keterangan'   => $keterangans[$i] ?? null,
+                'pic_id'       => $pics[$i] ?? null,
+            ]);
+        }
+    }
+
+    return response()->json(['status' => 'success']);
+}
+
     public function createIdentifikasiAwal(Request $request)
     {
         $interaksi_id = $request->interaksi_id;
@@ -288,69 +327,13 @@ class RekapController extends Controller
 
         return view('rekap.identifikasi_list', compact('interaksiAwalList'));
     }
-public function storeRealtime(Request $request)
-{
-    $request->validate([
-        'interaksi_id' => 'required|exists:interaksi,interaksi_id',
-        'tanggal' => 'required|array',
-        'tanggal.*' => 'nullable|date',
-        'keterangan' => 'required|array',
-        'keterangan.*' => 'nullable|string',
-        'pic_id' => 'required|array',
-        'pic_id.*' => 'nullable|integer',
-    ]);
 
-    $interaksi_id = $request->interaksi_id;
-
-    foreach ($request->tanggal as $i => $tgl) {
-        if ($tgl || $request->keterangan[$i] || $request->pic[$i]) {
-InteraksiRealtime::updateOrCreate(
-    [
-        'interaksi_id' => $interaksi_id,
-        'tanggal' => $tgl,
-    ],
-    [
-        'keterangan' => $request->keterangan[$i],
-        'pic_id' => $request->pic_id[$i] ?? null,
-    ]
-);
-
-        }
-    }
-
-    $list = InteraksiRealtime::with('pic')
-        ->where('interaksi_id', $interaksi_id)
-        ->orderBy('tanggal')
-        ->get();
-
-    return response()->json([
-        'status' => 'success',
-        'list' => $list
-    ]);
-}
-    public function listRealtime($interaksi_id)
-    {
-        $list = InteraksiRealtime::with('pic')
-            ->where('interaksi_id', $interaksi_id)
-            ->orderBy('tanggal')
-            ->get();
-
-        return view('rekap.realtime_list', compact('list'))->render();
-    }
-
-    public function deleteRealtime($id)
-    {
-        $item = InteraksiRealtime::findOrFail($id);
-        $item->delete();
-
-        return response()->json(['status' => 'success']);
-    }
     // List realtime
-    // public function getRealtimeList($interaksi_id)
-    // {
-    //     $interaksi = InteraksiModel::with('realtime')->findOrFail($interaksi_id);
-    //     return view('rekap.realtime_list', ['realtime' => $interaksi->realtime]);
-    // }
+    public function getRealtimeList($interaksi_id)
+    {
+        $interaksi = InteraksiModel::with('realtime')->findOrFail($interaksi_id);
+        return view('rekap.realtime_list', ['realtime' => $interaksi->realtime]);
+    }
     public function searchProduct(Request $request)
     {
         $keyword = $request->get('keyword');

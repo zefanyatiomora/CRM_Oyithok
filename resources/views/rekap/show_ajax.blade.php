@@ -36,10 +36,10 @@
                             {{-- warna background --}}
                             @if(in_array($index, $skippedSteps))
                                 bg-danger text-white
-                            @elseif($index == $currentStep)
-                                bg-primary text-white
-                            @elseif($index < $currentStep)
+                            @elseif($index <= $currentStep)
                                 bg-success text-white
+                            {{-- @elseif($index < $currentStep)
+                                bg-success text-white --}}
                             @else
                                 bg-light text-dark
                             @endif
@@ -49,7 +49,7 @@
                             {{-- ICON / ANGKA --}}
                             @if(in_array($index, $skippedSteps))
                                 <i class="fas fa-times"></i>
-                            @elseif($index < $currentStep)
+                            @elseif($index <= $currentStep)
                                 <i class="fas fa-check"></i>
                             @else
                                 {{ $index + 1 }}
@@ -166,14 +166,12 @@ $('#btn-toggle-identifikasi').click(function () {
         console.error(xhr.responseText);
         Swal.fire('Error!', 'Gagal memuat form identifikasi awal', 'error');
     });
-    });
-    </script>
-
+});
+</script>
 {{-- ========== KEBUTUHAN HARIAN ========== --}}
-{{-- show_ajax.blade.php --}}
 <div class="card card-purple collapsed-card">
     <div class="card-header">
-        <h3 class="card-title">Identifikasi Kebutuhan</h3>
+        <h3 class="card-title">Identifikasi Harian</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                 <i class="fas fa-plus"></i>
@@ -181,86 +179,87 @@ $('#btn-toggle-identifikasi').click(function () {
         </div>
     </div>
     <div class="card-body">
-        <form id="form-kebutuhan-harian">
-            @csrf
-            <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
-            <button type="button" class="btn btn-sm btn-success" id="btn-add-row-header">
-                <i class="fas fa-plus"></i> Tambah Baris
-            </button>
 
-            <table class="table table-bordered table-striped table-hover table-sm" id="table-kebutuhan-harian">
+        <!-- Tombol tambah data -->
+        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#modalTambahKebutuhan">
+            <i class="fas fa-plus"></i>
+        </button>
+
+        <!-- Modal Tambah Kebutuhan -->
+        <div class="modal fade" id="modalTambahKebutuhan" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form id="form-kebutuhan-harian">
+                        @csrf
+                        <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">Tambah Kebutuhan Harian</h5>
+                            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Tanggal</label>
+                                <input type="date" name="tanggal" class="form-control form-control-sm" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Keterangan</label>
+                                <input type="text" name="keterangan" class="form-control form-control-sm" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>PIC</label>
+                                <select name="pic_id" class="form-control form-control-sm" required>
+                                    <option value="">-- Pilih PIC --</option>
+                                    @foreach($picList as $pic)
+                                        <option value="{{ $pic->pic_id }}">{{ $pic->pic_nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Simpan</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabel kebutuhan -->
+        <div id="list-realtime" class="mt-3">
+            <table class="table table-bordered table-striped table-hover table-sm">
                 <thead>
                     <tr>
                         <th>No</th>
                         <th>Tanggal</th>
                         <th>Keterangan</th>
                         <th>PIC</th>
-                        <th>Aksi</th>
                     </tr>
                 </thead>
-                <tbody id="kebutuhan-container">
-                    @php
-                        $kebutuhanList = \App\Models\InteraksiRealtime::where('interaksi_id', $interaksi->interaksi_id)
-                            ->orderBy('tanggal', 'asc')
-                            ->get();
-                    @endphp
-
-                    @if($kebutuhanList->isEmpty())
+                <tbody>
+                    @forelse($kebutuhanList as $index => $item)
                         <tr>
-                            <td>1</td>
-                            <td><input type="date" name="tanggal[]" class="form-control form-control-sm"></td>
-                            <td><input type="text" name="keterangan[]" class="form-control form-control-sm"></td>
-                            <td>
-                                    <select name="pic_id[]" class="form-control form-control-sm select2">
-                                    <option value="">- Pilih PIC -</option>
-                                    @foreach($picList as $pic)
-                                        <option value="{{ $pic->pic_id }}">{{ $pic->pic_nama }}</option>
-                                    @endforeach
-                                </select>
-                            </td>
-                            <td class="text-center">
-                                <button type="button" class="btn btn-sm btn-danger btn-remove-row">
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                            </td>
+                            <td>{{ $index+1 }}</td>
+                            <td>{{ $item->tanggal }}</td>
+                            <td>{{ $item->keterangan }}</td>
+                            <td>{{ $item->pic->pic_nama ?? '-' }}</td>
                         </tr>
-                    @else
-                        @foreach($kebutuhanList as $index => $item)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td><input type="date" name="tanggal[]" class="form-control form-control-sm" value="{{ $item->tanggal }}"></td>
-                                <td><input type="text" name="keterangan[]" class="form-control form-control-sm" value="{{ $item->keterangan }}"></td>
-                                <td>
-                                        <select name="pic_id[]" class="form-control form-control-sm select2">
-                                        <option value="">- Pilih PIC -</option>
-                                        @foreach ($picList as $pic)
-                                            <option value="{{ $pic->pic_id }}" {{ $item->pic_id == $pic->pic_id ? 'selected' : '' }}>
-                                                {{ $pic->pic_nama }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </td>
-                                <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-danger btn-remove-row">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        @endforeach
-                    @endif
+                    @empty
+                        <tr>
+                            <td colspan="4" class="text-center">Belum ada data</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
+        </div>
 
-            <div class="text-right mt-3">
-                <button type="button" class="btn btn-primary" id="btn-save-realtime">
-                    <i class="fas fa-save"></i> Simpan
-                </button>
-            </div>
-        </form>
     </div>
 </div>
 
-@push('js')
 <script>
 $(document).ready(function() {
     function updateNomor() {
@@ -269,92 +268,56 @@ $(document).ready(function() {
         });
     }
 
-    // Inisialisasi select2 awal
-    $('.select2').select2({ width: '100%' });
-
-    // Tambah baris baru
+    // Tambah baris hanya dari tombol header
     $('#btn-add-row-header').click(function() {
         let newRow = `<tr>
             <td></td>
             <td><input type="date" name="tanggal[]" class="form-control form-control-sm"></td>
             <td><input type="text" name="keterangan[]" class="form-control form-control-sm"></td>
-            <td>
-                    <select name="pic_id[]" class="form-control form-control-sm select2">
-                    <option value="">- Pilih PIC -</option>
-                    @foreach($picList as $pic)
-                        <option value="{{ $pic->pic_id }}">{{ $pic->pic_nama }}</option>
-                    @endforeach
-                </select>
-            </td>
             <td class="text-center">
                 <button type="button" class="btn btn-sm btn-danger btn-remove-row">
                     <i class="fas fa-minus"></i>
                 </button>
             </td>
         </tr>`;
-
         $('#kebutuhan-container').append(newRow);
         updateNomor();
-        $('#kebutuhan-container tr:last .select2').select2({ width: '100%' });
     });
+// Simpan kebutuhan harian
+$(document).on('submit', '#form-kebutuhan-harian', function(e){
+    e.preventDefault();
 
+    $.post("{{ url('/realtime/store') }}", $(this).serialize(), function(res){
+        if(res.status === 'success'){
+            $('#modalTambahKebutuhan').modal('hide');
+            Swal.fire({icon:'success', title:'Berhasil', text:'Data berhasil ditambahkan', timer:1500, showConfirmButton:false});
+            loadRealtimeList();
+        }else{
+            Swal.fire({icon:'error', title:'Gagal', text:res.message || 'Gagal menyimpan data'});
+        }
+    }).fail(function(xhr){
+        console.error(xhr.responseText);
+        Swal.fire({icon:'error', title:'Error', text:'Terjadi kesalahan server'});
+    });
+});
+
+function loadRealtimeList(){
+    let id = "{{ $interaksi->interaksi_id }}";
+    $.get("{{ url('/rekap/realtime/list') }}/"+id, function(html){
+        $('#list-realtime').html(html);
+    });
+}
     // Hapus baris
     $(document).on('click', '.btn-remove-row', function() {
         $(this).closest('tr').remove();
         updateNomor();
     });
 
-    // Simpan semua baris realtime
-    $('#btn-save-realtime').click(function(){
-        let formData = $('#form-kebutuhan-harian').serialize();
-
-        $.ajax({
-            url: "{{ route('rekap.storeRealtime') }}",
-            type: "POST",
-            data: formData,
-            success: function(res){
-                if(res.status === 'success'){
-                    Swal.fire('Berhasil','Data kebutuhan harian disimpan','success');
-
-                    // Render ulang tbody dari data JSON
-                    let rows = '';
-                    res.list.forEach(function(item, index){
-                        rows += `<tr>
-                            <td>${index + 1}</td>
-                            <td><input type="date" name="tanggal[]" class="form-control form-control-sm" value="${item.tanggal || ''}"></td>
-                            <td><input type="text" name="keterangan[]" class="form-control form-control-sm" value="${item.keterangan || ''}"></td>
-                            <td>
-                            <select name="pic_id[]" class="form-control form-control-sm select2">
-                                    <option value="">- Pilih PIC -</option>
-                                    @foreach($picList as $pic)
-                                        <option value="{{ $pic->pic_id }}" ${item.pic_id == {{ $pic->pic_id }} ? 'selected' : ''}>{{ $pic->pic_nama }}</option>
-                                    @endforeach
-                                </select>
-                            </td>
-                            <td class="text-center">
-                                <button type="button" class="btn btn-sm btn-danger btn-remove-row">
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                            </td>
-                        </tr>`;
-                    });
-
-                    $('#kebutuhan-container').html(rows);
-                    $('.select2').select2({ width: '100%' });
-                    updateNomor();
-                }
-            },
-            error: function(xhr){
-                Swal.fire('Error','Gagal menyimpan data','error');
-                console.error(xhr.responseText);
-            }
-        });
-    });
-
     updateNomor();
 });
 </script>
-@endpush
+
+
 
 {{-- ========== DATA SURVEY ========== --}}
 <div class="card card-purple collapsed-card">
@@ -367,8 +330,55 @@ $(document).ready(function() {
         </div>
     </div>
     <div class="card-body">
+        {{-- <h4 class="mt-4 d-flex justify-content-between">
+            <span style="font-size:17px;">Alamat Survey</span>
+            <!-- Icon Tambah Rincian -->
+            <a href="javascript:void(0);" 
+            onclick="openModal('{{ route('rincian.create', $interaksi->interaksi_id) }}')" 
+            class="text-primary" 
+            title="Tambah Survey">
+                <i class="fas fa-plus fa-xs"></i>
+            </a>
+        </h4> --}}
             <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
             
+            <table class="table table-bordered table-striped table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th>Alamat Survey</th>
+                        <th>Waktu Survey</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($interaksi->rincian as $rincian)
+                        <tr>
+                            <td>{{ $interaksi->alamat}}</td>
+                            <td>{{ $rincian->kuantitas}} {{ $rincian->satuan}}</td>
+                            <td>{{ $rincian->deskripsi}}</td>
+                            <td>
+                                @if($rincian->status == 'hold')
+                                    <span class="badge bg-warning text-dark">Hold</span>
+                                @elseif(in_array($rincian->status, ['closing all', 'closing produk', 'closing pasang']))
+                                    <span class="badge bg-success"> {{ ucfirst($rincian->status) }} </span>
+                                @else
+                                    <span class="badge bg-secondary">{{ ucfirst($rincian->status) }}</span>
+                                @endif
+                            </td>
+                            <td>
+                                <!-- Tombol Edit -->
+                                <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ url('/rincian/' . $rincian->rincian_id . '/edit') }}')">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4">Tidak ada rincian produk.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
             <table class="table table-bordered table-striped table-hover table-sm mb-4">
                 <tr>
                     <th style="width: 25%">Alamat Survey</th>
