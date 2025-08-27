@@ -200,21 +200,19 @@ $('#btn-toggle-identifikasi').click(function () {
                             <div class="form-group">
                                 <label>Tanggal</label>
                                 <input type="date" name="tanggal" class="form-control form-control-sm" required>
-                            </div>
-
+                        </div>
                             <div class="form-group">
                                 <label>Keterangan</label>
-                                <input type="text" name="keterangan" class="form-control form-control-sm" required>
+                                <input type="text" name="keterangan" class="form-control form-control-sm" required>              
                             </div>
-
                             <div class="form-group">
                                 <label>PIC</label>
-                                <select name="pic_id" class="form-control form-control-sm" required>
-                                    <option value="">-- Pilih PIC --</option>
-                                    @foreach($picList as $pic)
-                                        <option value="{{ $pic->pic_id }}">{{ $pic->pic_nama }}</option>
-                                    @endforeach
-                                </select>
+                               <select name="pic_id" class="form-control form-control-sm" required>
+    <option value="">-- Pilih PIC --</option>
+    @foreach($picList as $pic)
+        <option value="{{ $pic->pic_id }}">{{ $pic->pic_nama }}</option>
+    @endforeach
+</select>
                             </div>
                         </div>
 
@@ -421,9 +419,6 @@ function loadRealtimeList(){
                 </table>
                 </div> {{-- card-body rincian --}}
             </div> {{-- card rincian produk --}}
-    </div>
-</div>
-
 
 {{-- ========== DATA PASANG ========== --}}
 <div class="card card-purple collapsed-card">
@@ -462,9 +457,9 @@ function loadRealtimeList(){
         <div class="modal-footer">
             <button type="button" id="btn-save-followup" class="btn btn-primary">Simpan</button>
         </div>
- </div>
     </div>
 </div>
+
 
 @push('css')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />

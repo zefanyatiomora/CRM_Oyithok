@@ -228,33 +228,28 @@ class RekapController extends Controller
         }
     }
     // Tambah kebutuhan harian
-   public function storeRealtime(Request $request)
+public function storeRealtime(Request $request)
 {
     $request->validate([
         'interaksi_id' => 'required|exists:interaksi,interaksi_id',
-        'tanggal'      => 'required|array',
-        'tanggal.*'    => 'nullable|date',
-        'keterangan'   => 'required|array',
-        'keterangan.*' => 'nullable|string',
-        'pic'          => 'required|array',
-        'pic.*'        => 'nullable|exists:pic,pic_id',
+        'tanggal'      => 'required|date',
+        'keterangan'   => 'required|string',
+        'pic_id'       => 'required|exists:pic,pic_id',
     ]);
 
-    $interaksi_id = $request->interaksi_id;
-    $tanggals     = $request->tanggal;
-    $keterangans  = $request->keterangan;
-    $pics         = $request->pic;
+    // Simpan ke tabel interaksi_realtime
+    InteraksiRealtime::create([
+        'interaksi_id' => $request->interaksi_id,
+        'tanggal'      => $request->tanggal,
+        'keterangan'   => $request->keterangan,
+        'pic_id'       => $request->pic_id,
+    ]);
 
-    foreach ($tanggals as $i => $tgl) {
-        if ($tgl) {
-            InteraksiRealtime::create([
-                'interaksi_id' => $interaksi_id,
-                'tanggal'      => $tgl,
-                'keterangan'   => $keterangans[$i] ?? null,
-                'pic_id'       => $pics[$i] ?? null,
-            ]);
-        }
-    }
+    // Update juga ke tabel interaksi (kolom pic_id)
+    \App\Models\InteraksiRealtime::where('interaksi_id', $request->interaksi_id)
+        ->update([
+            'pic_id' => $request->pic_id,
+        ]);
 
     return response()->json(['status' => 'success']);
 }
