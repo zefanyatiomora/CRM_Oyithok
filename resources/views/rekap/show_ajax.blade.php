@@ -285,7 +285,7 @@ $(document).ready(function() {
 $(document).on('submit', '#form-kebutuhan-harian', function(e){
     e.preventDefault();
 
-    $.post("{{ url('/realtime/store') }}", $(this).serialize(), function(res){
+    $.post("{{ url('rekap/realtime/store') }}", $(this).serialize(), function(res){
         if(res.status === 'success'){
             $('#modalTambahKebutuhan').modal('hide');
             Swal.fire({icon:'success', title:'Berhasil', text:'Data berhasil ditambahkan', timer:1500, showConfirmButton:false});
