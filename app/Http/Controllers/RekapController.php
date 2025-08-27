@@ -273,47 +273,37 @@ public function storeRealtime(Request $request)
             'interaksiAwalList' => $interaksiAwalList,
         ]);
     }
-    public function storeIdentifikasiAwal(Request $request)
-    {
-        $request->validate([
-            'interaksi_id' => 'required|exists:interaksi,interaksi_id',
-            'kategori_id'  => 'required|array',
-            'kategori_id.*' => 'exists:kategoris,kategori_id'
-        ]);
+public function storeIdentifikasiAwal(Request $request)
+{
+    $request->validate([
+        'interaksi_id' => 'required|exists:interaksi,interaksi_id',
+        'kategori_id'  => 'required|array',
+        'kategori_id.*' => 'exists:kategoris,kategori_id'
+    ]);
 
-        $interaksi_id = $request->interaksi_id;
-        $kategori_ids = $request->kategori_id;
+    $interaksi_id = $request->interaksi_id;
+    $kategori_ids = $request->kategori_id;
 
-        $awal = null; // siapkan variabel untuk menampung hasil terakhir
+    foreach ($kategori_ids as $kategori_id) {
+        $kategori = KategoriModel::find($kategori_id);
 
-        foreach ($kategori_ids as $kategori_id) {
-            $kategori = KategoriModel::find($kategori_id);
-
-            $awal = InteraksiAwalModel::updateOrCreate(
-                [
-                    'interaksi_id' => $interaksi_id,
-                    'kategori_id'  => $kategori_id,
-                ],
-                [
-                    'kategori_nama' => $kategori->kategori_nama
-                ]
-            );
-        }
-
-        // update FK di tabel interaksi pakai awal terakhir
-        if ($awal) {
-            $interaksi = InteraksiModel::find($interaksi_id);
-            if ($interaksi) {
-                $interaksi->awal_id = $awal->awal_id;
-                $interaksi->save();
-            }
-        }
-
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Kategori berhasil ditambahkan ke identifikasi awal'
-        ]);
+        // Simpan ke tabel interaksi_awal
+        InteraksiAwalModel::updateOrCreate(
+            [
+                'interaksi_id' => $interaksi_id,
+                'kategori_id'  => $kategori_id,
+            ],
+            [
+                'kategori_nama' => $kategori->kategori_nama
+            ]
+        );
     }
+
+    return response()->json([
+        'status'  => 'success',
+        'message' => 'Kategori berhasil ditambahkan ke identifikasi awal'
+    ]);
+}
     public function listIdentifikasiAwal($interaksi_id)
     {
         $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)
