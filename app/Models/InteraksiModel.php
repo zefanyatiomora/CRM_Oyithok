@@ -15,18 +15,13 @@ class InteraksiModel extends Model
 
     protected $fillable = [
         'customer_id',
-        'awal_id',
-        'realtime_id',
-        'rincian_id',
         'media',
         'tanggal_chat',
-        'pending_until',
-        'pending_reason',
-        'pending_status',
         'status',
         'tahapan',
         'original_step',
         'skipsteps',
+        'alamat',
     ];
     protected $casts = [
         'skipsteps' => 'array', //  otomatis cast ke array saat ambil/simpan

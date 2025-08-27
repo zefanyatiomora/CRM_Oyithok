@@ -92,7 +92,7 @@ class RekapController extends Controller
         // Log::info('RekapController@list: Filter Tahun = ' . $tahun . ', Bulan = ' . $bulan . ',Interaksi ID = ' . $interaksiId);
 
         $query = InteraksiModel::with(['customer'])
-            ->select('interaksi_id', 'customer_id', 'awal_id', 'realtime_id', 'rincian_id', 'tanggal_chat', 'media', 'status');
+            ->select('interaksi_id', 'customer_id', 'tanggal_chat', 'media', 'status');
 
         if ($tahun) {
             $query->whereYear('tanggal_chat', $tahun);

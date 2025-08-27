@@ -17,7 +17,8 @@ class RincianModel extends Model
         'motif_id',
         'kuantitas',
         'satuan',
-        'deskripsi'
+        'deskripsi',
+        'jadwal_pasang_kirim'
     ];
 
     public function interaksi()

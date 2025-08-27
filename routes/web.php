@@ -114,3 +114,4 @@ Route::prefix('rincian')->group(function () {
     Route::get('/{id}/edit', [RekapController::class, 'editRincian'])->name('rincian.edit');
     Route::put('/{id}/update', [RekapController::class, 'updateRincian'])->name('rincian.update');
 });
+Route::get('/create/survey{id_interaksi}', [RekapController::class, 'createSurvey'])->name('survey.create');

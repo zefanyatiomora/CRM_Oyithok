@@ -36,10 +36,10 @@
                             {{-- warna background --}}
                             @if(in_array($index, $skippedSteps))
                                 bg-danger text-white
-                            @elseif($index == $currentStep)
-                                bg-primary text-white
-                            @elseif($index < $currentStep)
+                            @elseif($index <= $currentStep)
                                 bg-success text-white
+                            {{-- @elseif($index < $currentStep)
+                                bg-success text-white --}}
                             @else
                                 bg-light text-dark
                             @endif
@@ -49,7 +49,7 @@
                             {{-- ICON / ANGKA --}}
                             @if(in_array($index, $skippedSteps))
                                 <i class="fas fa-times"></i>
-                            @elseif($index < $currentStep)
+                            @elseif($index <= $currentStep)
                                 <i class="fas fa-check"></i>
                             @else
                                 {{ $index + 1 }}
@@ -279,24 +279,47 @@ $(document).ready(function() {
         </div>
     </div>
     <div class="card-body">
+        <h4 class="mt-4 d-flex justify-content-between">
+            <span style="font-size:17px;">Alamat Survey</span>
+            <!-- Icon Tambah Rincian -->
+            <a href="javascript:void(0);" 
+            onclick="openModal('{{ route('survey.create', $interaksi->interaksi_id) }}')" 
+            class="text-primary" 
+            title="Tambah Survey">
+                <i class="fas fa-plus fa-xs"></i>
+            </a>
+        </h4>
             <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
             
-            <table class="table table-bordered table-striped table-hover table-sm mb-4">
-                <tr>
-                    <th style="width: 25%">Alamat Survey</th>
-                    <td>
-                        <textarea name="alamat_survey" class="form-control form-control-sm" rows="2">{{ $interaksi->alamat ?? '' }}</textarea>
-                    </td>
-                </tr>
-                <tr>
-                    <th>Waktu Survey</th>
-                    <td>
-                        <input type="datetime-local" name="waktu_survey" class="form-control form-control-sm"
-                               value="{{ $interaksi->waktu_survey ? date('Y-m-d\TH:i', strtotime($interaksi->waktu_survey)) : '' }}">
-                    </td>
-                </tr>
+            <table class="table table-bordered table-striped table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th>Alamat Survey</th>
+                        <th>Waktu Survey</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if($interaksi->alamat)
+                        <tr>
+                            <td>{{ $interaksi->alamat}}</td>
+                            <td>{{ $interaksi->jadwal_survey}}</td>
+                            <td>{{ $interaksi->status}}</td>
+                            <td>
+                                <!-- Tombol Edit -->
+                                <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ url('/rincian/' . $rincian->rincian_id . '/edit') }}')">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    @else
+                        <tr>
+                            <td colspan="4">Tidak ada data survey.</td>
+                        </tr>
+                    @endif
+                </tbody>
             </table>
-
             <h4 class="mt-4 d-flex justify-content-between">
                 <span style="font-size:17px;">Rincian Produk</span>
                 <!-- Icon Tambah Rincian -->
