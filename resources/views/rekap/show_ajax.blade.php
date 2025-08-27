@@ -167,9 +167,11 @@ $('#btn-toggle-identifikasi').click(function () {
         console.error(xhr.responseText);
         Swal.fire('Error!', 'Gagal memuat form identifikasi awal', 'error');
     });
-});
-</script>
+    });
+    </script>
+
 {{-- ========== KEBUTUHAN HARIAN ========== --}}
+{{-- show_ajax.blade.php --}}
 <div class="card card-purple collapsed-card">
     <div class="card-header">
         <h3 class="card-title">Identifikasi Kebutuhan</h3>
@@ -180,59 +182,86 @@ $('#btn-toggle-identifikasi').click(function () {
         </div>
     </div>
     <div class="card-body">
-            <!-- Tombol tambah hanya di header -->
+        <form id="form-kebutuhan-harian">
+            @csrf
+            <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
             <button type="button" class="btn btn-sm btn-success" id="btn-add-row-header">
                 <i class="fas fa-plus"></i> Tambah Baris
             </button>
-        <table class="table table-bordered table-striped table-hover table-sm" id="table-kebutuhan-harian">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Tanggal</th>
-                    <th>Keterangan</th>
-                    <th>PIC</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody id="kebutuhan-container">
-                @php
-                    $kebutuhanList = \App\Models\InteraksiRealtime::where('interaksi_id', $interaksi->interaksi_id)
-                                        ->orderBy('tanggal', 'asc')
-                                        ->get();
-                @endphp
 
-                @if($kebutuhanList->isEmpty())
+            <table class="table table-bordered table-striped table-hover table-sm" id="table-kebutuhan-harian">
+                <thead>
                     <tr>
-                        <td>1</td>
-                        <td><input type="date" name="tanggal[]" class="form-control form-control-sm"></td>
-                        <td><input type="text" name="keterangan[]" class="form-control form-control-sm"></td>
-                        <td><input type="text" name="pic[]" class="form-control form-control-sm"></td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-danger btn-remove-row">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                        </td>
+                        <th>No</th>
+                        <th>Tanggal</th>
+                        <th>Keterangan</th>
+                        <th>PIC</th>
+                        <th>Aksi</th>
                     </tr>
-                @else
-                    @foreach($kebutuhanList as $index => $item)
+                </thead>
+                <tbody id="kebutuhan-container">
+                    @php
+                        $kebutuhanList = \App\Models\InteraksiRealtime::where('interaksi_id', $interaksi->interaksi_id)
+                            ->orderBy('tanggal', 'asc')
+                            ->get();
+                    @endphp
+
+                    @if($kebutuhanList->isEmpty())
                         <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td><input type="date" name="tanggal[]" class="form-control form-control-sm" value="{{ $item->tanggal }}"></td>
-                            <td><input type="text" name="keterangan[]" class="form-control form-control-sm" value="{{ $item->keterangan }}"></td>
-                            <td><input type="text" name="pic[]" class="form-control form-control-sm" value="{{ $item->pic }}"></td>
+                            <td>1</td>
+                            <td><input type="date" name="tanggal[]" class="form-control form-control-sm"></td>
+                            <td><input type="text" name="keterangan[]" class="form-control form-control-sm"></td>
+                            <td>
+                                    <select name="pic_id[]" class="form-control form-control-sm select2">
+                                    <option value="">- Pilih PIC -</option>
+                                    @foreach($picList as $pic)
+                                        <option value="{{ $pic->pic_id }}">{{ $pic->pic_nama }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
                             <td class="text-center">
                                 <button type="button" class="btn btn-sm btn-danger btn-remove-row">
                                     <i class="fas fa-minus"></i>
                                 </button>
                             </td>
                         </tr>
-                    @endforeach
-                @endif
-            </tbody>
-        </table>
+                    @else
+                        @foreach($kebutuhanList as $index => $item)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td><input type="date" name="tanggal[]" class="form-control form-control-sm" value="{{ $item->tanggal }}"></td>
+                                <td><input type="text" name="keterangan[]" class="form-control form-control-sm" value="{{ $item->keterangan }}"></td>
+                                <td>
+                                        <select name="pic_id[]" class="form-control form-control-sm select2">
+                                        <option value="">- Pilih PIC -</option>
+                                        @foreach ($picList as $pic)
+                                            <option value="{{ $pic->pic_id }}" {{ $item->pic_id == $pic->pic_id ? 'selected' : '' }}>
+                                                {{ $pic->pic_nama }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-danger btn-remove-row">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endif
+                </tbody>
+            </table>
+
+            <div class="text-right mt-3">
+                <button type="button" class="btn btn-primary" id="btn-save-realtime">
+                    <i class="fas fa-save"></i> Simpan
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
+@push('js')
 <script>
 $(document).ready(function() {
     function updateNomor() {
@@ -241,20 +270,33 @@ $(document).ready(function() {
         });
     }
 
-    // Tambah baris hanya dari tombol header
+    // Inisialisasi select2 awal
+    $('.select2').select2({ width: '100%' });
+
+    // Tambah baris baru
     $('#btn-add-row-header').click(function() {
         let newRow = `<tr>
             <td></td>
             <td><input type="date" name="tanggal[]" class="form-control form-control-sm"></td>
             <td><input type="text" name="keterangan[]" class="form-control form-control-sm"></td>
+            <td>
+                    <select name="pic_id[]" class="form-control form-control-sm select2">
+                    <option value="">- Pilih PIC -</option>
+                    @foreach($picList as $pic)
+                        <option value="{{ $pic->pic_id }}">{{ $pic->pic_nama }}</option>
+                    @endforeach
+                </select>
+            </td>
             <td class="text-center">
                 <button type="button" class="btn btn-sm btn-danger btn-remove-row">
                     <i class="fas fa-minus"></i>
                 </button>
             </td>
         </tr>`;
+
         $('#kebutuhan-container').append(newRow);
         updateNomor();
+        $('#kebutuhan-container tr:last .select2').select2({ width: '100%' });
     });
 
     // Hapus baris
@@ -263,11 +305,57 @@ $(document).ready(function() {
         updateNomor();
     });
 
+    // Simpan semua baris realtime
+    $('#btn-save-realtime').click(function(){
+        let formData = $('#form-kebutuhan-harian').serialize();
+
+        $.ajax({
+            url: "{{ route('rekap.storeRealtime') }}",
+            type: "POST",
+            data: formData,
+            success: function(res){
+                if(res.status === 'success'){
+                    Swal.fire('Berhasil','Data kebutuhan harian disimpan','success');
+
+                    // Render ulang tbody dari data JSON
+                    let rows = '';
+                    res.list.forEach(function(item, index){
+                        rows += `<tr>
+                            <td>${index + 1}</td>
+                            <td><input type="date" name="tanggal[]" class="form-control form-control-sm" value="${item.tanggal || ''}"></td>
+                            <td><input type="text" name="keterangan[]" class="form-control form-control-sm" value="${item.keterangan || ''}"></td>
+                            <td>
+                            <select name="pic_id[]" class="form-control form-control-sm select2">
+                                    <option value="">- Pilih PIC -</option>
+                                    @foreach($picList as $pic)
+                                        <option value="{{ $pic->pic_id }}" ${item.pic_id == {{ $pic->pic_id }} ? 'selected' : ''}>{{ $pic->pic_nama }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-danger btn-remove-row">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </td>
+                        </tr>`;
+                    });
+
+                    $('#kebutuhan-container').html(rows);
+                    $('.select2').select2({ width: '100%' });
+                    updateNomor();
+                }
+            },
+            error: function(xhr){
+                Swal.fire('Error','Gagal menyimpan data','error');
+                console.error(xhr.responseText);
+            }
+        });
+    });
+
     updateNomor();
 });
 </script>
-
-
+@endpush
 
 {{-- ========== DATA SURVEY ========== --}}
 <div class="card card-purple collapsed-card">

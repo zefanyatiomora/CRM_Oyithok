@@ -69,7 +69,6 @@ Route::prefix('rekap')->group(function () {
     Route::get('/{id}/show_ajax', [RekapController::class, 'show_ajax']);
     // Route::get('/search-product', [RekapController::class, 'searchProduct'])->name('rekap.searchProduct');
     Route::post('/rekap/update-followup', [RekapController::class, 'updateFollowUp'])->name('rekap.updateFollowUp');
-    Route::post('store-realtime', [RekapController::class, 'storeRealtime'])->name('rekap.storeRealtime');
     Route::get('realtime/list/{interaksi}', [RekapController::class, 'getRealtimeList']);
     Route::get('/rekap/realtime/{interaksi_id}', [RekapController::class, 'indexRealtime'])->name('rekap.indexRealtime');
     Route::post('/rekap/store-kebutuhan', [RekapController::class, 'storeKebutuhanProduk'])->name('rekap.storeKebutuhanProduk');
@@ -80,7 +79,11 @@ Route::prefix('rekap')->group(function () {
     Route::get('/rekap/identifikasi-awal/create', [RekapController::class, 'createIdentifikasiAwal'])->name('rekap.createIdentifikasiAwal');
     Route::post('/rekap/identifikasi-awal/store', [RekapController::class, 'storeIdentifikasiAwal'])->name('interaksiAwal.store');
     Route::get('/rekap/identifikasi-awal/list/{interaksi_id}', [RekapController::class, 'listIdentifikasiAwal'])->name('interaksiAwal.list');
+    Route::post('/realtime/store', [RekapController::class, 'storeRealtime'])->name('rekap.storeRealtime');
+    Route::get('/realtime/list/{id}', [RekapController::class, 'listRealtime'])->name('rekap.listRealtime');
+    Route::delete('/realtime/delete/{id}', [RekapController::class, 'deleteRealtime'])->name('rekap.deleteRealtime');
 });
+
 Route::prefix('survey')->group(function () {
     Route::get('/', [SurveyController::class, 'index'])->name('survey.index');       // Halaman list monthSurvey
     Route::post('/list', [SurveyController::class, 'list'])->name('survey.list');
