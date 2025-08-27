@@ -23,9 +23,9 @@ $(document).on('submit', '#form-identifikasi-awal', function(e){
             $('#form-identifikasi-container').slideUp().html('');
 
             // Reload container tetap
-            $.get("{{ route('interaksiAwal.list', $interaksi_id) }}", function(html){
-                $('#identifikasi-container').html(html);
-            });
+$.get("{{ route('interaksiAwal.list', $interaksi_id) }}", function(html){
+    $('#identifikasi-tabel-container').html(html);
+});
         }
     }).fail(function(){
         Swal.fire('Error!', 'Terjadi kesalahan saat menyimpan', 'error');

@@ -232,29 +232,24 @@ class RekapController extends Controller
     {
         $request->validate([
             'interaksi_id' => 'required|exists:interaksi,interaksi_id',
-            'tanggal'      => 'required|array',
-            'tanggal.*'    => 'nullable|date',
-            'keterangan'   => 'required|array',
-            'keterangan.*' => 'nullable|string',
-            'pic'          => 'required|array',
-            'pic.*'        => 'nullable|exists:pic,pic_id',
+            'tanggal'      => 'required|date',
+            'keterangan'   => 'required|string',
+            'pic_id'       => 'required|exists:pic,pic_id',
         ]);
 
-        $interaksi_id = $request->interaksi_id;
-        $tanggals     = $request->tanggal;
-        $keterangans  = $request->keterangan;
-        $pics         = $request->pic;
+        // Simpan ke tabel interaksi_realtime
+        InteraksiRealtime::create([
+            'interaksi_id' => $request->interaksi_id,
+            'tanggal'      => $request->tanggal,
+            'keterangan'   => $request->keterangan,
+            'pic_id'       => $request->pic_id,
+        ]);
 
-        foreach ($tanggals as $i => $tgl) {
-            if ($tgl) {
-                InteraksiRealtime::create([
-                    'interaksi_id' => $interaksi_id,
-                    'tanggal'      => $tgl,
-                    'keterangan'   => $keterangans[$i] ?? null,
-                    'pic_id'       => $pics[$i] ?? null,
-                ]);
-            }
-        }
+        // Update juga ke tabel interaksi (kolom pic_id)
+        \App\Models\InteraksiRealtime::where('interaksi_id', $request->interaksi_id)
+            ->update([
+                'pic_id' => $request->pic_id,
+            ]);
 
         return response()->json(['status' => 'success']);
     }
@@ -289,12 +284,11 @@ class RekapController extends Controller
         $interaksi_id = $request->interaksi_id;
         $kategori_ids = $request->kategori_id;
 
-        $awal = null; // siapkan variabel untuk menampung hasil terakhir
-
         foreach ($kategori_ids as $kategori_id) {
             $kategori = KategoriModel::find($kategori_id);
 
-            $awal = InteraksiAwalModel::updateOrCreate(
+            // Simpan ke tabel interaksi_awal
+            InteraksiAwalModel::updateOrCreate(
                 [
                     'interaksi_id' => $interaksi_id,
                     'kategori_id'  => $kategori_id,
@@ -303,15 +297,6 @@ class RekapController extends Controller
                     'kategori_nama' => $kategori->kategori_nama
                 ]
             );
-        }
-
-        // update FK di tabel interaksi pakai awal terakhir
-        if ($awal) {
-            $interaksi = InteraksiModel::find($interaksi_id);
-            if ($interaksi) {
-                $interaksi->awal_id = $awal->awal_id;
-                $interaksi->save();
-            }
         }
 
         return response()->json([

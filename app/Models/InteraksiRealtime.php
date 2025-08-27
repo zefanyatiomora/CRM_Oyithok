@@ -18,7 +18,7 @@ class InteraksiRealtime extends Model
         'interaksi_id',
         'tanggal',
         'keterangan',
-        'pic',
+        'pic_id',
     ];
 
     // Relasi ke model Interaksi
