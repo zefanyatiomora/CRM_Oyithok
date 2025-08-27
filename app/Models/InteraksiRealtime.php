@@ -26,4 +26,8 @@ class InteraksiRealtime extends Model
     {
         return $this->belongsTo(InteraksiModel::class, 'interaksi_id', 'interaksi_id');
     }
+       public function pic()
+    {
+        return $this->belongsTo(PICModel::class, 'pic_id', 'pic_id');
+    }
 }

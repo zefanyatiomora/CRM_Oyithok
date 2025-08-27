@@ -37,7 +37,10 @@
                             @if(in_array($index, $skippedSteps))
                                 bg-danger text-white
                             @elseif($index <= $currentStep)
+                            @elseif($index <= $currentStep)
                                 bg-success text-white
+                            {{-- @elseif($index < $currentStep)
+                                bg-success text-white --}}
                             {{-- @elseif($index < $currentStep)
                                 bg-success text-white --}}
                             @else
@@ -49,6 +52,7 @@
                             {{-- ICON / ANGKA --}}
                             @if(in_array($index, $skippedSteps))
                                 <i class="fas fa-times"></i>
+                            @elseif($index <= $currentStep)
                             @elseif($index <= $currentStep)
                                 <i class="fas fa-check"></i>
                             @else
@@ -171,7 +175,7 @@ $('#btn-toggle-identifikasi').click(function () {
 {{-- ========== KEBUTUHAN HARIAN ========== --}}
 <div class="card card-purple collapsed-card">
     <div class="card-header">
-        <h3 class="card-title">Identifikasi Kebutuhan</h3>
+        <h3 class="card-title">Identifikasi Harian</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                 <i class="fas fa-plus"></i>
@@ -179,56 +183,84 @@ $('#btn-toggle-identifikasi').click(function () {
         </div>
     </div>
     <div class="card-body">
-            <!-- Tombol tambah hanya di header -->
-            <button type="button" class="btn btn-sm btn-success" id="btn-add-row-header">
-                <i class="fas fa-plus"></i> Tambah Baris
-            </button>
-        <table class="table table-bordered table-striped table-hover table-sm" id="table-kebutuhan-harian">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Tanggal</th>
-                    <th>Keterangan</th>
-                    <th>PIC</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody id="kebutuhan-container">
-                @php
-                    $kebutuhanList = \App\Models\InteraksiRealtime::where('interaksi_id', $interaksi->interaksi_id)
-                                        ->orderBy('tanggal', 'asc')
-                                        ->get();
-                @endphp
 
-                @if($kebutuhanList->isEmpty())
+        <!-- Tombol tambah data -->
+        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#modalTambahKebutuhan">
+            <i class="fas fa-plus"></i>
+        </button>
+
+        <!-- Modal Tambah Kebutuhan -->
+        <div class="modal fade" id="modalTambahKebutuhan" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form id="form-kebutuhan-harian">
+                        @csrf
+                        <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">Tambah Kebutuhan Harian</h5>
+                            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Tanggal</label>
+                                <input type="date" name="tanggal" class="form-control form-control-sm" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Keterangan</label>
+                                <input type="text" name="keterangan" class="form-control form-control-sm" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>PIC</label>
+                                <select name="pic_id" class="form-control form-control-sm" required>
+                                    <option value="">-- Pilih PIC --</option>
+                                    @foreach($picList as $pic)
+                                        <option value="{{ $pic->pic_id }}">{{ $pic->pic_nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Simpan</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabel kebutuhan -->
+        <div id="list-realtime" class="mt-3">
+            <table class="table table-bordered table-striped table-hover table-sm">
+                <thead>
                     <tr>
-                        <td>1</td>
-                        <td><input type="date" name="tanggal[]" class="form-control form-control-sm"></td>
-                        <td><input type="text" name="keterangan[]" class="form-control form-control-sm"></td>
-                        <td><input type="text" name="pic[]" class="form-control form-control-sm"></td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-danger btn-remove-row">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                        </td>
+                        <th>No</th>
+                        <th>Tanggal</th>
+                        <th>Keterangan</th>
+                        <th>PIC</th>
                     </tr>
-                @else
-                    @foreach($kebutuhanList as $index => $item)
+                </thead>
+                <tbody>
+                    @forelse($kebutuhanList as $index => $item)
                         <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td><input type="date" name="tanggal[]" class="form-control form-control-sm" value="{{ $item->tanggal }}"></td>
-                            <td><input type="text" name="keterangan[]" class="form-control form-control-sm" value="{{ $item->keterangan }}"></td>
-                            <td><input type="text" name="pic[]" class="form-control form-control-sm" value="{{ $item->pic }}"></td>
-                            <td class="text-center">
-                                <button type="button" class="btn btn-sm btn-danger btn-remove-row">
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                            </td>
+                            <td>{{ $index+1 }}</td>
+                            <td>{{ $item->tanggal }}</td>
+                            <td>{{ $item->keterangan }}</td>
+                            <td>{{ $item->pic->pic_nama ?? '-' }}</td>
                         </tr>
-                    @endforeach
-                @endif
-            </tbody>
-        </table>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="text-center">Belum ada data</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
     </div>
 </div>
 
@@ -255,7 +287,30 @@ $(document).ready(function() {
         $('#kebutuhan-container').append(newRow);
         updateNomor();
     });
+// Simpan kebutuhan harian
+$(document).on('submit', '#form-kebutuhan-harian', function(e){
+    e.preventDefault();
 
+    $.post("{{ url('/realtime/store') }}", $(this).serialize(), function(res){
+        if(res.status === 'success'){
+            $('#modalTambahKebutuhan').modal('hide');
+            Swal.fire({icon:'success', title:'Berhasil', text:'Data berhasil ditambahkan', timer:1500, showConfirmButton:false});
+            loadRealtimeList();
+        }else{
+            Swal.fire({icon:'error', title:'Gagal', text:res.message || 'Gagal menyimpan data'});
+        }
+    }).fail(function(xhr){
+        console.error(xhr.responseText);
+        Swal.fire({icon:'error', title:'Error', text:'Terjadi kesalahan server'});
+    });
+});
+
+function loadRealtimeList(){
+    let id = "{{ $interaksi->interaksi_id }}";
+    $.get("{{ url('/rekap/realtime/list') }}/"+id, function(html){
+        $('#list-realtime').html(html);
+    });
+}
     // Hapus baris
     $(document).on('click', '.btn-remove-row', function() {
         $(this).closest('tr').remove();
