@@ -24,6 +24,7 @@
             <option value="pcs">PCS</option>
             <option value="roll">Roll</option>
             <option value="box">Box</option>
+            <option value="box">Meter</option>
         </select>
         <small id="error-satuan" class="text-danger"></small>
     </div>
