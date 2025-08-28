@@ -93,23 +93,51 @@
                           <td>{{ $interaksi->customer->customer_hp ?? '-' }}</td>
                       </tr>
                       <tr>
-                          <th>Status</th>
-                          <td>
-                              <select id="follow-up-select" class="form-control form-control-sm"
-                                      data-id="{{ $interaksi->interaksi_id }}"
-                                      data-customer-id="{{ $interaksi->customer_id }}">
-                                  @foreach($followUpOptions as $option)
-                                      <option value="{{ $option }}" {{ $selectedFollowUp == $option ? 'selected' : '' }}>
-                                          {{ $option }}
-                                      </option>
-                                  @endforeach
-                              </select>
-                          </td>
-                      </tr>
+    <th>Status</th>
+    <td>
+        <div class="input-group">
+            <select id="follow-up-select" class="form-control form-control-sm"
+                    data-id="{{ $interaksi->interaksi_id }}"
+                    data-customer-id="{{ $interaksi->customer_id }}">
+                @foreach($followUpOptions as $option)
+                    <option value="{{ $option }}" {{ $selectedFollowUp == $option ? 'selected' : '' }}>
+                        {{ $option }}
+                    </option>
+                @endforeach
+            </select>
+            <div class="input-group-append">
+                <button type="button" class="btn btn-sm btn-primary" id="btn-save-status">
+                    Simpan
+                </button>
+            </div>
+        </div>
+    </td>
+</tr>
                   </table>
             </div>
               <!-- /.card-body -->
             </div>
+<script>
+$(document).on('click', '#btn-save-status', function () {
+    let interaksiId = $('#follow-up-select').data('id');
+    let status = $('#follow-up-select').val();
+
+    $.ajax({
+        url: '/rekap/update-status/' + interaksiId,
+        type: 'POST',
+        data: {
+            _token: '{{ csrf_token() }}',
+            status: status
+        },
+        success: function (res) {
+            toastr.success('Status berhasil disimpan');
+        },
+        error: function () {
+            toastr.error('Gagal menyimpan status');
+        }
+    });
+});
+</script>
 
 {{-- ========== IDENTIFIKASI AWAL ========== --}}
 <div class="card card-purple collapsed-card">

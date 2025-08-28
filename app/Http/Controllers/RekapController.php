@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 
+
 class RekapController extends Controller
 {
     public function index(Request $request)
@@ -162,8 +163,21 @@ class RekapController extends Controller
             'interaksiAwalList' => $interaksiAwalList
         ]);
     }
+    // RekapController.php
+    public function updateStatus(Request $request, $interaksi_id)
+    {
+        Log::info('UpdateStatus dipanggil', [
+            'id' => $interaksi_id,
+            'status' => $request->status
+        ]);
 
 
+        $interaksi = InteraksiModel::findOrFail($interaksi_id);
+        $interaksi->status = $request->status;
+        $interaksi->save();
+
+        return response()->json(['success' => true]);
+    }
     public function updateFollowUp(Request $request)
     {
         Log::info('updateFollowUp data diterima:', $request->all());
