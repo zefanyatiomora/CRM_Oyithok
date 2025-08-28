@@ -64,7 +64,7 @@
             </div>
 
 
-            {{-- ========== DETAIL CUSTOMER ========== --}}
+{{-- ========== DETAIL CUSTOMER ========== --}}
 <div class="card card-purple collapsed-card">
     <div class="card-header">
         <h3 class="card-title">Detail Customer</h3>
@@ -123,19 +123,19 @@ $(document).on('click', '#btn-save-status', function () {
     let status = $('#follow-up-select').val();
 
     $.ajax({
-        url: '/rekap/update-status/' + interaksiId,
-        type: 'POST',
-        data: {
-            _token: '{{ csrf_token() }}',
-            status: status
-        },
-        success: function (res) {
-            toastr.success('Status berhasil disimpan');
-        },
-        error: function () {
-            toastr.error('Gagal menyimpan status');
-        }
-    });
+    url: '/rekap/update-status/' + interaksiId,
+    type: 'POST',
+    data: {
+        _token: '{{ csrf_token() }}',
+        status: status
+    },
+    success: function (res) {
+        toastr.success('Status berhasil disimpan');
+    },
+    error: function () {
+        toastr.error('Gagal menyimpan status');
+    }
+});
 });
 </script>
 

@@ -164,20 +164,19 @@ class RekapController extends Controller
         ]);
     }
     // RekapController.php
-    public function updateStatus(Request $request, $interaksi_id)
-    {
-        Log::info('UpdateStatus dipanggil', [
-            'id' => $interaksi_id,
-            'status' => $request->status
-        ]);
+public function updateStatus(Request $request, $interaksi_id)
+{
+    Log::info('UpdateStatus dipanggil', [
+        'id' => $interaksi_id,
+        'status' => $request->status
+    ]);
 
+    $interaksi = InteraksiModel::findOrFail($interaksi_id);
+    $interaksi->status = $request->status;
+    $interaksi->save();
 
-        $interaksi = InteraksiModel::findOrFail($interaksi_id);
-        $interaksi->status = $request->status;
-        $interaksi->save();
-
-        return response()->json(['success' => true]);
-    }
+    return response()->json(['success' => true]);
+}
     public function updateFollowUp(Request $request)
     {
         Log::info('updateFollowUp data diterima:', $request->all());

@@ -69,7 +69,7 @@ Route::prefix('rekap')->group(function () {
     Route::get('/{id}/show_ajax', [RekapController::class, 'show_ajax']);
     // Route::get('/search-product', [RekapController::class, 'searchProduct'])->name('rekap.searchProduct');
     // web.php
-    Route::post('/rekap/update-status/{interaksi_id}', [RekapController::class, 'updateStatus']);
+    Route::post('/rekap/update-status/{interaksi_id}', [RekapController::class, 'updateStatus'])->name('rekap.updateStatus');
     Route::post('/rekap/update-followup', [RekapController::class, 'updateFollowUp'])->name('rekap.updateFollowUp');
     Route::get('realtime/list/{interaksi}', [RekapController::class, 'getRealtimeList']);
     Route::get('/rekap/realtime/{interaksi_id}', [RekapController::class, 'indexRealtime'])->name('rekap.indexRealtime');
