@@ -119,3 +119,7 @@ Route::prefix('survey')->group(function () {
     Route::get('/{id}/create', [RekapController::class, 'createSurvey'])->name('survey.create');
     Route::put('/{id}/update', [RekapController::class, 'updateSurvey'])->name('survey.update');
 });
+Route::prefix('pasang')->group(function () {
+    Route::get('/{id}/edit', [RekapController::class, 'editPasang'])->name('pasang.edit');
+    Route::put('/{id}/update', [RekapController::class, 'updatePasang'])->name('pasang.update');
+});

@@ -355,6 +355,11 @@ class RekapController extends Controller
         $interaksi = InteraksiModel::findOrFail($id_interaksi);
         return view('rekap.create_survey', compact('interaksi'));
     }
+    public function editPasang($id_rincian)
+    {
+        $rincian = RincianModel::findOrFail($id_rincian);
+        return view('rekap.edit_pasang', compact('rincian'));
+    }
     public function storeRincian(Request $request)
     {
         $request->validate([
@@ -416,6 +421,30 @@ class RekapController extends Controller
             'kuantitas' => 'required|numeric',
             'satuan' => 'required|string',
             'deskripsi' => 'required|string|max:255'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validasi gagal.',
+                'msgField' => $validator->errors(),
+            ]);
+        }
+        $rincian->update($request->all());
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Data rincian berhasil diperbarui',
+        ]);
+    }
+    public function updatePasang(Request $request, $rincian_id)
+    {
+        $rincian = RincianModel::findOrFail($rincian_id);
+
+        $rules = [
+            'jadwal_pasang_kirim' => 'required|date',
         ];
 
         $validator = Validator::make($request->all(), $rules);
