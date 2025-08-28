@@ -125,9 +125,9 @@ class RekapController extends Controller
         $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)->get();
         $picList = PICModel::orderBy('pic_nama')->get();
         $kebutuhanList = InteraksiRealtime::where('interaksi_id', $interaksi_id)
-                        ->with('pic')
-                        ->orderBy('tanggal','asc')
-                        ->get();
+            ->with('pic')
+            ->orderBy('tanggal', 'asc')
+            ->get();
 
         $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang', 'Done'];
 
@@ -228,31 +228,31 @@ class RekapController extends Controller
         }
     }
     // Tambah kebutuhan harian
-public function storeRealtime(Request $request)
-{
-    $request->validate([
-        'interaksi_id' => 'required|exists:interaksi,interaksi_id',
-        'tanggal'      => 'required|date',
-        'keterangan'   => 'required|string',
-        'pic_id'       => 'required|exists:pic,pic_id',
-    ]);
-
-    // Simpan ke tabel interaksi_realtime
-    InteraksiRealtime::create([
-        'interaksi_id' => $request->interaksi_id,
-        'tanggal'      => $request->tanggal,
-        'keterangan'   => $request->keterangan,
-        'pic_id'       => $request->pic_id,
-    ]);
-
-    // Update juga ke tabel interaksi (kolom pic_id)
-    \App\Models\InteraksiRealtime::where('interaksi_id', $request->interaksi_id)
-        ->update([
-            'pic_id' => $request->pic_id,
+    public function storeRealtime(Request $request)
+    {
+        $request->validate([
+            'interaksi_id' => 'required|exists:interaksi,interaksi_id',
+            'tanggal'      => 'required|date',
+            'keterangan'   => 'required|string',
+            'pic_id'       => 'required|exists:pic,pic_id',
         ]);
 
-    return response()->json(['status' => 'success']);
-}
+        // Simpan ke tabel interaksi_realtime
+        InteraksiRealtime::create([
+            'interaksi_id' => $request->interaksi_id,
+            'tanggal'      => $request->tanggal,
+            'keterangan'   => $request->keterangan,
+            'pic_id'       => $request->pic_id,
+        ]);
+
+        // Update juga ke tabel interaksi (kolom pic_id)
+        \App\Models\InteraksiRealtime::where('interaksi_id', $request->interaksi_id)
+            ->update([
+                'pic_id' => $request->pic_id,
+            ]);
+
+        return response()->json(['status' => 'success']);
+    }
 
     public function createIdentifikasiAwal(Request $request)
     {
@@ -273,37 +273,37 @@ public function storeRealtime(Request $request)
             'interaksiAwalList' => $interaksiAwalList,
         ]);
     }
-public function storeIdentifikasiAwal(Request $request)
-{
-    $request->validate([
-        'interaksi_id' => 'required|exists:interaksi,interaksi_id',
-        'kategori_id'  => 'required|array',
-        'kategori_id.*' => 'exists:kategoris,kategori_id'
-    ]);
+    public function storeIdentifikasiAwal(Request $request)
+    {
+        $request->validate([
+            'interaksi_id' => 'required|exists:interaksi,interaksi_id',
+            'kategori_id'  => 'required|array',
+            'kategori_id.*' => 'exists:kategoris,kategori_id'
+        ]);
 
-    $interaksi_id = $request->interaksi_id;
-    $kategori_ids = $request->kategori_id;
+        $interaksi_id = $request->interaksi_id;
+        $kategori_ids = $request->kategori_id;
 
-    foreach ($kategori_ids as $kategori_id) {
-        $kategori = KategoriModel::find($kategori_id);
+        foreach ($kategori_ids as $kategori_id) {
+            $kategori = KategoriModel::find($kategori_id);
 
-        // Simpan ke tabel interaksi_awal
-        InteraksiAwalModel::updateOrCreate(
-            [
-                'interaksi_id' => $interaksi_id,
-                'kategori_id'  => $kategori_id,
-            ],
-            [
-                'kategori_nama' => $kategori->kategori_nama
-            ]
-        );
+            // Simpan ke tabel interaksi_awal
+            InteraksiAwalModel::updateOrCreate(
+                [
+                    'interaksi_id' => $interaksi_id,
+                    'kategori_id'  => $kategori_id,
+                ],
+                [
+                    'kategori_nama' => $kategori->kategori_nama
+                ]
+            );
+        }
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Kategori berhasil ditambahkan ke identifikasi awal'
+        ]);
     }
-
-    return response()->json([
-        'status'  => 'success',
-        'message' => 'Kategori berhasil ditambahkan ke identifikasi awal'
-    ]);
-}
     public function listIdentifikasiAwal($interaksi_id)
     {
         $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)
@@ -350,6 +350,16 @@ public function storeIdentifikasiAwal(Request $request)
             ], 500);
         }
     }
+    public function createSurvey($id_interaksi)
+    {
+        $interaksi = InteraksiModel::findOrFail($id_interaksi);
+        return view('rekap.create_survey', compact('interaksi'));
+    }
+    public function editPasang($id_rincian)
+    {
+        $rincian = RincianModel::findOrFail($id_rincian);
+        return view('rekap.edit_pasang', compact('rincian'));
+    }
     public function storeRincian(Request $request)
     {
         $request->validate([
@@ -374,6 +384,24 @@ public function storeIdentifikasiAwal(Request $request)
             return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan rincian.');
         }
     }
+    public function updateSurvey(Request $request, $id)
+    {
+        $interaksi = InteraksiModel::findOrFail($id);
+        $validated = $request->validate([
+            'interaksi_id' => 'required|integer',
+            'alamat'        => 'required|string|max:255',
+            'jadwal_survey' => 'required|date',
+        ]);
+
+
+        $interaksi->update($validated);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Data Survey berhasil dibuat',
+        ]);
+    }
+
 
     public function editRincian(string $rincian_id)
     {
@@ -393,6 +421,30 @@ public function storeIdentifikasiAwal(Request $request)
             'kuantitas' => 'required|numeric',
             'satuan' => 'required|string',
             'deskripsi' => 'required|string|max:255'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validasi gagal.',
+                'msgField' => $validator->errors(),
+            ]);
+        }
+        $rincian->update($request->all());
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Data rincian berhasil diperbarui',
+        ]);
+    }
+    public function updatePasang(Request $request, $rincian_id)
+    {
+        $rincian = RincianModel::findOrFail($rincian_id);
+
+        $rules = [
+            'jadwal_pasang_kirim' => 'required|date',
         ];
 
         $validator = Validator::make($request->all(), $rules);

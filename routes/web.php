@@ -80,7 +80,6 @@ Route::prefix('rekap')->group(function () {
     Route::post('/realtime/store', [RekapController::class, 'storeRealtime'])->name('rekap.storeRealtime');
     Route::get('/realtime/list/{id}', [RekapController::class, 'listRealtime'])->name('rekap.listRealtime');
     Route::delete('/realtime/delete/{id}', [RekapController::class, 'deleteRealtime'])->name('rekap.deleteRealtime');
-
 });
 
 Route::prefix('survey')->group(function () {
@@ -116,4 +115,11 @@ Route::prefix('rincian')->group(function () {
     Route::get('/{id}/edit', [RekapController::class, 'editRincian'])->name('rincian.edit');
     Route::put('/{id}/update', [RekapController::class, 'updateRincian'])->name('rincian.update');
 });
-Route::get('/create/survey{id_interaksi}', [RekapController::class, 'createSurvey'])->name('survey.create');
+Route::prefix('survey')->group(function () {
+    Route::get('/{id}/create', [RekapController::class, 'createSurvey'])->name('survey.create');
+    Route::put('/{id}/update', [RekapController::class, 'updateSurvey'])->name('survey.update');
+});
+Route::prefix('pasang')->group(function () {
+    Route::get('/{id}/edit', [RekapController::class, 'editPasang'])->name('pasang.edit');
+    Route::put('/{id}/update', [RekapController::class, 'updatePasang'])->name('pasang.update');
+});

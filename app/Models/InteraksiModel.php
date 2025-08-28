@@ -22,6 +22,7 @@ class InteraksiModel extends Model
         'original_step',
         'skipsteps',
         'alamat',
+        'jadwal_survey',
     ];
     protected $casts = [
         'skipsteps' => 'array', //  otomatis cast ke array saat ambil/simpan

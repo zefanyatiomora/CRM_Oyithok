@@ -33,7 +33,7 @@ return new class extends Migration
                 'realtime_id'
             ]);
             $table->string('alamat')->nullable()->after('skipsteps');
-            // $table->dateTime('jadwal_survey')->nullable()->after('alamat');
+            $table->dateTime('jadwal_survey')->nullable()->after('alamat');
         });
     }
 
@@ -64,7 +64,7 @@ return new class extends Migration
             $table->foreign('rincian_id', 'interaksi_rincian_fk')->references('rincian_id')->on('rincian')->cascadeOnDelete();
 
             $table->dropColumn('alamat');
-            // $table->dropColumn('jadwal_survey');
+            $table->dropColumn('jadwal_survey');
         });
     }
 };
