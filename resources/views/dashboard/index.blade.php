@@ -5,6 +5,7 @@
 <!-- Main content -->
 <section class="content">
     <div class="container-fluid">
+        <h1 class="dashboard-title">{{ $page->title }}</h1>
         <!-- Filter Tahun & Bulan -->
         <div class="row mb-3">
             <div class="col-md-8">

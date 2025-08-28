@@ -156,7 +156,7 @@ class RekapController extends Controller
             'steps'             => $steps,
             'currentStep'       => $currentStep,
             'skippedSteps'      => $skippedSteps,  // cuma ini yang dipakai di blade
-            'followUpOptions'   => ['Ask', 'Follow Up', 'Closing Survey', 'Closing Pasang', 'Closing Product', 'Closing ALL'],
+            'followUpOptions'   => ['Ask', 'Follow Up', 'Hold', 'Closing'],
             'selectedFollowUp'  => $interaksi->status ?? '',
             'closeValue'        => $interaksi->close ?? '',
             'interaksiAwalList' => $interaksiAwalList

@@ -18,11 +18,11 @@ class DashboardController extends Controller
         // ... (Kode untuk $activeMenu, $breadcrumb, $page tidak berubah) ...
         $activeMenu = 'dashboard';
         $breadcrumb = (object) [
-            'title' => 'Dashboard',
+            'title' => 'SELAMAT DATANG WALLPAPER ID',
             'list' => ['Home', 'Dashboard']
         ];
         $page = (object) [
-            'title' => 'Dashboard'
+            'title' => 'SELAMAT DATANG WALLPAPER ID'
         ];
 
 
