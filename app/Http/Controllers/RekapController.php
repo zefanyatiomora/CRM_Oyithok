@@ -177,7 +177,8 @@ public function updateStatus(Request $request, $interaksi_id)
 
     return response()->json(['success' => true]);
 }
-    public function updateFollowUp(Request $request)
+
+public function updateFollowUp(Request $request)
     {
         Log::info('updateFollowUp data diterima:', $request->all());
 

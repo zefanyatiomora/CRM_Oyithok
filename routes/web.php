@@ -69,7 +69,6 @@ Route::prefix('rekap')->group(function () {
     Route::get('/{id}/show_ajax', [RekapController::class, 'show_ajax']);
     // Route::get('/search-product', [RekapController::class, 'searchProduct'])->name('rekap.searchProduct');
     // web.php
-    Route::post('/rekap/update-status/{interaksi_id}', [RekapController::class, 'updateStatus'])->name('rekap.updateStatus');
     Route::post('/rekap/update-followup', [RekapController::class, 'updateFollowUp'])->name('rekap.updateFollowUp');
     Route::get('realtime/list/{interaksi}', [RekapController::class, 'getRealtimeList']);
     Route::get('/rekap/realtime/{interaksi_id}', [RekapController::class, 'indexRealtime'])->name('rekap.indexRealtime');
@@ -83,6 +82,8 @@ Route::prefix('rekap')->group(function () {
     Route::get('/realtime/list/{id}', [RekapController::class, 'listRealtime'])->name('rekap.listRealtime');
     Route::delete('/realtime/delete/{id}', [RekapController::class, 'deleteRealtime'])->name('rekap.deleteRealtime');
 });
+// TARUH DI LUAR Route::prefix('rekap')
+Route::post('/rekap/update-status/{interaksi_id}', [RekapController::class, 'updateStatus'])->name('rekap.updateStatus');
 
 Route::prefix('survey')->group(function () {
     Route::get('/', [SurveyController::class, 'index'])->name('survey.index');       // Halaman list monthSurvey

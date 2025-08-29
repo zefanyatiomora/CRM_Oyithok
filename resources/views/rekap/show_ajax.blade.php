@@ -123,19 +123,20 @@ $(document).on('click', '#btn-save-status', function () {
     let status = $('#follow-up-select').val();
 
     $.ajax({
-    url: '/rekap/update-status/' + interaksiId,
-    type: 'POST',
-    data: {
-        _token: '{{ csrf_token() }}',
-        status: status
-    },
-    success: function (res) {
-        toastr.success('Status berhasil disimpan');
-    },
-    error: function () {
-        toastr.error('Gagal menyimpan status');
-    }
-});
+        url: "{{ route('rekap.updateStatus', ':id') }}".replace(':id', interaksiId),
+        type: "POST",
+        data: {
+            _token: "{{ csrf_token() }}",
+            status: status
+        },
+        success: function (res) {
+            toastr.success('Status berhasil disimpan');
+        },
+        error: function (xhr) {
+            console.error(xhr.responseText);
+            toastr.error('Terjadi kesalahan server');
+        }
+    });
 });
 </script>
 
@@ -502,10 +503,6 @@ function loadRealtimeList(){
             </table>
             </div> {{-- end modal-body --}}
         </div> {{-- end card --}}
-        {{-- FOOTER --}}
-        <div class="modal-footer">
-            <button type="button" id="btn-save-followup" class="btn btn-primary">Simpan</button>
-        </div>
     </div>
 </div>
 
