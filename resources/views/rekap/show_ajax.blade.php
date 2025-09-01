@@ -1,4 +1,4 @@
-<div id="modal-master" class="modal-dialog modal-lg" role="document">
+<div id="modal-master" class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
     <div class="modal-content">
         {{-- HEADER --}}
        <div class="modal-header">
@@ -515,6 +515,11 @@ function loadRealtimeList(){
             border: none;
             box-shadow: none;
     }
+    .modal-body {
+    max-height: 70vh;  /* 70% tinggi layar */
+    overflow-y: auto;  /* supaya bisa discroll ke bawah */
+}
+
 </style>
 @endpush
     

@@ -1,7 +1,7 @@
 <form id="form-create-rincian" enctype="multipart/form-data">
     @csrf
     <!-- Hidden input untuk ID Interaksi -->
-    <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
+    <input type="hidden" id="interaksi_id" value="{{ $interaksi->interaksi_id }}">
 
 
     <!-- Produk -->
@@ -92,6 +92,8 @@ $(document).ready(function () {
         e.preventDefault();
 
         let formData = new FormData(this);
+        // pastikan interaksi_id terkirim
+        formData.append("interaksi_id", $("#interaksi_id").val());
 
         $.ajax({
             url: "{{ route('rincian.store') }}",
@@ -99,9 +101,19 @@ $(document).ready(function () {
             data: formData,
             processData: false,
             contentType: false,
-            success: function (response) {
-                Swal.fire("Sukses", response.message, "success").then(() => location.reload());
+            success: function (res) {
+                toastr.success('Status nya woi berhasil disimpan');
+                // reload datatable utama di index.blade.php
+                tableRekap.ajax.reload(null, false); // false = biar tetap di halaman yang sama
+                // Optional: reload ulang isi modal juga kalau mau lihat status terbarunya
+                let interaksiId = $("#interaksi_id").val();
+                $("#myModal").load("{{ url('rekap') }}/" + interaksiId + "/show_ajax");
+
+                // Sembunyikan form
+                $("#form-create-rincian").hide();
+
             },
+
             error: function (xhr) {
                 Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
                 console.error("Server Error:", xhr.responseText);
