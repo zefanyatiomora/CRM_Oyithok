@@ -106,6 +106,27 @@
                     class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
+            <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <div class="small-box bg-primary">
+        <div class="inner">
+            <h3>{{ $jumlahAsk }}</h3>
+            <p>Jumlah Interaksi (Status Ask)
+                @if ($bulan)
+                    ({{ $bulanList[$bulan] }} {{ $tahun }})
+                @else
+                    (Tahun {{ $tahun }})
+                @endif
+            </p>
+        </div>
+        <div class="icon">
+            <i class="fas fa-question-circle"></i>
+        </div>
+<a href="{{ route('dashboard.ask', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
+   class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+    </div>
+</div>
+
             <!-- ... kotak lainnya -->
     </div>
     <!-- /.row -->

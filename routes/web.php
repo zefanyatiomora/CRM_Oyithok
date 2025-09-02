@@ -25,6 +25,7 @@ use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 */
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard/ask', [DashboardController::class, 'ask'])->name('dashboard.ask');
 
 //customer//
 Route::post('/customers/list', [CustomersController::class, 'data'])->name('customers.data');
