@@ -1,4 +1,4 @@
-<form id="form-create-rincian" enctype="multipart/form-data">
+<form id="form-create-pasang" enctype="multipart/form-data">
     @csrf
     <!-- Hidden input untuk ID Interaksi -->
     <input type="hidden" id="interaksi_id" value="{{ $interaksi->interaksi_id }}">
@@ -36,6 +36,19 @@
         <input type="text" name="deskripsi" id="deskripsi" class="form-control">
         <small id="error-deskripsi" class="text-danger"></small>
     </div>
+    <!-- Jadwal Pasang -->
+    <div class="form-group">
+        <label>Jadwal Pasang</label>
+        <input type="datetime-local" name="jadwal_pasang_kirim" id="jadwal_pasang_kirim" class="form-control" required>
+        <small id="error-jadwal" class="text-danger"></small>
+    </div>
+
+    <!-- Alamat Pasang -->
+    <div class="form-group">
+        <label>Alamat Pasang</label>
+        <textarea name="alamat" id="alamat" class="form-control" rows="3" required></textarea>
+        <small id="error-alamat" class="text-danger"></small>
+    </div>
 
     <!-- Submit Button -->
     <button type="submit" class="btn btn-success">Simpan</button>
@@ -45,14 +58,14 @@
 <script>
 $(document).ready(function () {
     // Submit Form dengan AJAX
-    $("#form-create-rincian").submit(function (e) {
+    $("#form-create-pasang").submit(function (e) {
         e.preventDefault();
 
         let formData = new FormData(this);
         formData.append("interaksi_id", $("#interaksi_id").val());
 
         $.ajax({
-            url: "{{ route('rincian.store') }}",
+            url: "{{ route('pasang.store') }}",
             type: "POST",
             data: formData,
             processData: false,
@@ -64,7 +77,7 @@ $(document).ready(function () {
                 let interaksiId = $("#interaksi_id").val();
                 $("#myModal").load("{{ url('rekap') }}/" + interaksiId + "/show_ajax");
 
-                $("#form-create-rincian").hide();
+                $("#form-create-pasang").hide();
             },
             error: function (xhr) {
                 Swal.fire("Gagal", "Terjadi kesalahan server.", "error");

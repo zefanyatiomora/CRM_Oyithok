@@ -8,6 +8,7 @@ use App\Models\InteraksiAwalModel;
 use App\Models\PICModel;
 use App\Models\KategoriModel;
 use App\Models\ProdukModel;
+use App\Models\PasangKirimModel;
 use App\Models\RincianModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -119,7 +120,7 @@ class RekapController extends Controller
 
     public function show_ajax($interaksi_id)
     {
-        $interaksi = InteraksiModel::with('customer', 'produk', 'rincian')
+        $interaksi = InteraksiModel::with('customer', 'produk', 'rincian', 'pasang')
             ->findOrFail($interaksi_id);
 
         $produkList = ProdukModel::select('produk_id', 'produk_nama')->get();
@@ -164,21 +165,21 @@ class RekapController extends Controller
         ]);
     }
     // RekapController.php
-public function updateStatus(Request $request, $interaksi_id)
-{
-    Log::info('UpdateStatus dipanggil', [
-        'id' => $interaksi_id,
-        'status' => $request->status
-    ]);
+    public function updateStatus(Request $request, $interaksi_id)
+    {
+        Log::info('UpdateStatus dipanggil', [
+            'id' => $interaksi_id,
+            'status' => $request->status
+        ]);
 
-    $interaksi = InteraksiModel::findOrFail($interaksi_id);
-    $interaksi->status = $request->status;
-    $interaksi->save();
+        $interaksi = InteraksiModel::findOrFail($interaksi_id);
+        $interaksi->status = $request->status;
+        $interaksi->save();
 
-    return response()->json(['success' => true]);
-}
+        return response()->json(['success' => true]);
+    }
 
-public function updateFollowUp(Request $request)
+    public function updateFollowUp(Request $request)
     {
         Log::info('updateFollowUp data diterima:', $request->all());
 
@@ -350,13 +351,35 @@ public function updateFollowUp(Request $request)
             $interaksi = InteraksiModel::findOrFail($id_interaksi);
             // Log::info('Interaksi ditemukan.', ['interaksi' => $interaksi]);
 
-            $produk = ProdukModel::select('produk_id', 'produk_nama')->get();
+            $produk = ProdukModel::select('produk_id', 'produk_nama', 'satuan')->get();
 
             $rincian = RincianModel::with('produk')
                 ->where('interaksi_id', $id_interaksi)
                 ->get();
 
             return view('rekap.create_rincian', compact('interaksi', 'produk', 'rincian'));
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Interaksi tidak ditemukan.',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
+    public function createPasang($id_interaksi)
+    {
+        try {
+            // Log::info('Create Rincian dipanggil.', ['id_interaksi' => $id_interaksi]);
+
+            $interaksi = InteraksiModel::findOrFail($id_interaksi);
+            // Log::info('Interaksi ditemukan.', ['interaksi' => $interaksi]);
+
+            $produk = ProdukModel::select('produk_id', 'produk_nama', 'satuan')->get();
+
+            $pasang = PasangKirimModel::with('produk')
+                ->where('interaksi_id', $id_interaksi)
+                ->get();
+
+            return view('rekap.create_pasang', compact('interaksi', 'produk', 'pasang'));
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Interaksi tidak ditemukan.',
@@ -379,7 +402,6 @@ public function updateFollowUp(Request $request)
         $request->validate([
             'interaksi_id' => 'required|integer',
             'produk_id' => 'required|integer',
-            'motif_id' => 'nullable|integer',
             'kuantitas' => 'required|numeric',
             'satuan' => 'required|string',
             'deskripsi' => 'required|string|max:255'
@@ -396,6 +418,31 @@ public function updateFollowUp(Request $request)
         } catch (\Exception $e) {
             Log::error('Store Rincian - Error:', ['message' => $e->getMessage()]);
             return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan rincian.');
+        }
+    }
+    public function storePasang(Request $request)
+    {
+        $request->validate([
+            'interaksi_id' => 'required|integer',
+            'produk_id' => 'required|integer',
+            'kuantitas' => 'required|numeric',
+            'satuan' => 'required|string',
+            'deskripsi' => 'required|string|max:255',
+            'alamat' => 'required|string|max:255',
+            'jadwal_pasang_kirim' => 'required|date'
+        ]);
+
+        try {
+            // Simpan data ke database
+            $pasang = PasangKirimModel::create($request->all());
+
+            // Panggil fungsi updateTahapan
+            $this->updateTahapan($pasang->interaksi_id, 'Pasang');
+
+            return redirect()->back()->with('success', 'Pasang berhasil disimpan!');
+        } catch (\Exception $e) {
+            Log::error('Store Pasang - Error:', ['message' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan Pasang.');
         }
     }
     public function updateSurvey(Request $request, $id)

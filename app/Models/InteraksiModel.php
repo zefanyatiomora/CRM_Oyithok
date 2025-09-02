@@ -21,7 +21,6 @@ class InteraksiModel extends Model
         'tahapan',
         'original_step',
         'skipsteps',
-        'alamat',
         'jadwal_survey',
     ];
     protected $casts = [
@@ -55,5 +54,9 @@ class InteraksiModel extends Model
     public function rincian()
     {
         return $this->hasMany(RincianModel::class, 'interaksi_id', 'interaksi_id');
+    }
+    public function pasang()
+    {
+        return $this->hasMany(PasangKirimModel::class, 'interaksi_id', 'interaksi_id');
     }
 }

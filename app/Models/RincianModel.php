@@ -14,11 +14,8 @@ class RincianModel extends Model
     protected $fillable = [
         'interaksi_id',
         'produk_id',
-        'motif_id',
         'kuantitas',
-        'satuan',
         'deskripsi',
-        'jadwal_pasang_kirim'
     ];
 
     public function interaksi()
@@ -29,10 +26,5 @@ class RincianModel extends Model
     public function produk()
     {
         return $this->belongsTo(ProdukModel::class, 'produk_id', 'produk_id');
-    }
-
-    public function motif()
-    {
-        return $this->belongsTo(ProdukMotifModel::class, 'motif_id', 'motif_id');
     }
 }

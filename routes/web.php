@@ -123,6 +123,8 @@ Route::prefix('survey')->group(function () {
     Route::put('/{id}/update', [RekapController::class, 'updateSurvey'])->name('survey.update');
 });
 Route::prefix('pasang')->group(function () {
+    Route::get('/{id}/create', [RekapController::class, 'createPasang'])->name('pasang.create');
+    Route::post('/store', [RekapController::class, 'storePasang'])->name('pasang.store');
     Route::get('/{id}/edit', [RekapController::class, 'editPasang'])->name('pasang.edit');
     Route::put('/{id}/update', [RekapController::class, 'updatePasang'])->name('pasang.update');
 });

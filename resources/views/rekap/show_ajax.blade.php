@@ -434,7 +434,7 @@ function loadRealtimeList(){
                         <td>
                             <!-- Tombol Edit -->
                             <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ url('/rincian/' . $rincian->rincian_id . '/edit') }}')">
-                            <i class="fas fa-edit"></i>
+                                <i class="fas fa-edit"></i>
                             </a>
                         </td>
                     </tr>
@@ -445,22 +445,29 @@ function loadRealtimeList(){
                     @endforelse
                 </tbody>
             </table>
-            </div> {{-- card-body rincian --}}
-            </div> {{-- card rincian produk --}}
-            
-            {{-- ========== DATA PASANG ========== --}}
-            <div class="card card-purple collapsed-card">
-                <div class="card-header">
-                    <h3 class="card-title">Data Pasang</h3>
-                    <div class="card-tools">
-            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                <i class="fas fa-plus"></i>
-            </button>
+        </div> {{-- card-body rincian --}}
+    </div> {{-- card rincian produk --}}
+    
+    {{-- ========== DATA PASANG ========== --}}
+    <div class="card card-purple collapsed-card">
+        <div class="card-header">
+            <h3 class="card-title">Data Pasang</h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
         </div>
-    </div>
-    <div class="card-body">
-        <h4 class="mt-4 d-flex justify-content-between">
-            <span style="font-size:17px;">Jadwal Pasang</span>
+        <div class="card-body">
+            <h4 class="mt-4 d-flex justify-content-between">
+                <span style="font-size:17px;">Jadwal Pasang</span>
+                <!-- Icon Tambah Pasang -->
+                <a href="javascript:void(0);" 
+                onclick="openModal('{{ route('pasang.create', $interaksi->interaksi_id) }}')" 
+                class="text-primary" 
+                title="Tambah Rincian">
+                <i class="fas fa-plus fa-xs"></i>
+            </a>
         </h4>
         <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
             <table class="table table-bordered table-striped table-hover table-sm mb-4">
@@ -474,23 +481,23 @@ function loadRealtimeList(){
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($interaksi->rincian as $rincian)
+                    @forelse($interaksi->pasang as $pasang)
                         <tr>
-                            <td>{{ $rincian->produk->produk_nama}} {{ $rincian->kuantitas}} {{ $rincian->satuan}} {{ $rincian->deskripsi}}</td>
-                            <td>{{ $rincian->jadwal_pasang_kirim}}</td>
-                            <td>{{ $rincian->interaksi->alamat}}</td>
+                            <td>{{ $pasang->produk->produk_nama}} {{ $pasang->kuantitas}} {{ $pasang->satuan}} {{ $pasang->deskripsi}}</td>
+                            <td>{{ $pasang->jadwal_pasang_kirim}}</td>
+                            <td>{{ $pasang->alamat}}</td>
                             <td>
-                                @if($rincian->status == 'hold')
+                                @if($pasang->status == 'hold')
                                     <span class="badge bg-warning text-dark">Hold</span>
-                                @elseif(in_array($rincian->status, ['closing all', 'closing produk', 'closing pasang']))
-                                    <span class="badge bg-success"> {{ ucfirst($rincian->status) }} </span>
+                                @elseif(in_array($pasang->status, ['closing all', 'closing produk', 'closing pasang']))
+                                    <span class="badge bg-success"> {{ ucfirst($pasang->status) }} </span>
                                 @else
-                                    <span class="badge bg-secondary">{{ ucfirst($rincian->status) }}</span>
+                                    <span class="badge bg-secondary">{{ ucfirst($pasang->status) }}</span>
                                 @endif
                             </td>
                             <td>
                                 <!-- Tombol Edit -->
-                                <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ url('/pasang/' . $rincian->rincian_id . '/edit') }}')">
+                                <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ url('/pasang/' . $pasang->pasang_id . '/edit') }}')">
                                 <i class="fas fa-edit"></i>
                             </a>
                         </tr>
