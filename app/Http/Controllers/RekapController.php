@@ -8,6 +8,7 @@ use App\Models\InteraksiAwalModel;
 use App\Models\PICModel;
 use App\Models\KategoriModel;
 use App\Models\ProdukModel;
+use App\Models\SurveyModel;
 use App\Models\PasangKirimModel;
 use App\Models\RincianModel;
 use Illuminate\Http\Request;
@@ -120,7 +121,7 @@ class RekapController extends Controller
 
     public function show_ajax($interaksi_id)
     {
-        $interaksi = InteraksiModel::with('customer', 'produk', 'rincian', 'pasang')
+        $interaksi = InteraksiModel::with('customer', 'produk', 'survey', 'rincian', 'pasang')
             ->findOrFail($interaksi_id);
 
         $produkList = ProdukModel::select('produk_id', 'produk_nama')->get();
@@ -445,22 +446,25 @@ class RekapController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan Pasang.');
         }
     }
-    public function updateSurvey(Request $request, $id)
+    public function storeSurvey(Request $request)
     {
-        $interaksi = InteraksiModel::findOrFail($id);
-        $validated = $request->validate([
+        $request->validate([
             'interaksi_id' => 'required|integer',
-            'alamat'        => 'required|string|max:255',
+            'alamat_survey' => 'required|string|max:255',
             'jadwal_survey' => 'required|date',
         ]);
+        try {
+            // Simpan data ke database
+            $survey = SurveyModel::create($request->all());
 
+            // Panggil fungsi updateTahapan
+            $this->updateTahapan($survey->interaksi_id, 'Survey');
 
-        $interaksi->update($validated);
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Data Survey berhasil dibuat',
-        ]);
+            return redirect()->back()->with('success', 'Survey berhasil disimpan!');
+        } catch (\Exception $e) {
+            Log::error('Store Survey - Error:', ['message' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan Survey.');
+        }
     }
 
 

@@ -59,4 +59,10 @@ class InteraksiModel extends Model
     {
         return $this->hasMany(PasangKirimModel::class, 'interaksi_id', 'interaksi_id');
     }
+    public function survey()
+    {
+        return $this->hasOne(SurveyModel::class, 'interaksi_id', 'interaksi_id');
+        // Kalau mau simpan banyak survey per interaksi:
+        // return $this->hasMany(Survey::class, 'interaksi_id', 'interaksi_id');
+    }
 }

@@ -357,44 +357,43 @@ function loadRealtimeList(){
     <div class="card-body">
         <h4 class="mt-4 d-flex justify-content-between">
             <span style="font-size:17px;">Survey</span>
-            <!-- Icon Tambah Rincian -->
-            <a href="javascript:void(0);" 
-            onclick="openModal('{{ route('survey.create', $interaksi->interaksi_id) }}')" 
-            class="text-primary" 
-            title="Tambah Survey">
-                <i class="fas fa-plus fa-xs"></i>
-            </a>
+
+            {{-- Icon Tambah Survey hanya muncul kalau BELUM ada survey --}}
+            @if(!$interaksi->survey)
+                <a href="javascript:void(0);" 
+                onclick="openModal('{{ route('survey.create', $interaksi->interaksi_id) }}')" 
+                class="text-primary" 
+                title="Tambah Survey">
+                    <i class="fas fa-plus fa-xs"></i>
+                </a>
+            @endif
         </h4>
+
         <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
-        
-            <table class="table table-bordered table-striped table-hover table-sm">
-                <thead>
+
+        <table class="table table-bordered table-striped table-hover table-sm">
+            <thead>
+                <tr>
+                    <th>Alamat Survey</th>
+                    <th>Waktu Survey</th>
+                    <th>Status</th>
+                    {{-- <th>Aksi</th> --}}
+                </tr>
+            </thead>
+            <tbody>
+                @if($interaksi->survey)
                     <tr>
-                        <th>Alamat Survey</th>
-                        <th>Waktu Survey</th>
-                        <th>Status</th>
-                        {{-- <th>Aksi</th> --}}
+                        <td>{{ $interaksi->survey->alamat_survey }}</td>
+                        <td>{{ $interaksi->survey->jadwal_survey }}</td>
+                        <td>{{ $interaksi->survey->status }}</td>
                     </tr>
-                </thead>
-                <tbody>
-                    @if($interaksi->alamat)
+                @else
                     <tr>
-                            <td>{{ $interaksi->alamat}}</td>
-                            <td>{{ $interaksi->jadwal_survey}}</td>
-                            <td>{{ $interaksi->status}}</td>
-                            {{-- <td>
-                                <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ route() }}')">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                            </td> --}}
-                        </tr>
-                    @else
-                        <tr>
-                            <td colspan="4">Tidak ada data survey.</td>
-                        </tr>
-                    @endif
-                </tbody>
-            </table>
+                        <td colspan="3">Tidak ada data survey.</td>
+                    </tr>
+                @endif
+            </tbody>
+        </table>
             <h4 class="mt-4 d-flex justify-content-between">
                 <span style="font-size:17px;">Rincian Produk</span>
                 <!-- Icon Tambah Rincian -->

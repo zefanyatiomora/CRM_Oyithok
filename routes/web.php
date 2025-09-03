@@ -120,7 +120,7 @@ Route::prefix('rincian')->group(function () {
 });
 Route::prefix('survey')->group(function () {
     Route::get('/{id}/create', [RekapController::class, 'createSurvey'])->name('survey.create');
-    Route::put('/{id}/update', [RekapController::class, 'updateSurvey'])->name('survey.update');
+    Route::post('/store', [RekapController::class, 'storeSurvey'])->name('survey.store');
 });
 Route::prefix('pasang')->group(function () {
     Route::get('/{id}/create', [RekapController::class, 'createPasang'])->name('pasang.create');
