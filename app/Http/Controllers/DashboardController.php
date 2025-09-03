@@ -117,6 +117,7 @@ public function index(Request $request)
     ]);
 }
 
+
     public function update(Request $request)
     {
         $request->validate([
@@ -254,4 +255,101 @@ public function index(Request $request)
     $activeMenu = 'dashboard';
     return view('dashboard.ask', compact('tahun', 'bulan', 'activeMenu'));
 }
+// RekapController.php
+
+public function followup(Request $request)
+{
+    $activeMenu = 'followup';
+    $tahun = $request->get('tahun', date('Y'));
+    $bulan = $request->get('bulan');
+
+    $query = InteraksiModel::with('customer')
+        ->where('status', 'follow up')
+        ->whereYear('tanggal_chat', $tahun);
+
+    if ($bulan) {
+        $query->whereMonth('tanggal_chat', $bulan);
+    }
+
+    if ($request->ajax()) {
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
+            ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
+            ->addColumn('aksi', function ($row) {
+                $url = route('rekap.show_ajax', $row->interaksi_id);
+                return '<button onclick="modalAction(\''.$url.'\')" 
+                            class="btn btn-sm btn-primary">
+                            <i class="fas fa-eye"></i> Detail
+                        </button>';
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
+    }
+
+    return view('dashboard.followup', compact('activeMenu', 'tahun', 'bulan'));
+}
+public function hold(Request $request)
+{
+    $tahun = $request->get('tahun', date('Y'));
+    $bulan = $request->get('bulan');
+
+    $query = InteraksiModel::with('customer')
+        ->where('status', 'hold')
+        ->whereYear('tanggal_chat', $tahun);
+
+    if ($bulan) {
+        $query->whereMonth('tanggal_chat', $bulan);
+    }
+
+    if ($request->ajax()) {
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
+            ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
+            ->addColumn('aksi', function ($row) {
+                $url = route('rekap.show_ajax', $row->interaksi_id);
+                return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-primary">
+                            <i class="fas fa-eye"></i> Detail
+                        </button>';
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
+    }
+
+    $activeMenu = 'dashboard';
+    return view('dashboard.hold', compact('tahun', 'bulan', 'activeMenu'));
+}
+public function closing(Request $request)
+{
+    $tahun = $request->get('tahun', date('Y'));
+    $bulan = $request->get('bulan');
+
+    $query = InteraksiModel::with('customer')
+        ->where('status', 'closing')
+        ->whereYear('tanggal_chat', $tahun);
+
+    if ($bulan) {
+        $query->whereMonth('tanggal_chat', $bulan);
+    }
+
+    if ($request->ajax()) {
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
+            ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
+            ->addColumn('aksi', function ($row) {
+                $url = route('rekap.show_ajax', $row->interaksi_id);
+                return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-primary">
+                            <i class="fas fa-eye"></i> Detail
+                        </button>';
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
+    }
+
+    $activeMenu = 'dashboard';
+    return view('dashboard.closing', compact('tahun', 'bulan', 'activeMenu'));
+}
+
 }
