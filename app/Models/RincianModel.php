@@ -16,6 +16,7 @@ class RincianModel extends Model
         'produk_id',
         'kuantitas',
         'deskripsi',
+        'status'
     ];
 
     public function interaksi()

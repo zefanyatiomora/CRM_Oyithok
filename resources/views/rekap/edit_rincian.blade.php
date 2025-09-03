@@ -33,10 +33,7 @@
         <select name="produk_id" id="produk_id" class="form-control" required>
             <option value="">-- Pilih Produk --</option>
             @foreach($produk as $prd)
-                <option value="{{ $prd->produk_id }}" 
-                    {{ $rincian->produk_id == $prd->produk_id ? 'selected' : '' }}>
-                    {{ $prd->produk_nama }}
-                </option>
+                <option value="{{ $prd->produk_id }}" data-satuan="{{ $prd->satuan }}">{{ $prd->produk_nama }}</option>
             @endforeach
         </select>
         <small id="error-produk_id" class="text-danger"></small>
@@ -45,13 +42,7 @@
     <!-- Satuan -->
     <div class="form-group">
         <label>Satuan</label>
-        <select name="satuan" id="satuan" class="form-control" required>
-            <option value="">-- Pilih Satuan --</option>
-            <option value="pcs" {{ $rincian->satuan == 'pcs' ? 'selected' : '' }}>PCS</option>
-            <option value="roll" {{ $rincian->satuan == 'roll' ? 'selected' : '' }}>Roll</option>
-            <option value="box" {{ $rincian->satuan == 'box' ? 'selected' : '' }}>Box</option>
-            <option value="meter" {{ $rincian->satuan == 'meter' ? 'selected' : '' }}>Meter</option>
-        </select>
+        <input type="text" name="satuan" id="satuan" class="form-control" readonly>
         <small id="error-satuan" class="text-danger"></small>
     </div>
 
@@ -72,6 +63,16 @@
                class="form-control">
         <small id="error-deskripsi" class="text-danger"></small>
     </div>
+    <!-- Status -->
+    <div class="form-group">
+        <label>Status</label>
+        <select name="status" id="status" class="form-control" required>
+            <option value="">-- Pilih Status --</option>
+            <option value="hold" {{ $rincian->status == 'hold' ? 'selected' : '' }}>Hold</option>
+            <option value="closing" {{ $rincian->status == 'closing' ? 'selected' : '' }}>Closing</option>
+        </select>
+        <small id="error-status" class="text-danger"></small>
+    </div>
 
     <!-- Submit Button -->
     <button type="submit" class="btn btn-primary">Update</button>
@@ -86,6 +87,9 @@ $(document).ready(function () {
         let formData = new FormData(this);
         let actionUrl = $(this).attr("action");
 
+        // Ambil interaksi_id langsung dari formData
+        let interaksiId = formData.get("interaksi_id");
+
         $.ajax({
             url: actionUrl,
             type: "POST",
@@ -93,13 +97,29 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function (response) {
-                Swal.fire("Sukses", response.message, "success").then(() => location.reload());
+                toastr.success(response.message);
+
+                // reload datatable
+                tableRekap.ajax.reload(null, false);
+                let interaksiId = $("#interaksi_id").val();
+
+                // reload isi modal
+                $("#myModal").load("{{ url('rekap') }}/" + interaksiId + "/show_ajax");
+
+                // optionally, bisa hide form edit
+                $("#form-edit-rincian").hide();
             },
             error: function (xhr) {
                 Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
                 console.error("Server Error:", xhr.responseText);
             }
         });
+    });
+
+    // Isi otomatis satuan sesuai produk
+    $("#produk_id").on("change", function () {
+        let satuan = $(this).find(":selected").data("satuan") || "";
+        $("#satuan").val(satuan);
     });
 });
 </script>

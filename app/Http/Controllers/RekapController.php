@@ -471,7 +471,7 @@ class RekapController extends Controller
     public function editRincian(string $rincian_id)
     {
         $rincian = RincianModel::findOrFail($rincian_id);
-        $produk = ProdukModel::select('produk_id', 'produk_nama')->get();
+        $produk = ProdukModel::select('produk_id', 'produk_nama', 'satuan')->get();
 
         return view('rekap.edit_rincian', compact('rincian', 'produk'));
     }
@@ -483,9 +483,10 @@ class RekapController extends Controller
             'interaksi_id' => 'required|integer',
             'produk_id' => 'required|integer',
             'motif_id' => 'nullable|integer',
-            'kuantitas' => 'required|numeric',
+            'kuantitas' => 'required|numeric|min:1',
             'satuan' => 'required|string',
-            'deskripsi' => 'required|string|max:255'
+            'deskripsi' => 'nullable|string|max:255',
+            'status' => 'required|in:hold,closing', // tambahkan validasi status
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -497,13 +498,23 @@ class RekapController extends Controller
                 'msgField' => $validator->errors(),
             ]);
         }
-        $rincian->update($request->all());
+
+        $rincian->update($request->only([
+            'interaksi_id',
+            'produk_id',
+            'motif_id',
+            'kuantitas',
+            'satuan',
+            'deskripsi',
+            'status'
+        ]));
 
         return response()->json([
             'status' => true,
             'message' => 'Data rincian berhasil diperbarui',
         ]);
     }
+
     public function updatePasang(Request $request, $rincian_id)
     {
         $rincian = RincianModel::findOrFail($rincian_id);
