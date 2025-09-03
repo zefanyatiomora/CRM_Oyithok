@@ -9,112 +9,113 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\Facades\DataTables;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request)
-    {
-        // ... (Kode untuk $activeMenu, $breadcrumb, $page tidak berubah) ...
-        $activeMenu = 'dashboard';
-        $breadcrumb = (object) [
-            'title' => 'SELAMAT DATANG WALLPAPER ID',
-            'list' => ['Home', 'Dashboard']
-        ];
-        $page = (object) [
-            'title' => 'SELAMAT DATANG WALLPAPER ID'
-        ];
+public function index(Request $request)
+{
+    $activeMenu = 'dashboard';
+    $breadcrumb = (object) [
+        'title' => 'SELAMAT DATANG WALLPAPER ID',
+        'list' => ['Home', 'Dashboard']
+    ];
+    $page = (object) [
+        'title' => 'SELAMAT DATANG WALLPAPER ID'
+    ];
 
+    $tahun = $request->get('tahun', date('Y'));
+    $bulan = $request->get('bulan');
 
-        $tahun = $request->get('tahun', date('Y'));
-        $bulan = $request->get('bulan');
-
-        $queryBase = InteraksiModel::whereYear('tanggal_chat', $tahun);
-        if ($bulan) {
-            $queryBase->whereMonth('tanggal_chat', $bulan);
-        }
-
-        $jumlahInteraksi = (clone $queryBase)->count();
-        $prosesSurvey = (clone $queryBase)->where('tahapan', 'survey')->count();
-        $prosesPasang = (clone $queryBase)->where('tahapan', 'pasang')->count();
-        $prosesOrder = (clone $queryBase)->where('tahapan', 'order')->count();
-
-        $availableYears = InteraksiModel::selectRaw('YEAR(tanggal_chat) as year')
-            ->distinct()->orderBy('year', 'desc')->pluck('year');
-        $bulanList = ['01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April', '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus', '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'];
-
-        // --- LOGIKA BARU UNTUK DATA CHART ---
-        $chartLabels = [];
-        $dataLeadsBaru = [];
-        $dataLeadsLama = [];
-
-        if ($bulan) {
-            // =======================================================================
-            // PERUBAHAN DI SINI: Jika filter per bulan, tampilkan data per tanggal
-            // =======================================================================
-
-            // Dapatkan jumlah hari dalam bulan yang dipilih
-            $jumlahHari = Carbon::create($tahun, $bulan)->daysInMonth;
-
-            // Looping untuk setiap hari dalam sebulan
-            for ($hari = 1; $hari <= $jumlahHari; $hari++) {
-                // Label untuk x-axis adalah tanggal (1, 2, 3, ...)
-                $chartLabels[] = $hari;
-
-                // Query interaksi khusus untuk hari ini
-                $queryPerHari = InteraksiModel::whereYear('tanggal_chat', $tahun)
-                    ->whereMonth('tanggal_chat', $bulan)
-                    ->whereDay('tanggal_chat', $hari);
-
-                $totalInteraksiHariIni = (clone $queryPerHari)->count();
-
-                // Leads Baru: Pelanggan dibuat di bulan & tahun yg sama dengan interaksi
-                $leadsBaruHariIni = (clone $queryPerHari)->whereHas('customer', function ($q) use ($tahun, $bulan) {
-                    $q->whereYear('created_at', $tahun)->whereMonth('created_at', $bulan);
-                })->count();
-
-                // Tambahkan data harian ke array
-                $dataLeadsBaru[] = $leadsBaruHariIni;
-                $dataLeadsLama[] = $totalInteraksiHariIni - $leadsBaruHariIni; // Sisanya adalah leads lama
-            }
-        } else {
-            // --- Logika ini tetap sama: Filter hanya berdasarkan TAHUN ---
-            foreach ($bulanList as $key => $namaBulan) {
-                $chartLabels[] = $namaBulan;
-
-                $queryPerBulan = InteraksiModel::whereYear('tanggal_chat', $tahun)->whereMonth('tanggal_chat', $key);
-                $totalInteraksiBulanIni = (clone $queryPerBulan)->count();
-
-                $leadsBaruBulanIni = (clone $queryPerBulan)->whereHas('customer', function ($q) use ($tahun, $key) {
-                    $q->whereYear('created_at', $tahun)->whereMonth('created_at', $key);
-                })->count();
-
-                $dataLeadsBaru[] = $leadsBaruBulanIni;
-                $dataLeadsLama[] = $totalInteraksiBulanIni - $leadsBaruBulanIni;
-            }
-        }
-        // --- AKHIR LOGIKA CHART ---
-
-        return view('dashboard.index', [
-            // ... (variabel lain yang sudah ada)
-            'breadcrumb' => $breadcrumb,
-            'page' => $page,
-            'activeMenu' => $activeMenu,
-            'jumlahInteraksi' => $jumlahInteraksi,
-            'prosesSurvey' => $prosesSurvey,
-            'prosesPasang' => $prosesPasang,
-            'prosesOrder' => $prosesOrder,
-            'tahun' => $tahun,
-            'bulan' => $bulan,
-            'availableYears' => $availableYears,
-            'bulanList' => $bulanList,
-
-            // Kirim data chart yang sudah disiapkan ke view
-            'chartLabels' => $chartLabels,
-            'dataLeadsLama' => $dataLeadsLama,
-            'dataLeadsBaru' => $dataLeadsBaru,
-        ]);
+    $queryBase = InteraksiModel::whereYear('tanggal_chat', $tahun);
+    if ($bulan) {
+        $queryBase->whereMonth('tanggal_chat', $bulan);
     }
+
+    // === Jumlah berdasarkan tahapan (sudah ada) ===
+    $jumlahInteraksi = (clone $queryBase)->count();
+    $prosesSurvey    = (clone $queryBase)->where('tahapan', 'survey')->count();
+    $prosesPasang    = (clone $queryBase)->where('tahapan', 'pasang')->count();
+    $prosesOrder     = (clone $queryBase)->where('tahapan', 'order')->count();
+
+    // === Tambahan: Jumlah berdasarkan STATUS ===
+    $jumlahAsk      = (clone $queryBase)->where('status', 'ask')->count();
+    $jumlahFollowUp = (clone $queryBase)->where('status', 'follow up')->count();
+    $jumlahHold     = (clone $queryBase)->where('status', 'hold')->count();
+    $jumlahClosing  = (clone $queryBase)->where('status', 'closing')->count();
+
+    $availableYears = InteraksiModel::selectRaw('YEAR(tanggal_chat) as year')
+        ->distinct()->orderBy('year', 'desc')->pluck('year');
+
+    $bulanList = [
+        '01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April',
+        '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus',
+        '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
+    ];
+
+    // === Logika Chart (biarkan tetap seperti punyamu) ===
+    $chartLabels   = [];
+    $dataLeadsBaru = [];
+    $dataLeadsLama = [];
+    if ($bulan) {
+        $jumlahHari = \Carbon\Carbon::create($tahun, $bulan)->daysInMonth;
+        for ($hari = 1; $hari <= $jumlahHari; $hari++) {
+            $chartLabels[] = $hari;
+            $queryPerHari = InteraksiModel::whereYear('tanggal_chat', $tahun)
+                ->whereMonth('tanggal_chat', $bulan)
+                ->whereDay('tanggal_chat', $hari);
+
+            $totalInteraksiHariIni = (clone $queryPerHari)->count();
+            $leadsBaruHariIni = (clone $queryPerHari)->whereHas('customer', function ($q) use ($tahun, $bulan) {
+                $q->whereYear('created_at', $tahun)->whereMonth('created_at', $bulan);
+            })->count();
+
+            $dataLeadsBaru[] = $leadsBaruHariIni;
+            $dataLeadsLama[] = $totalInteraksiHariIni - $leadsBaruHariIni;
+        }
+    } else {
+        foreach ($bulanList as $key => $namaBulan) {
+            $chartLabels[] = $namaBulan;
+            $queryPerBulan = InteraksiModel::whereYear('tanggal_chat', $tahun)
+                ->whereMonth('tanggal_chat', $key);
+
+            $totalInteraksiBulanIni = (clone $queryPerBulan)->count();
+            $leadsBaruBulanIni = (clone $queryPerBulan)->whereHas('customer', function ($q) use ($tahun, $key) {
+                $q->whereYear('created_at', $tahun)->whereMonth('created_at', $key);
+            })->count();
+
+            $dataLeadsBaru[] = $leadsBaruBulanIni;
+            $dataLeadsLama[] = $totalInteraksiBulanIni - $leadsBaruBulanIni;
+        }
+    }
+
+    return view('dashboard.index', [
+        'breadcrumb' => $breadcrumb,
+        'page' => $page,
+        'activeMenu' => $activeMenu,
+
+        'tahun' => $tahun,
+        'bulan' => $bulan,
+        'availableYears' => $availableYears,
+        'bulanList' => $bulanList,
+
+        'jumlahInteraksi' => $jumlahInteraksi,
+        'prosesSurvey' => $prosesSurvey,
+        'prosesPasang' => $prosesPasang,
+        'prosesOrder' => $prosesOrder,
+
+        // kirim ke view
+        'jumlahAsk' => $jumlahAsk,
+        'jumlahFollowUp' => $jumlahFollowUp,
+        'jumlahHold' => $jumlahHold,
+        'jumlahClosing' => $jumlahClosing,
+
+        'chartLabels' => $chartLabels,
+        'dataLeadsLama' => $dataLeadsLama,
+        'dataLeadsBaru' => $dataLeadsBaru,
+    ]);
+}
 
     public function update(Request $request)
     {
@@ -222,4 +223,35 @@ class DashboardController extends Controller
 
         return redirect()->back()->with('success', 'Password berhasil diubah');
     }
+   public function ask(Request $request)
+{
+    $tahun = $request->get('tahun', date('Y'));
+    $bulan = $request->get('bulan');
+
+    $query = InteraksiModel::with('customer')
+        ->where('status', 'ask')
+        ->whereYear('tanggal_chat', $tahun);
+
+    if ($bulan) {
+        $query->whereMonth('tanggal_chat', $bulan);
+    }
+
+    if ($request->ajax()) {
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
+            ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
+            ->addColumn('aksi', function ($row) {
+                $url = route('rekap.show_ajax', $row->interaksi_id);
+                return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-primary">
+                            <i class="fas fa-eye"></i> Detail
+                        </button>';
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
+    }
+
+    $activeMenu = 'dashboard';
+    return view('dashboard.ask', compact('tahun', 'bulan', 'activeMenu'));
+}
 }
