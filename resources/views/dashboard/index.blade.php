@@ -5,6 +5,42 @@
 <!-- Main content -->
 <section class="content">
     <div class="container-fluid">
+        <!-- Filter Tahun & Bulan -->
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <form method="GET" action="{{ route('dashboard') }}" class="form-inline">
+                    <select name="tahun" class="form-control mr-2" required>
+                        <option value="">-- Pilih Tahun --</option>
+                        @foreach($availableYears as $year)
+                            <option value="{{ $year }}" {{ $year == $tahun ? 'selected' : '' }}>
+                                {{ $year }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <select name="bulan" class="form-control mr-2">
+                        <option value="">-- Semua Bulan --</option>
+                        @foreach($bulanList as $key => $label)
+                            <option value="{{ $key }}" {{ $key == $bulan ? 'selected' : '' }}>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <div class="btn-group mr-2">
+                        <button type="submit" class="btn btn-info">Filter</button>
+                        <button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{{ route('dashboard') }}">Reset Filter</a>
+                            <a class="dropdown-item" href="#">Cetak Laporan</a>
+                            <a class="dropdown-item" href="#">Export Excel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         <!-- JUMLAH INTERAKSI -->
         <div class="row">
