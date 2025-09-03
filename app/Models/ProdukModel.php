@@ -16,8 +16,8 @@ class ProdukModel extends Model
 
     protected $fillable = [
         'kategori_id',
-        'produk_kode',
         'produk_nama',
+        'satuan',
     ];
 
     public function interaksi()

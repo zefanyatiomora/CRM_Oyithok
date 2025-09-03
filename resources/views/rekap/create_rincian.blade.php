@@ -58,7 +58,7 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function (res) {
-                toastr.success('Status nya woi berhasil disimpan');
+                toastr.success('Rincian berhasil disimpan');
                 tableRekap.ajax.reload(null, false);
 
                 let interaksiId = $("#interaksi_id").val();
