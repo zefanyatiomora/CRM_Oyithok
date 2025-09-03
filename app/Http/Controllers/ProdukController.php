@@ -29,7 +29,7 @@ class ProdukController extends Controller
     }
     public function list(Request $request)
     {
-        $produks = ProdukModel::with('kategori')->select('produk_id', 'produk_kode', 'produk_nama', 'kategori_id');
+        $produks = ProdukModel::with('kategori')->select('produk_id', 'produk_nama', 'kategori_id', 'satuan');
 
         return DataTables::of($produks)
             ->addIndexColumn()

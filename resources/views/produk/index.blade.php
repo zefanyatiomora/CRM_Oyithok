@@ -21,8 +21,9 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Kode produk</th>
+                        <th>Kategori produk</th>
                         <th>Nama produk</th>
+                        <th>Satuan</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -62,13 +63,19 @@
                         searchable: false     
                     },
                     { 
-                        data: "produk_kode",                
+                        data: "kategori.kategori_nama",                
                         className: "", 
                         orderable: true,     
                         searchable: true     
                     },
                     { 
                         data: "produk_nama",                
+                        className: "", 
+                        orderable: true,     
+                        searchable: true     
+                    },
+                    { 
+                        data: "satuan",                
                         className: "", 
                         orderable: true,     
                         searchable: true     
