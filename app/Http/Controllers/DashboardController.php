@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\Facades\DataTables;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -227,18 +228,30 @@ public function index(Request $request)
     $tahun = $request->get('tahun', date('Y'));
     $bulan = $request->get('bulan');
 
-    $query = InteraksiModel::where('status', 'ask')
+    $query = InteraksiModel::with('customer')
+        ->where('status', 'ask')
         ->whereYear('tanggal_chat', $tahun);
 
     if ($bulan) {
         $query->whereMonth('tanggal_chat', $bulan);
     }
 
-    $interaksi = $query->get();
+    if ($request->ajax()) {
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
+            ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
+            ->addColumn('aksi', function ($row) {
+                $url = route('rekap.show_ajax', $row->interaksi_id);
+                return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-primary">
+                            <i class="fas fa-eye"></i> Detail
+                        </button>';
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
+    }
 
-    $activeMenu = 'dashboard'; // 👈 tambahkan ini
-
-    return view('dashboard.ask', compact('interaksi', 'tahun', 'bulan', 'activeMenu'));
+    $activeMenu = 'dashboard';
+    return view('dashboard.ask', compact('tahun', 'bulan', 'activeMenu'));
 }
-
 }

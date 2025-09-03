@@ -67,8 +67,7 @@ Route::prefix('produk')->group(function () {
 Route::prefix('rekap')->group(function () {
     Route::get('/', [RekapController::class, 'index'])->name('rekap.index');       // Halaman list monthrekap
     Route::post('/list', [RekapController::class, 'list'])->name('rekap.list');
-    Route::get('/{id}/show_ajax', [RekapController::class, 'show_ajax']);
-    // Route::get('/search-product', [RekapController::class, 'searchProduct'])->name('rekap.searchProduct');
+    Route::get('/{interaksi_id}/show_ajax', [RekapController::class, 'show_ajax'])->name('rekap.show_ajax');    // Route::get('/search-product', [RekapController::class, 'searchProduct'])->name('rekap.searchProduct');
     // web.php
     Route::post('/rekap/update-followup', [RekapController::class, 'updateFollowUp'])->name('rekap.updateFollowUp');
     Route::get('realtime/list/{interaksi}', [RekapController::class, 'getRealtimeList']);

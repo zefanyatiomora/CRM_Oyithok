@@ -106,27 +106,32 @@
                     class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
-            <div class="col-lg-3 col-6">
-    <!-- small box -->
-    <div class="small-box bg-primary">
-        <div class="inner">
-            <h3>{{ $jumlahAsk }}</h3>
-            <p>Jumlah Interaksi (Status Ask)
-                @if ($bulan)
-                    ({{ $bulanList[$bulan] }} {{ $tahun }})
-                @else
-                    (Tahun {{ $tahun }})
-                @endif
-            </p>
         </div>
-        <div class="icon">
-            <i class="fas fa-question-circle"></i>
+            {{-- buat row baru untuk ASK --}}
+<div class="row mt-3"> <!-- row baru khusus Status Ask -->
+    <div class="col-lg-3 col-6">
+        <!-- Status Ask -->
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>{{ $jumlahAsk }}</h3>
+                <p>Status Ask
+                    @if ($bulan)
+                        ({{ $bulanList[$bulan] }} {{ $tahun }})
+                    @else
+                        (Tahun {{ $tahun }})
+                    @endif
+                </p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-stats-bars"></i>
+            </div>
+            <a href="{{ route('dashboard.ask', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
+               class="small-box-footer">
+                More info <i class="fas fa-arrow-circle-right"></i>
+            </a>
         </div>
-<a href="{{ route('dashboard.ask', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
-   class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
     </div>
 </div>
-
             <!-- ... kotak lainnya -->
     </div>
     <!-- /.row -->

@@ -1,32 +1,58 @@
 @extends('layouts.template')
 
-@section('title', 'Daftar Interaksi ASK')
+@section('title', 'Daftar Customer Status ASK')
 
 @section('content')
-<div class="container mt-4">
-    <h2 class="mb-3">Daftar Interaksi dengan Status <span class="text-primary">ASK</span></h2>
-
-    @if($interaksi->isEmpty())
-        <div class="alert alert-warning">
-            Tidak ada data interaksi dengan status <strong>ASK</strong>.
-        </div>
-    @else
-        <table class="table table-bordered table-striped">
-            <thead class="table-dark">
+<div class="card card-outline card-primary">
+    <div class="card-header">
+        <h3 class="card-title">Daftar Customer Status <span class="text-primary">ASK</span></h3>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered table-striped table-hover table-sm" id="table-interaksi">
+            <thead class="text-center">
                 <tr>
                     <th>No</th>
-                    <th>Interaksi ID</th>
+                    <th>ID Interaksi</th>
+                    <th>Kode Customer</th>
+                    <th>Nama Customer</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
-            <tbody>
-                @foreach($interaksi as $index => $row)
-                <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $row->interaksi_id }}</td>
-                </tr>
-                @endforeach
-            </tbody>
+            <tbody></tbody>
         </table>
-    @endif
+    </div>
 </div>
+
+{{-- Modal --}}
+<div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog"
+     data-backdrop="static" data-keyboard="false" aria-hidden="true"></div>
 @endsection
+
+@push('css')
+{{-- kalau butuh style tambahan bisa taruh di sini --}}
+@endpush
+
+@push('js')
+<script>
+    function modalAction(url = '') {
+        $('#myModal').load(url, function () {
+            $('#myModal').modal('show');
+        });
+    }
+
+    $(document).ready(function () {
+        $('#table-interaksi').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('dashboard.ask') }}", // route untuk data interaksi status ASK
+            columns: [
+                { data: 'DT_RowIndex', name: 'DT_RowIndex', className: 'text-center', orderable: false, searchable: false },
+                { data: 'interaksi_id', name: 'interaksi_id' },
+                { data: 'customer_kode', name: 'customer_kode' },
+                { data: 'customer_nama', name: 'customer_nama' },
+                { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'text-center' }
+            ]
+        });
+    });
+</script>
+@endpush
