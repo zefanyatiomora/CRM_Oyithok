@@ -182,23 +182,26 @@
                   <div class="icon"><i class="ion ion-bag"></i></div>
                   <a href="{{ route('ask.index', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
                     class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-              </div>
-          </div>
-
-          <!-- STATUS HOLD PRODUK -->
-          <div class="col-lg-4 col-6">
-              <div class="small-box bg-navy box-hover">
-                  <div class="inner text-center">
-                      <h3>{{ $jumlahProdukHold ?? 0 }}</h3>
-                      <p>HOLD PRODUK 
-                          @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
-                          @else TAHUN {{ $tahun }} 
-                          @endif
-                      </p>
-                  </div>
-                  <div class="icon"><i class="ion ion-bag"></i></div>
-              </div>
-          </div>
+                </div>
+            </div>
+            
+            <!-- STATUS HOLD PRODUK -->
+            <div class="col-lg-4 col-6">
+                <div class="small-box bg-navy box-hover">
+                    <div class="inner text-center">
+                        <h3>{{ $jumlahProdukHold ?? 0 }}</h3>
+                        <p>HOLD PRODUK 
+                            @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
+                            @else TAHUN {{ $tahun }} 
+                            @endif
+                        </p>
+                    </div>
+                    <div class="icon"><i class="ion ion-bag"></i></div>
+                    <div class="icon"><i class="ion ion-bag"></i></div>
+                    <a href="{{ route('hold.index', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
+                      class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
 
           <!-- STATUS CLOSING PRODUK -->
           <div class="col-lg-4 col-6">
@@ -210,8 +213,10 @@
                           @else TAHUN {{ $tahun }} 
                           @endif
                       </p>
-                  </div>
-                  <div class="icon"><i class="ion ion-bag"></i></div>
+                    </div>
+                    <div class="icon"><i class="ion ion-bag"></i></div>
+                    <a href="{{ route('closing.index', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
+                      class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
               </div>
           </div>
       </div>
