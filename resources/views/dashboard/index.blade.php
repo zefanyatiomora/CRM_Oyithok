@@ -66,97 +66,166 @@
             </div>
         </div>
 
-        <!-- Row Status Customer -->
-        <div class="row mt-3">
-            <!-- STATUS ASK -->
-            <div class="col-lg-3 col-6">
-                <a href="{{ route('dashboard.ask', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
-                   class="text-decoration-none text-white">
-                    <div class="small-box bg-info box-hover">
-                        <div class="inner text-center">
-                            <h3>{{ $jumlahAsk }}</h3>
-                            <p>ASK
-                                @if ($bulan)
-                                    ({{ $bulanList[$bulan] }} {{ $tahun }})
-                                @else
-                                    TAHUN {{ $tahun }}
-                                @endif
-                            </p>
-                        </div>
-                        <div class="icon">
-                            <i class="ion ion-stats-bars"></i>
-                        </div>
-                    </div>
-                </a>
-            </div>
+        <!-- Tabs Customer & Produk -->
+<ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link active" id="customer-tab" data-toggle="tab" href="#customer" role="tab">Customer</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="produk-tab" data-toggle="tab" href="#produk" role="tab">Produk</a>
+  </li>
+</ul>
 
-            <!-- STATUS FOLLOW UP -->
-            <div class="col-lg-3 col-6">
-                <a href="{{ route('dashboard.followup', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
-                   class="text-decoration-none text-white">
-                    <div class="small-box bg-primary box-hover">
-                        <div class="inner text-center">
-                            <h3>{{ $jumlahFollowUp }}</h3>
-                            <p>FOLLOW UP
-                                @if ($bulan)
-                                    ({{ $bulanList[$bulan] }} {{ $tahun }})
-                                @else
-                                    TAHUN {{ $tahun }}
-                                @endif
-                            </p>
-                        </div>
-                        <div class="icon">
-                            <i class="ion ion-stats-bars"></i>
-                        </div>
-                    </div>
-                </a>
-            </div>
+<div class="tab-content mt-3">
+  <!-- TAB CUSTOMER -->
+  <div class="tab-pane fade show active" id="customer" role="tabpanel">
+      <div class="row">
+          <!-- STATUS ASK -->
+          <div class="col-lg-3 col-6">
+              <a href="{{ route('dashboard.ask', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
+                 class="text-decoration-none text-white">
+                  <div class="small-box bg-info box-hover">
+                      <div class="inner text-center">
+                          <h3>{{ $jumlahAsk }}</h3>
+                          <p>ASK 
+                              @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
+                              @else TAHUN {{ $tahun }} 
+                              @endif
+                          </p>
+                      </div>
+                      <div class="icon"><i class="ion ion-stats-bars"></i></div>
+                  </div>
+              </a>
+          </div>
 
-            <!-- STATUS HOLD -->
-            <div class="col-lg-3 col-6">
-                <a href="{{ route('dashboard.hold', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
-                   class="text-decoration-none text-white">
-                    <div class="small-box bg-navy box-hover">
-                        <div class="inner text-center">
-                            <h3>{{ $jumlahHold }}</h3>
-                            <p>HOLD
-                                @if ($bulan)
-                                    ({{ $bulanList[$bulan] }} {{ $tahun }})
-                                @else
-                                    TAHUN {{ $tahun }}
-                                @endif
-                            </p>
-                        </div>
-                        <div class="icon">
-                            <i class="ion ion-stats-bars"></i>
-                        </div>
-                    </div>
-                </a>
-            </div>
+          <!-- STATUS FOLLOW UP -->
+          <div class="col-lg-3 col-6">
+              <a href="{{ route('dashboard.followup', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
+                 class="text-decoration-none text-white">
+                  <div class="small-box bg-primary box-hover">
+                      <div class="inner text-center">
+                          <h3>{{ $jumlahFollowUp }}</h3>
+                          <p>FOLLOW UP 
+                              @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
+                              @else TAHUN {{ $tahun }} 
+                              @endif
+                          </p>
+                      </div>
+                      <div class="icon"><i class="ion ion-stats-bars"></i></div>
+                  </div>
+              </a>
+          </div>
 
-            <!-- STATUS CLOSING -->
-            <div class="col-lg-3 col-6">
-                <a href="{{ route('dashboard.closing', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
-                   class="text-decoration-none text-white">
-                    <div class="small-box bg-danger box-hover">
-                        <div class="inner text-center">
-                            <h3>{{ $jumlahClosing }}</h3>
-                            <p>CLOSING
-                                @if ($bulan)
-                                    ({{ $bulanList[$bulan] }} {{ $tahun }})
-                                @else
-                                    TAHUN {{ $tahun }}
-                                @endif
-                            </p>
-                        </div>
-                        <div class="icon">
-                            <i class="ion ion-stats-bars"></i>
-                        </div>
-                    </div>
-                </a>
-            </div>
+          <!-- STATUS HOLD -->
+          <div class="col-lg-3 col-6">
+              <a href="{{ route('dashboard.hold', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
+                 class="text-decoration-none text-white">
+                  <div class="small-box bg-navy box-hover">
+                      <div class="inner text-center">
+                          <h3>{{ $jumlahHold }}</h3>
+                          <p>HOLD 
+                              @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
+                              @else TAHUN {{ $tahun }} 
+                              @endif
+                          </p>
+                      </div>
+                      <div class="icon"><i class="ion ion-stats-bars"></i></div>
+                  </div>
+              </a>
+          </div>
+
+          <!-- STATUS CLOSING -->
+          <div class="col-lg-3 col-6">
+              <a href="{{ route('dashboard.closing', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
+                 class="text-decoration-none text-white">
+                  <div class="small-box bg-danger box-hover">
+                      <div class="inner text-center">
+                          <h3>{{ $jumlahClosing }}</h3>
+                          <p>CLOSING 
+                              @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
+                              @else TAHUN {{ $tahun }} 
+                              @endif
+                          </p>
+                      </div>
+                      <div class="icon"><i class="ion ion-stats-bars"></i></div>
+                  </div>
+              </a>
+          </div>
+      </div>
+      <!-- Chart Leads -->
+    <div class="card mt-3">
+        <div class="card-header bg-primary text-white">
+            <h3 class="card-title">Diagram Leads</h3>
+        </div>
+        <div class="card-body">
+            {{-- <canvas id="leadsChart" style="height:300px;"></canvas> --}}
+            {{-- Tempatkan canvas chart --}}
+            <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
         </div>
     </div>
+  </div>
+
+  <!-- TAB PRODUK -->
+  <div class="tab-pane fade" id="produk" role="tabpanel">
+      <div class="row">
+          <!-- STATUS ASK PRODUK -->
+          <div class="col-lg-4 col-6">
+              <div class="small-box bg-info box-hover">
+                  <div class="inner text-center">
+                      <h3>{{ $jumlahProdukAsk ?? 0 }}</h3>
+                      <p>ASK PRODUK 
+                          @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
+                          @else TAHUN {{ $tahun }} 
+                          @endif
+                      </p>
+                  </div>
+                  <div class="icon"><i class="ion ion-bag"></i></div>
+                  <a href="{{ route('ask.index', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
+                    class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+              </div>
+          </div>
+
+          <!-- STATUS HOLD PRODUK -->
+          <div class="col-lg-4 col-6">
+              <div class="small-box bg-navy box-hover">
+                  <div class="inner text-center">
+                      <h3>{{ $jumlahProdukHold ?? 0 }}</h3>
+                      <p>HOLD PRODUK 
+                          @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
+                          @else TAHUN {{ $tahun }} 
+                          @endif
+                      </p>
+                  </div>
+                  <div class="icon"><i class="ion ion-bag"></i></div>
+              </div>
+          </div>
+
+          <!-- STATUS CLOSING PRODUK -->
+          <div class="col-lg-4 col-6">
+              <div class="small-box bg-danger box-hover">
+                  <div class="inner text-center">
+                      <h3>{{ $jumlahProdukClosing ?? 0 }}</h3>
+                      <p>CLOSING PRODUK 
+                          @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
+                          @else TAHUN {{ $tahun }} 
+                          @endif
+                      </p>
+                  </div>
+                  <div class="icon"><i class="ion ion-bag"></i></div>
+              </div>
+          </div>
+      </div>
+    <!-- Chart Produk -->
+    <div class="card mt-3">
+        <div class="card-header bg-danger text-white">
+            <h3 class="card-title">Diagram Produk</h3>
+        </div>
+        <div class="card-body">
+            <canvas id="produkChart" style="height:300px;"></canvas>
+        </div>
+    </div>
+  </div>
+</div>
 </section>
 
 @push('css')
@@ -170,45 +239,6 @@
     }
 </style>
 @endpush
-
-        <!-- Left col -->
-        <section class="col-lg-7 connectedSortable">
-            <!-- Custom tabs (Charts with tabs)-->
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-chart-pie mr-1"></i>
-                        Leads
-                    </h3>
-                    <div class="card-tools">
-                        <ul class="nav nav-pills ml-auto">
-                            <li class="nav-item">
-                                <a class="nav-link active" href="#bar-chart" data-toggle="tab">Area</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#sales-chart" data-toggle="tab">Donut</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div><!-- /.card-header -->
-                <div class="card-body">
-                    <div class="tab-content p-0">
-                        <!-- Morris chart - Sales -->
-                        <div class="chart tab-pane active" id="bar-chart"
-                            style="position: relative; height: 300px;">
-                            {{-- Tempatkan canvas chart --}}
-                            <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                        </div>
-                        <div class="chart tab-pane" id="sales-chart" style="position: relative; height: 300px;">
-                            <canvas id="sales-chart-canvas" height="300" style="height: 300px;"></canvas>
-                        </div>
-                    </div>
-                </div><!-- /.card-body -->
-            </div>
-        </section>
-    </div>
-</div><!-- /.container-fluid -->
-
 @endsection
 @push('js')
 <script src="{{ asset('adminlte/plugins/chart.js/Chart.min.js') }}"></script>
@@ -281,6 +311,66 @@
             data: barChartData,
             options: barChartOptions // Gunakan options yang sudah dimodifikasi
         })
+
+        // ProdukChart 
+        // Ambil elemen canvas dari HTML
+        const ctx = document.getElementById('produkChart');
+
+        // Ambil data dari controller menggunakan json_encode()
+        const kategoriLabels = {!! json_encode($kategoriLabels) !!};
+        const dataAsk = {!! json_encode($dataAsk) !!};
+        const dataHold = {!! json_encode($dataHold) !!};
+        const dataClosing = {!! json_encode($dataClosing) !!};
+
+        // Konfigurasi dan pembuatan chart (bagian ini tetap sama)
+        new Chart(ctx, {
+            type: 'bar', // Tipe chart adalah bar chart
+            data: {
+                labels: kategoriLabels, // Label untuk sumbu Y (nama-nama produk)
+                datasets: [{
+                    label: 'Ask',
+                    data: dataAsk,
+                    backgroundColor: 'rgba(122, 160, 255, 0.8)', // Biru muda
+                    borderColor: 'rgba(122, 160, 255, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Hold',
+                    data: dataHold,
+                    backgroundColor: 'rgba(74, 85, 162, 0.8)',  // Biru tua
+                    borderColor: 'rgba(74, 85, 162, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Closing',
+                    data: dataClosing,
+                    backgroundColor: 'rgba(239, 87, 119, 0.8)', // Merah/Pink
+                    borderColor: 'rgba(239, 87, 119, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y', // **Ini kunci untuk membuat bar chart menjadi HORIZONTAL**
+                responsive: true, // Membuat chart menyesuaikan ukuran container
+                maintainAspectRatio: false, // Penting agar chart bisa mengisi tinggi container
+                scales: {
+                    x: {
+                        beginAtZero: true, // Sumbu X (angka) dimulai dari 0
+                        ticks: {
+                            // Memastikan hanya angka bulat (integer) yang ditampilkan di sumbu X
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top', // Posisi legenda di atas chart
+                    },
+                    title: {
+                        display: false,
+                        text: 'Data per-Produk'
+                    }
+                }
+            }
+        });
     })
 </script>
 @endpush

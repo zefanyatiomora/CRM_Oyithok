@@ -10,6 +10,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RekapController;
 use App\Http\Controllers\KebutuhanController;
 use App\Http\Controllers\SurveyController;
+use App\Http\Controllers\Produk\AskController;
 use App\Http\Controllers\PasangController;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
@@ -92,6 +93,11 @@ Route::prefix('survey')->group(function () {
     Route::get('/', [SurveyController::class, 'index'])->name('survey.index');       // Halaman list monthSurvey
     Route::post('/list', [SurveyController::class, 'list'])->name('survey.list');
     Route::get('/{id}/show_ajax', [SurveyController::class, 'show_ajax']);
+});
+Route::prefix('ask')->group(function () {
+    Route::get('/', [AskController::class, 'index'])->name('ask.index');       // Halaman list monthSurvey
+    Route::post('/list', [AskController::class, 'list'])->name('ask.list');
+    Route::get('/{id}/show_ajax', [AskController::class, 'show_ajax'])->name('ask.show_ajax');
 });
 Route::prefix('pasang')->group(function () {
     Route::get('/', [PasangController::class, 'index'])->name('pasang.index');       // Halaman list monthPasang

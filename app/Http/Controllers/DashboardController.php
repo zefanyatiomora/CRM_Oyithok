@@ -4,352 +4,342 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\InteraksiModel;
+use App\Models\PasangKirimModel;
+use App\Models\RincianModel;
+use App\Models\KategoriModel;
+use App\Models\InteraksiAwalModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-public function index(Request $request)
-{
-    $activeMenu = 'dashboard';
-    $breadcrumb = (object) [
-        'title' => 'SELAMAT DATANG WALLPAPER ID',
-        'list' => ['Home', 'Dashboard']
-    ];
-    $page = (object) [
-        'title' => 'SELAMAT DATANG WALLPAPER ID'
-    ];
-
-    $tahun = $request->get('tahun', date('Y'));
-    $bulan = $request->get('bulan');
-
-    $queryBase = InteraksiModel::whereYear('tanggal_chat', $tahun);
-    if ($bulan) {
-        $queryBase->whereMonth('tanggal_chat', $bulan);
-    }
-
-    // === Jumlah berdasarkan tahapan (sudah ada) ===
-    $jumlahInteraksi = (clone $queryBase)->count();
-    $prosesSurvey    = (clone $queryBase)->where('tahapan', 'survey')->count();
-    $prosesPasang    = (clone $queryBase)->where('tahapan', 'pasang')->count();
-    $prosesOrder     = (clone $queryBase)->where('tahapan', 'order')->count();
-
-    // === Tambahan: Jumlah berdasarkan STATUS ===
-    $jumlahAsk      = (clone $queryBase)->where('status', 'ask')->count();
-    $jumlahFollowUp = (clone $queryBase)->where('status', 'follow up')->count();
-    $jumlahHold     = (clone $queryBase)->where('status', 'hold')->count();
-    $jumlahClosing  = (clone $queryBase)->where('status', 'closing')->count();
-
-    $availableYears = InteraksiModel::selectRaw('YEAR(tanggal_chat) as year')
-        ->distinct()->orderBy('year', 'desc')->pluck('year');
-
-    $bulanList = [
-        '01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April',
-        '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus',
-        '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
-    ];
-
-    // === Logika Chart (biarkan tetap seperti punyamu) ===
-    $chartLabels   = [];
-    $dataLeadsBaru = [];
-    $dataLeadsLama = [];
-    if ($bulan) {
-        $jumlahHari = \Carbon\Carbon::create($tahun, $bulan)->daysInMonth;
-        for ($hari = 1; $hari <= $jumlahHari; $hari++) {
-            $chartLabels[] = $hari;
-            $queryPerHari = InteraksiModel::whereYear('tanggal_chat', $tahun)
-                ->whereMonth('tanggal_chat', $bulan)
-                ->whereDay('tanggal_chat', $hari);
-
-            $totalInteraksiHariIni = (clone $queryPerHari)->count();
-            $leadsBaruHariIni = (clone $queryPerHari)->whereHas('customer', function ($q) use ($tahun, $bulan) {
-                $q->whereYear('created_at', $tahun)->whereMonth('created_at', $bulan);
-            })->count();
-
-            $dataLeadsBaru[] = $leadsBaruHariIni;
-            $dataLeadsLama[] = $totalInteraksiHariIni - $leadsBaruHariIni;
-        }
-    } else {
-        foreach ($bulanList as $key => $namaBulan) {
-            $chartLabels[] = $namaBulan;
-            $queryPerBulan = InteraksiModel::whereYear('tanggal_chat', $tahun)
-                ->whereMonth('tanggal_chat', $key);
-
-            $totalInteraksiBulanIni = (clone $queryPerBulan)->count();
-            $leadsBaruBulanIni = (clone $queryPerBulan)->whereHas('customer', function ($q) use ($tahun, $key) {
-                $q->whereYear('created_at', $tahun)->whereMonth('created_at', $key);
-            })->count();
-
-            $dataLeadsBaru[] = $leadsBaruBulanIni;
-            $dataLeadsLama[] = $totalInteraksiBulanIni - $leadsBaruBulanIni;
-        }
-    }
-
-    return view('dashboard.index', [
-        'breadcrumb' => $breadcrumb,
-        'page' => $page,
-        'activeMenu' => $activeMenu,
-
-        'tahun' => $tahun,
-        'bulan' => $bulan,
-        'availableYears' => $availableYears,
-        'bulanList' => $bulanList,
-
-        'jumlahInteraksi' => $jumlahInteraksi,
-        'prosesSurvey' => $prosesSurvey,
-        'prosesPasang' => $prosesPasang,
-        'prosesOrder' => $prosesOrder,
-
-        // kirim ke view
-        'jumlahAsk' => $jumlahAsk,
-        'jumlahFollowUp' => $jumlahFollowUp,
-        'jumlahHold' => $jumlahHold,
-        'jumlahClosing' => $jumlahClosing,
-
-        'chartLabels' => $chartLabels,
-        'dataLeadsLama' => $dataLeadsLama,
-        'dataLeadsBaru' => $dataLeadsBaru,
-    ]);
-}
-
-
-    public function update(Request $request)
+    public function index(Request $request)
     {
-        $request->validate([
-            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
-
-        $user = Auth::user();
-
-        // Jika ada avatar lama, hapus dari storage
-        if ($user->avatar) {
-            Storage::delete('public/avatars/' . $user->avatar);
-        }
-
-        if ($request->file('avatar')) {
-            $avatarName = time() . '.' . $request->avatar->extension();
-            $request->avatar->storeAs('public/avatars', $avatarName);
-            /** @var \App\Models\User $user **/
-            $user->avatar = $avatarName;
-            $user->save();
-        } // Upload avatar baru
-
-        return redirect('/profil')->with('success', 'Foto Profil Berhasil Diperbarui!');
-    }
-    public function updateDataDiri(Request $request)
-    {
-        // Validasi input menggunakan Validator langsung
-        $rules = [
-            'nama' => 'required|string|max:255',
-            'tempat_lahir' => 'required|string|max:255',
-            'tanggal_lahir' => 'required|date',
-            'jenis_kelamin' => 'required|in:L,P',
-            'agama' => 'required|string|max:50',
-            'no_hp' => 'required|string|max:15',
-            'alamat' => 'required|string|max:255',
+        $activeMenu = 'dashboard';
+        $breadcrumb = (object) [
+            'title' => 'SELAMAT DATANG WALLPAPER ID',
+            'list' => ['Home', 'Dashboard']
+        ];
+        $page = (object) [
+            'title' => 'SELAMAT DATANG WALLPAPER ID'
         ];
 
-        // Jalankan validasi
-        $validator = Validator::make($request->all(), $rules);
+        $tahun = $request->get('tahun', date('Y'));
+        $bulan = $request->get('bulan');
 
-        // Jika validasi gagal, kembalikan pesan error dalam format JSON
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Validasi Gagal',
-                'msgField' => $validator->errors(),
-            ]);
+        $queryBase = InteraksiModel::whereYear('tanggal_chat', $tahun);
+        if ($bulan) {
+            $queryBase->whereMonth('tanggal_chat', $bulan);
         }
 
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        $user->nama = $request->nama;
-        $user->save();
+        // === Jumlah berdasarkan tahapan (sudah ada) ===
+        $jumlahInteraksi = (clone $queryBase)->count();
+        $prosesSurvey    = (clone $queryBase)->where('tahapan', 'survey')->count();
+        $prosesPasang    = (clone $queryBase)->where('tahapan', 'pasang')->count();
+        $prosesOrder     = (clone $queryBase)->where('tahapan', 'order')->count();
 
-        // Update data profil di tabel profil_user
-        $profil = $user->profil; // Mengambil data profil yang terkait
+        // === Tambahan: Jumlah berdasarkan STATUS ===
+        $jumlahAsk      = (clone $queryBase)->where('status', 'ask')->count();
+        $jumlahFollowUp = (clone $queryBase)->where('status', 'follow up')->count();
+        $jumlahHold     = (clone $queryBase)->where('status', 'hold')->count();
+        $jumlahClosing  = (clone $queryBase)->where('status', 'closing')->count();
 
-        // Periksa jika profil ada
-        if ($profil) {
-            $profil->tempat_lahir = $request->tempat_lahir;
-            $profil->tanggal_lahir = $request->tanggal_lahir;
-            $profil->jenis_kelamin = $request->jenis_kelamin;
-            $profil->agama = $request->agama;
-            $profil->no_hp = $request->no_hp;
-            $profil->alamat = $request->alamat;
-            $profil->save(); // Simpan perubahan pada profil
+        $availableYears = InteraksiModel::selectRaw('YEAR(tanggal_chat) as year')
+            ->distinct()->orderBy('year', 'desc')->pluck('year');
+
+        $bulanList = [
+            '01' => 'Januari',
+            '02' => 'Februari',
+            '03' => 'Maret',
+            '04' => 'April',
+            '05' => 'Mei',
+            '06' => 'Juni',
+            '07' => 'Juli',
+            '08' => 'Agustus',
+            '09' => 'September',
+            '10' => 'Oktober',
+            '11' => 'November',
+            '12' => 'Desember'
+        ];
+
+        // === Logika Chart (biarkan tetap seperti punyamu) ===
+        $chartLabels   = [];
+        $dataLeadsBaru = [];
+        $dataLeadsLama = [];
+        if ($bulan) {
+            $jumlahHari = \Carbon\Carbon::create($tahun, $bulan)->daysInMonth;
+            for ($hari = 1; $hari <= $jumlahHari; $hari++) {
+                $chartLabels[] = $hari;
+                $queryPerHari = InteraksiModel::whereYear('tanggal_chat', $tahun)
+                    ->whereMonth('tanggal_chat', $bulan)
+                    ->whereDay('tanggal_chat', $hari);
+
+                $totalInteraksiHariIni = (clone $queryPerHari)->count();
+                $leadsBaruHariIni = (clone $queryPerHari)->whereHas('customer', function ($q) use ($tahun, $bulan) {
+                    $q->whereYear('created_at', $tahun)->whereMonth('created_at', $bulan);
+                })->count();
+
+                $dataLeadsBaru[] = $leadsBaruHariIni;
+                $dataLeadsLama[] = $totalInteraksiHariIni - $leadsBaruHariIni;
+            }
         } else {
-            return redirect('/profil')->with('error', 'Profil tidak ditemukan.');
+            foreach ($bulanList as $key => $namaBulan) {
+                $chartLabels[] = $namaBulan;
+                $queryPerBulan = InteraksiModel::whereYear('tanggal_chat', $tahun)
+                    ->whereMonth('tanggal_chat', $key);
+
+                $totalInteraksiBulanIni = (clone $queryPerBulan)->count();
+                $leadsBaruBulanIni = (clone $queryPerBulan)->whereHas('customer', function ($q) use ($tahun, $key) {
+                    $q->whereYear('created_at', $tahun)->whereMonth('created_at', $key);
+                })->count();
+
+                $dataLeadsBaru[] = $leadsBaruBulanIni;
+                $dataLeadsLama[] = $totalInteraksiBulanIni - $leadsBaruBulanIni;
+            }
+        }
+        // Ambil semua kategori produk
+        $kategoriLabels = KategoriModel::pluck('kategori_nama');
+
+        // ASK (dari interaksi_realtime)
+        $askKategori = InteraksiAwalModel::with('kategori')
+            ->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
+                $q->whereYear('tanggal_chat', $tahun);
+                if ($bulan) $q->whereMonth('tanggal_chat', $bulan);
+            })
+            ->get()
+            ->groupBy(fn($item) => $item->kategori->kategori_nama ?? 'Tanpa Kategori')
+            ->map->count();
+
+        // HOLD (dari rincian)
+        $holdKategori = RincianModel::with('produk.kategori', 'interaksi')
+            ->where('status', 'hold')
+            ->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
+                $q->whereYear('tanggal_chat', $tahun);
+                if ($bulan) $q->whereMonth('tanggal_chat', $bulan);
+            })
+            ->get()
+            ->groupBy(fn($item) => $item->produk->kategori->kategori_nama ?? 'Tanpa Kategori')
+            ->map->count();
+
+        // CLOSING (dari rincian + pasang)
+        $closingRincian = RincianModel::with('produk.kategori', 'interaksi')
+            ->where('status', 'closing')
+            ->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
+                $q->whereYear('tanggal_chat', $tahun);
+                if ($bulan) $q->whereMonth('tanggal_chat', $bulan);
+            })
+            ->get()
+            ->groupBy(fn($item) => $item->produk->kategori->kategori_nama ?? 'Tanpa Kategori')
+            ->map->count();
+
+        $closingPasang = PasangKirimModel::with('produk.kategori', 'interaksi')
+            ->whereIn('status', ['closing produk', 'closing pasang'])
+            ->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
+                $q->whereYear('tanggal_chat', $tahun);
+                if ($bulan) $q->whereMonth('tanggal_chat', $bulan);
+            })
+            ->get()
+            ->groupBy(fn($item) => $item->produk->kategori->kategori_nama ?? 'Tanpa Kategori')
+            ->map->count();
+
+        // Gabungkan closing
+        $closingKategori = [];
+        foreach ($kategoriLabels as $kategori) {
+            $closingKategori[$kategori] =
+                ($closingRincian[$kategori] ?? 0) + ($closingPasang[$kategori] ?? 0);
         }
 
-        return redirect('/profil')->with('success', 'Data Diri Berhasil Diperbarui!');
-        //     // Kembalikan response sukses jika semua berhasil
-        //     return response()->json([
-        //         'status' => true,
-        //         'message' => 'Data Diri Berhasil Diperbarui!',
-        //     ]);
-        // } else {
-        //     // Jika profil tidak ditemukan, kembalikan pesan error dalam format JSON
-        //     return response()->json([
-        //         'status' => false,
-        //         'message' => 'Profil tidak ditemukan.',
-        //     ]);
-        // }
-    }
-    public function updatePassword(Request $request)
-    {
-        // Validasi input
-        $request->validate([
-            'old_password' => 'required',
-            'new_password' => 'required|min:5',
-            'confirm_password' => 'required|same:new_password',
+        // === Bentuk array final untuk Chart ===
+        $dataAsk = [];
+        $dataHold = [];
+        $dataClosing = [];
+        foreach ($kategoriLabels as $kategori) {
+            $dataAsk[] = $askKategori[$kategori] ?? 0;
+            $dataHold[] = $holdKategori[$kategori] ?? 0;
+            $dataClosing[] = $closingKategori[$kategori] ?? 0;
+        }
+        // === Hitung total produk per status dari hasil grouping kategori ===
+        $jumlahProdukAsk     = array_sum($dataAsk);
+        $jumlahProdukHold    = array_sum($dataHold);
+        $jumlahProdukClosing = array_sum($dataClosing);
+        // Logging hasilnya
+        Log::info('Data kategori Ask:', $dataAsk);
+        Log::info('Data kategori Hold:', $dataHold);
+        Log::info('Data kategori Closing:', $dataClosing);
+
+        Log::info('AskKategori detail:', $askKategori->toArray());
+        Log::info('HoldKategori detail:', $holdKategori->toArray());
+        Log::info('ClosingRincian detail:', $closingRincian->toArray());
+        Log::info('ClosingPasang detail:', $closingPasang->toArray());
+        Log::info('ClosingKategori detail:', $closingKategori);
+
+        return view('dashboard.index', [
+            'breadcrumb' => $breadcrumb,
+            'page' => $page,
+            'activeMenu' => $activeMenu,
+
+            'tahun' => $tahun,
+            'bulan' => $bulan,
+            'availableYears' => $availableYears,
+            'bulanList' => $bulanList,
+
+            'jumlahInteraksi' => $jumlahInteraksi,
+            'prosesSurvey' => $prosesSurvey,
+            'prosesPasang' => $prosesPasang,
+            'prosesOrder' => $prosesOrder,
+
+            // kirim ke view
+            'jumlahAsk' => $jumlahAsk,
+            'jumlahFollowUp' => $jumlahFollowUp,
+            'jumlahHold' => $jumlahHold,
+            'jumlahClosing' => $jumlahClosing,
+            'jumlahProdukAsk' => $jumlahProdukAsk,
+            'jumlahProdukHold' => $jumlahProdukHold,
+            'jumlahProdukClosing' => $jumlahProdukClosing,
+
+            'chartLabels' => $chartLabels,
+            'dataLeadsLama' => $dataLeadsLama,
+            'dataLeadsBaru' => $dataLeadsBaru,
+
+            'kategoriLabels' => $kategoriLabels,
+            'dataAsk' => $dataAsk,
+            'dataHold' => $dataHold,
+            'dataClosing' => $dataClosing,
         ]);
+    }
 
-        // Cek apakah password lama sesuai dengan password user yang sedang login
-        $currentPassword = Auth::user()->password;
-        if (!Hash::check($request->old_password, $currentPassword)) {
-            return redirect()->back()->withErrors(['old_password' => 'Password lama tidak sesuai']);
+
+    public function ask(Request $request)
+    {
+        $tahun = $request->get('tahun', date('Y'));
+        $bulan = $request->get('bulan');
+
+        $query = InteraksiModel::with('customer')
+            ->where('status', 'ask')
+            ->whereYear('tanggal_chat', $tahun);
+
+        if ($bulan) {
+            $query->whereMonth('tanggal_chat', $bulan);
         }
 
-        /** @var \App\Models\User $user */
-        // Update password baru
-        $user = Auth::user();
-        $user->password = Hash::make($request->new_password);
-        $user->save();
-
-        return redirect()->back()->with('success', 'Password berhasil diubah');
-    }
-   public function ask(Request $request)
-{
-    $tahun = $request->get('tahun', date('Y'));
-    $bulan = $request->get('bulan');
-
-    $query = InteraksiModel::with('customer')
-        ->where('status', 'ask')
-        ->whereYear('tanggal_chat', $tahun);
-
-    if ($bulan) {
-        $query->whereMonth('tanggal_chat', $bulan);
-    }
-
-    if ($request->ajax()) {
-        return DataTables::of($query)
-            ->addIndexColumn()
-            ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
-            ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
-            ->addColumn('aksi', function ($row) {
-                $url = route('rekap.show_ajax', $row->interaksi_id);
-                return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-primary">
+        if ($request->ajax()) {
+            return DataTables::of($query)
+                ->addIndexColumn()
+                ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
+                ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
+                ->addColumn('aksi', function ($row) {
+                    $url = route('rekap.show_ajax', $row->interaksi_id);
+                    return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-primary">
                             <i class="fas fa-eye"></i> Detail
                         </button>';
-            })
-            ->rawColumns(['aksi'])
-            ->make(true);
+                })
+                ->rawColumns(['aksi'])
+                ->make(true);
+        }
+
+        $activeMenu = 'dashboard';
+        return view('dashboard.ask', compact('tahun', 'bulan', 'activeMenu'));
     }
+    // RekapController.php
 
-    $activeMenu = 'dashboard';
-    return view('dashboard.ask', compact('tahun', 'bulan', 'activeMenu'));
-}
-// RekapController.php
+    public function followup(Request $request)
+    {
+        $activeMenu = 'followup';
+        $tahun = $request->get('tahun', date('Y'));
+        $bulan = $request->get('bulan');
 
-public function followup(Request $request)
-{
-    $activeMenu = 'followup';
-    $tahun = $request->get('tahun', date('Y'));
-    $bulan = $request->get('bulan');
+        $query = InteraksiModel::with('customer')
+            ->where('status', 'follow up')
+            ->whereYear('tanggal_chat', $tahun);
 
-    $query = InteraksiModel::with('customer')
-        ->where('status', 'follow up')
-        ->whereYear('tanggal_chat', $tahun);
+        if ($bulan) {
+            $query->whereMonth('tanggal_chat', $bulan);
+        }
 
-    if ($bulan) {
-        $query->whereMonth('tanggal_chat', $bulan);
-    }
-
-    if ($request->ajax()) {
-        return DataTables::of($query)
-            ->addIndexColumn()
-            ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
-            ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
-            ->addColumn('aksi', function ($row) {
-                $url = route('rekap.show_ajax', $row->interaksi_id);
-                return '<button onclick="modalAction(\''.$url.'\')" 
+        if ($request->ajax()) {
+            return DataTables::of($query)
+                ->addIndexColumn()
+                ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
+                ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
+                ->addColumn('aksi', function ($row) {
+                    $url = route('rekap.show_ajax', $row->interaksi_id);
+                    return '<button onclick="modalAction(\'' . $url . '\')" 
                             class="btn btn-sm btn-primary">
                             <i class="fas fa-eye"></i> Detail
                         </button>';
-            })
-            ->rawColumns(['aksi'])
-            ->make(true);
+                })
+                ->rawColumns(['aksi'])
+                ->make(true);
+        }
+
+        return view('dashboard.followup', compact('activeMenu', 'tahun', 'bulan'));
     }
+    public function hold(Request $request)
+    {
+        $tahun = $request->get('tahun', date('Y'));
+        $bulan = $request->get('bulan');
 
-    return view('dashboard.followup', compact('activeMenu', 'tahun', 'bulan'));
-}
-public function hold(Request $request)
-{
-    $tahun = $request->get('tahun', date('Y'));
-    $bulan = $request->get('bulan');
+        $query = InteraksiModel::with('customer')
+            ->where('status', 'hold')
+            ->whereYear('tanggal_chat', $tahun);
 
-    $query = InteraksiModel::with('customer')
-        ->where('status', 'hold')
-        ->whereYear('tanggal_chat', $tahun);
+        if ($bulan) {
+            $query->whereMonth('tanggal_chat', $bulan);
+        }
 
-    if ($bulan) {
-        $query->whereMonth('tanggal_chat', $bulan);
-    }
-
-    if ($request->ajax()) {
-        return DataTables::of($query)
-            ->addIndexColumn()
-            ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
-            ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
-            ->addColumn('aksi', function ($row) {
-                $url = route('rekap.show_ajax', $row->interaksi_id);
-                return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-primary">
+        if ($request->ajax()) {
+            return DataTables::of($query)
+                ->addIndexColumn()
+                ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
+                ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
+                ->addColumn('aksi', function ($row) {
+                    $url = route('rekap.show_ajax', $row->interaksi_id);
+                    return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-primary">
                             <i class="fas fa-eye"></i> Detail
                         </button>';
-            })
-            ->rawColumns(['aksi'])
-            ->make(true);
+                })
+                ->rawColumns(['aksi'])
+                ->make(true);
+        }
+
+        $activeMenu = 'dashboard';
+        return view('dashboard.hold', compact('tahun', 'bulan', 'activeMenu'));
     }
+    public function closing(Request $request)
+    {
+        $tahun = $request->get('tahun', date('Y'));
+        $bulan = $request->get('bulan');
 
-    $activeMenu = 'dashboard';
-    return view('dashboard.hold', compact('tahun', 'bulan', 'activeMenu'));
-}
-public function closing(Request $request)
-{
-    $tahun = $request->get('tahun', date('Y'));
-    $bulan = $request->get('bulan');
+        $query = InteraksiModel::with('customer')
+            ->where('status', 'closing')
+            ->whereYear('tanggal_chat', $tahun);
 
-    $query = InteraksiModel::with('customer')
-        ->where('status', 'closing')
-        ->whereYear('tanggal_chat', $tahun);
+        if ($bulan) {
+            $query->whereMonth('tanggal_chat', $bulan);
+        }
 
-    if ($bulan) {
-        $query->whereMonth('tanggal_chat', $bulan);
-    }
-
-    if ($request->ajax()) {
-        return DataTables::of($query)
-            ->addIndexColumn()
-            ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
-            ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
-            ->addColumn('aksi', function ($row) {
-                $url = route('rekap.show_ajax', $row->interaksi_id);
-                return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-primary">
+        if ($request->ajax()) {
+            return DataTables::of($query)
+                ->addIndexColumn()
+                ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
+                ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
+                ->addColumn('aksi', function ($row) {
+                    $url = route('rekap.show_ajax', $row->interaksi_id);
+                    return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-primary">
                             <i class="fas fa-eye"></i> Detail
                         </button>';
-            })
-            ->rawColumns(['aksi'])
-            ->make(true);
+                })
+                ->rawColumns(['aksi'])
+                ->make(true);
+        }
+
+        $activeMenu = 'dashboard';
+        return view('dashboard.closing', compact('tahun', 'bulan', 'activeMenu'));
     }
-
-    $activeMenu = 'dashboard';
-    return view('dashboard.closing', compact('tahun', 'bulan', 'activeMenu'));
-}
-
 }

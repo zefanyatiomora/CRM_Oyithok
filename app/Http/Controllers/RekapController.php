@@ -434,10 +434,27 @@ class RekapController extends Controller
         ]);
 
         try {
-            // Simpan data ke database
-            $pasang = PasangKirimModel::create($request->all());
+            // Cari produk + kategori
+            $produk = ProdukModel::with('kategori')->findOrFail($request->produk_id);
 
-            // Panggil fungsi updateTahapan
+            // Tentukan status berdasarkan kategori
+            $status = ($produk->kategori && $produk->kategori->kategori_kode === 'JT')
+                ? 'Closing Pasang'
+                : 'Closing Produk';
+
+            // Simpan data ke database
+            $pasang = PasangKirimModel::create([
+                'interaksi_id'        => $request->interaksi_id,
+                'produk_id'           => $request->produk_id,
+                'kuantitas'           => $request->kuantitas,
+                'satuan'              => $request->satuan,
+                'deskripsi'           => $request->deskripsi,
+                'alamat'              => $request->alamat,
+                'jadwal_pasang_kirim' => $request->jadwal_pasang_kirim,
+                'status'              => $status, // <- status baru
+            ]);
+
+            // Update tahapan
             $this->updateTahapan($pasang->interaksi_id, 'Pasang');
 
             return redirect()->back()->with('success', 'Pasang berhasil disimpan!');
@@ -446,6 +463,7 @@ class RekapController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan Pasang.');
         }
     }
+
     public function storeSurvey(Request $request)
     {
         $request->validate([
