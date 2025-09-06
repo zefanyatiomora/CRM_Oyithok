@@ -153,23 +153,21 @@
           </div>
       </div>
       <!-- Chart Leads -->
-    <div class="card mt-3">
-        <div class="card-header bg-primary text-white">
-            <h3 class="card-title">Diagram Leads</h3>
+        <div class="card mt-3">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title">Diagram Leads</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+            </div>
         </div>
-        <div class="card-body">
-            {{-- <canvas id="leadsChart" style="height:300px;"></canvas> --}}
-            {{-- Tempatkan canvas chart --}}
-            <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-        </div>
-    </div>
   </div>
 
   <!-- TAB PRODUK -->
   <div class="tab-pane fade" id="produk" role="tabpanel">
       <div class="row">
           <!-- STATUS ASK PRODUK -->
-          <div class="col-lg-4 col-6">
+            <div class="col-lg-4 col-6">
               <div class="small-box bg-info box-hover">
                   <div class="inner text-center">
                       <h3>{{ $jumlahProdukAsk ?? 0 }}</h3>
@@ -201,7 +199,7 @@
                     <a href="{{ route('hold.index', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
                       class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                     </div>
-                </div>
+            </div>
 
           <!-- STATUS CLOSING PRODUK -->
           <div class="col-lg-4 col-6">
@@ -219,18 +217,48 @@
                       class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
               </div>
           </div>
-      </div>
-    <!-- Chart Produk -->
-    <div class="card mt-3">
-        <div class="card-header bg-danger text-white">
-            <h3 class="card-title">Diagram Produk</h3>
         </div>
-        <div class="card-body">
-            <canvas id="produkChart" style="height:300px;"></canvas>
+        {{-- Baris BARU untuk menyejajarkan kedua chart --}}
+        <div class="row mt-3">
+            
+            <div class="col-md-5">
+                <div class="card h-100"> {{-- h-100 untuk membuat tinggi card sama --}}
+                    <div class="card-body">
+                        {{-- Judul "Data Penjualan" bisa Anda tambahkan di sini jika mau --}}
+                        {{-- <h4 class="card-title mb-4">Data Penjualan</h4> --}}
+                        <div style="height: 300px;">
+                            <canvas id="penjualanChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div id="penjualanChartLegend" class="row">
+                            @foreach ($doughnutLabels as $index => $label)
+                            <div class="col-lg-6 col-12 mb-1">
+                                <span style="display:inline-block; width:12px; height:12px; background-color:{{ $doughnutColors[$index] }}; border-radius:3px; margin-right: 5px;"></span>
+                                <small>Sebanyak <strong>{{ $doughnutData[$index] }}</strong> {{ $label }}</small>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-7">
+                <div class="card h-100"> {{-- h-100 untuk membuat tinggi card sama --}}
+                    <div class="card-header bg-white border-0">
+                        <p class="mb-0">> Diagram dibawah adalah perolehan data setiap produk yang telah teridentifikasi.</p>
+                        <h3 class="card-title font-weight-bold" style="color: #5C54AD;">Data per-Produk</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="height: 350px;">
+                            <canvas id="produkChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
-  </div>
-</div>
 </section>
 
 @push('css')
@@ -317,65 +345,100 @@
             options: barChartOptions // Gunakan options yang sudah dimodifikasi
         })
 
-        // ProdukChart 
-        // Ambil elemen canvas dari HTML
-        const ctx = document.getElementById('produkChart');
+   // ======================================================
+    // LOGIKA UNTUK SEMUA CHART DI DALAM TAB "PRODUK"
+    // ======================================================
+    
+    // Gunakan satu flag untuk menandai apakah chart di tab ini sudah dirender
+    let produkTabChartsRendered = false;
 
-        // Ambil data dari controller menggunakan json_encode()
-        const kategoriLabels = {!! json_encode($kategoriLabels) !!};
-        const dataAsk = {!! json_encode($dataAsk) !!};
-        const dataHold = {!! json_encode($dataHold) !!};
-        const dataClosing = {!! json_encode($dataClosing) !!};
-
-        // Konfigurasi dan pembuatan chart (bagian ini tetap sama)
-        new Chart(ctx, {
-            type: 'bar', // Tipe chart adalah bar chart
-            data: {
-                labels: kategoriLabels, // Label untuk sumbu Y (nama-nama produk)
-                datasets: [{
-                    label: 'Ask',
-                    data: dataAsk,
-                    backgroundColor: 'rgba(122, 160, 255, 0.8)', // Biru muda
-                    borderColor: 'rgba(122, 160, 255, 1)',
-                    borderWidth: 1
-                }, {
-                    label: 'Hold',
-                    data: dataHold,
-                    backgroundColor: 'rgba(74, 85, 162, 0.8)',  // Biru tua
-                    borderColor: 'rgba(74, 85, 162, 1)',
-                    borderWidth: 1
-                }, {
-                    label: 'Closing',
-                    data: dataClosing,
-                    backgroundColor: 'rgba(239, 87, 119, 0.8)', // Merah/Pink
-                    borderColor: 'rgba(239, 87, 119, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                indexAxis: 'y', // **Ini kunci untuk membuat bar chart menjadi HORIZONTAL**
-                responsive: true, // Membuat chart menyesuaikan ukuran container
-                maintainAspectRatio: false, // Penting agar chart bisa mengisi tinggi container
-                scales: {
-                    x: {
-                        beginAtZero: true, // Sumbu X (angka) dimulai dari 0
-                        ticks: {
-                            // Memastikan hanya angka bulat (integer) yang ditampilkan di sumbu X
-                            precision: 0
+    // Buat satu fungsi untuk merender SEMUA chart di dalam Tab Produk
+    function renderProdukTabCharts() {
+        // --- 1. Render Doughnut Chart Penjualan ---
+        const penjualanCanvas = document.getElementById('penjualanChart');
+        if (penjualanCanvas) {
+            new Chart(penjualanCanvas, {
+                type: 'doughnut',
+                data: {
+                    labels: {!! json_encode($doughnutLabels) !!},
+                    datasets: [{
+                        data: {!! json_encode($doughnutData) !!},
+                        backgroundColor: {!! json_encode($doughnutColors) !!},
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        datalabels: {
+                            formatter: (value, ctx) => {
+                                const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                const percentage = (value / sum * 100).toFixed(1) + '%';
+                                return percentage;
+                            },
+                            color: '#fff',
+                            font: { weight: 'bold', size: 14 }
+                        },
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Data Penjualan',
+                            font: { size: 20 },
+                            padding: { bottom: 20 }
                         }
                     }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top', // Posisi legenda di atas chart
-                    },
-                    title: {
-                        display: false,
-                        text: 'Data per-Produk'
-                    }
                 }
-            }
-        });
-    })
+            });
+        }
+
+        // --- 2. Render Bar Chart Produk ---
+        const produkCanvas = document.getElementById('produkChart');
+        if (produkCanvas) {
+            new Chart(produkCanvas, {
+                type: 'bar',
+                data: {
+                    labels: {!! json_encode($kategoriLabels) !!},
+                    datasets: [{
+                        label: 'Ask',
+                        data: {!! json_encode($dataAsk) !!},
+                        backgroundColor: 'rgba(122, 160, 255, 0.8)',
+                    }, {
+                        label: 'Hold',
+                        data: {!! json_encode($dataHold) !!},
+                        backgroundColor: 'rgba(74, 85, 162, 0.8)',
+                    }, {
+                        label: 'Closing',
+                        data: {!! json_encode($dataClosing) !!},
+                        backgroundColor: 'rgba(239, 87, 119, 0.8)',
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { x: { beginAtZero: true, ticks: { precision: 0 } } },
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+        }
+    }
+
+    // Event listener yang HANYA memanggil satu fungsi render di atas
+    $('a[data-toggle="tab"][href="#produk"]').on('shown.bs.tab', function (e) {
+        if (!produkTabChartsRendered) {
+            renderProdukTabCharts();
+            produkTabChartsRendered = true; // Set flag agar tidak render ulang
+        }
+    });
+
+    // Cek jika tab "Produk" aktif saat halaman pertama kali dimuat
+    if ($('#produk').hasClass('show active')) {
+        renderProdukTabCharts();
+        produkTabChartsRendered = true;
+    }
+
+});
 </script>
 @endpush

@@ -179,6 +179,31 @@ class DashboardController extends Controller
         Log::info('ClosingPasang detail:', $closingPasang->toArray());
         Log::info('ClosingKategori detail:', $closingKategori);
 
+        // 1. Filter kategori yang closing-nya lebih dari 0
+        $penjualanData = collect($closingKategori)->filter(function ($value) {
+            return $value > 0;
+        });
+
+        // 2. Siapkan variabel untuk dikirim ke view
+        $doughnutLabels = $penjualanData->keys();
+        $doughnutData = $penjualanData->values();
+
+        // 3. Siapkan palet warna yang menarik
+        $doughnutColors = [
+            '#6690FF', // Biru Muda
+            '#A374FF', // Ungu
+            '#5C54AD', // Biru Tua
+            '#FF7373', // Merah/Pink
+            '#6C63AC', // Ungu Tua
+            '#FFB6C1', // Light Pink
+            '#87CEEB'  // Sky Blue
+        ];
+
+        // === AKHIR PERSIAPAN DATA ===
+
+        // Logging hasilnya (opsional, untuk debugging)
+        Log::info('Doughnut Labels:', $doughnutLabels->toArray());
+        Log::info('Doughnut Data:', $doughnutData->toArray());
         return view('dashboard.index', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
@@ -211,6 +236,10 @@ class DashboardController extends Controller
             'dataAsk' => $dataAsk,
             'dataHold' => $dataHold,
             'dataClosing' => $dataClosing,
+            // Tambahkan variabel baru ini untuk dikirim ke view
+            'doughnutLabels' => $doughnutLabels,
+            'doughnutData' => $doughnutData,
+            'doughnutColors' => array_slice($doughnutColors, 0, $doughnutLabels->count()),
         ]);
     }
 
