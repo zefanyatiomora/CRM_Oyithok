@@ -7,6 +7,7 @@ use App\Models\InteraksiModel;
 use App\Models\PasangKirimModel;
 use App\Models\RincianModel;
 use App\Models\KategoriModel;
+use App\Models\SurveyModel;
 use App\Models\InteraksiAwalModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -50,6 +51,13 @@ class DashboardController extends Controller
         $jumlahHold     = (clone $queryBase)->where('status', 'hold')->count();
         $jumlahClosing  = (clone $queryBase)->where('status', 'closing')->count();
 
+        // === PERSIAPAN DATA UNTUK TAB CUSTOMER ===
+
+        // Data untuk Doughnut Chart (Data Customer)
+        $customerDoughnutLabels = ['Ask', 'Follow up', 'Hold', 'Closing'];
+        $customerDoughnutData = [$jumlahAsk, $jumlahFollowUp, $jumlahHold, $jumlahClosing];
+        $customerDoughnutColors = ['#87CEEB', '#A374FF', '#5C54AD', '#FF7373'];
+
         $availableYears = InteraksiModel::selectRaw('YEAR(tanggal_chat) as year')
             ->distinct()->orderBy('year', 'desc')->pluck('year');
 
@@ -73,7 +81,7 @@ class DashboardController extends Controller
         $dataLeadsBaru = [];
         $dataLeadsLama = [];
         if ($bulan) {
-            $jumlahHari = \Carbon\Carbon::create($tahun, $bulan)->daysInMonth;
+            $jumlahHari = Carbon::create($tahun, $bulan)->daysInMonth;
             for ($hari = 1; $hari <= $jumlahHari; $hari++) {
                 $chartLabels[] = $hari;
                 $queryPerHari = InteraksiModel::whereYear('tanggal_chat', $tahun)
@@ -103,6 +111,22 @@ class DashboardController extends Controller
                 $dataLeadsLama[] = $totalInteraksiBulanIni - $leadsBaruBulanIni;
             }
         }
+        // Kita jumlahkan total dari array data leads baru dan lama
+        $totalLeadsBaru = array_sum($dataLeadsBaru);
+        $totalLeadsLama = array_sum($dataLeadsLama);
+
+        // TAMBAHKAN BLOK LOG DI SINI UNTUK DEBUGGING
+        // ======================================================
+        Log::info('--- DEBUGGING DASHBOARD LEADS ---');
+        Log::info('Filter Aktif:', ['Tahun' => $tahun, 'Bulan' => $bulan]);
+        Log::info('Data Leads Baru (Per hari/bulan):', $dataLeadsBaru);
+        Log::info('Data Leads Lama (Per hari/bulan):', $dataLeadsLama);
+        Log::info('TOTAL YANG DIKIRIM KE CHART:', [
+            'Total Leads Baru' => $totalLeadsBaru,
+            'Total Leads Lama' => $totalLeadsLama
+        ]);
+
+
         // Ambil semua kategori produk
         $kategoriLabels = KategoriModel::pluck('kategori_nama');
 
@@ -127,18 +151,7 @@ class DashboardController extends Controller
             ->groupBy(fn($item) => $item->produk->kategori->kategori_nama ?? 'Tanpa Kategori')
             ->map->count();
 
-        // CLOSING (dari rincian + pasang)
-        $closingRincian = RincianModel::with('produk.kategori', 'interaksi')
-            ->where('status', 'closing')
-            ->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
-                $q->whereYear('tanggal_chat', $tahun);
-                if ($bulan) $q->whereMonth('tanggal_chat', $bulan);
-            })
-            ->get()
-            ->groupBy(fn($item) => $item->produk->kategori->kategori_nama ?? 'Tanpa Kategori')
-            ->map->count();
-
-        $closingPasang = PasangKirimModel::with('produk.kategori', 'interaksi')
+        $closingKategori = PasangKirimModel::with('produk.kategori', 'interaksi')
             ->whereIn('status', ['closing produk', 'closing pasang'])
             ->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
                 $q->whereYear('tanggal_chat', $tahun);
@@ -148,12 +161,60 @@ class DashboardController extends Controller
             ->groupBy(fn($item) => $item->produk->kategori->kategori_nama ?? 'Tanpa Kategori')
             ->map->count();
 
-        // Gabungkan closing
-        $closingKategori = [];
-        foreach ($kategoriLabels as $kategori) {
-            $closingKategori[$kategori] =
-                ($closingRincian[$kategori] ?? 0) + ($closingPasang[$kategori] ?? 0);
+        // ... setelah semua perhitungan $jumlah... dan $closingKategori ...
+
+        // ======================================================
+        // PERSIAPAN DATA UNTUK LINE CHART (RATE CUSTOMER CLOSING)
+        // ======================================================
+        $rateClosingLabels = ['All', 'Produk', 'Pasang', 'Survei'];
+        $rateClosingDatasets = [];
+
+        // Logika ini hanya berjalan jika filter bulan aktif
+        if ($bulan) {
+            $weeks = [
+                ['start' => 1, 'end' => 7],
+                ['start' => 8, 'end' => 14],
+                ['start' => 15, 'end' => 21],
+                // Minggu ke-4 dimulai dari tgl 22 sampai akhir bulan
+                ['start' => 22, 'end' => \Carbon\Carbon::create($tahun, $bulan)->endOfMonth()->day],
+            ];
+
+            $lineColors = ['#5C54AD', '#000000', '#FF7373', '#20c997'];
+
+            foreach ($weeks as $index => $week) {
+                $startDate = Carbon::create($tahun, $bulan, $week['start'])->startOfDay();
+                $endDate = Carbon::create($tahun, $bulan, $week['end'])->endOfDay();
+
+                // 1. Hitung closing 'produk' dan 'pasang' dari PasangKirimModel untuk minggu ini
+                $pasangQuery = PasangKirimModel::whereHas('interaksi', function ($q) use ($startDate, $endDate) {
+                    $q->whereBetween('tanggal_chat', [$startDate, $endDate]);
+                });
+
+                $countProduk = (clone $pasangQuery)->where('status', 'closing produk')->count();
+                $countPasang = (clone $pasangQuery)->where('status', 'closing pasang')->count();
+
+                // 2. Hitung closing 'survey' dari SurveyModel untuk minggu ini
+                $countSurvey = SurveyModel::whereHas('interaksi', function ($q) use ($startDate, $endDate) {
+                    $q->whereBetween('tanggal_chat', [$startDate, $endDate]);
+                })->count();
+
+                // 3. Hitung total 'All'
+                $countAll = $countProduk + $countPasang + $countSurvey;
+
+                // 4. Buat dataset untuk minggu ini
+                $rateClosingDatasets[] = [
+                    'label' => 'Minggu ' . ($index + 1),
+                    'data' => [$countAll, $countProduk, $countPasang, $countSurvey],
+                    'borderColor' => $lineColors[$index],
+                    'tension' => 0.1, // Membuat garis sedikit melengkung
+                    'fill' => false,
+                ];
+            }
         }
+        Log::info('--- DEBUGGING RATE CUSTOMER CLOSING ---');
+        Log::info('Filter Aktif:', ['Tahun' => $tahun, 'Bulan' => $bulan]);
+        Log::info('Data yang dihasilkan untuk Line Chart:', $rateClosingDatasets);
+
 
         // === Bentuk array final untuk Chart ===
         $dataAsk = [];
@@ -175,9 +236,7 @@ class DashboardController extends Controller
 
         Log::info('AskKategori detail:', $askKategori->toArray());
         Log::info('HoldKategori detail:', $holdKategori->toArray());
-        Log::info('ClosingRincian detail:', $closingRincian->toArray());
-        Log::info('ClosingPasang detail:', $closingPasang->toArray());
-        Log::info('ClosingKategori detail:', $closingKategori);
+        Log::info('ClosingKategori detail:', $closingKategori->toArray());
 
         // 1. Filter kategori yang closing-nya lebih dari 0
         $penjualanData = collect($closingKategori)->filter(function ($value) {
@@ -231,6 +290,9 @@ class DashboardController extends Controller
             'chartLabels' => $chartLabels,
             'dataLeadsLama' => $dataLeadsLama,
             'dataLeadsBaru' => $dataLeadsBaru,
+            // / Tambahkan 2 variabel TOTAL ini
+            'totalLeadsBaru' => $totalLeadsBaru,
+            'totalLeadsLama' => $totalLeadsLama,
 
             'kategoriLabels' => $kategoriLabels,
             'dataAsk' => $dataAsk,
@@ -240,6 +302,14 @@ class DashboardController extends Controller
             'doughnutLabels' => $doughnutLabels,
             'doughnutData' => $doughnutData,
             'doughnutColors' => array_slice($doughnutColors, 0, $doughnutLabels->count()),
+            // Variabel BARU untuk chart di Tab Customer
+            'customerDoughnutLabels' => $customerDoughnutLabels,
+            'customerDoughnutData' => $customerDoughnutData,
+            'customerDoughnutColors' => $customerDoughnutColors,
+
+            // Variabel BARU untuk line chart
+            'rateClosingLabels' => $rateClosingLabels,
+            'rateClosingDatasets' => $rateClosingDatasets,
         ]);
     }
 

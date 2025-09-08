@@ -152,15 +152,40 @@
               </a>
           </div>
       </div>
-      <!-- Chart Leads -->
-        <div class="card mt-3">
-            <div class="card-header bg-primary text-white">
-                <h3 class="card-title">Diagram Leads</h3>
-            </div>
-            <div class="card-body">
-                <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+      <div class="row">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="customerDoughnutChart"></canvas>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div id="customerDoughnutLegend" class="row">
+                        @foreach ($customerDoughnutLabels as $index => $label)
+                            <div class="col-lg-6 col-12 mb-1">
+                                <span style="display:inline-block; width:12px; height:12px; background-color:{{ $customerDoughnutColors[$index] }}; border-radius:3px; margin-right: 5px;"></span>
+                                <small>Sebanyak <strong>{{ $customerDoughnutData[$index] }}</strong> Customer {{ $label }}</small>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
             </div>
         </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                 <div class="card-header bg-white border-0">
+                    <p class="mb-0">> Diagram dibawah adalah data uraian diketahui kebutuhannya.</p>
+                    <h3 class="card-title font-weight-bold" style="color: #5C54AD;">Rating Customer</h3>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="customerLeadsBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
   </div>
 
   <!-- TAB PRODUK -->
@@ -221,11 +246,12 @@
         {{-- Baris BARU untuk menyejajarkan kedua chart --}}
         <div class="row mt-3">
             
-            <div class="col-md-5">
+            <div class="col-md-4 mb-3">
                 <div class="card h-100"> {{-- h-100 untuk membuat tinggi card sama --}}
                     <div class="card-body">
                         {{-- Judul "Data Penjualan" bisa Anda tambahkan di sini jika mau --}}
                         {{-- <h4 class="card-title mb-4">Data Penjualan</h4> --}}
+                        <h3 class="card-title font-weight-bold" style="color: #5C54AD;">Data Penjualan</h3>
                         <div style="height: 300px;">
                             <canvas id="penjualanChart"></canvas>
                         </div>
@@ -243,7 +269,7 @@
                 </div>
             </div>
 
-            <div class="col-md-7">
+            <div class="col-md-4 mb-3">
                 <div class="card h-100"> {{-- h-100 untuk membuat tinggi card sama --}}
                     <div class="card-header bg-white border-0">
                         <p class="mb-0">> Diagram dibawah adalah perolehan data setiap produk yang telah teridentifikasi.</p>
@@ -256,6 +282,18 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                 <div class="card-header bg-white border-0">
+                    <h3 class="card-title font-weight-bold" style="color: #5C54AD;">Rate Customer Closing</h3>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="rateClosingLineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         </div>
     </div>
@@ -274,76 +312,133 @@
 @endpush
 @endsection
 @push('js')
-<script src="{{ asset('adminlte/plugins/chart.js/Chart.min.js') }}"></script>
+{{-- <script src="{{ asset('adminlte/plugins/chart.js/Chart.min.js') }}"></script> --}}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     $(function () {
-        // Ganti data dummy dengan data dinamis dari Controller
-        var areaChartData = {
-            // Gunakan data label dari controller
-            labels  : {!! json_encode($chartLabels) !!},
-            datasets: [
-                {
-                    label               : 'Leads Baru',
-                    backgroundColor     : 'rgba(60,141,188,0.9)',
-                    borderColor         : 'rgba(60,141,188,0.8)',
-                    pointRadius         : false,
-                    pointColor          : '#3b8bba',
-                    pointStrokeColor    : 'rgba(60,141,188,1)',
-                    pointHighlightFill  : '#fff',
-                    pointHighlightStroke: 'rgba(60,141,188,1)',
-                    // Gunakan data leads lama dari controller
-                    data                : {!! json_encode($dataLeadsLama) !!}
-                },
-                {
-                    label               : 'Leads Lama',
-                    backgroundColor     : 'rgba(210, 214, 222, 1)',
-                    borderColor         : 'rgba(210, 214, 222, 1)',
-                    pointRadius         : false,
-                    pointColor          : 'rgba(210, 214, 222, 1)',
-                    pointStrokeColor    : '#c1c7d1',
-                    pointHighlightFill  : '#fff',
-                    pointHighlightStroke: 'rgba(220,220,220,1)',
-                    // Gunakan data leads baru dari controller
-                    data                : {!! json_encode($dataLeadsBaru) !!}
-                }
-            ]
-        }
-        
-        // Kode di bawah ini tidak perlu diubah
-        var barChartData = $.extend(true, {}, areaChartData)
-        var temp0 = areaChartData.datasets[0]
-        var temp1 = areaChartData.datasets[1]
-        barChartData.datasets[0] = temp1
-        barChartData.datasets[1] = temp0
-        
-        var barChartCanvas = $('#barChart').get(0).getContext('2d')
-        // --- MODIFIKASI DI SINI ---
-        var barChartOptions = {
-            responsive              : true,
-            maintainAspectRatio     : false,
-            datasetFill             : false,
-            // Tambahkan konfigurasi scales berikut:
-            scales: {
-                y: { // Konfigurasi untuk sumbu Y
-                    ticks: {
-                        // Memastikan sumbu Y dimulai dari angka 0
-                        beginAtZero: true,
-                        // Memaksa langkah antar-label menjadi kelipatan 1 (menghilangkan desimal)
-                        stepSize: 2,
-                        // Opsi tambahan untuk memastikan tidak ada desimal jika stepSize tidak cukup
-                        precision: 0
+    // --- 1. Doughnut Chart (Data Customer) ---
+            const customerDoughnutCanvas = document.getElementById('customerDoughnutChart');
+            if (customerDoughnutCanvas) {
+                new Chart(customerDoughnutCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: {!! json_encode($customerDoughnutLabels) !!},
+                        datasets: [{
+                            data: {!! json_encode($customerDoughnutData) !!},
+                            backgroundColor: {!! json_encode($customerDoughnutColors) !!},
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            datalabels: {
+                                formatter: (value, ctx) => {
+                                    const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = (value / sum * 100).toFixed(1) + '%';
+                                    return percentage;
+                                },
+                                color: '#000',
+                                font: { weight: 'bold' }
+                            },
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: 'Data Customer',
+                                font: { size: 20 },
+                                align: 'start'
+                            }
+                        }
                     }
-                }
+                });
             }
-        }
-        
-        // --- AKHIR MODIFIKASI ---
-        
-        new Chart(barChartCanvas, {
-            type: 'bar',
-            data: barChartData,
-            options: barChartOptions // Gunakan options yang sudah dimodifikasi
-        })
+            // --- BARU: Bar Chart (Rating Customer - Leads Baru vs Lama) ---
+            const customerLeadsBarCanvas = document.getElementById('customerLeadsBarChart');
+            if (customerLeadsBarCanvas) {
+                new Chart(customerLeadsBarCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Baru', 'Lama'],
+                        datasets: [{
+                            label: 'Jumlah Customer',
+                            data: [{{ $totalLeadsBaru }}, {{ $totalLeadsLama }}], // Data dari Controller
+                            backgroundColor: ['#6C63AC', '#FF7373'],
+                            borderRadius: 8,
+                            barPercentage: 0.6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { 
+                                    precision: 0, // Hanya angka bulat
+                                    stepSize: 1 // Kelipatan 2
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { 
+                                display: false // Sembunyikan legenda
+                            }
+                        }
+                    }
+                });
+            }
+            // ... di dalam $(function () { ... }); ...
+
+            // --- BARU: Line Chart (Rate Customer Closing) ---
+            const rateClosingCanvas = document.getElementById('rateClosingLineChart');
+            if (rateClosingCanvas) {
+                new Chart(rateClosingCanvas, {
+                    type: 'line',
+                    data: {
+                        labels: {!! json_encode($rateClosingLabels) !!},
+                        // Dataset diambil langsung dari controller, sudah lengkap dengan style
+                        datasets: {!! json_encode($rateClosingDatasets) !!}
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                enabled: true, // Pastikan ini 'true' atau hapus baris ini (karena default-nya sudah true)
+                                
+                                // --- OPSI TAMBAHAN (SANGAT DIREKOMENDASIKAN) ---
+                                mode: 'index',
+                                intersect: false,
+                            },
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    // TAMBAHKAN BARIS INI
+                                    // ===================================
+                                    usePointStyle: true,
+                                    // ===================================
+                                    // Mengganti label default (Minggu 1) menjadi angka (1)
+                                    generateLabels: function(chart) {
+                                        const originalLabels = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                                        originalLabels.forEach(label => {
+                                            label.text = label.text.replace('Minggu ', '');
+                                        });
+                                        return originalLabels;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
 
    // ======================================================
     // LOGIKA UNTUK SEMUA CHART DI DALAM TAB "PRODUK"
@@ -382,12 +477,12 @@
                             font: { weight: 'bold', size: 14 }
                         },
                         legend: { display: false },
-                        title: {
-                            display: true,
-                            text: 'Data Penjualan',
-                            font: { size: 20 },
-                            padding: { bottom: 20 }
-                        }
+                        // title: {
+                        //     display: true,
+                        //     text: 'Data Penjualan',
+                        //     font: { size: 20 },
+                        //     padding: { bottom: 20 }
+                        // }
                     }
                 }
             });
