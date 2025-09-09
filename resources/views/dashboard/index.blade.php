@@ -175,7 +175,6 @@
         <div class="col-md-4 mb-3">
             <div class="card h-100">
                  <div class="card-header bg-white border-0">
-                    <p class="mb-0">> Diagram dibawah adalah data uraian diketahui kebutuhannya.</p>
                     <h3 class="card-title font-weight-bold" style="color: #5C54AD;">Rating Customer</h3>
                 </div>
                 <div class="card-body">
@@ -331,8 +330,11 @@
 @push('js')
 {{-- <script src="{{ asset('adminlte/plugins/chart.js/Chart.min.js') }}"></script> --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <script>
     $(function () {
+        // Daftarkan plugin secara global agar bisa dipakai semua chart
+        Chart.register(ChartDataLabels);
     // --- 1. Doughnut Chart (Data Customer) ---
             const customerDoughnutCanvas = document.getElementById('customerDoughnutChart');
             if (customerDoughnutCanvas) {
@@ -357,7 +359,7 @@
                                     const percentage = (value / sum * 100).toFixed(1) + '%';
                                     return percentage;
                                 },
-                                color: '#000',
+                                color: '#fff',
                                 font: { weight: 'bold' }
                             },
                             legend: { display: false },
@@ -365,7 +367,8 @@
                                 display: true,
                                 text: 'Data Customer',
                                 font: { size: 20 },
-                                align: 'start'
+                                align: 'start',
+                                color: '#5C54AD'
                             }
                         }
                     }
@@ -399,6 +402,9 @@
                             }
                         },
                         plugins: {
+                            datalabels: {
+                                display: false
+                            },
                             legend: { 
                                 display: false // Sembunyikan legenda
                             }
@@ -428,6 +434,9 @@
                             }
                         },
                         plugins: {
+                            datalabels: {
+                                display: false
+                            },
                             tooltip: {
                                 enabled: true, // Pastikan ini 'true' atau hapus baris ini (karena default-nya sudah true)
                                 mode: 'index',
@@ -527,7 +536,12 @@
                             responsive: true,
                             maintainAspectRatio: false,
                             scales: { x: { beginAtZero: true, ticks: { precision: 0 } } },
-                            plugins: { legend: { position: 'top' } }
+                            plugins: {
+                                datalabels: {
+                                    display: false
+                                },
+                                legend: { position: 'top' } 
+                            }
                         }
                     });
                 }
