@@ -207,6 +207,7 @@ class DashboardController extends Controller
                     'label' => 'Minggu ' . ($index + 1),
                     'data' => [$countAll, $countProduk, $countPasang, $countSurvey],
                     'borderColor' => $lineColors[$index],
+                    'backgroundColor' => $lineColors[$index],
                     'tension' => 0.1, // Membuat garis sedikit melengkung
                     'fill' => false,
                 ];
