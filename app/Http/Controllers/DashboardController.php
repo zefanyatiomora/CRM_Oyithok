@@ -179,7 +179,8 @@ class DashboardController extends Controller
                 ['start' => 22, 'end' => \Carbon\Carbon::create($tahun, $bulan)->endOfMonth()->day],
             ];
 
-            $lineColors = ['#5C54AD', '#000000', '#FF7373', '#20c997'];
+            // $lineColors = ['#5C54AD', '#000000', '#FF7373', '#20c997'];
+            $lineColors = ['#5C54AD', '#818CF8', '#000000', '#FF7373'];
 
             foreach ($weeks as $index => $week) {
                 $startDate = Carbon::create($tahun, $bulan, $week['start'])->startOfDay();

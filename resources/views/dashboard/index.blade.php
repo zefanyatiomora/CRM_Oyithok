@@ -84,7 +84,7 @@
           <div class="col-lg-3 col-6">
               <a href="{{ route('dashboard.ask', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
                  class="text-decoration-none text-white">
-                  <div class="small-box bg-info box-hover">
+                  <div class="small-box bg-custom-ask box-hover">
                       <div class="inner text-center">
                           <h3>{{ $jumlahAsk }}</h3>
                           <p>ASK 
@@ -102,7 +102,7 @@
           <div class="col-lg-3 col-6">
               <a href="{{ route('dashboard.followup', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
                  class="text-decoration-none text-white">
-                  <div class="small-box bg-primary box-hover">
+                  <div class="small-box bg-custom-follow-up box-hover">
                       <div class="inner text-center">
                           <h3>{{ $jumlahFollowUp }}</h3>
                           <p>FOLLOW UP 
@@ -120,7 +120,7 @@
           <div class="col-lg-3 col-6">
               <a href="{{ route('dashboard.hold', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
                  class="text-decoration-none text-white">
-                  <div class="small-box bg-navy box-hover">
+                  <div class="small-box bg-custom-hold box-hover">
                       <div class="inner text-center">
                           <h3>{{ $jumlahHold }}</h3>
                           <p>HOLD 
@@ -138,7 +138,7 @@
           <div class="col-lg-3 col-6">
               <a href="{{ route('dashboard.closing', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
                  class="text-decoration-none text-white">
-                  <div class="small-box bg-danger box-hover">
+                  <div class="small-box bg-custom-closing box-hover">
                       <div class="inner text-center">
                           <h3>{{ $jumlahClosing }}</h3>
                           <p>CLOSING 
@@ -153,7 +153,7 @@
           </div>
       </div>
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-4 mb-3">
             <div class="card h-100">
                 <div class="card-body">
                     <div style="height: 300px;">
@@ -172,7 +172,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4 mb-3">
             <div class="card h-100">
                  <div class="card-header bg-white border-0">
                     <p class="mb-0">> Diagram dibawah adalah data uraian diketahui kebutuhannya.</p>
@@ -185,6 +185,18 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-header bg-white border-0">
+                    <h3 class="card-title font-weight-bold" style="color: #5C54AD;">Rate Customer Closing</h3>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="rateClosingLineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
   </div>
 
@@ -193,7 +205,7 @@
       <div class="row">
           <!-- STATUS ASK PRODUK -->
             <div class="col-lg-4 col-6">
-              <div class="small-box bg-info box-hover">
+              <div class="small-box bg-custom-ask box-hover">
                   <div class="inner text-center">
                       <h3>{{ $jumlahProdukAsk ?? 0 }}</h3>
                       <p>ASK PRODUK 
@@ -210,7 +222,7 @@
             
             <!-- STATUS HOLD PRODUK -->
             <div class="col-lg-4 col-6">
-                <div class="small-box bg-navy box-hover">
+                <div class="small-box bg-custom-hold box-hover">
                     <div class="inner text-center">
                         <h3>{{ $jumlahProdukHold ?? 0 }}</h3>
                         <p>HOLD PRODUK 
@@ -228,7 +240,7 @@
 
           <!-- STATUS CLOSING PRODUK -->
           <div class="col-lg-4 col-6">
-              <div class="small-box bg-danger box-hover">
+              <div class="small-box bg-custom-closing box-hover">
                   <div class="inner text-center">
                       <h3>{{ $jumlahProdukClosing ?? 0 }}</h3>
                       <p>CLOSING PRODUK 
@@ -246,10 +258,9 @@
         {{-- Baris BARU untuk menyejajarkan kedua chart --}}
         <div class="row mt-3">
             
-            <div class="col-md-4 mb-3">
+            <div class="col-md 6">
                 <div class="card h-100"> {{-- h-100 untuk membuat tinggi card sama --}}
                     <div class="card-body">
-                        {{-- Judul "Data Penjualan" bisa Anda tambahkan di sini jika mau --}}
                         {{-- <h4 class="card-title mb-4">Data Penjualan</h4> --}}
                         <h3 class="card-title font-weight-bold" style="color: #5C54AD;">Data Penjualan</h3>
                         <div style="height: 300px;">
@@ -269,7 +280,7 @@
                 </div>
             </div>
 
-            <div class="col-md-4 mb-3">
+            <div class="col-md 6">
                 <div class="card h-100"> {{-- h-100 untuk membuat tinggi card sama --}}
                     <div class="card-header bg-white border-0">
                         <p class="mb-0">> Diagram dibawah adalah perolehan data setiap produk yang telah teridentifikasi.</p>
@@ -282,19 +293,6 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-3">
-            <div class="card h-100">
-                 <div class="card-header bg-white border-0">
-                    <h3 class="card-title font-weight-bold" style="color: #5C54AD;">Rate Customer Closing</h3>
-                </div>
-                <div class="card-body">
-                    <div style="height: 300px;">
-                        <canvas id="rateClosingLineChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         </div>
     </div>
 </section>
@@ -307,6 +305,25 @@
     .box-hover:hover {
         transform: scale(1.05);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    /* Warna kustom untuk small-box */
+    .bg-custom-ask {
+        background-color: #87b0ff !important; /* Biru muda */
+        color: #ffffff !important;
+    }
+    .bg-custom-follow-up {
+        background-color: #A374FF !important; /* Ungu muda */
+        color: #ffffff !important;
+    }
+
+    .bg-custom-hold {
+        background-color: #5C54AD !important; /* Ungu tua */
+        color: #ffffff !important;
+    }
+
+    .bg-custom-closing {
+        background-color: #FF7373 !important; /* Merah/Pink */
+        color: #ffffff !important;
     }
 </style>
 @endpush
@@ -366,7 +383,7 @@
                             data: [{{ $totalLeadsBaru }}, {{ $totalLeadsLama }}], // Data dari Controller
                             backgroundColor: ['#6C63AC', '#FF7373'],
                             borderRadius: 8,
-                            barPercentage: 0.6
+                            barPercentage: 1
                         }]
                     },
                     options: {
@@ -413,8 +430,6 @@
                         plugins: {
                             tooltip: {
                                 enabled: true, // Pastikan ini 'true' atau hapus baris ini (karena default-nya sudah true)
-                                
-                                // --- OPSI TAMBAHAN (SANGAT DIREKOMENDASIKAN) ---
                                 mode: 'index',
                                 intersect: false,
                             },
@@ -422,9 +437,7 @@
                                 position: 'top',
                                 labels: {
                                     // TAMBAHKAN BARIS INI
-                                    // ===================================
                                     usePointStyle: true,
-                                    // ===================================
                                     // Mengganti label default (Minggu 1) menjadi angka (1)
                                     generateLabels: function(chart) {
                                         const originalLabels = Chart.defaults.plugins.legend.labels.generateLabels(chart);
@@ -440,100 +453,100 @@
                 });
             }
 
-   // ======================================================
-    // LOGIKA UNTUK SEMUA CHART DI DALAM TAB "PRODUK"
-    // ======================================================
-    
-    // Gunakan satu flag untuk menandai apakah chart di tab ini sudah dirender
-    let produkTabChartsRendered = false;
+            // ======================================================
+            // LOGIKA UNTUK SEMUA CHART DI DALAM TAB "PRODUK"
+            // ======================================================
+            
+            // Gunakan satu flag untuk menandai apakah chart di tab ini sudah dirender
+            let produkTabChartsRendered = false;
 
-    // Buat satu fungsi untuk merender SEMUA chart di dalam Tab Produk
-    function renderProdukTabCharts() {
-        // --- 1. Render Doughnut Chart Penjualan ---
-        const penjualanCanvas = document.getElementById('penjualanChart');
-        if (penjualanCanvas) {
-            new Chart(penjualanCanvas, {
-                type: 'doughnut',
-                data: {
-                    labels: {!! json_encode($doughnutLabels) !!},
-                    datasets: [{
-                        data: {!! json_encode($doughnutData) !!},
-                        backgroundColor: {!! json_encode($doughnutColors) !!},
-                        borderColor: '#fff',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        datalabels: {
-                            formatter: (value, ctx) => {
-                                const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                const percentage = (value / sum * 100).toFixed(1) + '%';
-                                return percentage;
-                            },
-                            color: '#fff',
-                            font: { weight: 'bold', size: 14 }
+            // Buat satu fungsi untuk merender SEMUA chart di dalam Tab Produk
+            function renderProdukTabCharts() {
+                // --- 1. Render Doughnut Chart Penjualan ---
+                const penjualanCanvas = document.getElementById('penjualanChart');
+                if (penjualanCanvas) {
+                    new Chart(penjualanCanvas, {
+                        type: 'doughnut',
+                        data: {
+                            labels: {!! json_encode($doughnutLabels) !!},
+                            datasets: [{
+                                data: {!! json_encode($doughnutData) !!},
+                                backgroundColor: {!! json_encode($doughnutColors) !!},
+                                borderColor: '#fff',
+                                borderWidth: 2
+                            }]
                         },
-                        legend: { display: false },
-                        // title: {
-                        //     display: true,
-                        //     text: 'Data Penjualan',
-                        //     font: { size: 20 },
-                        //     padding: { bottom: 20 }
-                        // }
-                    }
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                datalabels: {
+                                    formatter: (value, ctx) => {
+                                        const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        const percentage = (value / sum * 100).toFixed(1) + '%';
+                                        return percentage;
+                                    },
+                                    color: '#fff',
+                                    font: { weight: 'bold', size: 14 }
+                                },
+                                legend: { display: false },
+                                // title: {
+                                //     display: true,
+                                //     text: 'Data Penjualan',
+                                //     font: { size: 20 },
+                                //     padding: { bottom: 20 }
+                                // }
+                            }
+                        }
+                    });
+                }
+
+                // --- 2. Render Bar Chart Produk ---
+                const produkCanvas = document.getElementById('produkChart');
+                if (produkCanvas) {
+                    new Chart(produkCanvas, {
+                        type: 'bar',
+                        data: {
+                            labels: {!! json_encode($kategoriLabels) !!},
+                            datasets: [{
+                                label: 'Ask',
+                                data: {!! json_encode($dataAsk) !!},
+                                backgroundColor: 'rgba(122, 160, 255, 0.8)',
+                            }, {
+                                label: 'Hold',
+                                data: {!! json_encode($dataHold) !!},
+                                backgroundColor: 'rgba(74, 85, 162, 0.8)',
+                            }, {
+                                label: 'Closing',
+                                data: {!! json_encode($dataClosing) !!},
+                                backgroundColor: 'rgba(239, 87, 119, 0.8)',
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: { x: { beginAtZero: true, ticks: { precision: 0 } } },
+                            plugins: { legend: { position: 'top' } }
+                        }
+                    });
+                }
+            }
+
+            // Event listener yang HANYA memanggil satu fungsi render di atas
+            $('a[data-toggle="tab"][href="#produk"]').on('shown.bs.tab', function (e) {
+                if (!produkTabChartsRendered) {
+                    renderProdukTabCharts();
+                    produkTabChartsRendered = true; // Set flag agar tidak render ulang
                 }
             });
-        }
 
-        // --- 2. Render Bar Chart Produk ---
-        const produkCanvas = document.getElementById('produkChart');
-        if (produkCanvas) {
-            new Chart(produkCanvas, {
-                type: 'bar',
-                data: {
-                    labels: {!! json_encode($kategoriLabels) !!},
-                    datasets: [{
-                        label: 'Ask',
-                        data: {!! json_encode($dataAsk) !!},
-                        backgroundColor: 'rgba(122, 160, 255, 0.8)',
-                    }, {
-                        label: 'Hold',
-                        data: {!! json_encode($dataHold) !!},
-                        backgroundColor: 'rgba(74, 85, 162, 0.8)',
-                    }, {
-                        label: 'Closing',
-                        data: {!! json_encode($dataClosing) !!},
-                        backgroundColor: 'rgba(239, 87, 119, 0.8)',
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { x: { beginAtZero: true, ticks: { precision: 0 } } },
-                    plugins: { legend: { position: 'top' } }
-                }
-            });
-        }
-    }
+            // Cek jika tab "Produk" aktif saat halaman pertama kali dimuat
+            if ($('#produk').hasClass('show active')) {
+                renderProdukTabCharts();
+                produkTabChartsRendered = true;
+            }
 
-    // Event listener yang HANYA memanggil satu fungsi render di atas
-    $('a[data-toggle="tab"][href="#produk"]').on('shown.bs.tab', function (e) {
-        if (!produkTabChartsRendered) {
-            renderProdukTabCharts();
-            produkTabChartsRendered = true; // Set flag agar tidak render ulang
-        }
-    });
-
-    // Cek jika tab "Produk" aktif saat halaman pertama kali dimuat
-    if ($('#produk').hasClass('show active')) {
-        renderProdukTabCharts();
-        produkTabChartsRendered = true;
-    }
-
-});
+        });
 </script>
 @endpush
