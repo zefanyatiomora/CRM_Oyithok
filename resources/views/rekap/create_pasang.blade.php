@@ -38,17 +38,29 @@
     </div>
     <!-- Jadwal Pasang -->
     <div class="form-group">
-        <label>Jadwal Pasang</label>
+        <label>Jadwal</label>
         <input type="datetime-local" name="jadwal_pasang_kirim" id="jadwal_pasang_kirim" class="form-control" required>
         <small id="error-jadwal" class="text-danger"></small>
     </div>
 
     <!-- Alamat Pasang -->
     <div class="form-group">
-        <label>Alamat Pasang</label>
+        <label>Alamat</label>
         <textarea name="alamat" id="alamat" class="form-control" rows="3" required></textarea>
         <small id="error-alamat" class="text-danger"></small>
     </div>
+    <!-- Status -->
+    <div class="form-group">
+        <label>Status</label>
+        <select name="status" id="status" class="form-control" required>
+            <option value="">-- Pilih Status --</option>
+            @foreach($closing as $cls)
+                <option value="{{ $cls }}">{{ $cls }}</option>
+            @endforeach
+        </select>
+        <small id="error-status" class="text-danger"></small>
+    </div>
+
 
     <!-- Submit Button -->
     <button type="submit" class="btn btn-success">Simpan</button>

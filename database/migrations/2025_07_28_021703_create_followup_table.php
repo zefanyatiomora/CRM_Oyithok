@@ -16,7 +16,7 @@ return new class extends Migration
 
             // Foreign key ke tabel interaksi
             $table->unsignedBigInteger('interaksi_id');
-            $table->foreign('interaksi_id')->references('interaksi_id')->on('interaksi')->onDelete('cascade');
+            $table->foreign('interaksi_id')->references('interaksi_id')->on('m_interaksi')->onDelete('cascade');
 
             $table->string('tahapan', 100);     // Tahapan follow-up, misal: "Kontak Awal", "Penawaran", dll
             $table->string('pic', 100);         // Person in Charge (penanggung jawab follow-up)

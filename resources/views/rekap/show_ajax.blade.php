@@ -93,26 +93,61 @@
                           <td>{{ $interaksi->customer->customer_hp ?? '-' }}</td>
                       </tr>
                       <tr>
-    <th>Status</th>
-    <td>
-        <div class="input-group">
-            <select id="follow-up-select" class="form-control form-control-sm"
-                    data-id="{{ $interaksi->interaksi_id }}"
-                    data-customer-id="{{ $interaksi->customer_id }}">
-                @foreach($followUpOptions as $option)
-                    <option value="{{ $option }}" {{ $selectedFollowUp == $option ? 'selected' : '' }}>
-                        {{ $option }}
-                    </option>
-                @endforeach
-            </select>
-            <div class="input-group-append">
-                <button type="button" class="btn btn-sm btn-primary" id="btn-save-status">
-                    Simpan
-                </button>
-            </div>
-        </div>
-    </td>
-</tr>
+                            <th>Loyalty</th>
+                            <td>
+                                @php
+                                    $points = $interaksi->customer->loyalty_point ?? 0;
+                                    $level = '';
+                                    $badgeClass = '';
+
+                                    if ($points >= 60) {
+                                        $level = 'Platinum';
+                                        $badgeClass = 'badge-primary';
+                                        $iconClass = 'fas fa-crown'; // Ikon mahkota
+                                    } elseif ($points >= 30) {
+                                        $level = 'Gold';
+                                        $badgeClass = 'badge-warning';
+                                        $iconClass = 'fas fa-medal'; // Ikon medali
+                                    } elseif ($points >= 10) {
+                                        $level = 'Silver';
+                                        $badgeClass = 'badge-secondary';
+                                        $iconClass = 'fas fa-shield-alt'; // Ikon perisai
+                                    } else {
+                                        $level = 'Bronze';
+                                        $badgeClass = 'badge-dark';
+                                        $iconClass = 'fas fa-award'; // Ikon penghargaan
+                                    }
+                                @endphp
+
+                                {{-- Tampilkan badge dengan ikon di dalamnya --}}
+                                <span class="badge {{ $badgeClass }}">
+                                    <i class="{{ $iconClass }} mr-1"></i>{{-- Tambahkan ikon di sini --}}
+                                    {{ $level }}
+                                </span>
+                                <span>({{ $points }} Poin)</span>
+                            </td>
+                            </tr>
+                      <tr>
+                            <th>Status</th>
+                            <td>
+                                <div class="input-group">
+                                    <select id="follow-up-select" class="form-control form-control-sm"
+                                            data-id="{{ $interaksi->interaksi_id }}"
+                                            data-customer-id="{{ $interaksi->customer_id }}">
+                                        @foreach($followUpOptions as $option)
+                                            <option value="{{ $option }}" {{ $selectedFollowUp == $option ? 'selected' : '' }}>
+                                                {{ $option }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-sm btn-primary" id="btn-save-status">
+                                            Simpan
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
                   </table>
             </div>
               <!-- /.card-body -->
@@ -450,7 +485,7 @@ function loadRealtimeList(){
     {{-- ========== DATA PASANG ========== --}}
     <div class="card card-purple collapsed-card">
         <div class="card-header">
-            <h3 class="card-title">Data Pasang</h3>
+            <h3 class="card-title">Data Pasang/Kirim</h3>
             <div class="card-tools">
                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                     <i class="fas fa-plus"></i>
@@ -473,8 +508,8 @@ function loadRealtimeList(){
                 <thead>
                     <tr>
                         <th>Produk</th>
-                        <th>Jadwal Pasang</th>
-                        <th>Alamat Pasang</th>
+                        <th>Jadwal</th>
+                        <th>Alamat</th>
                         <th>Status</th>
                         <th>Aksi</th>
                     </tr>
@@ -537,24 +572,6 @@ function loadRealtimeList(){
 <script>
     $(document)
     .off('click', '#btn-save-followup') // hapus event lama
-    .on('change', '#tahapan-select', function () {
-        let tahapanVal = ($(this).val() || '').trim().toLowerCase();
-
-        if (tahapanVal === 'identifikasi') {
-        $('#pic-input').val('CS');
-        } else if (
-            tahapanVal === 'rincian' ||
-            tahapanVal === 'survey' ||
-            tahapanVal === 'pasang' ||
-            tahapanVal === 'order' ||
-            tahapanVal === 'done'
-        ) {
-            $('#pic-input').val('Konsultan');
-        } else {
-            $('#pic-input').val('-'); // fallback
-        }
-
-    });
     // Tambah baris baru
     $(document).on('click', '.btn-add-row', function(){
         let newRow = `<div class="row mb-2 kebutuhan-row">

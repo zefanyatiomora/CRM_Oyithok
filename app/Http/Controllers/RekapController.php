@@ -132,7 +132,7 @@ class RekapController extends Controller
             ->orderBy('tanggal', 'asc')
             ->get();
 
-        $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang', 'Done'];
+        $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang/Kirim'];
 
         $currentStep = array_search(
             strtolower($interaksi->tahapan),
@@ -178,70 +178,6 @@ class RekapController extends Controller
         $interaksi->save();
 
         return response()->json(['success' => true]);
-    }
-
-    public function updateFollowUp(Request $request)
-    {
-        Log::info('updateFollowUp data diterima:', $request->all());
-
-        $validated = $request->validate([
-            'interaksi_id' => 'required|exists:interaksi,interaksi_id',
-            'customer_id'  => 'required|exists:customers,customer_id',
-            'status'       => 'required|string',
-            'tahapan'      => 'required|string',
-            'pic'          => 'required|string',
-        ]);
-
-        // Tentukan tahapan proses
-        $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang', 'Done'];
-
-        $interaksi = InteraksiModel::findOrFail($validated['interaksi_id']);
-
-        // Hitung step lama dan step baru
-        $originalStep = array_search(
-            strtolower($interaksi->tahapan),
-            array_map('strtolower', $steps)
-        );
-
-        $currentStep = array_search(
-            strtolower($validated['tahapan']),
-            array_map('strtolower', $steps)
-        );
-
-        Log::info('Progress Step Update:', [
-            'interaksi_id'   => $validated['interaksi_id'],
-            'originalTahapan' => $interaksi->tahapan,
-            'currentTahapan' => $validated['tahapan'],
-            'originalStep'   => $originalStep,
-            'currentStep'    => $currentStep,
-            'steps'          => $steps
-        ]);
-
-        try {
-            $updateResult = InteraksiModel::where('interaksi_id', $validated['interaksi_id'])
-                ->update([
-                    'tahapan'   => $validated['tahapan'],
-                    'pic'       => $validated['pic'],
-                ]);
-
-            Log::info('Update result:', [
-                'rows_affected' => $updateResult
-            ]);
-            return response()->json([
-                'status'       => 'success',
-                'message'      => 'Data follow up berhasil disimpan',
-                'originalStep' => $originalStep,
-                'currentStep'  => $currentStep
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Gagal menyimpan follow up: ' . $e->getMessage());
-
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'Gagal menyimpan follow up',
-                'error'   => $e->getMessage()
-            ], 500);
-        }
     }
     // Tambah kebutuhan harian
     public function storeRealtime(Request $request)
@@ -375,12 +311,13 @@ class RekapController extends Controller
             // Log::info('Interaksi ditemukan.', ['interaksi' => $interaksi]);
 
             $produk = ProdukModel::select('produk_id', 'produk_nama', 'satuan')->get();
+            $closing = ['closing all', 'closing product', 'closing pasang'];
 
             $pasang = PasangKirimModel::with('produk')
                 ->where('interaksi_id', $id_interaksi)
                 ->get();
 
-            return view('rekap.create_pasang', compact('interaksi', 'produk', 'pasang'));
+            return view('rekap.create_pasang', compact('interaksi', 'produk', 'pasang', 'closing'));
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Interaksi tidak ditemukan.',
@@ -430,18 +367,11 @@ class RekapController extends Controller
             'satuan' => 'required|string',
             'deskripsi' => 'required|string|max:255',
             'alamat' => 'required|string|max:255',
-            'jadwal_pasang_kirim' => 'required|date'
+            'jadwal_pasang_kirim' => 'required|date',
+            'status' => 'required|in:closing all,closing product,closing envpasang', // tambahkan validasi status
         ]);
 
         try {
-            // Cari produk + kategori
-            $produk = ProdukModel::with('kategori')->findOrFail($request->produk_id);
-
-            // Tentukan status berdasarkan kategori
-            $status = ($produk->kategori && $produk->kategori->kategori_kode === 'JT')
-                ? 'Closing Pasang'
-                : 'Closing Produk';
-
             // Simpan data ke database
             $pasang = PasangKirimModel::create([
                 'interaksi_id'        => $request->interaksi_id,
@@ -451,13 +381,13 @@ class RekapController extends Controller
                 'deskripsi'           => $request->deskripsi,
                 'alamat'              => $request->alamat,
                 'jadwal_pasang_kirim' => $request->jadwal_pasang_kirim,
-                'status'              => $status, // <- status baru
+                'status'              => $request->status,
             ]);
 
             // Update tahapan
-            $this->updateTahapan($pasang->interaksi_id, 'Pasang');
+            $this->updateTahapan($pasang->interaksi_id, 'Pasang/Kirim');
 
-            return redirect()->back()->with('success', 'Pasang berhasil disimpan!');
+            return redirect()->back()->with('success', 'Pasang/Kirim berhasil disimpan!');
         } catch (\Exception $e) {
             Log::error('Store Pasang - Error:', ['message' => $e->getMessage()]);
             return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan Pasang.');
@@ -559,7 +489,7 @@ class RekapController extends Controller
     }
     public function updateTahapan($interaksi_id, $tahapanBaru)
     {
-        $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang', 'Done'];
+        $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang/Kirim'];
 
         $interaksi = InteraksiModel::findOrFail($interaksi_id);
 
