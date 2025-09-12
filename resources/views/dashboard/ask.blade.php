@@ -4,8 +4,13 @@
 
 @section('content')
 <div class="card card-outline card-primary">
-    <div class="card-header">
-        <h3 class="card-title">Daftar Customer Status <span class="text-primary">ASK</span></h3>
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">
+            Daftar Customer Status <span class="text-primary">ASK</span>
+        </h3>
+        <button class="btn btn-sm btn-success" onclick="modalAction('{{ route('ask.broadcast') }}')">
+            <i class="fas fa-paper-plane"></i> 🚀 Broadcast Closing
+        </button>
     </div>
     <div class="card-body">
         <table class="table table-bordered table-striped table-hover table-sm" id="table-interaksi">

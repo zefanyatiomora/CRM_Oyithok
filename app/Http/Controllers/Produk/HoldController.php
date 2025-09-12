@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Produk;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\RincianModel;
+use App\Models\InteraksiAwalModel;
 use App\Models\KategoriModel;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 class HoldController extends Controller
 {
@@ -106,4 +108,80 @@ class HoldController extends Controller
             ->rawColumns(['aksi'])
             ->make(true);
     }
+        public function broadcast(Request $request)
+{
+    // Modal konfirmasi broadcast
+    return view('broadcast.hold_broadcast');
+}
+public function sendBroadcast(Request $request)
+{
+    $tahun = $request->input('tahun', date('Y'));
+    $bulan = $request->input('bulan');
+
+    $token = env('WABLAS_API_TOKEN', 'rsOFZQEEWNCTK3BRb5vijjQ0xCo59C32OqSh8yYmdhkyPS6cOSx7eZa');
+    $secret = env('WABLAS_SECRET_KEY', 'IXMoblCR'); // kalau ada secret key
+
+    $interaksi = InteraksiAwalModel::with(['interaksi.customer'])
+        ->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
+            $q->whereYear('tanggal_chat', $tahun);
+            if ($bulan) {
+                $q->whereMonth('tanggal_chat', $bulan);
+            }
+            $q->where('status', 'hold');
+        })
+        ->get();
+
+    foreach ($interaksi as $item) {
+        $customer = $item->interaksi->customer ?? null;
+        if (!$customer || !$customer->customer_nohp) {
+            continue;
+        }
+
+        $nama = $customer->customer_nama;
+        $nohp = $customer->customer_nohp;
+
+        // ✅ Normalisasi nomor: ubah 08xxx jadi 62xxx
+        $nohp = preg_replace('/\D/', '', $nohp); // buang non digit
+        $nohp = preg_replace('/^0/', '62', $nohp);
+
+         $pesan = "Halo kak {$nama}👋\n"
+            . "Beberapa waktu lalu kak {$nama} sempat menunda pesanan produk kami.\n"
+            . "Bagaimana kelanjutan pesanannya kak? Atau masih ingin diskusi desain/produk lebih lanjut?\n\n"
+            . "Kalau mau lanjut, tinggal balas aja:\n"
+            . "✅ Ya → untuk dibantu melanjutkan order/rekomendasi produk\n"
+            . "❌ Tidak → kalau belum butuh saat ini";
+
+        try {
+            $headers = [
+                'Authorization' => $token,
+            ];
+            if ($secret) {
+                $headers['Secret'] = $secret;
+            }
+
+            $response = Http::withHeaders($headers)->post('https://sby.wablas.com/api/send-message', [
+                'phone'   => $nohp,
+                'message' => $pesan,
+            ]);
+
+            $result = $response->json();
+            Log::info("WA Broadcast -> {$nohp}", $result);
+
+            if (!isset($result['status']) || $result['status'] !== true) {
+                Log::error("Gagal kirim ke {$nohp}", $result);
+            }
+
+            sleep(1); // jeda agar tidak dianggap spam
+
+        } catch (\Exception $e) {
+            Log::error("Exception kirim WA ke {$nohp}: " . $e->getMessage());
+        }
+    }
+
+    return response()->json([
+        'status'  => 'success',
+        'message' => 'Broadcast berhasil diproses, cek log untuk hasil detail'
+    ]);
+}
+
 }

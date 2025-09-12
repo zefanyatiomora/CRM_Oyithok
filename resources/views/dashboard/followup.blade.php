@@ -4,8 +4,11 @@
 
 @section('content')
 <div class="card card-outline card-warning">
-    <div class="card-header">
+    <div class="card-header d-flex justify-content-between align-items-center">
         <h3 class="card-title">Daftar Customer Status <span class="text-warning">Follow Up</span></h3>
+        <a href="javascript:void(0)" onclick="modalAction('{{ route('broadcast.followup') }}')" class="btn btn-sm btn-primary">
+    🚀 Broadcast Follow Up
+</a>
     </div>
     <div class="card-body">
         <table class="table table-bordered table-striped table-hover table-sm" id="table-followup">
@@ -30,11 +33,11 @@
 
 @push('js')
 <script>
-    function modalAction(url = '') {
-        $('#myModal').load(url, function () {
-            $('#myModal').modal('show');
-        });
-    }
+   function modalAction(url = '') {
+    $('#myModal').load(url, function () {
+        $('#myModal').modal('show');
+    });
+}
 
     $(document).ready(function () {
         $('#table-followup').DataTable({

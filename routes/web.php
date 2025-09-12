@@ -33,6 +33,16 @@ Route::get('/dashboard/followup', [DashboardController::class, 'followup'])->nam
 Route::get('/dashboard/hold', [DashboardController::class, 'hold'])->name('dashboard.hold');
 Route::get('/dashboard/closing', [DashboardController::class, 'closing'])->name('dashboard.closing');
 
+//broadcast//
+Route::get('/ask/broadcast', [AskController::class, 'broadcast'])->name('ask.broadcast');
+Route::post('/ask/send-broadcast', [AskController::class, 'sendBroadcast'])->name('ask.sendBroadcast');
+Route::get('/broadcast/followup', [DashboardController::class, 'broadcast'])->name('broadcast.followup');
+Route::post('/broadcast/send-followup', [DashboardController::class, 'sendBroadcast'])->name('broadcast.sendFollowup');
+Route::get('/broadcast/hold', [HoldController::class, 'broadcast'])->name('broadcast.hold');
+Route::post('/broadcast/hold/send', [HoldController::class, 'sendBroadcast'])->name('broadcast.sendHold');
+Route::get('/broadcast/closing', [ClosingController::class, 'broadcast'])->name('broadcast.closing');
+Route::post('/broadcast/closing/send', [ClosingController::class, 'sendBroadcast'])->name('broadcast.sendClosing');
+
 //customer//
 Route::post('/customers/list', [CustomersController::class, 'data'])->name('customers.data');
 Route::get('/customers', [CustomersController::class, 'index'])->name('customers.index');

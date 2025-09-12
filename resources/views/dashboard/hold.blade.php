@@ -4,8 +4,11 @@
 
 @section('content')
 <div class="card card-outline card-danger">
-    <div class="card-header">
+    <div class="card-header d-flex justify-content-between align-items-center">
         <h3 class="card-title">Daftar Customer Status <span class="text-danger">Hold</span></h3>
+         <a href="javascript:void(0)" onclick="modalAction('{{ route('broadcast.hold') }}')" class="btn btn-sm btn-primary">
+            🚀 Broadcast Hold
+        </a>
     </div>
     <div class="card-body">
         <table class="table table-bordered table-striped table-hover table-sm" id="table-hold">
