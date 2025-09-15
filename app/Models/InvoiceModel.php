@@ -25,7 +25,7 @@ class InvoiceModel extends Model
 
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(CustomerModel::class, 'customer_id', 'customer_id');
+        return $this->belongsTo(CustomersModel::class, 'customer_id', 'customer_id');
     }
 
     public function pic(): BelongsTo
