@@ -402,9 +402,12 @@ class RekapController extends Controller
             'jadwal_survey' => 'required|date',
         ]);
         try {
-            // Simpan data ke database
-            $survey = SurveyModel::create($request->all());
+            // Tambahkan status ke data request
+            $data = $request->all();
+            $data['status'] = 'closing survey';
 
+            // Simpan data ke database
+            $survey = SurveyModel::create($data);
             // Panggil fungsi updateTahapan
             $this->updateTahapan($survey->interaksi_id, 'Survey');
 
@@ -494,30 +497,42 @@ class RekapController extends Controller
         $interaksi = InteraksiModel::findOrFail($interaksi_id);
 
         $originalStep = $interaksi->original_step ?? 0;
-        $currentStep = array_search(strtolower($tahapanBaru), array_map('strtolower', $steps));
+        $currentStep  = array_search(strtolower($tahapanBaru), array_map('strtolower', $steps));
 
-        // Hitung skip
-        $skippedSteps = [];
-        if ($currentStep > $originalStep + 1) {
-            for ($i = $originalStep + 1; $i < $currentStep; $i++) {
-                $skippedSteps[] = $i;
-            }
+        // Ambil skip lama
+        $existingSkips = $interaksi->skipsteps ? json_decode($interaksi->skipsteps, true) : [];
+
+        // Kalau user mengisi step yang sebelumnya skip → hapus dari skipped
+        if (in_array($currentStep, $existingSkips)) {
+            $existingSkips = array_diff($existingSkips, [$currentStep]);
         }
 
-        // Merge skip lama dengan skip baru
-        $existingSkips = $interaksi->steps_skips ? json_decode($interaksi->steps_skips, true) : [];
-        $allSkips = array_unique(array_merge($existingSkips, $skippedSteps));
+        $allSkips = $existingSkips;
+        $newStep  = $originalStep; // default tetap di step terakhir
+
+        // Kalau user maju → hitung skip baru & update step
+        if ($currentStep > $originalStep) {
+            $skippedSteps = [];
+            if ($currentStep > $originalStep + 1) {
+                for ($i = $originalStep + 1; $i < $currentStep; $i++) {
+                    $skippedSteps[] = $i;
+                }
+            }
+
+            $allSkips = array_values(array_unique(array_merge($existingSkips, $skippedSteps)));
+            $newStep  = $currentStep; // update tahapan hanya saat maju
+        }
 
         // Update interaksi
         $interaksi->update([
-            'tahapan'       => $steps[$currentStep],
-            'original_step' => $currentStep,
-            'skipsteps'   => json_encode($allSkips),
+            'tahapan'       => $steps[$newStep],
+            'original_step' => $newStep,
+            'skipsteps'     => json_encode($allSkips),
         ]);
 
         Log::info('[Update Tahapan]', [
             'interaksi_id' => $interaksi_id,
-            'tahapan'      => $steps[$currentStep],
+            'tahapan'      => $steps[$newStep],
             'originalStep' => $originalStep,
             'currentStep'  => $currentStep,
             'skipped'      => $allSkips,
