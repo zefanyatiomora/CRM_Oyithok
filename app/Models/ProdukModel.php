@@ -25,10 +25,6 @@ class ProdukModel extends Model
         return $this->hasMany(InteraksiModel::class, 'produk_id', 'produk_id');
     }
 
-    public function ulasan()
-    {
-        return $this->hasMany(UlasanModel::class, 'produk_id', 'produk_id');
-    }
     public function kategori(): BelongsTo
     {
         return $this->belongsTo(KategoriModel::class, 'kategori_id', 'kategori_id');

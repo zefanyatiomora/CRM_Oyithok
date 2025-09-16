@@ -99,14 +99,14 @@ $(function () {
                 if (data.length > 0) {
                     data.forEach(customer => {
                         list += `<a href="#" class="list-group-item list-group-item-action" 
-                                    data-id="${customer.customer_id}" 
-                                    data-nama="${customer.customer_nama}"
-                                    data-kode="${customer.customer_kode}"
-                                    data-nohp="${customer.customer_nohp}" 
-                                    data-alamat="${customer.customer_alamat}" 
-                                    data-media="${customer.informasi_media}">
-                                    ${customer.customer_nama} - ${customer.customer_nohp}
-                                 </a>`;
+                                        data-id="${customer.customer_id}" 
+                                        data-nama="${customer.customer_nama}"
+                                        data-kode="${customer.customer_kode}"
+                                        data-nohp="${customer.customer_nohp}" 
+                                        data-alamat="${customer.customer_alamat}" 
+                                        data-media="${customer.informasi_media}">
+                                        ${customer.customer_nama} - ${customer.customer_nohp}
+                                    </a>`;
                     });
                 } else {
                     $('#customer_id').val(''); // reset kalau tidak ada
@@ -128,11 +128,17 @@ $(function () {
         $('#customer_nama').val($(this).data('nama'));
         $('#customer_kode').val($(this).data('kode'));
 
-        let nohp = $(this).data('nohp').replace(/\D/g, '');
-        if (nohp.startsWith('0')) {
-            nohp = nohp.substring(1);
+        // FIX: Ensure the data is a string before calling .replace()
+        let nohp = $(this).data('nohp');
+        if (nohp !== null && nohp !== undefined) {
+            nohp = nohp.toString().replace(/\D/g, '');
+            if (nohp.startsWith('0')) {
+                nohp = nohp.substring(1);
+            }
+            $('#customer_nohp').val(nohp);
+        } else {
+            $('#customer_nohp').val(''); // Clear the field if data is null or undefined
         }
-        $('#customer_nohp').val(nohp);
 
         $('#customer_alamat').val($(this).data('alamat'));
         $('#informasi_media').val($(this).data('media')).trigger('change');
@@ -165,11 +171,18 @@ $(function () {
             success: function(response) {
                 if (response.status) {
                     Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
                         icon: 'success',
-                        title: 'Berhasil',
-                        text: response.message
+                        title: response.message
                     }).then(() => {
-                        location.reload();
+                        // Redirect ke halaman rekap setelah SweetAlert ditutup
+                        window.location.href = '{{ route("rekap.index") }}';                    
+                        // Redirect langsung ke show_ajax
+                        // window.location.href = `/rekap/${response.interaksi_id}/show_ajax`;
+                        // window.location.href = "{{ url('rekap') }}/" + response.interaksi_id + "/show_ajax";
                     });
                 } else {
                     Swal.fire({
@@ -178,7 +191,20 @@ $(function () {
                         text: response.message
                     });
                 }
+            },
+            error: function(xhr, status, error) {
+            // Tambahkan penanganan error, misalnya validasi dari server
+            let errors = xhr.responseJSON.errors;
+            let errorMessage = "Terjadi kesalahan. Pastikan semua data terisi dengan benar.";
+            if (errors) {
+                errorMessage = Object.values(errors).join('<br>');
             }
+            Swal.fire({
+                icon: 'error',
+                title: 'Validasi Gagal',
+                html: errorMessage
+            });
+        }
         });
     });
 });

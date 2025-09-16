@@ -73,6 +73,7 @@ class KebutuhanController extends Controller
             'produk_id' => 11,
             'tanggal_chat' => now(),
             'original_step' => 0,
+            'status' => 'ask',
             'tahapan' => 'identifikasi',
         ]);
 
@@ -80,7 +81,8 @@ class KebutuhanController extends Controller
 
         return response()->json([
             'status'  => true,
-            'message' => 'Interaksi berhasil disimpan untuk Customer ID: '
+            'message' => 'Interaksi berhasil disimpan untuk Customer ID: ',
+            'interaksi_id' => $interaksi->interaksi_id
         ]);
     }
 
