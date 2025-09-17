@@ -310,7 +310,9 @@ class RekapController extends Controller
             $interaksi = InteraksiModel::findOrFail($id_interaksi);
             // Log::info('Interaksi ditemukan.', ['interaksi' => $interaksi]);
 
-            $produk = ProdukModel::select('produk_id', 'produk_nama', 'satuan')->get();
+            $produk = ProdukModel::with('kategori')
+                ->select('produk_id', 'produk_nama', 'satuan', 'kategori_id')
+                ->get();
             $closing = ['closing all', 'closing product', 'closing pasang'];
 
             $pasang = PasangKirimModel::with('produk')
@@ -368,7 +370,7 @@ class RekapController extends Controller
             'deskripsi' => 'required|string|max:255',
             'alamat' => 'required|string|max:255',
             'jadwal_pasang_kirim' => 'required|date',
-            'status' => 'required|in:closing all,closing product,closing envpasang', // tambahkan validasi status
+            'status' => 'required|in:closing all,closing product,closing pasang', // tambahkan validasi status
         ]);
 
         try {

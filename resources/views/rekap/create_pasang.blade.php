@@ -1,3 +1,10 @@
+<div class="modal-header">
+    <h5 class="modal-title">Tambah Pemasangan/Kirim</h5>
+    {{-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> --}}
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
 <form id="form-create-pasang" enctype="multipart/form-data">
     @csrf
     <!-- Hidden input untuk ID Interaksi -->
@@ -10,26 +17,30 @@
         <select name="produk_id" id="produk_id" class="form-control" required>
             <option value="">-- Pilih Produk --</option>
             @foreach($produk as $prd)
-                <option value="{{ $prd->produk_id }}" data-satuan="{{ $prd->satuan }}">{{ $prd->produk_nama }}</option>
+                <option value="{{ $prd->produk_id }}" data-satuan="{{ $prd->satuan }}">
+                    {{ $prd->kategori->kategori_nama ?? $prd->kategori_nama }} - {{ $prd->produk_nama }}</option>
             @endforeach
         </select>
         <small id="error-produk_id" class="text-danger"></small>
     </div>
-
-    <!-- Satuan -->
-    <div class="form-group">
-        <label>Satuan</label>
-        <input type="text" name="satuan" id="satuan" class="form-control" readonly>
-        <small id="error-satuan" class="text-danger"></small>
+    <div class="row">
+        <div class="col-md-6">
+            <!-- Kuantitas -->
+            <div class="form-group">
+                <label>Kuantitas</label>
+                <input type="number" name="kuantitas" id="kuantitas" class="form-control" min="1" required>
+                <small id="error-kuantitas" class="text-danger"></small>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <!-- Satuan -->
+            <div class="form-group">
+                <label>Satuan</label>
+                <input type="text" name="satuan" id="satuan" class="form-control" readonly>
+                <small id="error-satuan" class="text-danger"></small>
+            </div>
+        </div>
     </div>
-
-    <!-- Kuantitas -->
-    <div class="form-group">
-        <label>Kuantitas</label>
-        <input type="number" name="kuantitas" id="kuantitas" class="form-control" min="1" required>
-        <small id="error-kuantitas" class="text-danger"></small>
-    </div>
-
     <!-- Deskripsi -->
     <div class="form-group">
         <label>Deskripsi</label>
@@ -97,7 +108,6 @@ $(document).ready(function () {
             }
         });
     });
-
     // Isi otomatis satuan sesuai produk
     $("#produk_id").on("change", function () {
         let satuan = $(this).find(":selected").data("satuan") || "";
