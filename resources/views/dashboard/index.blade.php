@@ -5,11 +5,26 @@
 <!-- Main content -->
 <section class="content">
     <div class="container-fluid">
-        <!-- Filter Tahun & Bulan -->
-        <div class="row mb-3">
-            <div class="col-md-8">
-                <form method="GET" action="{{ route('dashboard') }}" class="form-inline">
-                    <select name="tahun" class="form-control mr-2" required>
+<div class="card shadow-lg mb-4 border-0" 
+     style="background: linear-gradient(135deg, #8147be, #c97aeb, #a661c2); 
+            border-radius: 20px; 
+            color: #fff;">
+    <div class="card-body text-center py-5">
+  <h1 class="display-5 fw-bold">
+    ✨ Selamat Datang di 
+    <span class="wallpaper-text">WALLPAPER ID</span> ✨
+  </h1>
+</div>
+</div>
+<!-- Filter Tahun & Bulan -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ route('dashboard') }}">
+            <div class="form-row align-items-end">
+                <!-- Pilih Tahun -->
+                <div class="col-md-3 mb-3">
+                    <label for="tahun" class="small text-muted font-weight-bold">Tahun</label>
+                    <select name="tahun" id="tahun" class="form-control rounded-pill shadow-sm" required>
                         <option value="">-- Pilih Tahun --</option>
                         @foreach($availableYears as $year)
                             <option value="{{ $year }}" {{ $year == $tahun ? 'selected' : '' }}>
@@ -17,8 +32,12 @@
                             </option>
                         @endforeach
                     </select>
+                </div>
 
-                    <select name="bulan" class="form-control mr-2">
+                <!-- Pilih Bulan -->
+                <div class="col-md-3 mb-3">
+                    <label for="bulan" class="small text-muted font-weight-bold">Bulan</label>
+                    <select name="bulan" id="bulan" class="form-control rounded-pill shadow-sm">
                         <option value="">-- Semua Bulan --</option>
                         @foreach($bulanList as $key => $label)
                             <option value="{{ $key }}" {{ $key == $bulan ? 'selected' : '' }}>
@@ -26,21 +45,35 @@
                             </option>
                         @endforeach
                     </select>
+                </div>
 
-                    <div class="btn-group mr-2">
-                        <button type="submit" class="btn btn-info">Filter</button>
-                        <button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
-                            <span class="sr-only">Toggle Dropdown</span>
+                <!-- Tombol Aksi -->
+                <div class="col-md-4 mb-3">
+                    <div class="btn-group w-100">
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                            <i class="fas fa-search mr-1"></i> Filter
                         </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{{ route('dashboard') }}">Reset Filter</a>
-                            <a class="dropdown-item" href="#">Cetak Laporan</a>
-                            <a class="dropdown-item" href="#">Export Excel</a>
+                        <button type="button" 
+                                class="btn btn-outline-primary rounded-pill px-3 shadow-sm dropdown-toggle dropdown-toggle-split" 
+                                data-toggle="dropdown">
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right shadow">
+                            <a class="dropdown-item" href="{{ route('dashboard') }}">
+                                <i class="fas fa-undo mr-1"></i> Reset Filter
+                            </a>
+                            <a class="dropdown-item" href="#">
+                                <i class="fas fa-print mr-1"></i> Cetak Laporan
+                            </a>
+                            <a class="dropdown-item" href="#">
+                                <i class="fas fa-file-excel mr-1"></i> Export Excel
+                            </a>
                         </div>
                     </div>
-                </form>
+                </div>
             </div>
-        </div>
+        </form>
+    </div>
+</div>
 
         <!-- JUMLAH INTERAKSI -->
         <div class="row">
@@ -78,79 +111,75 @@
 
 <div class="tab-content mt-3">
   <!-- TAB CUSTOMER -->
-  <div class="tab-pane fade show active" id="customer" role="tabpanel">
+   <div class="tab-pane fade show active" id="customer" role="tabpanel">
       <div class="row">
           <!-- STATUS ASK -->
-          <div class="col-lg-3 col-6">
-              <a href="{{ route('dashboard.ask', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
-                 class="text-decoration-none text-white">
-                  <div class="small-box bg-custom-ask box-hover">
-                      <div class="inner text-center">
-                          <h3>{{ $jumlahAsk }}</h3>
-                          <p>ASK 
-                              @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
-                              @else TAHUN {{ $tahun }} 
-                              @endif
-                          </p>
-                      </div>
-                      <div class="icon"><i class="ion ion-stats-bars"></i></div>
-                  </div>
-              </a>
-          </div>
+<div class="col-lg-3 col-6">
+<a href="{{ route('dashboard.ask', ['status' => 'ask']) }}" 
+   class="text-decoration-none text-white">
+        <div class="small-box bg-custom-ask box-hover">
+            <div class="inner text-center">
+                <h3>{{ $jumlahAsk }}</h3>
+                <p>ASK 
+                    @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
+                    @else TAHUN {{ $tahun }} 
+                    @endif
+                </p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-question-circle"></i>
+            </div>
+        </div>
+    </a>
+</div>
+<!-- STATUS FOLLOW UP -->
+<div class="col-lg-3 col-6">
+    <a href="{{ route('dashboard.followup') }}" class="text-decoration-none text-white">
+        <div class="small-box bg-custom-follow-up box-hover">
+            <div class="inner text-center">
+                <h3>{{ $jumlahFollowUp }}</h3>
+                <p>FOLLOW UP</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-comments"></i>
+            </div>
+        </div>
+    </a>
+</div>
 
-          <!-- STATUS FOLLOW UP -->
-          <div class="col-lg-3 col-6">
-              <a href="{{ route('dashboard.followup', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
-                 class="text-decoration-none text-white">
-                  <div class="small-box bg-custom-follow-up box-hover">
-                      <div class="inner text-center">
-                          <h3>{{ $jumlahFollowUp }}</h3>
-                          <p>FOLLOW UP 
-                              @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
-                              @else TAHUN {{ $tahun }} 
-                              @endif
-                          </p>
-                      </div>
-                      <div class="icon"><i class="ion ion-stats-bars"></i></div>
-                  </div>
-              </a>
-          </div>
-
-          <!-- STATUS HOLD -->
-          <div class="col-lg-3 col-6">
-              <a href="{{ route('dashboard.hold', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
-                 class="text-decoration-none text-white">
-                  <div class="small-box bg-custom-hold box-hover">
-                      <div class="inner text-center">
-                          <h3>{{ $jumlahHold }}</h3>
-                          <p>HOLD 
-                              @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
-                              @else TAHUN {{ $tahun }} 
-                              @endif
-                          </p>
-                      </div>
-                      <div class="icon"><i class="ion ion-stats-bars"></i></div>
-                  </div>
-              </a>
-          </div>
-
+<!-- STATUS HOLD -->
+<div class="col-lg-3 col-6">
+    <a href="{{ route('dashboard.hold') }}" class="text-decoration-none text-white">
+        <div class="small-box bg-custom-hold box-hover">
+            <div class="inner text-center">
+                <h3>{{ $jumlahHold }}</h3>
+                <p>HOLD</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-clock"></i>
+            </div>
+        </div>
+    </a>
+</div>
           <!-- STATUS CLOSING -->
-          <div class="col-lg-3 col-6">
-              <a href="{{ route('dashboard.closing', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
-                 class="text-decoration-none text-white">
-                  <div class="small-box bg-custom-closing box-hover">
-                      <div class="inner text-center">
-                          <h3>{{ $jumlahClosing }}</h3>
-                          <p>CLOSING 
-                              @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
-                              @else TAHUN {{ $tahun }} 
-                              @endif
-                          </p>
-                      </div>
-                      <div class="icon"><i class="ion ion-stats-bars"></i></div>
-                  </div>
-              </a>
-          </div>
+<div class="col-lg-3 col-6">
+    <a href="{{ route('dashboard.closing', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
+       class="text-decoration-none text-white">
+        <div class="small-box bg-custom-closing box-hover">
+            <div class="inner text-center">
+                <h3>{{ $jumlahClosing }}</h3>
+                <p>CLOSING 
+                    @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
+                    @else TAHUN {{ $tahun }} 
+                    @endif
+                </p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+        </div>
+    </a>
+      </div>
       </div>
       <div class="row">
         <div class="col-md-4 mb-3">
@@ -199,61 +228,60 @@
     </div>
   </div>
 
-  <!-- TAB PRODUK -->
-  <div class="tab-pane fade" id="produk" role="tabpanel">
-      <div class="row">
-          <!-- STATUS ASK PRODUK -->
-            <div class="col-lg-4 col-6">
-              <div class="small-box bg-custom-ask box-hover">
-                  <div class="inner text-center">
-                      <h3>{{ $jumlahProdukAsk ?? 0 }}</h3>
-                      <p>ASK PRODUK 
-                          @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
-                          @else TAHUN {{ $tahun }} 
-                          @endif
-                      </p>
-                  </div>
-                  <div class="icon"><i class="ion ion-bag"></i></div>
-                  <a href="{{ route('ask.index', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
-                    class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-                </div>
-            </div>
-            
-            <!-- STATUS HOLD PRODUK -->
-            <div class="col-lg-4 col-6">
-                <div class="small-box bg-custom-hold box-hover">
-                    <div class="inner text-center">
-                        <h3>{{ $jumlahProdukHold ?? 0 }}</h3>
-                        <p>HOLD PRODUK 
-                            @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
-                            @else TAHUN {{ $tahun }} 
-                            @endif
-                        </p>
-                    </div>
-                    <div class="icon"><i class="ion ion-bag"></i></div>
-                    <div class="icon"><i class="ion ion-bag"></i></div>
-                    <a href="{{ route('hold.index', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
-                      class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-                    </div>
-            </div>
-
-          <!-- STATUS CLOSING PRODUK -->
-          <div class="col-lg-4 col-6">
-              <div class="small-box bg-custom-closing box-hover">
-                  <div class="inner text-center">
-                      <h3>{{ $jumlahProdukClosing ?? 0 }}</h3>
-                      <p>CLOSING PRODUK 
-                          @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
-                          @else TAHUN {{ $tahun }} 
-                          @endif
-                      </p>
-                    </div>
-                    <div class="icon"><i class="ion ion-bag"></i></div>
-                    <a href="{{ route('closing.index', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
-                      class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-              </div>
-          </div>
+<!-- TAB PRODUK -->
+<div class="tab-pane fade" id="produk" role="tabpanel">
+    <div class="row">
+        <!-- STATUS ASK PRODUK -->
+        <div class="col-lg-4 col-6">
+            <a href="{{ route('ask.index') }}" class="small-box bg-custom-ask box-hover text-decoration-none text-dark">
+    <div class="inner text-center">
+        <h3>{{ $jumlahProdukAsk ?? 0 }}</h3>
+        <p>ASK PRODUK</p>
+    </div>
+                <div class="icon"><i class="fas fa-question-circle"></i></div>
+            </a>
         </div>
+
+<!-- STATUS HOLD PRODUK (TANPA FILTER) -->
+<div class="col-lg-4 col-6">
+    <a href="{{ route('hold.index') }}" 
+       class="small-box bg-custom-hold box-hover text-decoration-none text-dark">
+        <div class="inner text-center">
+            <h3>{{ $jumlahProdukHold ?? 0 }}</h3>
+            <p>HOLD PRODUK (SEMUA)</p>
+        </div>
+        <div class="icon"><i class="fas fa-pause-circle"></i></div>
+    </a>
+</div>
+
+<!-- STATUS CLOSING PRODUK (TANPA FILTER) -->
+<div class="col-lg-4 col-6">
+    <a href="{{ route('closing.index') }}" 
+       class="small-box bg-danger box-hover text-decoration-none text-dark">
+        <div class="inner text-center">
+            <h3>{{ $jumlahProdukClosing ?? 0 }}</h3>
+            <p>CLOSING PRODUK (SEMUA)</p>
+        </div>
+        <div class="icon"><i class="fas fa-pause-circle"></i></div>
+    </a>
+</div>
+@push('js')
+<script>
+$(document).ready(function () {
+    // Saat tab diklik → update hash di URL (#customer atau #produk)
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        const target = $(e.target).attr("href"); // #customer / #produk
+        history.replaceState(null, null, target); 
+    });
+
+    // Saat halaman dimuat → cek hash di URL, buka tab sesuai hash
+    const hash = window.location.hash;
+    if (hash && $(`a[data-toggle="tab"][href="${hash}"]`).length) {
+        $(`a[data-toggle="tab"][href="${hash}"]`).tab('show');
+    }
+});
+</script>
+@endpush
         {{-- Baris BARU untuk menyejajarkan kedua chart --}}
         <div class="row mt-3">
             
@@ -298,6 +326,24 @@
 
 @push('css')
 <style>
+     .form-control {
+        transition: 0.3s ease;
+    }
+    .form-control:focus {
+        box-shadow: 0 0 8px rgba(92, 84, 173, 0.4);
+        border-color: #5C54AD;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #6d4598, #9b53ba);
+        border: none;
+    }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a367d, #823f9d);
+    }
+    .dropdown-menu a:hover {
+        background-color: #f3f0fa;
+        color: #5C54AD;
+    }
     .box-hover {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
@@ -324,6 +370,30 @@
         background-color: #FF7373 !important; /* Merah/Pink */
         color: #ffffff !important;
     }
+    .hero-banner {
+background: linear-gradient(135deg, #2e005f, #5c2a9d, #7d3c98);
+    background-size: cover;
+    border-radius: 20px;
+    padding: 80px 20px;
+    color: white;
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
+}
+ .wallpaper-text {
+    background: linear-gradient(135deg, #351952, #703d7a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+    animation: shine 3s linear infinite;
+  }
+
+  @keyframes shine {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
 </style>
 @endpush
 @endsection

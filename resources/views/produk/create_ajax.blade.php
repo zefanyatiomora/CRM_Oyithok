@@ -1,4 +1,4 @@
-<form action="{{ url('/produk/ajax') }}" method="POST" id="form-tambah-produk"> 
+<form action="{{ url('/produk/ajax') }}" method="POST" id="form-tambah-produk">
     @csrf 
     <div id="modal-master" class="modal-dialog modal-lg" role="document"> 
         <div class="modal-content"> 
@@ -7,11 +7,6 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> 
             </div> 
             <div class="modal-body"> 
-                <div class="form-group"> 
-                    <label>Kode produk</label> 
-                    <input value="" type="text" name="produk_kode" id="produk_kode" class="form-control" required> 
-                    <small id="error-produk_kode" class="error-text form-text text-danger"></small> 
-                </div> 
                 <div class="form-group"> 
                     <label>Kategori</label> 
                     <select name="kategori_id" id="kategori_id" class="form-control" required> 
@@ -27,6 +22,11 @@
                     <input value="" type="text" name="produk_nama" id="produk_nama" class="form-control" required> 
                     <small id="error-produk_nama" class="error-text form-text text-danger"></small> 
                 </div> 
+                <div class="form-group"> 
+    <label>Satuan</label> 
+    <input type="text" name="satuan" id="satuan" class="form-control" placeholder="contoh: pcs, kg, liter" required> 
+    <small id="error-satuan" class="error-text form-text text-danger"></small> 
+</div>
             </div> 
             <div class="modal-footer"> 
                 <button type="button" data-dismiss="modal" class="btn btn-warning">Batal</button> 
@@ -39,10 +39,10 @@
 <script> 
     $(document).ready(function() { 
         $("#form-tambah-produk").validate({ 
-            rules: { 
-                produk_kode: {required: true, minlength: 3, maxlength: 20}, 
-                kategori_id: {required: true, number: true}, 
-                produk_nama: {required: true, minlength: 3, maxlength: 100}, 
+            rules: {  
+                kategori_id: {required: true}, 
+                produk_nama: {required: true, minlength: 3, maxlength: 100},
+                satuan: {required: true, minlength: 1, maxlength: 50}, 
             }, 
             submitHandler: function(form) { 
                 $.ajax({ 
@@ -51,7 +51,7 @@
                     data: $(form).serialize(), 
                     success: function(response) { 
                         if(response.status){ 
-                            $('#myModal').modal('hide'); 
+                            $('#modal-master').modal('hide');
                             Swal.fire({ 
                                 icon: 'success', 
                                 title: 'Berhasil', 
