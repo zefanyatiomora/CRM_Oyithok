@@ -32,16 +32,10 @@ class HoldController extends Controller
 
         // Data HOLD berdasarkan kategori (dari rincian)
         $holdKategori = RincianModel::with(['produk.kategori', 'interaksi'])
-            ->where('status', 'hold')
-            ->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
-                $q->whereYear('tanggal_chat', $tahun);
-                if ($bulan) {
-                    $q->whereMonth('tanggal_chat', $bulan);
-                }
-            })
-            ->get()
-            ->groupBy(fn($item) => $item->produk->kategori->kategori_nama ?? 'Tanpa Kategori')
-            ->map->count();
+        ->where('status', 'hold')
+        ->get()
+        ->groupBy(fn($item) => $item->produk->kategori->kategori_nama ?? 'Tanpa Kategori')
+        ->map->count();
 
         // Bentuk array final biar urut sesuai master kategori
         $dataHold = [];
@@ -76,16 +70,8 @@ class HoldController extends Controller
         ]);
 
         $query = RincianModel::with(['interaksi.customer', 'produk.kategori'])
-            ->where('status', 'hold')
-            ->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
-                if ($tahun) {
-                    $q->whereYear('tanggal_chat', $tahun);
-                }
-                if ($bulan) {
-                    $q->whereMonth('tanggal_chat', $bulan);
-                }
-            });
-
+            ->where('status', 'hold');
+            
         return DataTables::of($query)
             ->addIndexColumn()
             ->addColumn('tanggal_chat', function ($row) {

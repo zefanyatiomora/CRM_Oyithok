@@ -30,12 +30,9 @@ class AskController extends Controller
         $kategoriLabels = KategoriModel::pluck('kategori_nama');
 
         // Data ASK berdasarkan kategori
-        $askKategori = InteraksiAwalModel::with('kategori')
-            ->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
-                $q->whereYear('tanggal_chat', $tahun);
-                if ($bulan) {
-                    $q->whereMonth('tanggal_chat', $bulan);
-                }
+         $askKategori = InteraksiAwalModel::with(['kategori', 'interaksi'])
+            ->whereHas('interaksi', function ($q) {
+                $q->where('status', 'ask');
             })
             ->get()
             ->groupBy(fn($item) => $item->kategori->kategori_nama ?? 'Tanpa Kategori')
@@ -73,13 +70,8 @@ class AskController extends Controller
         ]);
 
         $query = InteraksiAwalModel::with(['interaksi.customer', 'kategori'])
-            ->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
-                if ($tahun) {
-                    $q->whereYear('tanggal_chat', $tahun);
-                }
-                if ($bulan) {
-                    $q->whereMonth('tanggal_chat', $bulan);
-                }
+            ->whereHas('interaksi', function ($q) {
+                $q->where('status', 'ask');
             });
 
         return DataTables::of($query)

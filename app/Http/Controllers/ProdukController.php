@@ -65,9 +65,9 @@ class ProdukController extends Controller
         // Check if the request is an AJAX request
         if ($request->ajax() || $request->wantsJson()) {
             $rules = [
-                'produk_kode' => 'required|string|max:100|unique:produks',
                 'produk_nama' => 'required|string|max:255',
                 'kategori_id' => 'required|exists:kategoris,kategori_id',
+                'satuan'      => 'required|string|max:50'
             ];
 
             $validator = Validator::make($request->all(), $rules);
