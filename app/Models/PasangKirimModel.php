@@ -37,4 +37,8 @@ class PasangKirimModel extends Model
     {
         return $this->belongsTo(InteraksiModel::class, 'interaksi_id', 'interaksi_id');
     }
+    public function invoiceDetail()
+    {
+        return $this->hasOne(InvoiceDetailModel::class, 'pasangkirim_id', 'pasangkirim_id');
+    }
 }

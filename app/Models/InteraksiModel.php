@@ -39,10 +39,6 @@ class InteraksiModel extends Model
         return $this->belongsTo(ProdukModel::class, 'produk_id', 'produk_id', 'produk_nama');
     }
 
-    public function ulasan()
-    {
-        return $this->hasOne(UlasanModel::class, 'interaksi_id', 'interaksi_id');
-    }
     public function realtime()
     {
         return $this->hasMany(InteraksiRealtime::class, 'interaksi_id', 'interaksi_id');
