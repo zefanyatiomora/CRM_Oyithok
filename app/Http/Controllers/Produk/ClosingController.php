@@ -32,22 +32,14 @@ class ClosingController extends Controller
 
         // Data CLOSING berdasarkan kategori
         $closingKategori = RincianModel::with(['produk.kategori', 'interaksi'])
-            ->where('status', 'closing')
-            ->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
-                $q->whereYear('tanggal_chat', $tahun);
-                if ($bulan) {
-                    $q->whereMonth('tanggal_chat', $bulan);
-                }
-            })
-            ->get()
-            ->groupBy(fn($item) => $item->produk->kategori->kategori_nama ?? 'Tanpa Kategori')
-            ->map->count();
+    ->where('status', 'closing')
+    ->get();
 
         // Bentuk array final biar urut sesuai master kategori
         $dataClosing = [];
-        foreach ($kategoriLabels as $kategori) {
-            $dataClosing[$kategori] = $closingKategori[$kategori] ?? 0;
-        }
+foreach ($kategoriLabels as $kategori) {
+    $dataClosing[$kategori] = $closingKategori[$kategori] ?? 0;
+}
 
         // Jumlah total produk CLOSING
         $jumlahProdukClosing = array_sum($dataClosing);
@@ -65,26 +57,10 @@ class ClosingController extends Controller
         ]);
     }
 
-    public function list(Request $request)
+     public function list()
     {
-        $tahun = $request->input('tahun');
-        $bulan = $request->input('bulan');
-
-        Log::info('ClosingController list params', [
-            'tahun' => $tahun,
-            'bulan' => $bulan
-        ]);
-
         $query = RincianModel::with(['interaksi.customer', 'produk.kategori'])
-            ->where('status', 'closing')
-            ->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
-                if ($tahun) {
-                    $q->whereYear('tanggal_chat', $tahun);
-                }
-                if ($bulan) {
-                    $q->whereMonth('tanggal_chat', $bulan);
-                }
-            });
+            ->where('status', 'closing');
 
         return DataTables::of($query)
             ->addIndexColumn()

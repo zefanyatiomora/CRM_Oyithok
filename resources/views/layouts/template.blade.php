@@ -36,26 +36,35 @@
 
   {{-- Stack tambahan CSS dari child --}}
   @stack('css')
+<style>
+  body {
+    overflow-x: hidden;
+    min-height: 100vh;
 
-  <style>
-    .main-sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        overflow-y: auto;
-    }
-    .content-wrapper {
-        margin-left: 250px; /* atau sesuai lebar sidebar */
-        padding-top: 1rem;
-    }
-    body {
-        overflow-x: hidden;
-    }
-    .sidebar {
-        padding-bottom: 50px;
-    }
-  </style>
+    background: linear-gradient(
+    135deg, 
+    #ffffff 0%, 
+    #f5dff9 40%, 
+    #ffffff 100%
+);
+}
+
+
+  .content-wrapper {
+      background: transparent; /* biar transparan, pakai body bg */
+      margin-left: 250px;
+      padding-top: 1rem;
+  }
+
+  .main-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      overflow-y: auto;
+  }
+</style>
+
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -148,6 +157,12 @@
       }
     });
   }
+  // Tambahkan di JS global
+  function modalAction(url) {
+      $('#myModal').modal('show'); // buka modal
+      $('#myModal .modal-content').load(url); // load konten via AJAX
+  }
+
 </script>
 <!-- Select2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
