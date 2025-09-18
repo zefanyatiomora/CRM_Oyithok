@@ -67,12 +67,14 @@ class KebutuhanController extends Controller
         }
 
         // -- BAGIAN INI BERJALAN UNTUK KEDUA SCENARIO --
+        $tanggalChat = $request->input('tanggal_chat', now()->format('Y-m-d'));
         // Buat interaksi menggunakan customerId yang sudah didapat
         $interaksi = InteraksiModel::create([
             'customer_id' => $customerId,
             'produk_id' => 11,
-            'tanggal_chat' => now(),
+            'tanggal_chat' => $tanggalChat,
             'original_step' => 0,
+            'status' => 'ask',
             'tahapan' => 'identifikasi',
         ]);
 
@@ -80,7 +82,8 @@ class KebutuhanController extends Controller
 
         return response()->json([
             'status'  => true,
-            'message' => 'Interaksi berhasil disimpan untuk Customer ID: '
+            'message' => 'Interaksi berhasil disimpan untuk Customer ID: ',
+            'interaksi_id' => $interaksi->interaksi_id
         ]);
     }
 

@@ -212,14 +212,13 @@ $totalLeadsLama = array_sum($dataLeadsLama);
                     $q->whereBetween('tanggal_chat', [$startDate, $endDate]);
                 });
 
+                $countAll = (clone $pasangQuery)->where('status', 'closing all')->count();
                 $countProduk = (clone $pasangQuery)->where('status', 'closing produk')->count();
                 $countPasang = (clone $pasangQuery)->where('status', 'closing pasang')->count();
 
                 $countSurvey = SurveyModel::whereHas('interaksi', function ($q) use ($startDate, $endDate) {
                     $q->whereBetween('tanggal_chat', [$startDate, $endDate]);
                 })->count();
-
-                $countAll = $countProduk + $countPasang + $countSurvey;
 
                 $rateClosingDatasets[] = [
                     'label' => 'Minggu ' . ($index + 1),
@@ -357,80 +356,80 @@ public function ask(Request $request)
 
         return view('dashboard.followup', compact('activeMenu', 'tahun', 'bulan'));
     }
-     public function broadcast(Request $request)
-{
-    // Modal konfirmasi broadcast
-    return view('broadcast.followup_broadcast');
-}
-public function sendBroadcast(Request $request)
-{
-    $tahun = $request->input('tahun', date('Y'));
-    $bulan = $request->input('bulan');
-
-    $token = env('WABLAS_API_TOKEN', 'rsOFZQEEWNCTK3BRb5vijjQ0xCo59C32OqSh8yYmdhkyPS6cOSx7eZa');
-    $secret = env('WABLAS_SECRET_KEY', 'IXMoblCR'); // kalau ada secret key
-
-    $interaksi = InteraksiAwalModel::with(['interaksi.customer'])
-        ->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
-            $q->whereYear('tanggal_chat', $tahun);
-            if ($bulan) {
-                $q->whereMonth('tanggal_chat', $bulan);
-            }
-            $q->where('status', 'followup');
-        })
-        ->get();
-
-    foreach ($interaksi as $item) {
-        $customer = $item->interaksi->customer ?? null;
-        if (!$customer || !$customer->customer_nohp) {
-            continue;
-        }
-
-        $nama = $customer->customer_nama;
-        $nohp = $customer->customer_nohp;
-
-        // ✅ Normalisasi nomor: ubah 08xxx jadi 62xxx
-        $nohp = preg_replace('/\D/', '', $nohp); // buang non digit
-        $nohp = preg_replace('/^0/', '62', $nohp);
-
-         $pesan = "Halo kak {$nama}👋, kami mau follow up terkait katalog & inspirasi desain yang sudah kami kirim kemarin.\n"
-            . "Kalau ada desain atau produk yang kak {$nama} suka, bisa langsung balas ya 🙌. Kalau masih bingung, tim kami siap bantu kasih rekomendasi sesuai kebutuhan.\n\n"
-            . "Kalau mau lanjut, tinggal balas aja:\n"
-            . "✅ Ya — untuk dibantu rekomendasi produk/desain\n"
-            . "❌ Tidak — kalau belum butuh saat ini";
-
-        try {
-            $headers = [
-                'Authorization' => $token,
-            ];
-            if ($secret) {
-                $headers['Secret'] = $secret;
-            }
-
-            $response = Http::withHeaders($headers)->post('https://sby.wablas.com/api/send-message', [
-                'phone'   => $nohp,
-                'message' => $pesan,
-            ]);
-
-            $result = $response->json();
-            Log::info("WA Broadcast -> {$nohp}", $result);
-
-            if (!isset($result['status']) || $result['status'] !== true) {
-                Log::error("Gagal kirim ke {$nohp}", $result);
-            }
-
-            sleep(1); // jeda agar tidak dianggap spam
-
-        } catch (\Exception $e) {
-            Log::error("Exception kirim WA ke {$nohp}: " . $e->getMessage());
-        }
+    public function broadcast(Request $request)
+    {
+        // Modal konfirmasi broadcast
+        return view('broadcast.followup_broadcast');
     }
+    public function sendBroadcast(Request $request)
+    {
+        $tahun = $request->input('tahun', date('Y'));
+        $bulan = $request->input('bulan');
 
-    return response()->json([
-        'status'  => 'success',
-        'message' => 'Broadcast berhasil diproses, cek log untuk hasil detail'
-    ]);
-}
+        $token = env('WABLAS_API_TOKEN', 'rsOFZQEEWNCTK3BRb5vijjQ0xCo59C32OqSh8yYmdhkyPS6cOSx7eZa');
+        $secret = env('WABLAS_SECRET_KEY', 'IXMoblCR'); // kalau ada secret key
+
+        $interaksi = InteraksiAwalModel::with(['interaksi.customer'])
+            ->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
+                $q->whereYear('tanggal_chat', $tahun);
+                if ($bulan) {
+                    $q->whereMonth('tanggal_chat', $bulan);
+                }
+                $q->where('status', 'follow up');
+            })
+            ->get();
+
+        foreach ($interaksi as $item) {
+            $customer = $item->interaksi->customer ?? null;
+            if (!$customer || !$customer->customer_nohp) {
+                continue;
+            }
+
+            $nama = $customer->customer_nama;
+            $nohp = $customer->customer_nohp;
+
+            // ✅ Normalisasi nomor: ubah 08xxx jadi 62xxx
+            $nohp = preg_replace('/\D/', '', $nohp); // buang non digit
+            $nohp = preg_replace('/^0/', '62', $nohp);
+
+            $pesan = "Halo kak {$nama}👋, kami mau follow up terkait katalog & inspirasi desain yang sudah kami kirim kemarin.\n"
+                . "Kalau ada desain atau produk yang kak {$nama} suka, bisa langsung balas ya 🙌. Kalau masih bingung, tim kami siap bantu kasih rekomendasi sesuai kebutuhan.\n\n"
+                . "Kalau mau lanjut, tinggal balas aja:\n"
+                . "✅ Ya — untuk dibantu rekomendasi produk/desain\n"
+                . "❌ Tidak — kalau belum butuh saat ini";
+
+            try {
+                $headers = [
+                    'Authorization' => $token,
+                ];
+                if ($secret) {
+                    $headers['Secret'] = $secret;
+                }
+
+                $response = Http::withHeaders($headers)->post('https://sby.wablas.com/api/send-message', [
+                    'phone'   => $nohp,
+                    'message' => $pesan,
+                ]);
+
+                $result = $response->json();
+                Log::info("WA Broadcast -> {$nohp}", $result);
+
+                if (!isset($result['status']) || $result['status'] !== true) {
+                    Log::error("Gagal kirim ke {$nohp}", $result);
+                }
+
+                sleep(1); // jeda agar tidak dianggap spam
+
+            } catch (\Exception $e) {
+                Log::error("Exception kirim WA ke {$nohp}: " . $e->getMessage());
+            }
+        }
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Broadcast berhasil diproses, cek log untuk hasil detail'
+        ]);
+    }
 
     public function hold(Request $request)
     {

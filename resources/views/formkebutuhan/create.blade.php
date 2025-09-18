@@ -8,6 +8,17 @@
         <h3 class="card-title">Data Customer</h3>
     </div>
     <div class="card-body">
+        <div class="form-group">
+            <label for="tanggal_chat">Tanggal Interaksi</label>
+            <div class="input-group">
+                <input type="date" class="form-control" id="tanggal_chat" name="tanggal_chat"
+                    value="{{ old('tanggal_chat', \Carbon\Carbon::today()->format('Y-m-d')) }}" required>
+                <button type="button" class="btn btn-outline-purple" id="btn-today">Hari Ini</button>
+                <button type="button" class="btn btn-outline-purple" id="btn-yesterday">Kemarin</button>
+            </div>
+            <small class="text-muted">Format: Tahun-Bulan-Tanggal</small>
+        </div>
+
         <div class="row">
             <!-- Kolom Kiri -->
             <div class="col-md-6">
@@ -59,7 +70,7 @@
 
 
             <div class="card-footer text-right">
-                <button type="submit" class="btn btn-primary">Simpan</button>
+                <button type="submit" class="btn btn-purple">Simpan</button>
             </div>
         </div>
     </form>
@@ -77,6 +88,29 @@
         border: 1px solid #ced4da;
         z-index: 9999;
     }
+    .btn-outline-purple {
+        color: #A374FF;              /* warna teks purple */
+        border: 1px solid #A374FF;   /* outline purple */
+        background-color: #fff;      /* background putih */
+    }
+
+    .btn-outline-purple:hover,
+    .btn-outline-purple:focus,
+    .btn-outline-purple:active,
+    .btn-outline-purple.active {
+        color: #fff;                 /* teks jadi putih */
+        background-color: #A374FF;   /* background purple */
+        border-color: #A374FF;       /* outline purple */
+    }
+    .btn-purple {
+    color: #fff;
+    background-color: #A374FF;
+    }   
+    .btn-purple:hover {
+        color: #fff;
+        background-color: #9364f2;
+    }
+
 </style>
 @endpush
 
@@ -84,6 +118,18 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(function () {
+    // Tombol "Hari Ini" dan "Kemarin"
+    $('#btn-today').click(function() {
+        let today = new Date().toISOString().split('T')[0];
+        $('#tanggal_chat').val(today);
+    });
+
+    $('#btn-yesterday').click(function() {
+        let d = new Date();
+        d.setDate(d.getDate() - 1);
+        let yesterday = d.toISOString().split('T')[0];
+        $('#tanggal_chat').val(yesterday);
+    });
     // Select2
     $('#produk_id').select2({
         placeholder: 'Pilih produk yang dibutuhkan',
@@ -99,14 +145,14 @@ $(function () {
                 if (data.length > 0) {
                     data.forEach(customer => {
                         list += `<a href="#" class="list-group-item list-group-item-action" 
-                                    data-id="${customer.customer_id}" 
-                                    data-nama="${customer.customer_nama}"
-                                    data-kode="${customer.customer_kode}"
-                                    data-nohp="${customer.customer_nohp}" 
-                                    data-alamat="${customer.customer_alamat}" 
-                                    data-media="${customer.informasi_media}">
-                                    ${customer.customer_nama} - ${customer.customer_nohp}
-                                 </a>`;
+                                        data-id="${customer.customer_id}" 
+                                        data-nama="${customer.customer_nama}"
+                                        data-kode="${customer.customer_kode}"
+                                        data-nohp="${customer.customer_nohp}" 
+                                        data-alamat="${customer.customer_alamat}" 
+                                        data-media="${customer.informasi_media}">
+                                        ${customer.customer_nama} - ${customer.customer_nohp}
+                                    </a>`;
                     });
                 } else {
                     $('#customer_id').val(''); // reset kalau tidak ada
@@ -128,11 +174,17 @@ $(function () {
         $('#customer_nama').val($(this).data('nama'));
         $('#customer_kode').val($(this).data('kode'));
 
-        let nohp = $(this).data('nohp').replace(/\D/g, '');
-        if (nohp.startsWith('0')) {
-            nohp = nohp.substring(1);
+        // FIX: Ensure the data is a string before calling .replace()
+        let nohp = $(this).data('nohp');
+        if (nohp !== null && nohp !== undefined) {
+            nohp = nohp.toString().replace(/\D/g, '');
+            if (nohp.startsWith('0')) {
+                nohp = nohp.substring(1);
+            }
+            $('#customer_nohp').val(nohp);
+        } else {
+            $('#customer_nohp').val(''); // Clear the field if data is null or undefined
         }
-        $('#customer_nohp').val(nohp);
 
         $('#customer_alamat').val($(this).data('alamat'));
         $('#informasi_media').val($(this).data('media')).trigger('change');
@@ -165,11 +217,18 @@ $(function () {
             success: function(response) {
                 if (response.status) {
                     Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
                         icon: 'success',
-                        title: 'Berhasil',
-                        text: response.message
+                        title: response.message
                     }).then(() => {
-                        location.reload();
+                        // Redirect ke halaman rekap setelah SweetAlert ditutup
+                        window.location.href = '{{ route("rekap.index") }}';                    
+                        // Redirect langsung ke show_ajax
+                        // window.location.href = `/rekap/${response.interaksi_id}/show_ajax`;
+                        // window.location.href = "{{ url('rekap') }}/" + response.interaksi_id + "/show_ajax";
                     });
                 } else {
                     Swal.fire({
@@ -178,7 +237,20 @@ $(function () {
                         text: response.message
                     });
                 }
+            },
+            error: function(xhr, status, error) {
+            // Tambahkan penanganan error, misalnya validasi dari server
+            let errors = xhr.responseJSON.errors;
+            let errorMessage = "Terjadi kesalahan. Pastikan semua data terisi dengan benar.";
+            if (errors) {
+                errorMessage = Object.values(errors).join('<br>');
             }
+            Swal.fire({
+                icon: 'error',
+                title: 'Validasi Gagal',
+                html: errorMessage
+            });
+        }
         });
     });
 });
