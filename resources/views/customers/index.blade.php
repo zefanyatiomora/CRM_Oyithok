@@ -19,6 +19,8 @@
                         <th>No</th>
                         <th>Kode Customer</th>
                         <th>Nama Customer</th>
+                        <th>Total Transaksi </th>
+                        <th>Total Cash </th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -66,6 +68,18 @@
                 },
                 {
                     data: "customer_nama",
+                    className: "",
+                    orderable: true,
+                    searchable: true
+                },
+                {
+                    data: "total_transaction",
+                    className: "",
+                    orderable: true,
+                    searchable: true
+                },
+                {
+                    data: "total_cash_spent",
                     className: "",
                     orderable: true,
                     searchable: true

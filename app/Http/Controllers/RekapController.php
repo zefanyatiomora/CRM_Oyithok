@@ -9,6 +9,7 @@ use App\Models\PICModel;
 use App\Models\KategoriModel;
 use App\Models\ProdukModel;
 use App\Models\SurveyModel;
+use App\Models\CustomersModel;
 use App\Models\PasangKirimModel;
 use App\Models\RincianModel;
 use Illuminate\Http\Request;
@@ -176,6 +177,10 @@ class RekapController extends Controller
         $interaksi = InteraksiModel::findOrFail($interaksi_id);
         $interaksi->status = $request->status;
         $interaksi->save();
+        $interaksi->refresh();
+        $customer = $interaksi->customer;
+        $customer->refreshLoyalty();
+
 
         return response()->json(['success' => true]);
     }
@@ -313,7 +318,7 @@ class RekapController extends Controller
             $produk = ProdukModel::with('kategori')
                 ->select('produk_id', 'produk_nama', 'satuan', 'kategori_id')
                 ->get();
-            $closing = ['closing all', 'closing product', 'closing pasang'];
+            $closing = ['closing all', 'closing produk', 'closing pasang'];
 
             $pasang = PasangKirimModel::with('produk')
                 ->where('interaksi_id', $id_interaksi)
@@ -370,7 +375,7 @@ class RekapController extends Controller
             'deskripsi' => 'required|string|max:255',
             'alamat' => 'required|string|max:255',
             'jadwal_pasang_kirim' => 'required|date',
-            'status' => 'required|in:closing all,closing product,closing pasang', // tambahkan validasi status
+            'status' => 'required|in:closing all,closing produk,closing pasang', // tambahkan validasi status
         ]);
 
         try {

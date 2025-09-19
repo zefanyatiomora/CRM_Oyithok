@@ -78,74 +78,78 @@ class DashboardController extends Controller
         ];
 
         // === Logika Leads Baru vs Lama ===
-$chartLabels   = [];
-$dataLeadsBaru = [];
-$dataLeadsLama = [];
+        $chartLabels   = [];
+        $dataLeadsBaru = [];
+        $dataLeadsLama = [];
 
-if ($bulan) {
-    // Per hari dalam bulan terpilih
-    $jumlahHari = Carbon::create($tahun, $bulan)->daysInMonth;
-    for ($hari = 1; $hari <= $jumlahHari; $hari++) {
-        $chartLabels[] = $hari;
+        if ($bulan) {
+            // Per hari dalam bulan terpilih
+            $jumlahHari = Carbon::create($tahun, $bulan)->daysInMonth;
+            for ($hari = 1; $hari <= $jumlahHari; $hari++) {
+                $chartLabels[] = $hari;
 
-        // Semua customer unik di hari ini (via join interaksi_realtime -> interaksi)
-$customerHariIni = DB::table('interaksi_realtime as ir')
-    ->join('interaksi as i', 'ir.interaksi_id', '=', 'i.interaksi_id') // ✅ fix disini
-    ->whereYear('ir.tanggal', $tahun)
-    ->whereMonth('ir.tanggal', $bulan)
-    ->whereDay('ir.tanggal', $hari)
-    ->pluck('i.customer_id')
-    ->unique();
+                // Semua customer unik di hari ini (via join interaksi_realtime -> interaksi)
+                $customerHariIni = DB::table('interaksi_realtime as ir')
+                    ->join('interaksi as i', 'ir.interaksi_id', '=', 'i.interaksi_id') // ✅ fix disini
+                    ->whereYear('ir.tanggal', $tahun)
+                    ->whereMonth('ir.tanggal', $bulan)
+                    ->whereDay('ir.tanggal', $hari)
+                    ->pluck('i.customer_id')
+                    ->unique();
 
-        $leadsBaruHariIni = 0;
-        foreach ($customerHariIni as $cid) {
-            $firstInteraksi = DB::table('interaksi')
-                ->where('customer_id', $cid)
-                ->orderBy('tanggal_chat', 'asc')
-                ->value('tanggal_chat');
+                $leadsBaruHariIni = 0;
+                foreach ($customerHariIni as $cid) {
+                    $firstInteraksi = DB::table('interaksi')
+                        ->where('customer_id', $cid)
+                        ->orderBy('tanggal_chat', 'asc')
+                        ->value('tanggal_chat');
 
-            if ($firstInteraksi && Carbon::parse($firstInteraksi)->year == $tahun 
-                && Carbon::parse($firstInteraksi)->month == $bulan) {
-                $leadsBaruHariIni++;
+                    if (
+                        $firstInteraksi && Carbon::parse($firstInteraksi)->year == $tahun
+                        && Carbon::parse($firstInteraksi)->month == $bulan
+                    ) {
+                        $leadsBaruHariIni++;
+                    }
+                }
+
+                $dataLeadsBaru[] = $leadsBaruHariIni;
+                $dataLeadsLama[] = count($customerHariIni) - $leadsBaruHariIni;
+            }
+        } else {
+            // Per bulan dalam setahun
+            foreach ($bulanList as $key => $namaBulan) {
+                $chartLabels[] = $namaBulan;
+
+                // Semua customer unik di bulan ini (via join interaksi_realtime -> interaksi)
+                $customerBulanIni = DB::table('interaksi_realtime as ir')
+                    ->join('interaksi as i', 'ir.interaksi_id', '=', 'i.interaksi_id') // ✅ fix disini juga
+                    ->whereYear('ir.tanggal', $tahun)
+                    ->whereMonth('ir.tanggal', $key)
+                    ->pluck('i.customer_id')
+                    ->unique();
+
+                $leadsBaruBulanIni = 0;
+                foreach ($customerBulanIni as $cid) {
+                    $firstInteraksi = DB::table('interaksi')
+                        ->where('customer_id', $cid)
+                        ->orderBy('tanggal_chat', 'asc')
+                        ->value('tanggal_chat');
+
+                    if (
+                        $firstInteraksi && Carbon::parse($firstInteraksi)->year == $tahun
+                        && Carbon::parse($firstInteraksi)->month == $key
+                    ) {
+                        $leadsBaruBulanIni++;
+                    }
+                }
+
+                $dataLeadsBaru[] = $leadsBaruBulanIni;
+                $dataLeadsLama[] = count($customerBulanIni) - $leadsBaruBulanIni;
             }
         }
 
-        $dataLeadsBaru[] = $leadsBaruHariIni;
-        $dataLeadsLama[] = count($customerHariIni) - $leadsBaruHariIni;
-    }
-} else {
-    // Per bulan dalam setahun
-    foreach ($bulanList as $key => $namaBulan) {
-        $chartLabels[] = $namaBulan;
-
-        // Semua customer unik di bulan ini (via join interaksi_realtime -> interaksi)
-        $customerBulanIni = DB::table('interaksi_realtime as ir')
-    ->join('interaksi as i', 'ir.interaksi_id', '=', 'i.interaksi_id') // ✅ fix disini juga
-    ->whereYear('ir.tanggal', $tahun)
-    ->whereMonth('ir.tanggal', $key)
-    ->pluck('i.customer_id')
-    ->unique();
-
-        $leadsBaruBulanIni = 0;
-        foreach ($customerBulanIni as $cid) {
-            $firstInteraksi = DB::table('interaksi')
-                ->where('customer_id', $cid)
-                ->orderBy('tanggal_chat', 'asc')
-                ->value('tanggal_chat');
-
-            if ($firstInteraksi && Carbon::parse($firstInteraksi)->year == $tahun 
-                && Carbon::parse($firstInteraksi)->month == $key) {
-                $leadsBaruBulanIni++;
-            }
-        }
-
-        $dataLeadsBaru[] = $leadsBaruBulanIni;
-        $dataLeadsLama[] = count($customerBulanIni) - $leadsBaruBulanIni;
-    }
-}
-
-$totalLeadsBaru = array_sum($dataLeadsBaru);
-$totalLeadsLama = array_sum($dataLeadsLama);
+        $totalLeadsBaru = array_sum($dataLeadsBaru);
+        $totalLeadsLama = array_sum($dataLeadsLama);
 
 
         // Debug log
@@ -181,7 +185,7 @@ $totalLeadsLama = array_sum($dataLeadsLama);
             ->map->count();
 
         $closingKategori = PasangKirimModel::with('produk.kategori', 'interaksi')
-            ->whereIn('status', ['closing produk', 'closing pasang'])
+            ->whereIn('status', ['closing produk', 'closing pasang', 'closing all'])
             ->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
                 $q->whereYear('tanggal_chat', $tahun);
                 if ($bulan) $q->whereMonth('tanggal_chat', $bulan);
@@ -252,8 +256,13 @@ $totalLeadsLama = array_sum($dataLeadsLama);
         $doughnutData   = $penjualanData->values();
 
         $doughnutColors = [
-            '#6690FF', '#A374FF', '#5C54AD',
-            '#FF7373', '#6C63AC', '#FFB6C1', '#87CEEB'
+            '#6690FF',
+            '#A374FF',
+            '#5C54AD',
+            '#FF7373',
+            '#6C63AC',
+            '#FFB6C1',
+            '#87CEEB'
         ];
 
         return view('dashboard.index', [
@@ -302,29 +311,29 @@ $totalLeadsLama = array_sum($dataLeadsLama);
             'rateClosingDatasets' => $rateClosingDatasets,
         ]);
     }
-public function ask(Request $request)
-{
-    $query = InteraksiModel::with('customer')
-        ->where('status', 'ask');
+    public function ask(Request $request)
+    {
+        $query = InteraksiModel::with('customer')
+            ->where('status', 'ask');
 
-    if ($request->ajax()) {
-        return DataTables::of($query)
-            ->addIndexColumn()
-            ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
-            ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
-            ->addColumn('aksi', function ($row) {
-                $url = route('rekap.show_ajax', $row->interaksi_id);
-                return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-primary">
+        if ($request->ajax()) {
+            return DataTables::of($query)
+                ->addIndexColumn()
+                ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
+                ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
+                ->addColumn('aksi', function ($row) {
+                    $url = route('rekap.show_ajax', $row->interaksi_id);
+                    return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-primary">
                         <i class="fas fa-eye"></i> Detail
                     </button>';
-            })
-            ->rawColumns(['aksi'])
-            ->make(true);
-    }
+                })
+                ->rawColumns(['aksi'])
+                ->make(true);
+        }
 
-    $activeMenu = 'dashboard';
-    return view('dashboard.ask', compact('activeMenu'));
-}
+        $activeMenu = 'dashboard';
+        return view('dashboard.ask', compact('activeMenu'));
+    }
 
     // RekapController.php
 
@@ -335,8 +344,8 @@ public function ask(Request $request)
         $bulan = $request->get('bulan');
 
         // di followup()
-   $query = InteraksiModel::with('customer')
-    ->whereIn('status', ['followup', 'follow up']);
+        $query = InteraksiModel::with('customer')
+            ->whereIn('status', ['followup', 'follow up']);
 
         if ($request->ajax()) {
             return DataTables::of($query)
