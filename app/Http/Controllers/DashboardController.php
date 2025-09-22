@@ -88,14 +88,13 @@ if ($bulan) {
     for ($hari = 1; $hari <= $jumlahHari; $hari++) {
         $chartLabels[] = $hari;
 
-        // Semua customer unik di hari ini (via join interaksi_realtime -> interaksi)
-$customerHariIni = DB::table('interaksi_realtime as ir')
-    ->join('interaksi as i', 'ir.interaksi_id', '=', 'i.interaksi_id') // ✅ fix disini
-    ->whereYear('ir.tanggal', $tahun)
-    ->whereMonth('ir.tanggal', $bulan)
-    ->whereDay('ir.tanggal', $hari)
-    ->pluck('i.customer_id')
-    ->unique();
+        $customerHariIni = DB::table('interaksi_realtime as ir')
+            ->join('interaksi as i', 'ir.interaksi_id', '=', 'i.interaksi_id')
+            ->whereYear('ir.tanggal', $tahun)
+            ->whereMonth('ir.tanggal', $bulan)
+            ->whereDay('ir.tanggal', $hari)
+            ->pluck('i.customer_id')
+            ->unique();
 
         $leadsBaruHariIni = 0;
         foreach ($customerHariIni as $cid) {
@@ -113,40 +112,11 @@ $customerHariIni = DB::table('interaksi_realtime as ir')
         $dataLeadsBaru[] = $leadsBaruHariIni;
         $dataLeadsLama[] = count($customerHariIni) - $leadsBaruHariIni;
     }
-} else {
-    // Per bulan dalam setahun
-    foreach ($bulanList as $key => $namaBulan) {
-        $chartLabels[] = $namaBulan;
-
-        // Semua customer unik di bulan ini (via join interaksi_realtime -> interaksi)
-        $customerBulanIni = DB::table('interaksi_realtime as ir')
-    ->join('interaksi as i', 'ir.interaksi_id', '=', 'i.interaksi_id') // ✅ fix disini juga
-    ->whereYear('ir.tanggal', $tahun)
-    ->whereMonth('ir.tanggal', $key)
-    ->pluck('i.customer_id')
-    ->unique();
-
-        $leadsBaruBulanIni = 0;
-        foreach ($customerBulanIni as $cid) {
-            $firstInteraksi = DB::table('interaksi')
-                ->where('customer_id', $cid)
-                ->orderBy('tanggal_chat', 'asc')
-                ->value('tanggal_chat');
-
-            if ($firstInteraksi && Carbon::parse($firstInteraksi)->year == $tahun 
-                && Carbon::parse($firstInteraksi)->month == $key) {
-                $leadsBaruBulanIni++;
-            }
-        }
-
-        $dataLeadsBaru[] = $leadsBaruBulanIni;
-        $dataLeadsLama[] = count($customerBulanIni) - $leadsBaruBulanIni;
-    }
 }
 
-$totalLeadsBaru = array_sum($dataLeadsBaru);
-$totalLeadsLama = array_sum($dataLeadsLama);
-
+// total hanya dihitung kalau ada bulan
+$totalLeadsBaru = $bulan ? array_sum($dataLeadsBaru) : 0;
+$totalLeadsLama = $bulan ? array_sum($dataLeadsLama) : 0;
 
         // Debug log
         Log::info('--- DEBUGGING DASHBOARD LEADS ---', [
@@ -190,46 +160,120 @@ $totalLeadsLama = array_sum($dataLeadsLama);
             ->groupBy(fn($item) => $item->produk->kategori->kategori_nama ?? 'Tanpa Kategori')
             ->map->count();
 
-        // === Rate Closing Line Chart ===
-        $rateClosingLabels = ['All', 'Produk', 'Pasang', 'Survei'];
-        $rateClosingDatasets = [];
+// === Rate Closing Line Chart ===
+$rateClosingDatasets = [];
 
-        if ($bulan) {
-            $weeks = [
-                ['start' => 1, 'end' => 7],
-                ['start' => 8, 'end' => 14],
-                ['start' => 15, 'end' => 21],
-                ['start' => 22, 'end' => Carbon::create($tahun, $bulan)->endOfMonth()->day],
-            ];
+if ($bulan) {
+    // ---------------------------
+    // MODE PER MINGGU (dalam 1 bulan)
+    // ---------------------------
+    $weeks = [
+        ['start' => 1, 'end' => 7],
+        ['start' => 8, 'end' => 14],
+        ['start' => 15, 'end' => 21],
+        ['start' => 22, 'end' => Carbon::create($tahun, $bulan)->endOfMonth()->day],
+    ];
 
-            $lineColors = ['#5C54AD', '#818CF8', '#000000', '#FF7373'];
+    $rateClosingLabels = ['All', 'Produk', 'Pasang', 'Survei'];
 
-            foreach ($weeks as $index => $week) {
-                $startDate = Carbon::create($tahun, $bulan, $week['start'])->startOfDay();
-                $endDate   = Carbon::create($tahun, $bulan, $week['end'])->endOfDay();
+    foreach ($rateClosingLabels as $label) {
+        $data = [];
+        foreach ($weeks as $week) {
+            $startDate = Carbon::create($tahun, $bulan, $week['start'])->startOfDay();
+            $endDate   = Carbon::create($tahun, $bulan, $week['end'])->endOfDay();
 
-                $pasangQuery = PasangKirimModel::whereHas('interaksi', function ($q) use ($startDate, $endDate) {
-                    $q->whereBetween('tanggal_chat', [$startDate, $endDate]);
-                });
-
-                $countAll = (clone $pasangQuery)->where('status', 'closing all')->count();
-                $countProduk = (clone $pasangQuery)->where('status', 'closing produk')->count();
-                $countPasang = (clone $pasangQuery)->where('status', 'closing pasang')->count();
-
-                $countSurvey = SurveyModel::whereHas('interaksi', function ($q) use ($startDate, $endDate) {
-                    $q->whereBetween('tanggal_chat', [$startDate, $endDate]);
-                })->count();
-
-                $rateClosingDatasets[] = [
-                    'label' => 'Minggu ' . ($index + 1),
-                    'data' => [$countAll, $countProduk, $countPasang, $countSurvey],
-                    'borderColor' => $lineColors[$index],
-                    'backgroundColor' => $lineColors[$index],
-                    'tension' => 0.1,
-                    'fill' => false,
-                ];
+            // Hitung sesuai kategori
+            if ($label === 'All') {
+                $count = PasangKirimModel::whereHas('interaksi', fn($q) =>
+                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
+                        ->whereIn('status', ['closing produk','closing pasang'])
+                        ->count()
+                        +
+                        SurveyModel::whereHas('interaksi', fn($q) =>
+                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
+                        ->count();
+            } elseif ($label === 'Produk') {
+                $count = PasangKirimModel::whereHas('interaksi', fn($q) =>
+                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
+                        ->where('status', 'closing produk')
+                        ->count();
+            } elseif ($label === 'Pasang') {
+                $count = PasangKirimModel::whereHas('interaksi', fn($q) =>
+                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
+                        ->where('status', 'closing pasang')
+                        ->count();
+            } else { // Survei
+                $count = SurveyModel::whereHas('interaksi', fn($q) =>
+                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
+                        ->count();
             }
+
+            $data[] = $count;
         }
+
+        $rateClosingDatasets[] = [
+            'label' => $label,
+            'data' => $data,
+            'borderColor' => $label === 'All' ? '#6C63AC' :
+                             ($label === 'Produk' ? '#FF7373' :
+                             ($label === 'Pasang' ? '#87CEEB' : '#5C54AD')),
+            'tension' => 0.3,
+            'fill' => false,
+        ];
+    }
+
+} else {
+    // ---------------------------
+    // MODE PER BULAN (1 tahun penuh)
+    // ---------------------------
+    $months = range(1, 12);
+    $rateClosingLabels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+
+    foreach (['All','Produk','Pasang','Survei'] as $label) {
+        $data = [];
+        foreach ($months as $m) {
+            $startDate = Carbon::create($tahun, $m, 1)->startOfMonth();
+            $endDate   = Carbon::create($tahun, $m, 1)->endOfMonth();
+
+            if ($label === 'All') {
+                $count = PasangKirimModel::whereHas('interaksi', fn($q) =>
+                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
+                        ->whereIn('status', ['closing produk','closing pasang'])
+                        ->count()
+                        +
+                        SurveyModel::whereHas('interaksi', fn($q) =>
+                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
+                        ->count();
+            } elseif ($label === 'Produk') {
+                $count = PasangKirimModel::whereHas('interaksi', fn($q) =>
+                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
+                        ->where('status', 'closing produk')
+                        ->count();
+            } elseif ($label === 'Pasang') {
+                $count = PasangKirimModel::whereHas('interaksi', fn($q) =>
+                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
+                        ->where('status', 'closing pasang')
+                        ->count();
+            } else { // Survei
+                $count = SurveyModel::whereHas('interaksi', fn($q) =>
+                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
+                        ->count();
+            }
+
+            $data[] = $count;
+        }
+
+        $rateClosingDatasets[] = [
+            'label' => $label,
+            'data' => $data,
+            'borderColor' => $label === 'All' ? '#6C63AC' :
+                             ($label === 'Produk' ? '#FF7373' :
+                             ($label === 'Pasang' ? '#87CEEB' : '#5C54AD')),
+            'tension' => 0.3,
+            'fill' => false,
+        ];
+    }
+}
 
         // === Data untuk chart kategori produk ===
         $dataAsk = [];

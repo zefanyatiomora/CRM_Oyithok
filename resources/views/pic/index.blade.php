@@ -2,11 +2,15 @@
 
 @section('content')
 <div class="container-fluid">
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Data PIC</h3>
-            <button class="btn btn-success float-right" id="btn-add">+ Tambah PIC</button>
-        </div>
+<div class="card card-outline">
+    <div class="card-header bg-wallpaper-gradient d-flex align-items-center">
+        <h3 class="card-title mb-0">
+            <i class="fas fa-id-card-alt mr-2"></i> Data PIC
+        </h3>
+        <button class="btn btn-sm btn-success ml-auto" id="btn-add">
+            <i class="fas fa-plus-circle mr-1"></i> Tambah PIC
+        </button>
+    </div>
         <div class="card-body">
             <table class="table table-bordered table-striped" id="pic-table">
                 <thead>
@@ -48,7 +52,25 @@
 @endsection
 
 @push('css')
+<style>
+    .card-header.bg-gradient-primary {
+    background: linear-gradient(135deg, #8147be, #c97aeb, #a661c2) !important;
+    border-radius: 15px 15px 0 0;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    color: #fff !important;
+}
+.bg-wallpaper-gradient {
+    background: linear-gradient(135deg, #8147be, #c97aeb, #a661c2);
+    border-radius: 15px 15px 0 0;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    color: #fff;
+}
+    #table-customers th {
+        vertical-align: middle;
+    }
+    </style>
 @endpush
+
 
 @push('js')
 <script>

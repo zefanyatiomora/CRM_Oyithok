@@ -1,14 +1,18 @@
 @extends('layouts.template')
 
 @section('content')
-    <div class="card card-outline card-primary">
-        <div class="card-header">
-            <h3 class="card-title">{{ $page->title }}</h3>
+  <div class="card card-outline">
+        <div class="card-header bg-wallpaper-gradient">
+            <h3 class="card-title">
+    <i class="fas fa-database mr-2"></i> Data Produk
+</h3>
             <div class="card-tools">
-                <button onclick="modalAction('{{ url('/produk/create_ajax') }}')" class="btn btn-sm btn-success mt-1">Tambah</button>
-
+                <button onclick="modalAction('{{ url('/produk/create_ajax') }}')" class="btn btn-sm btn-success mt-1">
+                    <i class="fas fa-plus-circle mr-1"></i> Tambah
+                </button>
             </div>
         </div>
+
         <div class="card-body">
             @if (session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
@@ -34,6 +38,23 @@
 @endsection
 
 @push('css')
+<style>
+    .card-header.bg-gradient-primary {
+    background: linear-gradient(135deg, #8147be, #c97aeb, #a661c2) !important;
+    border-radius: 15px 15px 0 0;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    color: #fff !important;
+}
+.bg-wallpaper-gradient {
+    background: linear-gradient(135deg, #8147be, #c97aeb, #a661c2);
+    border-radius: 15px 15px 0 0;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    color: #fff;
+}
+    #table-customers th {
+        vertical-align: middle;
+    }
+    </style>
 @endpush
 
 
