@@ -15,31 +15,28 @@ class InvoiceModel extends Model
     protected $primaryKey = 'invoice_id';
 
     protected $fillable = [
-        'invoice_number',
-        'customer_id',
-        'pic_id',
-        'invoice_date',
-        'total_amount',
-        'status',
+        'invoice_id',
+        'nomor_invoice',
+        'customer_invoice',
+        'pesanan_masuk',
+        'batas_pelunasan',
+        'potongan_harga',
+        'cashback',
+        'total_akhir',
+        'dp',
+        'tanggal_dp',
+        'tanggal_pelunasan',
+        'sisa_pelunasan',
+        'catatan',
     ];
 
-    public function customer(): BelongsTo
+    public function details(): HasMany
     {
-        return $this->belongsTo(CustomersModel::class, 'customer_id', 'customer_id');
+        return $this->hasMany(InvoiceDetailModel::class, 'invoice_id', 'invoice_id');
     }
 
-    public function pic(): BelongsTo
+    public function keterangans(): HasMany
     {
-        return $this->belongsTo(PICModel::class, 'pic_id', 'pic_id');
-    }
-
-    public function items(): HasMany
-    {
-        return $this->hasMany(InvoiceItemModel::class, 'invoice_id', 'invoice_id');
-    }
-
-    public function payments(): HasMany
-    {
-        return $this->hasMany(InvoicePaymentModel::class, 'invoice_id', 'invoice_id');
+        return $this->hasMany(InvoiceKeteranganModel::class, 'invoice_id', 'invoice_id');
     }
 }

@@ -32,6 +32,20 @@
                     </thead>
                 </table>
             </div>
+
+            {{-- Tabel --}}
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover table-sm" id="table-customers">
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="width: 50px;" class="text-center">No</th>
+                            <th>Kode Customer</th>
+                            <th>Nama Customer</th>
+                            <th style="width: 120px;" class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -81,6 +95,18 @@
                 },
                 { data: "customer_kode", orderable: true, searchable: true },
                 { data: "customer_nama", orderable: true, searchable: true },
+                {
+                    data: "total_transaction",
+                    className: "",
+                    orderable: true,
+                    searchable: true
+                },
+                {
+                    data: "total_cash_spent",
+                    className: "",
+                    orderable: true,
+                    searchable: true
+                },
                 {
                     data: "aksi",
                     className: "text-center",

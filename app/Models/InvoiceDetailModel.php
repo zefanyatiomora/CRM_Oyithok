@@ -6,19 +6,21 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class InvoiceItemModel extends Model
+class InvoiceDetailModel extends Model
 {
     use HasFactory;
 
-    protected $table = 'invoice_items';
+    protected $table = 'invoice_detail';
     protected $primaryKey = 'item_id';
 
     protected $fillable = [
+        'detail_id',
         'invoice_id',
-        'produk_id',
-        'quantity',
-        'price',
-        'subtotal',
+        'pasangkirim_id',
+        'harga_satuan',
+        'total',
+        'diskon',
+        'grand_total',
     ];
 
     public function invoice(): BelongsTo
@@ -26,8 +28,8 @@ class InvoiceItemModel extends Model
         return $this->belongsTo(InvoiceModel::class, 'invoice_id', 'invoice_id');
     }
 
-    public function produk(): BelongsTo
+    public function pasang(): BelongsTo
     {
-        return $this->belongsTo(ProdukModel::class, 'produk_id', 'produk_id');
+        return $this->belongsTo(PasangKirimModel::class, 'pasangkirim_id', 'pasangkirim_id');
     }
 }
