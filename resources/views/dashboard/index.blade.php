@@ -83,7 +83,7 @@
                         <div class="inner text-center">
                             <h3>{{ $jumlahInteraksi }}</h3>
                             <p class="fw-bold">
-                                JUMLAH INTERAKSI
+                                INTERAKSI CUSTOMER
                                 @if ($bulan)
                                     ({{ $bulanList[$bulan] }} {{ $tahun }})
                                 @else

@@ -3,10 +3,12 @@
 <div class="container-fluid">
     <form id="formKebutuhan" action="{{ route('kebutuhan.store') }}" method="POST">
         @csrf
-        <div class="card card-info mt-3">
-    <div class="card-header bg-purple text-white">
-        <h3 class="card-title">Data Customer</h3>
-    </div>
+        <div class="card card-outline mt-3">
+            <div class="card-header bg-gradient-purple d-flex justify-content-between align-items-center">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-user mr-2"></i> Data Customer
+                </h3>
+            </div>
     <div class="card-body">
         <div class="form-group">
             <label for="tanggal_chat">Tanggal Interaksi</label>
@@ -79,8 +81,40 @@
 
 
 @push('css')
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
+    /* Gradient card header ungu */
+    .bg-gradient-purple {
+        background: linear-gradient(135deg, #8147be, #c97aeb, #a661c2) !important;
+        border-radius: 15px 15px 0 0 !important;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.15) !important;
+        color: #fff !important;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    .card.card-outline .card-header .card-title {
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    /* Tombol custom */
+    .btn-outline-purple {
+        color: #A374FF;
+        border: 1px solid #A374FF;
+        background-color: #fff;
+    }
+    .btn-outline-purple:hover {
+        color: #fff;
+        background-color: #A374FF;
+        border-color: #A374FF;
+    }
+    .btn-purple {
+        color: #fff;
+        background-color: #A374FF;
+    }
+    .btn-purple:hover {
+        background-color: #9364f2;
+    }
     #customer_list {
         max-height: 200px;
         overflow-y: auto;
@@ -88,32 +122,8 @@
         border: 1px solid #ced4da;
         z-index: 9999;
     }
-    .btn-outline-purple {
-        color: #A374FF;              /* warna teks purple */
-        border: 1px solid #A374FF;   /* outline purple */
-        background-color: #fff;      /* background putih */
-    }
-
-    .btn-outline-purple:hover,
-    .btn-outline-purple:focus,
-    .btn-outline-purple:active,
-    .btn-outline-purple.active {
-        color: #fff;                 /* teks jadi putih */
-        background-color: #A374FF;   /* background purple */
-        border-color: #A374FF;       /* outline purple */
-    }
-    .btn-purple {
-    color: #fff;
-    background-color: #A374FF;
-    }   
-    .btn-purple:hover {
-        color: #fff;
-        background-color: #9364f2;
-    }
-
 </style>
 @endpush
-
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>

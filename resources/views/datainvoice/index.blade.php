@@ -87,7 +87,7 @@
             responsive: true,
             autoWidth: false,
             lengthChange: true,
-            buttons: ["copy", "csv", "excel", "pdf", "print", "colvis"]
+            buttons: ["excel", "pdf"] 
         }).buttons().container().appendTo('#invoiceTable_wrapper .col-md-6:eq(0)');
     });
 </script>
