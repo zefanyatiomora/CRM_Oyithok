@@ -1,3 +1,10 @@
+<div class="modal-header">
+    <h5 class="modal-title">Tambah Survey</h5>
+    {{-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> --}}
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
 <form id="form-create-survey" enctype="multipart/form-data">
     @csrf
     <!-- Hidden input untuk ID Interaksi -->
@@ -6,7 +13,12 @@
     <!-- Jadwal Survey -->
     <div class="form-group">
         <label>Jadwal Survey</label>
-        <input type="datetime-local" name="jadwal_survey" id="jadwal_survey" class="form-control" required>
+        <div class="input-group">
+            <input type="date" class="form-control" id="jadwal_survey" name="jadwal_survey"
+                value="{{ old('jadwal_survey', \Carbon\Carbon::today()->format('Y-m-d')) }}" required>
+            <button type="button" class="btn btn-outline-primary" id="btn-today">Hari Ini</button>
+            <button type="button" class="btn btn-outline-primary" id="btn-tomorrow">Besok</button>
+        </div>
         <small id="error-jadwal" class="text-danger"></small>
     </div>
 
@@ -22,8 +34,21 @@
 
 </form>
 
+
 <script>
-$(document).ready(function () {
+$(function () {
+    // Tombol "Hari Ini" dan "Besok"
+    $('#btn-today').click(function() {
+        let today = new Date().toISOString().split('T')[0];
+        $('#jadwal_survey').val(today);
+    });
+
+    $('#btn-tomorrow').click(function() {
+        let d = new Date();
+        d.setDate(d.getDate() + 1);
+        let tomorrow = d.toISOString().split('T')[0];
+        $('#jadwal_survey').val(tomorrow);
+    });
     // Submit Form dengan AJAX
     $("#form-create-survey").submit(function (e) {
         e.preventDefault();
@@ -42,9 +67,9 @@ $(document).ready(function () {
                 tableRekap.ajax.reload(null, false);
 
                 let interaksiId = $("#interaksi_id").val();
-                $("#myModal").load("{{ url('rekap') }}/" + interaksiId + "/show_ajax");
+                $("#myModal").load("{{ curl('rekap') }}/" + interaksiId + "/show_ajax");
 
-                $("#form-create-survey").hide();
+                $("#crudModal").modal('hide');
             },
             error: function (xhr) {
                 Swal.fire("Gagal", "Terjadi kesalahan server.", "error");

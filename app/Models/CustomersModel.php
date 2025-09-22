@@ -32,38 +32,33 @@ class CustomersModel extends Model
     // App\Models\CustomersModel.php
     public function refreshLoyalty()
     {
-        // eager load relasi
-        $this->loadMissing('interaksi.pasang.invoiceDetail.invoice');
-
-        // hitung total transaksi closing
-        $totalTransaction = $this->interaksi
+        $closingInteraksi = $this->interaksi()
             ->where('status', 'closing')
-            ->count();
+            ->with('pasang.invoiceDetail.invoice')
+            ->get();
 
-        // hitung total cash spent
-        $totalCashSpent = $this->interaksi
-            ->where('status', 'closing')
-            ->sum(function ($interaksi) {
-                if (
-                    $interaksi->pasang &&
-                    $interaksi->pasang->invoiceDetail &&
-                    $interaksi->pasang->invoiceDetail->invoice
-                ) {
-                    return $interaksi->pasang->invoiceDetail->invoice->total_akhir;
+        $totalTransaction = $closingInteraksi->count();
+
+        $totalCashSpent = $closingInteraksi->sum(function ($interaksi) {
+            $sum = 0;
+            foreach ($interaksi->pasang as $pasang) {
+                if ($pasang->invoiceDetail && $pasang->invoiceDetail->invoice) {
+                    $sum += $pasang->invoiceDetail->invoice->total_akhir;
                 }
-                return 0;
-            });
+            }
+            return $sum;
+        });
 
-        // update field di tabel
         $this->update([
             'total_transaction' => $totalTransaction,
             'total_cash_spent'  => $totalCashSpent,
         ]);
+
         Log::info('Hitung loyalty', [
-            'customer_id' => $this->customer_id,
-            'closing_interaksi' => $this->interaksi->where('status', 'closing')->pluck('interaksi_id'),
-            'totalTransaction' => $totalTransaction,
-            'totalCashSpent' => $totalCashSpent,
+            'customer_id'       => $this->customer_id,
+            'closing_interaksi' => $closingInteraksi->pluck('interaksi_id'),
+            'totalTransaction'  => $totalTransaction,
+            'totalCashSpent'    => $totalCashSpent,
         ]);
     }
 }

@@ -93,40 +93,14 @@
                           <td>{{ $interaksi->customer->customer_hp ?? '-' }}</td>
                       </tr>
                       <tr>
-                            <th>Loyalty</th>
-                            <td>
-                                @php
-                                    $points = $interaksi->customer->loyalty_point ?? 0;
-                                    $level = '';
-                                    $badgeClass = '';
-
-                                    if ($points >= 60) {
-                                        $level = 'Platinum';
-                                        $badgeClass = 'badge-primary';
-                                        $iconClass = 'fas fa-crown'; // Ikon mahkota
-                                    } elseif ($points >= 30) {
-                                        $level = 'Gold';
-                                        $badgeClass = 'badge-warning';
-                                        $iconClass = 'fas fa-medal'; // Ikon medali
-                                    } elseif ($points >= 10) {
-                                        $level = 'Silver';
-                                        $badgeClass = 'badge-secondary';
-                                        $iconClass = 'fas fa-shield-alt'; // Ikon perisai
-                                    } else {
-                                        $level = 'Bronze';
-                                        $badgeClass = 'badge-dark';
-                                        $iconClass = 'fas fa-award'; // Ikon penghargaan
-                                    }
-                                @endphp
-
-                                {{-- Tampilkan badge dengan ikon di dalamnya --}}
-                                <span class="badge {{ $badgeClass }}">
-                                    <i class="{{ $iconClass }} mr-1"></i>{{-- Tambahkan ikon di sini --}}
-                                    {{ $level }}
-                                </span>
-                                <span>({{ $points }} Poin)</span>
-                            </td>
-                            </tr>
+                            <th>Total Transaction</th>
+                            <td>{{ $interaksi->customer->total_transaction}}</td>
+                        </tr>
+                      <tr>
+                      <tr>
+                            <th>Total Cash Spent</th>
+                            <td>{{ $interaksi->customer->total_cash_spentr}}</td>
+                        </tr>
                       <tr>
                             <th>Status</th>
                             <td>
