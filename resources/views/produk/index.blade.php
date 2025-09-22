@@ -1,14 +1,18 @@
 @extends('layouts.template')
 
 @section('content')
-    <div class="card card-outline card-primary">
-        <div class="card-header">
-            <h3 class="card-title">{{ $page->title }}</h3>
+  <div class="card card-outline">
+        <div class="card-header bg-wallpaper-gradient d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0">
+                <i class="fas fa-database mr-2"></i> Data Produk
+            </h3>
             <div class="card-tools">
-                <button onclick="modalAction('{{ url('/produk/create_ajax') }}')" class="btn btn-sm btn-success mt-1">Tambah</button>
-
+                <button onclick="modalAction('{{ url('/produk/create_ajax') }}')" class="btn btn-sm btn-success mt-1">
+                    <i class="fas fa-plus-circle mr-1"></i> Tambah
+                </button>
             </div>
         </div>
+
         <div class="card-body">
             @if (session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
@@ -17,77 +21,140 @@
                 <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
             
-            <table class="table table-bordered table-striped table-hover table-sm" id="table-produk">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Kategori produk</th>
-                        <th>Nama produk</th>
-                        <th>Satuan</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover table-sm" id="table-produk">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Kategori produk</th>
+                            <th>Nama produk</th>
+                            <th>Satuan</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
-    <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" data-width="75%" aria-hidden="true"></div> 
+    <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" 
+         data-backdrop="static" data-keyboard="false" data-width="75%" aria-hidden="true"></div> 
 @endsection
 
 @push('css')
+<style>
+    .card-header.bg-gradient-primary {
+        background: linear-gradient(135deg, #8147be, #c97aeb, #a661c2) !important;
+        border-radius: 15px 15px 0 0;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        color: #fff !important;
+    }
+    .bg-wallpaper-gradient {
+        background: linear-gradient(135deg, #8147be, #c97aeb, #a661c2);
+        border-radius: 15px 15px 0 0;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        color: #fff;
+    }
+    #table-produk th {
+        vertical-align: middle;
+    }
+</style>
 @endpush
 
 
 @push('js') 
-    <script> 
-        function modalAction(url = ''){ 
-            $('#myModal').load(url,function(){ 
-                $('#myModal').modal('show'); 
-            }); 
-        }
-        var dataProduk;
-        $(document).ready(function() { 
-            dataProduk= $('#table-produk').DataTable({
-                // serverSide: true, if using server-side processing 
-                serverSide: true,      
-                ajax: { 
-                    "url": "{{ url('produk/list') }}", 
-                    "type": "POST", 
-                    "dataType": "json"
-                }, 
-                columns: [ 
-                    {
-                        // nomor urut from Laravel datatable addIndexColumn() 
-                        data: "DT_RowIndex",             
-                        className: "text-center", 
-                        orderable: false, 
-                        searchable: false     
-                    },
-                    { 
-                        data: "kategori.kategori_nama",                
-                        className: "", 
-                        orderable: true,     
-                        searchable: true     
-                    },
-                    { 
-                        data: "produk_nama",                
-                        className: "", 
-                        orderable: true,     
-                        searchable: true     
-                    },
-                    { 
-                        data: "satuan",                
-                        className: "", 
-                        orderable: true,     
-                        searchable: true     
-                    },
-                    { 
-                        data: "aksi",                
-                        className: "", 
-                        orderable: false,     
-                        searchable: false     
-                    } 
-                ] 
-            }); 
+<script> 
+    function modalAction(url = ''){ 
+        $('#myModal').load(url,function(){ 
+            $('#myModal').modal('show'); 
         }); 
-    </script> 
+    }
+
+    var dataProduk;
+    $(document).ready(function() { 
+        dataProduk = $('#table-produk').DataTable({
+            serverSide: true,      
+            ajax: { 
+                url: "{{ url('produk/list') }}", 
+                type: "POST", 
+                dataType: "json",
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            }, 
+            columns: [ 
+                { 
+                    data: "DT_RowIndex",             
+                    className: "text-center", 
+                    orderable: false, 
+                    searchable: false     
+                },
+                { data: "kategori.kategori_nama" },
+                { data: "produk_nama" },
+                { data: "satuan" },
+                { data: "aksi", orderable: false, searchable: false } 
+            ],
+            responsive: true,
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.11.5/i18n/Indonesian.json"
+            },
+            dom: '<"d-flex justify-content-between mb-2"fB>rt<"d-flex justify-content-between"lip>',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    title: 'Data Produk',
+                    filename: 'Data_Produk',
+                    text: '<i class="fas fa-file-excel"></i> Excel',
+                    className: 'btn btn-success btn-sm',
+                    exportOptions: {
+                        columns: [0,1,2,3] // tanpa kolom aksi
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    title: 'Data Produk',
+                    filename: 'Data_Produk',
+                    text: '<i class="fas fa-file-pdf"></i> PDF',
+                    className: 'btn btn-danger btn-sm',
+                    orientation: 'landscape',
+                    pageSize: 'A4',
+                    exportOptions: {
+                        columns: [0,1,2,3] // tanpa kolom aksi
+                    },
+                    customize: function (doc) {
+                        doc.styles.title = {
+                            fontSize: 14,
+                            bold: true,
+                            alignment: 'center',
+                            margin: [0, 0, 0, 15]
+                        };
+                        doc.styles.tableHeader = {
+                            bold: true,
+                            fontSize: 11,
+                            color: 'white',
+                            fillColor: '#8147be',
+                            alignment: 'center'
+                        };
+                        var objLayout = {};
+                        objLayout['hLineWidth'] = function(i) { return .5; };
+                        objLayout['vLineWidth'] = function(i) { return .5; };
+                        objLayout['hLineColor'] = function(i) { return '#aaa'; };
+                        objLayout['vLineColor'] = function(i) { return '#aaa'; };
+                        objLayout['paddingLeft'] = function(i) { return 4; };
+                        objLayout['paddingRight'] = function(i) { return 4; };
+                        doc.content[1].layout = objLayout;
+                        doc.pageMargins = [40, 60, 40, 40];
+                        doc.footer = function (currentPage, pageCount) {
+                            return {
+                                text: currentPage.toString() + ' / ' + pageCount,
+                                alignment: 'center',
+                                fontSize: 9,
+                                margin: [0, 10, 0, 0]
+                            };
+                        };
+                    }
+                }
+            ]
+        }); 
+    }); 
+</script> 
 @endpush

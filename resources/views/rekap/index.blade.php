@@ -1,11 +1,13 @@
 @extends('layouts.template')
 
 @section('content')
-    <div class="card card-outline card-primary">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="card-title">{{ $page->title }}</h3>
-            <a href="{{ url('/kebutuhan') }}" class="btn btn-primary btn-sm">
-                <i class="fas fa-cash-register"></i> Tambah Data Customers
+    <div class="card card-outline">
+        <div class="card-header bg-wallpaper-gradient d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0">
+                <i class="fas fa-users mr-2"></i> {{ $page->title }}
+            </h3>
+            <a href="{{ url('/kebutuhan') }}" class="btn btn-light btn-sm shadow-sm">
+                <i class="fas fa-cash-register mr-1"></i> Tambah Data Customers
             </a>
         </div>
         <div class="card-body">
@@ -34,6 +36,23 @@
 @endsection
 
 @push('css')
+<style>
+    .card-header.bg-gradient-primary {
+        background: linear-gradient(135deg, #8147be, #c97aeb, #a661c2) !important;
+        border-radius: 15px 15px 0 0;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        color: #fff !important;
+    }
+    .bg-wallpaper-gradient {
+        background: linear-gradient(135deg, #8147be, #c97aeb, #a661c2);
+        border-radius: 15px 15px 0 0;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        color: #fff;
+    }
+    #table-produk th {
+        vertical-align: middle;
+    }
+</style>
 @endpush
 
 @push('js') 

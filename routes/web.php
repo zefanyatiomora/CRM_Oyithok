@@ -4,6 +4,7 @@ use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\TambahKebutuhanController;
 use App\Http\Controllers\PICController;
+use App\Http\Controllers\DataInvoiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Produk\AskController;
 use App\Http\Controllers\Produk\HoldController;
 use App\Http\Controllers\Produk\ClosingController;
 use App\Http\Controllers\PasangController;
+use Dflydev\DotAccessData\Data;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 /*
@@ -134,6 +136,10 @@ Route::prefix('pic')->group(function () {
     Route::post('/update/{id}', [PICController::class, 'update'])->name('pic.update');
     Route::delete('/delete/{id}', [PICController::class, 'destroy'])->name('pic.delete');
 });
+
+Route::get('/datainvoice', [DataInvoiceController::class, 'index'])->name('datainvoice.index');
+Route::get('/datainvoice/{id}', [DataInvoiceController::class, 'show'])->name('datainvoice.show');
+Route::get('/datainvoice/{id}/export-pdf', [DataInvoiceController::class, 'exportPdf'])->name('datainvoice.exportPdf');
 
 
 

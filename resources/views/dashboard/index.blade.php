@@ -83,7 +83,7 @@
                         <div class="inner text-center">
                             <h3>{{ $jumlahInteraksi }}</h3>
                             <p class="fw-bold">
-                                JUMLAH INTERAKSI
+                                INTERAKSI CUSTOMER
                                 @if ($bulan)
                                     ({{ $bulanList[$bulan] }} {{ $tahun }})
                                 @else
@@ -201,18 +201,18 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="card h-100">
-                 <div class="card-header bg-white border-0">
-                    <h3 class="card-title font-weight-bold" style="color: #5C54AD;">Rating Customer</h3>
-                </div>
-                <div class="card-body">
-                    <div style="height: 300px;">
-                        <canvas id="customerLeadsBarChart"></canvas>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-header bg-white border-0">
+                        <h3 class="card-title font-weight-bold" style="color: #5C54AD;">Rating Customer</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="height: 300px;">
+                            <canvas id="customerLeadsBarChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
         <div class="col-md-4 mb-3">
             <div class="card h-100">
                 <div class="card-header bg-white border-0">
@@ -326,74 +326,103 @@ $(document).ready(function () {
 
 @push('css')
 <style>
-     .form-control {
-        transition: 0.3s ease;
-    }
-    .form-control:focus {
-        box-shadow: 0 0 8px rgba(92, 84, 173, 0.4);
-        border-color: #5C54AD;
-    }
-    .btn-primary {
-        background: linear-gradient(135deg, #6d4598, #9b53ba);
-        border: none;
-    }
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #5a367d, #823f9d);
-    }
-    .dropdown-menu a:hover {
-        background-color: #f3f0fa;
-        color: #5C54AD;
-    }
-    .box-hover {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .box-hover:hover {
-        transform: scale(1.05);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    }
-    /* Warna kustom untuk small-box */
-    .bg-custom-ask {
-        background-color: #87b0ff !important; /* Biru muda */
-        color: #ffffff !important;
-    }
-    .bg-custom-follow-up {
-        background-color: #A374FF !important; /* Ungu muda */
-        color: #ffffff !important;
-    }
-
-    .bg-custom-hold {
-        background-color: #5C54AD !important; /* Ungu tua */
-        color: #ffffff !important;
-    }
-
-    .bg-custom-closing {
-        background-color: #FF7373 !important; /* Merah/Pink */
-        color: #ffffff !important;
-    }
-    .hero-banner {
-background: linear-gradient(135deg, #2e005f, #5c2a9d, #7d3c98);
-    background-size: cover;
-    border-radius: 20px;
-    padding: 80px 20px;
-    color: white;
-    text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
+/* ====== General Typography ====== */
+body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    font-size: 0.95rem;
+    color: #333;
 }
- .wallpaper-text {
-    background: linear-gradient(135deg, #351952, #703d7a);
+
+/* ====== Hero Banner ====== */
+.hero-banner {
+    background: linear-gradient(135deg, #6d4598, #a661c2, #c97aeb);
+    border-radius: 20px;
+    padding: 70px 20px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.hero-banner h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* ====== Title Gradient ====== */
+.wallpaper-text {
+    background: linear-gradient(135deg, #ffffff, #f3d6ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 2px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.15);
-    animation: shine 3s linear infinite;
-  }
+}
 
-  @keyframes shine {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
+/* ====== Form & Button ====== */
+.form-control {
+    border-radius: 12px;
+    transition: 0.3s ease;
+}
+.form-control:focus {
+    box-shadow: 0 0 10px rgba(92, 84, 173, 0.3);
+    border-color: #7d5fc2;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #6d4598, #a661c2);
+    border: none;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+.btn-primary:hover {
+    background: linear-gradient(135deg, #5a367d, #8147be);
+    transform: translateY(-2px);
+}
+
+/* ====== Small Box ====== */
+.small-box {
+    border-radius: 18px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+}
+.small-box .inner h3 {
+    font-weight: 700;
+    font-size: 1.8rem;
+}
+.small-box p {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-top: 5px;
+    color: rgba(255,255,255,0.85);
+}
+.small-box .icon {
+    opacity: 0.4;
+}
+.box-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+/* ====== Card Charts ====== */
+.card {
+    border-radius: 18px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    border: none;
+}
+.card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #5C54AD;
+}
+
+/* ====== Custom Colors ====== */
+.bg-custom-ask { background-color: #87b0ff !important; }
+.bg-custom-follow-up { background-color: #A374FF !important; }
+.bg-custom-hold { background-color: #5C54AD !important; }
+.bg-custom-closing { background-color: #FF7373 !important; }
+
 </style>
 @endpush
 @endsection
