@@ -23,7 +23,12 @@
             <div class="form-row align-items-end">
                 <!-- Pilih Tahun -->
                 <div class="col-md-3 mb-3">
-                    <label for="tahun" class="small text-muted font-weight-bold">Tahun</label>
+                    <label for="tahun" 
+                           class="small text-muted font-weight-bold"
+                           data-bs-toggle="tooltip"
+                           title="Pilih tahun untuk menampilkan data dashboard">
+                        Tahun
+                    </label>
                     <select name="tahun" id="tahun" class="form-control rounded-pill shadow-sm" required>
                         <option value="">-- Pilih Tahun --</option>
                         @foreach($availableYears as $year)
@@ -36,7 +41,12 @@
 
                 <!-- Pilih Bulan -->
                 <div class="col-md-3 mb-3">
-                    <label for="bulan" class="small text-muted font-weight-bold">Bulan</label>
+                    <label for="bulan" 
+                           class="small text-muted font-weight-bold"
+                           data-bs-toggle="tooltip"
+                           title="Pilih bulan untuk menampilkan data dashboard (opsional)">
+                        Bulan
+                    </label>
                     <select name="bulan" id="bulan" class="form-control rounded-pill shadow-sm">
                         <option value="">-- Semua Bulan --</option>
                         @foreach($bulanList as $key => $label)
@@ -75,29 +85,32 @@
     </div>
 </div>
 
-        <!-- JUMLAH INTERAKSI -->
-        <div class="row">
-            <div class="col-12">
-                <a href="{{ route('rekap.index', ['tahun' => $tahun, 'bulan' => $bulan]) }}" class="text-decoration-none text-white">
-                    <div class="small-box bg-success box-hover">
-                        <div class="inner text-center">
-                            <h3>{{ $jumlahInteraksi }}</h3>
-                            <p class="fw-bold">
-                                INTERAKSI CUSTOMER
-                                @if ($bulan)
-                                    ({{ $bulanList[$bulan] }} {{ $tahun }})
-                                @else
-                                    TAHUN {{ $tahun }}
-                                @endif
-                            </p>
-                        </div>
-                        <div class="icon">
-                            <i class="fas fa-shopping-cart"></i>
-                        </div>
-                    </div>
-                </a>
+       <!-- JUMLAH INTERAKSI -->
+<div class="row">
+    <div class="col-12">
+        <a href="{{ route('rekap.index', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
+           class="text-decoration-none text-white"
+           data-bs-toggle="tooltip"
+           title="Total interaksi customer untuk bulan/tahun yang dipilih">
+            <div class="small-box bg-success box-hover">
+                <div class="inner text-center">
+                    <h3>{{ $jumlahInteraksi }}</h3>
+                    <p class="fw-bold">
+                        INTERAKSI CUSTOMER
+                        @if ($bulan)
+                            ({{ $bulanList[$bulan] }} {{ $tahun }})
+                        @else
+                            TAHUN {{ $tahun }}
+                        @endif
+                    </p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
             </div>
-        </div>
+        </a>
+    </div>
+</div>
 
         <!-- Tabs Customer & Produk -->
 <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
@@ -113,10 +126,12 @@
   <!-- TAB CUSTOMER -->
    <div class="tab-pane fade show active" id="customer" role="tabpanel">
       <div class="row">
-          <!-- STATUS ASK -->
+<!-- STATUS ASK -->
 <div class="col-lg-3 col-6">
-<a href="{{ route('dashboard.ask', ['status' => 'ask']) }}" 
-   class="text-decoration-none text-white">
+    <a href="{{ route('dashboard.ask', ['status' => 'ask']) }}" 
+       class="text-decoration-none text-white"
+       data-bs-toggle="tooltip" 
+       title="Total ASK customer untuk bulan/tahun yang dipilih">
         <div class="small-box bg-custom-ask box-hover">
             <div class="inner text-center">
                 <h3>{{ $jumlahAsk }}</h3>
@@ -134,7 +149,10 @@
 </div>
 <!-- STATUS FOLLOW UP -->
 <div class="col-lg-3 col-6">
-    <a href="{{ route('dashboard.followup') }}" class="text-decoration-none text-white">
+    <a href="{{ route('dashboard.followup') }}" 
+       class="text-decoration-none text-white"
+       data-bs-toggle="tooltip" 
+       title="Total follow up customer untuk bulan/tahun yang dipilih">
         <div class="small-box bg-custom-follow-up box-hover">
             <div class="inner text-center">
                 <h3>{{ $jumlahFollowUp }}</h3>
@@ -146,10 +164,12 @@
         </div>
     </a>
 </div>
-
 <!-- STATUS HOLD -->
 <div class="col-lg-3 col-6">
-    <a href="{{ route('dashboard.hold') }}" class="text-decoration-none text-white">
+    <a href="{{ route('dashboard.hold') }}" 
+       class="text-decoration-none text-white"
+       data-bs-toggle="tooltip" 
+       title="Jumlah customer yang statusnya HOLD">
         <div class="small-box bg-custom-hold box-hover">
             <div class="inner text-center">
                 <h3>{{ $jumlahHold }}</h3>
@@ -161,10 +181,12 @@
         </div>
     </a>
 </div>
-          <!-- STATUS CLOSING -->
+<!-- STATUS CLOSING -->
 <div class="col-lg-3 col-6">
     <a href="{{ route('dashboard.closing', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
-       class="text-decoration-none text-white">
+       class="text-decoration-none text-white"
+       data-bs-toggle="tooltip" 
+       title="Jumlah customer yang berhasil closing">
         <div class="small-box bg-custom-closing box-hover">
             <div class="inner text-center">
                 <h3>{{ $jumlahClosing }}</h3>
@@ -179,27 +201,32 @@
             </div>
         </div>
     </a>
-      </div>
+</div>
       </div>
       <div class="row">
         <div class="col-md-4 mb-3">
             <div class="card h-100">
-                <div class="card-body">
-                    <div style="height: 300px;">
-                        <canvas id="customerDoughnutChart"></canvas>
-                    </div>
+    <div class="card-body">
+              <h3 class="card-title font-weight-bold" 
+            data-bs-toggle="tooltip" 
+            title="Distribusi customer berdasarkan status ASK, FOLLOW UP, HOLD, dan CLOSING">
+            Data Customer
+        </h3>
+        <div style="height: 300px;">
+            <canvas id="customerDoughnutChart"></canvas>
+        </div>
+    </div>
+    <div class="card-footer">
+        <div id="customerDoughnutLegend" class="row">
+            @foreach ($customerDoughnutLabels as $index => $label)
+                <div class="col-lg-6 col-12 mb-1">
+                    <span style="display:inline-block; width:12px; height:12px; background-color:{{ $customerDoughnutColors[$index] }}; border-radius:3px; margin-right: 5px;"></span>
+                    <small>Sebanyak <strong>{{ $customerDoughnutData[$index] }}</strong> Customer {{ $label }}</small>
                 </div>
-                <div class="card-footer">
-                    <div id="customerDoughnutLegend" class="row">
-                        @foreach ($customerDoughnutLabels as $index => $label)
-                            <div class="col-lg-6 col-12 mb-1">
-                                <span style="display:inline-block; width:12px; height:12px; background-color:{{ $customerDoughnutColors[$index] }}; border-radius:3px; margin-right: 5px;"></span>
-                                <small>Sebanyak <strong>{{ $customerDoughnutData[$index] }}</strong> Customer {{ $label }}</small>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
+            @endforeach
+        </div>
+    </div>
+</div>
         </div>
             <div class="col-md-4 mb-3">
                 <div class="card h-100">
@@ -231,21 +258,26 @@
 <!-- TAB PRODUK -->
 <div class="tab-pane fade" id="produk" role="tabpanel">
     <div class="row">
-        <!-- STATUS ASK PRODUK -->
-        <div class="col-lg-4 col-6">
-            <a href="{{ route('ask.index') }}" class="small-box bg-custom-ask box-hover text-decoration-none text-dark">
-    <div class="inner text-center">
-        <h3>{{ $jumlahProdukAsk ?? 0 }}</h3>
-        <p>ASK PRODUK</p>
-    </div>
-                <div class="icon"><i class="fas fa-question-circle"></i></div>
-            </a>
+<!-- STATUS ASK PRODUK -->
+<div class="col-lg-4 col-6">
+    <a href="{{ route('ask.index') }}" 
+       class="small-box bg-custom-ask box-hover text-decoration-none text-dark"
+       data-bs-toggle="tooltip" 
+       title="Total ASK produk yang tersedia">
+        <div class="inner text-center">
+            <h3>{{ $jumlahProdukAsk ?? 0 }}</h3>
+            <p>ASK PRODUK</p>
         </div>
+        <div class="icon"><i class="fas fa-question-circle"></i></div>
+    </a>
+</div>
 
-<!-- STATUS HOLD PRODUK (TANPA FILTER) -->
+<!-- STATUS HOLD PRODUK -->
 <div class="col-lg-4 col-6">
     <a href="{{ route('hold.index') }}" 
-       class="small-box bg-custom-hold box-hover text-decoration-none text-dark">
+       class="small-box bg-custom-hold box-hover text-decoration-none text-dark"
+       data-bs-toggle="tooltip" 
+       title="Total HOLD produk (semua)">
         <div class="inner text-center">
             <h3>{{ $jumlahProdukHold ?? 0 }}</h3>
             <p>HOLD PRODUK (SEMUA)</p>
@@ -254,10 +286,12 @@
     </a>
 </div>
 
-<!-- STATUS CLOSING PRODUK (TANPA FILTER) -->
+<!-- STATUS CLOSING PRODUK -->
 <div class="col-lg-4 col-6">
     <a href="{{ route('closing.index') }}" 
-       class="small-box bg-danger box-hover text-decoration-none text-dark">
+       class="small-box bg-danger box-hover text-decoration-none text-dark"
+       data-bs-toggle="tooltip" 
+       title="Total CLOSING produk (semua)">
         <div class="inner text-center">
             <h3>{{ $jumlahProdukClosing ?? 0 }}</h3>
             <p>CLOSING PRODUK (SEMUA)</p>
@@ -265,6 +299,7 @@
         <div class="icon"><i class="fas fa-pause-circle"></i></div>
     </a>
 </div>
+
 @push('js')
 <script>
 $(document).ready(function () {
@@ -280,49 +315,62 @@ $(document).ready(function () {
         $(`a[data-toggle="tab"][href="${hash}"]`).tab('show');
     }
 });
+$(function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+});
 </script>
 @endpush
         {{-- Baris BARU untuk menyejajarkan kedua chart --}}
-        <div class="row mt-3">
-            
-            <div class="col-md 6">
-                <div class="card h-100"> {{-- h-100 untuk membuat tinggi card sama --}}
-                    <div class="card-body">
-                        {{-- <h4 class="card-title mb-4">Data Penjualan</h4> --}}
-                        <h3 class="card-title font-weight-bold" style="color: #5C54AD;">Data Penjualan</h3>
-                        <div style="height: 300px;">
-                            <canvas id="penjualanChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <div id="penjualanChartLegend" class="row">
-                            @foreach ($doughnutLabels as $index => $label)
-                            <div class="col-lg-6 col-12 mb-1">
-                                <span style="display:inline-block; width:12px; height:12px; background-color:{{ $doughnutColors[$index] }}; border-radius:3px; margin-right: 5px;"></span>
-                                <small>Sebanyak <strong>{{ $doughnutData[$index] }}</strong> {{ $label }}</small>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
+       <div class="row mt-3">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h3 class="card-title font-weight-bold" 
+                    style="color: #5C54AD;"
+                    data-bs-toggle="tooltip"
+                    title="Diagram menunjukkan perolehan data penjualan setiap kategori produk">
+                    Data Penjualan
+                </h3>
+                <div style="height: 300px;">
+                    <canvas id="penjualanChart"></canvas>
                 </div>
             </div>
-
-            <div class="col-md 6">
-                <div class="card h-100"> {{-- h-100 untuk membuat tinggi card sama --}}
-                    <div class="card-header bg-white border-0">
-                        <p class="mb-0">> Diagram dibawah adalah perolehan data setiap produk yang telah teridentifikasi.</p>
-                        <h3 class="card-title font-weight-bold" style="color: #5C54AD;">Data per-Produk</h3>
+            <div class="card-footer">
+                <div id="penjualanChartLegend" class="row">
+                    @foreach ($doughnutLabels as $index => $label)
+                    <div class="col-lg-6 col-12 mb-1">
+                        <span style="display:inline-block; width:12px; height:12px; background-color:{{ $doughnutColors[$index] }}; border-radius:3px; margin-right: 5px;"></span>
+                        <small>Sebanyak <strong>{{ $doughnutData[$index] }}</strong> {{ $label }}</small>
                     </div>
-                    <div class="card-body">
-                        <div style="height: 350px;">
-                            <canvas id="produkChart"></canvas>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
     </div>
-</section>
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-white border-0">
+                <p class="mb-0">> Diagram dibawah adalah perolehan data setiap produk yang telah teridentifikasi.</p>
+                <h3 class="card-title font-weight-bold" 
+                    style="color: #5C54AD;"
+                    data-bs-toggle="tooltip"
+                    title="Menampilkan jumlah ASK, HOLD, dan CLOSING setiap produk">
+                    Data per-Produk
+                </h3>
+            </div>
+            <div class="card-body">
+                <div style="height: 350px;">
+                    <canvas id="produkChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<section>
 
 @push('css')
 <style>
@@ -416,7 +464,22 @@ body {
     font-weight: 700;
     color: #5C54AD;
 }
-
+.tooltip-inner {
+    font-size: 0.6rem; /* lebih kecil dari default */
+    padding: 3px 7px;  /* padding lebih ringkas */
+    background-color: #fff;  /* background putih */
+    color: #000;             /* teks hitam */
+    border: 1px solid #ccc;  /* optional border agar lebih jelas */
+}
+.tooltip.bs-tooltip-top .tooltip-arrow::before,
+.tooltip.bs-tooltip-bottom .tooltip-arrow::before,
+.tooltip.bs-tooltip-start .tooltip-arrow::before,
+.tooltip.bs-tooltip-end .tooltip-arrow::before {
+    border-top-color: #fff;    /* sesuaikan warna arrow */
+    border-bottom-color: #fff;
+    border-left-color: #fff;
+    border-right-color: #fff;
+}
 /* ====== Custom Colors ====== */
 .bg-custom-ask { background-color: #87b0ff !important; }
 .bg-custom-follow-up { background-color: #A374FF !important; }

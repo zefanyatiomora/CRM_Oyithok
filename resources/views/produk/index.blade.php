@@ -1,17 +1,20 @@
 @extends('layouts.template')
 
 @section('content')
-  <div class="card card-outline">
-        <div class="card-header bg-wallpaper-gradient d-flex justify-content-between align-items-center">
-            <h3 class="card-title mb-0">
-                <i class="fas fa-database mr-2"></i> Data Produk
-            </h3>
-            <div class="card-tools">
-                <button onclick="modalAction('{{ url('/produk/create_ajax') }}')" class="btn btn-sm btn-success mt-1">
-                    <i class="fas fa-plus-circle mr-1"></i> Tambah
-                </button>
-            </div>
-        </div>
+<div class="card card-outline shadow-sm border-0">
+    <div class="card-header bg-wallpaper-gradient position-relative" style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
+        <h3 class="card-title mb-0 fw-bold">
+            <i class="fas fa-database me-2"></i> Data Produk
+        </h3>
+
+        {{-- Tombol tambah elegan di pojok kanan --}}
+<div class="card-tools position-absolute" style="top: 8px; right: 25px;">
+    <button onclick="modalAction('{{ url('/produk/create_ajax') }}')" 
+            class="btn btn-success btn-sm btn-rounded shadow-sm d-flex align-items-center">
+        <i class="fas fa-plus me-1"></i> Tambah
+    </button>
+</div>
+    </div>
 
         <div class="card-body">
             @if (session('success'))
@@ -60,6 +63,16 @@
 </style>
 @endpush
 
+<style>
+    .btn-rounded {
+    border-radius: 50px !important;
+    transition: all 0.2s ease-in-out;
+}
+.btn-rounded:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+</style>
 
 @push('js') 
 <script> 

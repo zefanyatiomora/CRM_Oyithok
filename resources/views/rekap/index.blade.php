@@ -91,14 +91,23 @@
                     orderable: false, 
                     searchable: false,
                     render: function(data, type, row) {
-                        if (data === 'Ask') {
-                            return `<span class="badge" style="background-color:#FFD580; color:#000;">${data}</span>`;
-                        } else if (data === 'Follow Up') {
-                            return `<span class="badge" style="background-color:#E6CCFF; color:#000;">${data}</span>`;
-                        } else {
-                            return data ?? '';
-                        }
-                    }
+    if (!data) return ''; // antisipasi null/undefined
+
+    let status = data.toLowerCase().trim();
+
+    if (status === 'ask') {
+        return `<span class="badge badge-warning">${data}</span>`;
+    } else if (status === 'follow up') {
+        return `<span class="badge badge-info">${data}</span>`;
+    } else if (status === 'hold') {
+        return `<span class="badge badge-danger">${data}</span>`;
+    } else if (status === 'closing') {
+        return `<span class="badge badge-success">${data}</span>`;
+    } else {
+        return data;
+    }
+}
+
                 },
                 { data: "aksi", orderable: false, searchable: false }
             ] 

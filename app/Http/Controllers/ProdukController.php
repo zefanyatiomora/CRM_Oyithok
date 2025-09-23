@@ -38,6 +38,7 @@ class ProdukController extends Controller
                 // $btn .= '<a href="'.url('/produk/' . $produk->produk_id . '/edit').'" class="btn btn-warning btn-sm">Edit</a> '; 
                 // $btn .= '<form class="d-inline-block" method="POST" action="'.url('/produk/'.$produk->produk_id).'">'.csrf_field().method_field('DELETE') .'<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah Anda yakin menghapus data ini?\');">Hapus</button></form>';      
                 $btn  = '<button onclick="modalAction(\'' . url('/produk/' . $produk->produk_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/produk/' . $produk->produk_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
                 $btn .= '<button onclick="modalAction(\'' . url('/produk/' . $produk->produk_id . '/delete_ajax') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
                 return $btn;
             })
@@ -132,4 +133,53 @@ class ProdukController extends Controller
         }
         return redirect('/');
     }
+    // Menampilkan form edit produk
+public function edit_ajax(string $id)
+{
+    $produk = ProdukModel::find($id);
+    if (!$produk) {
+        return response()->json(['status' => false, 'message' => 'Produk tidak ditemukan'], 404);
+    }
+    $kategori = KategoriModel::select('kategori_id', 'kategori_nama')->get();
+    return view('produk.edit_ajax', compact('produk', 'kategori'));
+}
+
+// Update produk via AJAX
+public function update_ajax(Request $request, string $id)
+{
+    if ($request->ajax() || $request->wantsJson()) {
+        $rules = [
+            'produk_nama' => 'required|string|max:255',
+            'kategori_id' => 'required|exists:kategoris,kategori_id',
+            'satuan'      => 'required|string|max:50'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validasi Gagal',
+                'msgField' => $validator->errors(),
+            ]);
+        }
+
+        $produk = ProdukModel::find($id);
+        if (!$produk) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Produk tidak ditemukan'
+            ], 404);
+        }
+
+        $produk->update($request->all());
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Data produk berhasil diupdate'
+        ]);
+    }
+    return redirect('/');
+}
+
 }
