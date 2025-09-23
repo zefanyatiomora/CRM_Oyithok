@@ -103,11 +103,6 @@ Route::prefix('rekap')->group(function () {
 // TARUH DI LUAR Route::prefix('rekap')
 Route::post('/rekap/update-status/{interaksi_id}', [RekapController::class, 'updateStatus'])->name('rekap.updateStatus');
 
-Route::prefix('survey')->group(function () {
-    Route::get('/', [SurveyController::class, 'index'])->name('survey.index');       // Halaman list monthSurvey
-    Route::post('/list', [SurveyController::class, 'list'])->name('survey.list');
-    Route::get('/{id}/show_ajax', [SurveyController::class, 'show_ajax']);
-});
 Route::prefix('ask')->group(function () {
     Route::get('/', [AskController::class, 'index'])->name('ask.index');       // Halaman list monthSurvey
     Route::post('/list', [AskController::class, 'list'])->name('ask.list');
@@ -122,11 +117,6 @@ Route::prefix('closing')->group(function () {
     Route::get('/', [ClosingController::class, 'index'])->name('closing.index');       // Halaman list monthSurvey
     Route::post('/list', [ClosingController::class, 'list'])->name('closing.list');
     Route::get('/{id}/show_ajax', [ClosingController::class, 'show_ajax'])->name('closing.show_ajax');
-});
-Route::prefix('pasang')->group(function () {
-    Route::get('/', [PasangController::class, 'index'])->name('pasang.index');       // Halaman list monthPasang
-    Route::post('/list', [PasangController::class, 'list'])->name('pasang.list');
-    Route::get('/{id}/show_ajax', [PasangController::class, 'show_ajax']);
 });
 Route::prefix('pic')->group(function () {
     Route::get('/', [PICController::class, 'index'])->name('pic.index');

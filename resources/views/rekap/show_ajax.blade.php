@@ -427,16 +427,16 @@ function loadRealtimeList(){
                 <tbody>
                     @forelse($interaksi->rincian as $rincian)
                     <tr class="produk-row">
-                        <td>{{ $rincian->produk->produk_nama}}</td>
-                        <td>{{ $rincian->kuantitas}} {{ $rincian->satuan}}</td>
+                        <td>{{ $rincian->produk->kategori->kategori_nama}} {{ $rincian->produk->produk_nama}}</td>
+                        <td>{{ $rincian->kuantitas}} {{ $rincian->produk->satuan}}</td>
                         <td>{{ $rincian->deskripsi}}</td>
                         <td>
                             @if($rincian->status == 'hold')
                                 <span class="badge bg-warning text-dark">Hold</span>
-                            @elseif(in_array($rincian->status, ['closing all', 'closing produk', 'closing pasang']))
-                                <span class="badge bg-success"> {{ ucfirst($rincian->status) }} </span>
+                            {{-- @elseif(in_array($rincian->status, ['closing']))
+                                <span class="badge bg-success"> {{ ucfirst($rincian->status) }} </span> --}}
                             @else
-                                <span class="badge bg-secondary">{{ ucfirst($rincian->status) }}</span>
+                                <span class="badge bg-success">Closing</span>
                             @endif
                         </td>
                         <td>
@@ -482,6 +482,8 @@ function loadRealtimeList(){
                 <thead>
                     <tr>
                         <th>Produk</th>
+                        <th>Kuantitas</th>
+                        <th>Deskripsi</th>
                         <th>Jadwal</th>
                         <th>Alamat</th>
                         <th>Status</th>
@@ -491,7 +493,9 @@ function loadRealtimeList(){
                 <tbody>
                     @forelse($interaksi->pasang as $pasang)
                         <tr>
-                            <td>{{ $pasang->produk->produk_nama}} {{ $pasang->kuantitas}} {{ $pasang->satuan}} {{ $pasang->deskripsi}}</td>
+                            <td>{{ $pasang->produk->kategori->kategori_nama}} {{ $pasang->produk->produk_nama}} </td>
+                            <td>{{ $pasang->kuantitas}} {{ $pasang->produk->satuan}}</td>
+                            <td>{{ $pasang->deskripsi}}</td>
                             <td>{{ $pasang->jadwal_pasang_kirim}}</td>
                             <td>{{ $pasang->alamat}}</td>
                             <td>
@@ -505,7 +509,7 @@ function loadRealtimeList(){
                             </td>
                             <td>
                                 <!-- Tombol Edit -->
-                                <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ url('/pasang/' . $pasang->pasang_id . '/edit') }}')">
+                                <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ url('/pasang/' . $pasang->pasangkirim_id . '/edit') }}')">
                                 <i class="fas fa-edit"></i>
                             </a>
                         </tr>

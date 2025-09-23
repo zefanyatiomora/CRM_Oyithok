@@ -67,7 +67,7 @@ $(function () {
                 tableRekap.ajax.reload(null, false);
 
                 let interaksiId = $("#interaksi_id").val();
-                $("#myModal").load("{{ curl('rekap') }}/" + interaksiId + "/show_ajax");
+                $("#myModal").load("{{ url('rekap') }}/" + interaksiId + "/show_ajax");
 
                 $("#crudModal").modal('hide');
             },
