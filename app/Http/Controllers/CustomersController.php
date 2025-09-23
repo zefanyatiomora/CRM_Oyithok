@@ -33,6 +33,8 @@ class CustomersController extends Controller
             'customer_alamat',
             'customer_nohp',
             'informasi_media',
+            'total_transaction',
+            'total_cash_spent',
             'loyalty_point'
         ]);
 
@@ -201,36 +203,5 @@ class CustomersController extends Controller
         }
 
         return view('customers.confirm', compact('customer'));
-    }
-    // App\Models\CustomersModel.php
-    public function refreshLoyalty()
-    {
-        // eager load relasi
-        $this->loadMissing('interaksi.pasang.invoiceDetail.invoice');
-
-        // hitung total transaksi closing
-        $totalTransaction = $this->interaksi
-            ->where('status', 'closing')
-            ->count();
-
-        // hitung total cash spent
-        $totalCashSpent = $this->interaksi
-            ->where('status', 'closing')
-            ->sum(function ($interaksi) {
-                if (
-                    $interaksi->pasangkirim &&
-                    $interaksi->pasangkirim->invoiceDetail &&
-                    $interaksi->pasangkirim->invoiceDetail->invoice
-                ) {
-                    return $interaksi->pasangkirim->invoiceDetail->invoice->total_akhir;
-                }
-                return 0;
-            });
-
-        // update field di tabel
-        $this->update([
-            'total_transaction' => $totalTransaction,
-            'total_cash_spent'  => $totalCashSpent,
-        ]);
     }
 }

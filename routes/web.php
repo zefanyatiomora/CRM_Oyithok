@@ -4,6 +4,7 @@ use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\TambahKebutuhanController;
 use App\Http\Controllers\PICController;
+use App\Http\Controllers\DataInvoiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Produk\AskController;
 use App\Http\Controllers\Produk\HoldController;
 use App\Http\Controllers\Produk\ClosingController;
 use App\Http\Controllers\PasangController;
+use Dflydev\DotAccessData\Data;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 /*
@@ -78,6 +80,8 @@ Route::prefix('produk')->group(function () {
     Route::get('/{id}/delete_ajax', [ProdukController::class, 'confirm_ajax']);  //tampilan form confirm delete Barang Ajax
     Route::delete('/{id}/delete_ajax', [ProdukController::class, 'delete_ajax']); //menghapus data Barang Ajax
     Route::get('/{id}/show_ajax', [ProdukController::class, 'show_ajax']);
+    Route::get('{id}/edit_ajax', [ProdukController::class, 'edit_ajax']);
+    Route::post('{id}/update_ajax', [ProdukController::class, 'update_ajax']);
 });
 
 Route::prefix('rekap')->group(function () {
@@ -101,11 +105,6 @@ Route::prefix('rekap')->group(function () {
 // TARUH DI LUAR Route::prefix('rekap')
 Route::post('/rekap/update-status/{interaksi_id}', [RekapController::class, 'updateStatus'])->name('rekap.updateStatus');
 
-Route::prefix('survey')->group(function () {
-    Route::get('/', [SurveyController::class, 'index'])->name('survey.index');       // Halaman list monthSurvey
-    Route::post('/list', [SurveyController::class, 'list'])->name('survey.list');
-    Route::get('/{id}/show_ajax', [SurveyController::class, 'show_ajax']);
-});
 Route::prefix('ask')->group(function () {
     Route::get('/', [AskController::class, 'index'])->name('ask.index');       // Halaman list monthSurvey
     Route::post('/list', [AskController::class, 'list'])->name('ask.list');
@@ -121,11 +120,6 @@ Route::prefix('closing')->group(function () {
     Route::post('/list', [ClosingController::class, 'list'])->name('closing.list');
     Route::get('/{id}/show_ajax', [ClosingController::class, 'show_ajax'])->name('closing.show_ajax');
 });
-Route::prefix('pasang')->group(function () {
-    Route::get('/', [PasangController::class, 'index'])->name('pasang.index');       // Halaman list monthPasang
-    Route::post('/list', [PasangController::class, 'list'])->name('pasang.list');
-    Route::get('/{id}/show_ajax', [PasangController::class, 'show_ajax']);
-});
 Route::prefix('pic')->group(function () {
     Route::get('/', [PICController::class, 'index'])->name('pic.index');
     Route::get('/data', [PICController::class, 'getData'])->name('pic.data');
@@ -134,6 +128,10 @@ Route::prefix('pic')->group(function () {
     Route::post('/update/{id}', [PICController::class, 'update'])->name('pic.update');
     Route::delete('/delete/{id}', [PICController::class, 'destroy'])->name('pic.delete');
 });
+
+Route::get('/datainvoice', [DataInvoiceController::class, 'index'])->name('datainvoice.index');
+Route::get('/datainvoice/{id}', [DataInvoiceController::class, 'show'])->name('datainvoice.show');
+Route::get('/datainvoice/{id}/export-pdf', [DataInvoiceController::class, 'exportPdf'])->name('datainvoice.exportPdf');
 
 
 

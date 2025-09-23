@@ -50,7 +50,12 @@
     <!-- Jadwal Pasang -->
     <div class="form-group">
         <label>Jadwal</label>
-        <input type="datetime-local" name="jadwal_pasang_kirim" id="jadwal_pasang_kirim" class="form-control" required>
+        <div class="input-group">
+            <input type="date" class="form-control" id="jadwal_pasang_kirim" name="jadwal_pasang_kirim"
+                value="{{ old('jadwal_pasang_kirim', \Carbon\Carbon::today()->format('Y-m-d')) }}" required>
+            <button type="button" class="btn btn-outline-primary" id="btn-today">Hari Ini</button>
+            <button type="button" class="btn btn-outline-primary" id="btn-tomorrow">Besok</button>
+        </div>
         <small id="error-jadwal" class="text-danger"></small>
     </div>
 
@@ -79,7 +84,19 @@
 </form>
 
 <script>
-$(document).ready(function () {
+$(function () {
+    // Tombol "Hari Ini" dan "Besok"
+    $('#btn-today').click(function() {
+        let today = new Date().toISOString().split('T')[0];
+        $('#jadwal_pasang_kirim').val(today);
+    });
+
+    $('#btn-tomorrow').click(function() {
+        let d = new Date();
+        d.setDate(d.getDate() + 1);
+        let tomorrow = d.toISOString().split('T')[0];
+        $('#jadwal_pasang_kirim').val(tomorrow);
+    });
     // Submit Form dengan AJAX
     $("#form-create-pasang").submit(function (e) {
         e.preventDefault();
@@ -100,7 +117,8 @@ $(document).ready(function () {
                 let interaksiId = $("#interaksi_id").val();
                 $("#myModal").load("{{ url('rekap') }}/" + interaksiId + "/show_ajax");
 
-                $("#form-create-pasang").hide();
+                // $("#form-create-pasang").hide();
+                $("#crudModal").modal('hide');
             },
             error: function (xhr) {
                 Swal.fire("Gagal", "Terjadi kesalahan server.", "error");

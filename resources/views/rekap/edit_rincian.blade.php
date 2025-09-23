@@ -21,11 +21,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Edit Data Rincian</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
 
     <input type="hidden" name="rincian_id" value="{{ $rincian->rincian_id }}">
-    <input type="hidden" name="interaksi_id" value="{{ $rincian->interaksi_id }}">
+    <input type="hidden" name="interaksi_id" id="interaksi_id" value="{{ $pasang->interaksi_id }}">
 
     <!-- Produk -->
     <div class="form-group">
@@ -33,26 +36,36 @@
         <select name="produk_id" id="produk_id" class="form-control" required>
             <option value="">-- Pilih Produk --</option>
             @foreach($produk as $prd)
-                <option value="{{ $prd->produk_id }}" data-satuan="{{ $prd->satuan }}">{{ $prd->produk_nama }}</option>
+                <option value="{{ $prd->produk_id }}" 
+                        data-satuan="{{ $prd->satuan }}"
+                        {{ $rincian->produk_id == $prd->produk_id ? 'selected' : '' }}>
+                    {{ $prd->kategori->kategori_nama ?? $prd->kategori_nama }} - {{ $prd->produk_nama }}
+                </option>
             @endforeach
         </select>
         <small id="error-produk_id" class="text-danger"></small>
     </div>
-
-    <!-- Satuan -->
-    <div class="form-group">
-        <label>Satuan</label>
-        <input type="text" name="satuan" id="satuan" class="form-control" readonly>
-        <small id="error-satuan" class="text-danger"></small>
-    </div>
-
-    <!-- Kuantitas -->
-    <div class="form-group">
-        <label>Kuantitas</label>
-        <input type="number" name="kuantitas" id="kuantitas" 
-               value="{{ $rincian->kuantitas }}" 
-               class="form-control" min="1" required>
-        <small id="error-kuantitas" class="text-danger"></small>
+    <div class="row">
+        <div class="col-md-6">
+            <!-- Kuantitas -->
+            <div class="form-group">
+                <label>Kuantitas</label>
+                <input type="number" name="kuantitas" id="kuantitas" 
+                value="{{ $rincian->kuantitas }}" 
+                class="form-control" min="1" required>
+                <small id="error-kuantitas" class="text-danger"></small>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <!-- Satuan -->
+            <div class="form-group">
+                <label>Satuan</label>
+                <input type="text" name="satuan" id="satuan" class="form-control" 
+                    value="{{ $rincian->produk->satuan ?? '' }}" readonly>
+                <small id="error-satuan" class="text-danger"></small>
+            </div>
+        </div>
+        
     </div>
 
     <!-- Deskripsi -->
@@ -107,7 +120,7 @@ $(document).ready(function () {
                 $("#myModal").load("{{ url('rekap') }}/" + interaksiId + "/show_ajax");
 
                 // optionally, bisa hide form edit
-                $("#form-edit-rincian").hide();
+                $("#crudModal").modal('hide');
             },
             error: function (xhr) {
                 Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
@@ -116,7 +129,11 @@ $(document).ready(function () {
         });
     });
 
-    // Isi otomatis satuan sesuai produk
+    // Set satuan sesuai produk yang sudah terpilih (saat edit dibuka)
+    let satuanAwal = $("#produk_id").find(":selected").data("satuan") || "";
+    $("#satuan").val(satuanAwal);
+
+    // Update satuan setiap kali pilihan produk berubah
     $("#produk_id").on("change", function () {
         let satuan = $(this).find(":selected").data("satuan") || "";
         $("#satuan").val(satuan);

@@ -9,6 +9,7 @@ use App\Models\PICModel;
 use App\Models\KategoriModel;
 use App\Models\ProdukModel;
 use App\Models\SurveyModel;
+use App\Models\CustomersModel;
 use App\Models\PasangKirimModel;
 use App\Models\RincianModel;
 use App\Models\InvoiceModel;
@@ -178,6 +179,10 @@ class RekapController extends Controller
         $interaksi = InteraksiModel::findOrFail($interaksi_id);
         $interaksi->status = $request->status;
         $interaksi->save();
+        $interaksi->refresh();
+        $customer = $interaksi->customer;
+        $customer->refreshLoyalty();
+
 
         return response()->json(['success' => true]);
     }
@@ -290,8 +295,9 @@ class RekapController extends Controller
             $interaksi = InteraksiModel::findOrFail($id_interaksi);
             // Log::info('Interaksi ditemukan.', ['interaksi' => $interaksi]);
 
-            $produk = ProdukModel::select('produk_id', 'produk_nama', 'satuan')->get();
-
+            $produk = ProdukModel::with('kategori')
+                ->select('produk_id', 'produk_nama', 'satuan', 'kategori_id')
+                ->get();
             $rincian = RincianModel::with('produk')
                 ->where('interaksi_id', $id_interaksi)
                 ->get();
@@ -315,7 +321,7 @@ class RekapController extends Controller
             $produk = ProdukModel::with('kategori')
                 ->select('produk_id', 'produk_nama', 'satuan', 'kategori_id')
                 ->get();
-            $closing = ['closing all', 'closing product', 'closing pasang'];
+            $closing = ['closing all', 'closing produk', 'closing pasang'];
 
             $pasang = PasangKirimModel::with('produk')
                 ->where('interaksi_id', $id_interaksi)
@@ -354,10 +360,13 @@ public function createInvoice($id_interaksi)
         $interaksi = InteraksiModel::findOrFail($id_interaksi);
         return view('rekap.create_survey', compact('interaksi'));
     }
-    public function editPasang($id_rincian)
+    public function editPasang($id_pasang)
     {
-        $rincian = RincianModel::findOrFail($id_rincian);
-        return view('rekap.edit_pasang', compact('rincian'));
+        $pasang = PasangKirimModel::findOrFail($id_pasang);
+        $produk = ProdukModel::with('kategori')
+            ->select('produk_id', 'produk_nama', 'satuan', 'kategori_id')
+            ->get();
+        return view('rekap.edit_pasang', compact('pasang', 'produk'));
     }
     public function storeRincian(Request $request)
     {
@@ -392,7 +401,7 @@ public function createInvoice($id_interaksi)
             'deskripsi' => 'required|string|max:255',
             'alamat' => 'required|string|max:255',
             'jadwal_pasang_kirim' => 'required|date',
-            'status' => 'required|in:closing all,closing product,closing pasang', // tambahkan validasi status
+            'status' => 'required|in:closing all,closing produk,closing pasang', // tambahkan validasi status
         ]);
 
         try {
@@ -524,8 +533,9 @@ public function storeInvoice(Request $request)
     public function editRincian(string $rincian_id)
     {
         $rincian = RincianModel::findOrFail($rincian_id);
-        $produk = ProdukModel::select('produk_id', 'produk_nama', 'satuan')->get();
-
+        $produk = ProdukModel::with('kategori')
+            ->select('produk_id', 'produk_nama', 'satuan', 'kategori_id')
+            ->get();
         return view('rekap.edit_rincian', compact('rincian', 'produk'));
     }
     public function updateRincian(Request $request, $rincian_id)
@@ -568,30 +578,60 @@ public function storeInvoice(Request $request)
         ]);
     }
 
-    public function updatePasang(Request $request, $rincian_id)
+    public function updatePasang(Request $request, $pasang_id)
     {
-        $rincian = RincianModel::findOrFail($rincian_id);
+        $pasang = PasangKirimModel::findOrFail($pasang_id);
 
         $rules = [
+            'interaksi_id'        => 'required|integer',
+            'produk_id'           => 'required|integer',
+            'kuantitas'           => 'required|numeric',
+            'satuan'              => 'required|string',
+            'deskripsi'           => 'required|string|max:255',
+            'alamat'              => 'required|string|max:255',
             'jadwal_pasang_kirim' => 'required|date',
+            'status'              => 'required|in:closing all,closing produk,closing pasang',
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return response()->json([
-                'status' => false,
-                'message' => 'Validasi gagal.',
+                'status'   => false,
+                'message'  => 'Validasi gagal.',
                 'msgField' => $validator->errors(),
             ]);
         }
-        $rincian->update($request->all());
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Data rincian berhasil diperbarui',
-        ]);
+        try {
+            $pasang->update([
+                'interaksi_id'        => $request->interaksi_id,
+                'produk_id'           => $request->produk_id,
+                'kuantitas'           => $request->kuantitas,
+                'satuan'              => $request->satuan,
+                'deskripsi'           => $request->deskripsi,
+                'alamat'              => $request->alamat,
+                'jadwal_pasang_kirim' => $request->jadwal_pasang_kirim,
+                'status'              => $request->status,
+            ]);
+
+            // update tahapan (biar sama kayak store)
+            $this->updateTahapan($pasang->interaksi_id, 'Pasang/Kirim');
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Data Pasang/Kirim berhasil diperbarui',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Update Pasang - Error:', ['message' => $e->getMessage()]);
+
+            return response()->json([
+                'status'  => false,
+                'message' => 'Terjadi kesalahan saat memperbarui Pasang/Kirim.',
+            ]);
+        }
     }
+
     public function updateTahapan($interaksi_id, $tahapanBaru)
     {
         $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang/Kirim'];

@@ -28,7 +28,7 @@ class InvoiceDetailModel extends Model
         return $this->belongsTo(InvoiceModel::class, 'invoice_id', 'invoice_id');
     }
 
-    public function pasangKirim(): BelongsTo
+    public function pasang(): BelongsTo
     {
         return $this->belongsTo(PasangKirimModel::class, 'pasangkirim_id', 'pasangkirim_id');
     }

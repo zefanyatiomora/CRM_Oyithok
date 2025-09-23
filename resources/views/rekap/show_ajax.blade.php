@@ -1,75 +1,95 @@
 <div id="modal-master" class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
     <div class="modal-content">
-        {{-- HEADER --}}
-       <div class="modal-header">
-    <h5 class="modal-title fw-bold">
-        Detail Kebutuhan Customer : {{ $interaksi->customer->customer_nama ?? '-' }}
-    </h5>
-    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-</div>
+        {{-- Header Profesional --}}
+        <div class="modal-header bg-wallpaper-gradient position-relative border-bottom-0" style="padding: 1rem 1.5rem;">
+            <h5 class="modal-title fw-bold text-white">
+                <i class="fas fa-user-check me-2"></i> Detail Kebutuhan Customer
+                : {{ $interaksi->customer->customer_nama ?? '-' }}
+            </h5>
+             <button type="button" class="close position-absolute" style="top: 10px; right: 15px;" data-dismiss="modal">
+                <span>&times;</span>
+            </button>
+        </div>
+<div class="modal-body pt-4">
+    {{-- Progress Steps --}}
+    <div class="d-flex align-items-center justify-content-center mb-4">
+        @foreach ($steps as $index => $step)
+            <div class="text-center" style="min-width: 80px;">
+                <div class="rounded-circle 
+                    @if(in_array($index, $skippedSteps))
+                        bg-danger text-white
+                    @elseif($index <= $currentStep)
+                        bg-success text-white
+                    @else
+                        bg-light text-dark
+                    @endif
+                    d-flex align-items-center justify-content-center"
+                    style="width: 40px; height: 40px; margin: auto;">
+                    @if(in_array($index, $skippedSteps))
+                        <i class="fas fa-times"></i>
+                    @elseif($index <= $currentStep)
+                        <i class="fas fa-check"></i>
+                    @else
+                        {{ $index + 1 }}
+                    @endif
+                </div>
+                <small>{{ $step }}</small>
+            </div>
 
-        <style>
+            {{-- Garis penghubung antar step --}}
+            @if ($index < count($steps) - 1)
+                <div class="flex-grow-1 border-top mx-2" style="height: 2px;"></div>
+            @endif
+        @endforeach
+    </div>
+<style>
     .card-purple {
         background-color: #ffffff; /* ungu utama */
         color: rgb(0, 0, 0); /* teks putih agar terbaca */
     }
-    .card-purple .card-header {
-        background-color: #5a32a3; /* ungu header lebih gelap */
-        color: white;
-    }
     .card-purple .card-tools .btn-tool {
         color: white; /* tombol collapse putih */
     }
-    .card-purple .table th {
-        background-color: #ffffff; /* header tabel ungu */
-        color: rgb(0, 0, 0);
+      .bg-wallpaper-gradient {
+        background: linear-gradient(135deg, #8147be, #c97aeb, #a661c2);
+        border-radius: 15px 15px 0 0;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        color: #fff;
     }
+    .modal-content .card-title i {
+        margin-right: 8px;
+    }
+    .bg-gradient-purple {
+    background: linear-gradient(135deg, #6a4fbf, #9b7de0);
+    color: #fff;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.card-header .card-title i {
+    font-size: 1.1rem;
+}
+
+.btn-tool i {
+    transition: transform 0.3s;
+}
+
+.collapsed-card .btn-tool i {
+    transform: rotate(0deg);
+}
+
+.collapsed-card[data-card-widget="collapse"]:not(.collapsed) i {
+    transform: rotate(45deg); /* icon plus jadi X saat expand */
+}
 </style>
-
-
-        <div class="modal-body">
-            {{-- Progress Steps --}}
-            <div class="d-flex align-items-center justify-content-center mb-4">
-                @foreach ($steps as $index => $step)
-                    <div class="text-center" style="min-width: 80px;">
-                        <div class="rounded-circle 
-                            {{-- warna background --}}
-                            @if(in_array($index, $skippedSteps))
-                                bg-danger text-white
-                            @elseif($index <= $currentStep)
-                                bg-success text-white
-                            @else
-                                bg-light text-dark
-                            @endif
-                            d-flex align-items-center justify-content-center"
-                            style="width: 40px; height: 40px; margin: auto;">
-
-                            {{-- ICON / ANGKA --}}
-                            @if(in_array($index, $skippedSteps))
-                                <i class="fas fa-times"></i>
-                            @elseif($index <= $currentStep)
-                                <i class="fas fa-check"></i>
-                            @else
-                                {{ $index + 1 }}
-                            @endif
-                        </div>
-                        <small>{{ $step }}</small>
-                    </div>
-
-                    {{-- Garis penghubung antar step --}}
-                    @if ($index < count($steps) - 1)
-                        <div class="flex-grow-1 border-top mx-2" style="height: 2px;"></div>
-                    @endif
-                @endforeach
-            </div>
-
-
 {{-- ========== DETAIL CUSTOMER ========== --}}
-<div class="card card-purple collapsed-card">
-    <div class="card-header">
-        <h3 class="card-title">Detail Customer</h3>
-        <div class="card-tools">
-            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+<div class="card card-purple collapsed-card shadow-sm border-0">
+    <div class="card-header bg-gradient-purple position-relative" style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
+        <h3 class="card-title fw-bold text-white mb-0">
+            <i class="fas fa-user me-2"></i> Detail Customer
+        </h3>
+        {{-- Tombol collapse di pojok kanan --}}
+        <div class="card-tools position-absolute" style="top: 12px; right: 15px;">
+            <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
                 <i class="fas fa-plus"></i>
             </button>
         </div>
@@ -93,40 +113,14 @@
                           <td>{{ $interaksi->customer->customer_hp ?? '-' }}</td>
                       </tr>
                       <tr>
-                            <th>Loyalty</th>
-                            <td>
-                                @php
-                                    $points = $interaksi->customer->loyalty_point ?? 0;
-                                    $level = '';
-                                    $badgeClass = '';
-
-                                    if ($points >= 60) {
-                                        $level = 'Platinum';
-                                        $badgeClass = 'badge-primary';
-                                        $iconClass = 'fas fa-crown'; // Ikon mahkota
-                                    } elseif ($points >= 30) {
-                                        $level = 'Gold';
-                                        $badgeClass = 'badge-warning';
-                                        $iconClass = 'fas fa-medal'; // Ikon medali
-                                    } elseif ($points >= 10) {
-                                        $level = 'Silver';
-                                        $badgeClass = 'badge-secondary';
-                                        $iconClass = 'fas fa-shield-alt'; // Ikon perisai
-                                    } else {
-                                        $level = 'Bronze';
-                                        $badgeClass = 'badge-dark';
-                                        $iconClass = 'fas fa-award'; // Ikon penghargaan
-                                    }
-                                @endphp
-
-                                {{-- Tampilkan badge dengan ikon di dalamnya --}}
-                                <span class="badge {{ $badgeClass }}">
-                                    <i class="{{ $iconClass }} mr-1"></i>{{-- Tambahkan ikon di sini --}}
-                                    {{ $level }}
-                                </span>
-                                <span>({{ $points }} Poin)</span>
-                            </td>
-                            </tr>
+                            <th>Total Transaction</th>
+                            <td>{{ $interaksi->customer->total_transaction}}</td>
+                        </tr>
+                      <tr>
+                      <tr>
+                            <th>Total Cash Spent</th>
+                            <td>{{ $interaksi->customer->total_cash_spentr}}</td>
+                        </tr>
                       <tr>
                             <th>Status</th>
                             <td>
@@ -176,11 +170,13 @@ $(document).on('click', '#btn-save-status', function () {
 </script>
 
 {{-- ========== IDENTIFIKASI AWAL ========== --}}
-<div class="card card-purple collapsed-card">
-    <div class="card-header">
-        <h3 class="card-title">Identifikasi Awal</h3>
-        <div class="card-tools">
-            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+<div class="card card-purple collapsed-card shadow-sm border-0">
+    <div class="card-header bg-gradient-purple d-flex justify-content-between align-items-center" style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
+        <h3 class="card-title fw-bold text-white mb-0">
+            <i class="fas fa-search me-2"></i> Identifikasi Awal
+        </h3>
+         <div class="card-tools position-absolute" style="top: 12px; right: 15px;">
+            <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
                 <i class="fas fa-plus"></i>
             </button>
         </div>
@@ -231,11 +227,14 @@ $('#btn-toggle-identifikasi').click(function () {
 });
 </script>
 {{-- ========== KEBUTUHAN HARIAN ========== --}}
-<div class="card card-purple collapsed-card">
-    <div class="card-header">
-        <h3 class="card-title">Identifikasi Harian</h3>
-        <div class="card-tools">
-            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+<div class="card card-purple collapsed-card shadow-sm border-0">
+    <div class="card-header bg-gradient-purple position-relative" style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
+        <h3 class="card-title fw-bold text-white mb-0">
+            <i class="fas fa-calendar-day me-2"></i> Identifikasi Harian
+        </h3>
+        {{-- Tombol collapse di pojok kanan --}}
+        <div class="card-tools position-absolute" style="top: 12px; right: 15px;">
+            <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
                 <i class="fas fa-plus"></i>
             </button>
         </div>
@@ -380,11 +379,14 @@ function loadRealtimeList(){
 
 
 {{-- ========== DATA SURVEY ========== --}}
-<div class="card card-purple collapsed-card">
-    <div class="card-header">
-        <h3 class="card-title">Data Survey</h3>
-        <div class="card-tools">
-            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+<div class="card card-purple collapsed-card shadow-sm border-0">
+    <div class="card-header bg-gradient-purple position-relative" style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
+        <h3 class="card-title fw-bold text-white mb-0">
+            <i class="fas fa-tools me-2"></i> Data Survey
+        </h3>
+        {{-- Tombol collapse di pojok kanan --}}
+        <div class="card-tools position-absolute" style="top: 12px; right: 15px;">
+            <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
                 <i class="fas fa-plus"></i>
             </button>
         </div>
@@ -453,16 +455,16 @@ function loadRealtimeList(){
                 <tbody>
                     @forelse($interaksi->rincian as $rincian)
                     <tr class="produk-row">
-                        <td>{{ $rincian->produk->produk_nama}}</td>
-                        <td>{{ $rincian->kuantitas}} {{ $rincian->satuan}}</td>
+                        <td>{{ $rincian->produk->kategori->kategori_nama}} {{ $rincian->produk->produk_nama}}</td>
+                        <td>{{ $rincian->kuantitas}} {{ $rincian->produk->satuan}}</td>
                         <td>{{ $rincian->deskripsi}}</td>
                         <td>
                             @if($rincian->status == 'hold')
                                 <span class="badge bg-warning text-dark">Hold</span>
-                            @elseif(in_array($rincian->status, ['closing all', 'closing produk', 'closing pasang']))
-                                <span class="badge bg-success"> {{ ucfirst($rincian->status) }} </span>
+                            {{-- @elseif(in_array($rincian->status, ['closing']))
+                                <span class="badge bg-success"> {{ ucfirst($rincian->status) }} </span> --}}
                             @else
-                                <span class="badge bg-secondary">{{ ucfirst($rincian->status) }}</span>
+                                <span class="badge bg-success">Closing</span>
                             @endif
                         </td>
                         <td>
@@ -483,15 +485,18 @@ function loadRealtimeList(){
     </div> {{-- card rincian produk --}}
     
     {{-- ========== DATA PASANG ========== --}}
-    <div class="card card-purple collapsed-card">
-        <div class="card-header">
-            <h3 class="card-title">Data Pasang/Kirim</h3>
-            <div class="card-tools">
-                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                    <i class="fas fa-plus"></i>
-                </button>
-            </div>
+   <div class="card card-purple collapsed-card shadow-sm border-0">
+    <div class="card-header bg-gradient-purple position-relative" style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
+        <h3 class="card-title fw-bold text-white mb-0">
+            <i class="fas fa-truck me-2"></i> Data Pasang/Kirim
+        </h3>
+        {{-- Tombol collapse di pojok kanan --}}
+        <div class="card-tools position-absolute" style="top: 12px; right: 15px;">
+            <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
+                <i class="fas fa-plus"></i>
+            </button>
         </div>
+    </div>
         <div class="card-body">
             <h4 class="mt-4 d-flex justify-content-between">
                 <span style="font-size:17px;">Jadwal Pasang</span>
@@ -508,6 +513,8 @@ function loadRealtimeList(){
                 <thead>
                     <tr>
                         <th>Produk</th>
+                        <th>Kuantitas</th>
+                        <th>Deskripsi</th>
                         <th>Jadwal</th>
                         <th>Alamat</th>
                         <th>Status</th>
@@ -517,7 +524,9 @@ function loadRealtimeList(){
                 <tbody>
                     @forelse($interaksi->pasang as $pasang)
                         <tr>
-                            <td>{{ $pasang->produk->produk_nama}} {{ $pasang->kuantitas}} {{ $pasang->satuan}} {{ $pasang->deskripsi}}</td>
+                            <td>{{ $pasang->produk->kategori->kategori_nama}} {{ $pasang->produk->produk_nama}} </td>
+                            <td>{{ $pasang->kuantitas}} {{ $pasang->produk->satuan}}</td>
+                            <td>{{ $pasang->deskripsi}}</td>
                             <td>{{ $pasang->jadwal_pasang_kirim}}</td>
                             <td>{{ $pasang->alamat}}</td>
                             <td>
@@ -531,7 +540,7 @@ function loadRealtimeList(){
                             </td>
                             <td>
                                 <!-- Tombol Edit -->
-                                <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ url('/pasang/' . $pasang->pasang_id . '/edit') }}')">
+                                <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ url('/pasang/' . $pasang->pasangkirim_id . '/edit') }}')">
                                 <i class="fas fa-edit"></i>
                             </a>
                         </tr>
