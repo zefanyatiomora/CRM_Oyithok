@@ -11,7 +11,7 @@ class InvoiceKeteranganModel extends Model
     use HasFactory;
 
     protected $table = 'invoice_keterangan';
-    protected $primaryKey = 'payment_id';
+    protected $primaryKey = 'keterangan_id';
 
     protected $fillable = [
         'keterangan_id',

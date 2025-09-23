@@ -159,3 +159,7 @@ Route::prefix('pasang')->group(function () {
     Route::get('/{id}/edit', [RekapController::class, 'editPasang'])->name('pasang.edit');
     Route::put('/{id}/update', [RekapController::class, 'updatePasang'])->name('pasang.update');
 });
+Route::prefix('invoice')->group(function () {
+    Route::get('/{id}/create', [RekapController::class, 'createInvoice'])->name('invoice.create');
+    Route::post('/store', [RekapController::class, 'storeInvoice'])->name('invoice.store');
+});

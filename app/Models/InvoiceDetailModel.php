@@ -11,7 +11,7 @@ class InvoiceDetailModel extends Model
     use HasFactory;
 
     protected $table = 'invoice_detail';
-    protected $primaryKey = 'item_id';
+    protected $primaryKey = 'detail_id';
 
     protected $fillable = [
         'detail_id',
@@ -25,11 +25,11 @@ class InvoiceDetailModel extends Model
 
     public function invoice(): BelongsTo
     {
-        return $this->belongsTo(InvoiceModel::class, 'invoice_id', 'id');
+        return $this->belongsTo(InvoiceModel::class, 'invoice_id', 'invoice_id');
     }
 
     public function pasangKirim(): BelongsTo
     {
-        return $this->belongsTo(PasangKirimModel::class, 'pasangkirim_id', 'id');
+        return $this->belongsTo(PasangKirimModel::class, 'pasangkirim_id', 'pasangkirim_id');
     }
 }

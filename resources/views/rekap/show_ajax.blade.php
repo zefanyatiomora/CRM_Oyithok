@@ -542,6 +542,57 @@ function loadRealtimeList(){
                     @endforelse
                 </tbody>
             </table>
+            </table>
+            <h4 class="mt-4 d-flex justify-content-between">
+                <span style="font-size:17px;">Invoice</span>
+                <!-- Icon Tambah Invoice -->
+                <a href="javascript:void(0);" 
+                onclick="openModal('{{ route('invoice.create', $interaksi->interaksi_id) }}')" 
+                class="text-primary" 
+                title="Tambah Invoice">
+                    <i class="fas fa-plus fa-xs"></i>
+                </a>
+            </h4>
+            
+            <table class="table table-bordered table-striped table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th>Nomor Invoice</th>
+                        <th>Total</th>
+                        <th>DP</th>
+                        <th>Sisa Pelunasan</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($interaksi->rincian as $rincian)
+                    <tr class="produk-row">
+                        <td>{{ $rincian->produk->produk_nama}}</td>
+                        <td>{{ $rincian->kuantitas}} {{ $rincian->satuan}}</td>
+                        <td>{{ $rincian->deskripsi}}</td>
+                        <td>
+                            @if($rincian->status == 'hold')
+                                <span class="badge bg-warning text-dark">Hold</span>
+                            @elseif(in_array($rincian->status, ['closing all', 'closing produk', 'closing pasang']))
+                                <span class="badge bg-success"> {{ ucfirst($rincian->status) }} </span>
+                            @else
+                                <span class="badge bg-secondary">{{ ucfirst($rincian->status) }}</span>
+                            @endif
+                        </td>
+                        <td>
+                            <!-- Tombol Edit -->
+                            <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ url('/rincian/' . $rincian->rincian_id . '/edit') }}')">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4">Tidak ada rincian produk.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
             </div> {{-- end modal-body --}}
         </div> {{-- end card --}}
     </div>

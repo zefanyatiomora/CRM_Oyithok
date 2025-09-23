@@ -11,6 +11,8 @@ use App\Models\ProdukModel;
 use App\Models\SurveyModel;
 use App\Models\PasangKirimModel;
 use App\Models\RincianModel;
+use App\Models\InvoiceModel;
+use App\Models\InvoiceDetailModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
@@ -327,6 +329,26 @@ class RekapController extends Controller
             ], 500);
         }
     }
+public function createInvoice($id_interaksi)
+{
+    try {
+        // Cari interaksi
+        $interaksi = InteraksiModel::findOrFail($id_interaksi);
+
+        $pasang = PasangKirimModel::with('produk')
+                ->where('interaksi_id', $id_interaksi)
+                ->get();
+
+        return view('rekap.create_invoice', compact('interaksi', 'pasang'));
+        } catch (\Exception $e) {
+            Log::error('createInvoice error: '.$e->getMessage());
+            return response()->json([
+                'message' => 'Interaksi tidak ditemukan.',
+                'error'   => $e->getMessage()
+            ], 500);
+    }
+}
+
     public function createSurvey($id_interaksi)
     {
         $interaksi = InteraksiModel::findOrFail($id_interaksi);
@@ -395,7 +417,85 @@ class RekapController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan Pasang.');
         }
     }
+public function storeInvoice(Request $request)
+{
+    $request->validate([
+        'pasangkirim_id'   => 'required|array',
+        'pasangkirim_id.*' => 'required|integer|exists:pasang_kirim,pasangkirim_id',
+        // header invoice
+        'nomor_invoice'     => 'nullable|string|max:120',
+        'customer_invoice'  => 'nullable|string|max:255',
+        'pesanan_masuk'     => 'nullable|date',
+        'batas_pelunasan'   => 'nullable|in:H+1 setelah pasang,H-1 sebelum kirim',
+        'potongan_harga'    => 'nullable|numeric',
+        'cashback'          => 'nullable|numeric',
+        'total_akhir'       => 'nullable|numeric',
+        'dp'                => 'nullable|numeric',
+        'tanggal_dp'        => 'nullable|date',
+        'tanggal_pelunasan' => 'nullable|date',
+        'sisa_pelunasan'    => 'nullable|numeric',
+        'catatan'           => 'nullable|string',
+        // detail arrays
+        'harga_satuan'   => 'required|array',
+        'harga_satuan.*' => 'numeric',
+        'total'          => 'required|array',
+        'total.*'        => 'numeric',
+        'diskon'         => 'nullable|array',
+        'diskon.*'       => 'numeric',
+        'grand_total'    => 'required|array',
+        'grand_total.*'  => 'numeric',
+    ]);
 
+    DB::beginTransaction();
+    try {
+        // Ambil interaksi_id dari pasang pertama yang dipilih
+        $firstPasang = \App\Models\PasangKirimModel::findOrFail($request->pasangkirim_id[0]);
+        $interaksiId = $firstPasang->interaksi_id;
+
+        // simpan header invoice
+        $invoice = InvoiceModel::create([
+            'interaksi_id'      => $interaksiId, // auto ambil dari pasang
+            'nomor_invoice'     => $request->nomor_invoice,
+            'customer_invoice'  => $request->customer_invoice,
+            'pesanan_masuk'     => $request->pesanan_masuk,
+            'batas_pelunasan'   => $request->batas_pelunasan,
+            'potongan_harga'    => $request->potongan_harga ?? 0,
+            'cashback'          => $request->cashback ?? 0,
+            'total_akhir'       => $request->total_akhir ?? 0,
+            'dp'                => $request->dp ?? 0,
+            'tanggal_dp'        => $request->tanggal_dp,
+            'tanggal_pelunasan' => $request->tanggal_pelunasan,
+            'sisa_pelunasan'    => $request->sisa_pelunasan ?? 0,
+            'catatan'           => $request->catatan,
+        ]);
+
+        // simpan detail invoice
+        foreach ($request->pasangkirim_id as $index => $pasangId) {
+            InvoiceDetailModel::create([
+                'invoice_id'     => $invoice->invoice_id,
+                'pasangkirim_id' => $pasangId,
+                'harga_satuan'   => $request->harga_satuan[$index],
+                'total'          => $request->total[$index],
+                'diskon'         => $request->diskon[$index] ?? 0,
+                'grand_total'    => $request->grand_total[$index],
+            ]);
+        }
+
+        DB::commit();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Invoice berhasil dibuat',
+            'invoice_id' => $invoice->invoice_id
+        ]);
+    } catch (\Throwable $e) {
+        DB::rollBack();
+        Log::error('storeInvoice error: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Gagal menyimpan invoice: '.$e->getMessage()
+        ], 500);
+    }
+}
     public function storeSurvey(Request $request)
     {
         $request->validate([
@@ -542,4 +642,6 @@ class RekapController extends Controller
 
         return $interaksi;
     }
+    
 }
+
