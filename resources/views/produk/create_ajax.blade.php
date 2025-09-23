@@ -2,10 +2,16 @@
     @csrf 
     <div id="modal-master" class="modal-dialog modal-lg" role="document"> 
         <div class="modal-content"> 
-            <div class="modal-header"> 
-                <h5 class="modal-title" id="exampleModalLabel">Tambah Data produk</h5> 
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> 
-            </div> 
+            <div class="card-header bg-wallpaper-gradient d-flex justify-content-between align-items-center" 
+                 style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
+                <h5 class="card-title mb-0 fw-bold text-white">
+                    <i class="fas fa-plus-circle me-2"></i> Tambah Data Produk
+                </h5>
+    <button type="button" class="close position-absolute" data-dismiss="modal" aria-label="Close"
+            style="top: 10px; right: 18px; color: #fff; font-size: 1.4rem;">
+        <span aria-hidden="true">&times;</span>
+    </button>
+            </div>
             <div class="modal-body"> 
                 <div class="form-group"> 
                     <label>Kategori</label> 

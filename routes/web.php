@@ -80,6 +80,8 @@ Route::prefix('produk')->group(function () {
     Route::get('/{id}/delete_ajax', [ProdukController::class, 'confirm_ajax']);  //tampilan form confirm delete Barang Ajax
     Route::delete('/{id}/delete_ajax', [ProdukController::class, 'delete_ajax']); //menghapus data Barang Ajax
     Route::get('/{id}/show_ajax', [ProdukController::class, 'show_ajax']);
+    Route::get('{id}/edit_ajax', [ProdukController::class, 'edit_ajax']);
+    Route::post('{id}/update_ajax', [ProdukController::class, 'update_ajax']);
 });
 
 Route::prefix('rekap')->group(function () {
