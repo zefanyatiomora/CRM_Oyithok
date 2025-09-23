@@ -44,20 +44,7 @@ class DashboardController extends Controller
 
         // === Jumlah berdasarkan tahapan ===
         $jumlahInteraksi = (clone $queryBase)->count();
-        $prosesSurvey    = (clone $queryBase)->where('tahapan', 'survey')->count();
-        $prosesPasang    = (clone $queryBase)->where('tahapan', 'pasang')->count();
-        $prosesOrder     = (clone $queryBase)->where('tahapan', 'order')->count();
-
-        // === Jumlah berdasarkan status ===
-        $jumlahAsk = InteraksiModel::where('status', 'ask')->count();
-        $jumlahFollowUp = InteraksiModel::whereIn('status', ['followup', 'follow up'])->count();
-        $jumlahHold = InteraksiModel::where('status', 'hold')->count();
-        $jumlahClosing = InteraksiModel::where('status', 'closing')->count();
-
-        // Data Doughnut Chart Customer
-        $customerDoughnutLabels = ['Ask', 'Follow up', 'Hold', 'Closing'];
-        $customerDoughnutData = [$jumlahAsk, $jumlahFollowUp, $jumlahHold, $jumlahClosing];
-        $customerDoughnutColors = ['#87CEEB', '#A374FF', '#5C54AD', '#FF7373'];
+        $customerDoughnut = $this->getCustomerDoughnutData($tahun, $bulan);
 
         $availableYears = InteraksiModel::selectRaw('YEAR(tanggal_chat) as year')
             ->distinct()->orderBy('year', 'desc')->pluck('year');
@@ -161,8 +148,120 @@ class DashboardController extends Controller
             'Total Leads Baru' => $totalLeadsBaru,
             'Total Leads Lama' => $totalLeadsLama,
         ]);
+        $produkChart = $this->getProdukChartData($tahun, $bulan);
 
-        // === Data kategori produk ===
+        // Filter hanya kategori dengan closing > 0
+        $penjualanData = collect($produkChart['closingKategori'])->filter(fn($v) => $v > 0);
+
+        $doughnutLabels = $penjualanData->keys()->values()->all();
+        $doughnutData   = $penjualanData->values()->all();
+
+        $doughnutColors = [
+            '#5C54AD',
+            '#6690FF',
+            '#A374FF',
+            '#FF7373',
+            '#A26360',
+            '#D4A29C',
+            '#E8B298',
+            '#C6A0D4',
+            '#BDE1B3',
+            '#8DD6E2',
+        ];
+        $rateClosing = $this->getRateClosingData($tahun, $bulan);
+
+        return view('dashboard.index', [
+            'breadcrumb' => $breadcrumb,
+            'page' => $page,
+            'activeMenu' => $activeMenu,
+
+            'tahun' => $tahun,
+            'bulan' => $bulan,
+            'availableYears' => $availableYears,
+            'bulanList' => $bulanList,
+
+            'jumlahInteraksi' => $jumlahInteraksi,
+
+            'jumlahAsk' => $customerDoughnut['customerDoughnutData'][0],
+            'jumlahFollowUp' => $customerDoughnut['customerDoughnutData'][1],
+            'jumlahHold' => $customerDoughnut['customerDoughnutData'][2],
+            'jumlahClosing' => $customerDoughnut['customerDoughnutData'][3],
+
+            'chartLabels' => $chartLabels,
+            'dataLeadsLama' => $dataLeadsLama,
+            'dataLeadsBaru' => $dataLeadsBaru,
+            'totalLeadsBaru' => $totalLeadsBaru,
+            'totalLeadsLama' => $totalLeadsLama,
+
+            'kategoriLabels' => $produkChart['kategoriLabels'],
+            'dataAsk' => $produkChart['dataAsk'],
+            'dataHold' => $produkChart['dataHold'],
+            'dataClosing' => $produkChart['dataClosing'],
+            'jumlahProdukAsk' => $produkChart['jumlahProdukAsk'],
+            'jumlahProdukHold' => $produkChart['jumlahProdukHold'],
+            'jumlahProdukClosing' => $produkChart['jumlahProdukClosing'],
+
+            'customerDoughnutLabels' => $customerDoughnut['customerDoughnutLabels'],
+            'customerDoughnutData'   => $customerDoughnut['customerDoughnutData'],
+            'customerDoughnutColors' => $customerDoughnut['customerDoughnutColors'],
+
+            'doughnutLabels' => $doughnutLabels,
+            'doughnutData' => $doughnutData,
+            'doughnutColors' => array_slice($doughnutColors, 0, count($doughnutLabels)),
+
+            'rateClosingLabels' => $rateClosing['rateClosingLabels'],
+            'rateClosingDatasets' => $rateClosing['rateClosingDatasets'],
+        ]);
+    }
+    private function getRateClosingData($tahun, $bulan)
+    {
+        $rateClosingLabels = ['All', 'Produk', 'Pasang', 'Survei'];
+        $rateClosingDatasets = [];
+
+        if ($bulan) {
+            $weeks = [
+                ['start' => 1, 'end' => 7],
+                ['start' => 8, 'end' => 14],
+                ['start' => 15, 'end' => 21],
+                ['start' => 22, 'end' => Carbon::create($tahun, $bulan)->endOfMonth()->day],
+            ];
+
+            $lineColors = ['#5C54AD', '#818CF8', '#000000', '#FF7373'];
+
+            foreach ($weeks as $index => $week) {
+                $startDate = Carbon::create($tahun, $bulan, $week['start'])->startOfDay();
+                $endDate   = Carbon::create($tahun, $bulan, $week['end'])->endOfDay();
+
+                $pasangQuery = PasangKirimModel::whereHas('interaksi', function ($q) use ($startDate, $endDate) {
+                    $q->whereBetween('tanggal_chat', [$startDate, $endDate]);
+                });
+
+                $countAll = (clone $pasangQuery)->where('status', 'closing all')->count();
+                $countProduk = (clone $pasangQuery)->where('status', 'closing produk')->count();
+                $countPasang = (clone $pasangQuery)->where('status', 'closing pasang')->count();
+
+                $countSurvey = SurveyModel::whereHas('interaksi', function ($q) use ($startDate, $endDate) {
+                    $q->whereBetween('tanggal_chat', [$startDate, $endDate]);
+                })->count();
+
+                $rateClosingDatasets[] = [
+                    'label' => 'Minggu ' . ($index + 1),
+                    'data' => [$countAll, $countProduk, $countPasang, $countSurvey],
+                    'borderColor' => $lineColors[$index],
+                    'backgroundColor' => $lineColors[$index],
+                    'tension' => 0.1,
+                    'fill' => false,
+                ];
+            }
+        }
+
+        return [
+            'rateClosingLabels' => $rateClosingLabels,
+            'rateClosingDatasets' => $rateClosingDatasets,
+        ];
+    }
+    private function getProdukChartData($tahun, $bulan)
+    {
         $kategoriLabels = KategoriModel::pluck('kategori_nama');
 
         $askKategori = InteraksiAwalModel::with('kategori')
@@ -194,197 +293,48 @@ class DashboardController extends Controller
             ->groupBy(fn($item) => $item->produk->kategori->kategori_nama ?? 'Tanpa Kategori')
             ->map->count();
 
-// === Rate Closing Line Chart ===
-$rateClosingDatasets = [];
-
-if ($bulan) {
-    // ---------------------------
-    // MODE PER MINGGU (dalam 1 bulan)
-    // ---------------------------
-    $weeks = [
-        ['start' => 1, 'end' => 7],
-        ['start' => 8, 'end' => 14],
-        ['start' => 15, 'end' => 21],
-        ['start' => 22, 'end' => Carbon::create($tahun, $bulan)->endOfMonth()->day],
-    ];
-
-    $rateClosingLabels = ['All', 'Produk', 'Pasang', 'Survei'];
-
-    foreach ($rateClosingLabels as $label) {
-        $data = [];
-        foreach ($weeks as $week) {
-            $startDate = Carbon::create($tahun, $bulan, $week['start'])->startOfDay();
-            $endDate   = Carbon::create($tahun, $bulan, $week['end'])->endOfDay();
-
-            // Hitung sesuai kategori
-            if ($label === 'All') {
-                $count = PasangKirimModel::whereHas('interaksi', fn($q) =>
-                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
-                        ->whereIn('status', ['closing produk','closing pasang'])
-                        ->count()
-                        +
-                        SurveyModel::whereHas('interaksi', fn($q) =>
-                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
-                        ->count();
-            } elseif ($label === 'Produk') {
-                $count = PasangKirimModel::whereHas('interaksi', fn($q) =>
-                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
-                        ->where('status', 'closing produk')
-                        ->count();
-            } elseif ($label === 'Pasang') {
-                $count = PasangKirimModel::whereHas('interaksi', fn($q) =>
-                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
-                        ->where('status', 'closing pasang')
-                        ->count();
-            } else { // Survei
-                $count = SurveyModel::whereHas('interaksi', fn($q) =>
-                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
-                        ->count();
-            }
-
-            $data[] = $count;
-        }
-
-        $rateClosingDatasets[] = [
-            'label' => $label,
-            'data' => $data,
-            'borderColor' => $label === 'All' ? '#6C63AC' :
-                             ($label === 'Produk' ? '#FF7373' :
-                             ($label === 'Pasang' ? '#87CEEB' : '#5C54AD')),
-            'tension' => 0.3,
-            'fill' => false,
-        ];
-    }
-
-} else {
-    // ---------------------------
-    // MODE PER BULAN (1 tahun penuh)
-    // ---------------------------
-    $months = range(1, 12);
-    $rateClosingLabels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-
-    foreach (['All','Produk','Pasang','Survei'] as $label) {
-        $data = [];
-        foreach ($months as $m) {
-            $startDate = Carbon::create($tahun, $m, 1)->startOfMonth();
-            $endDate   = Carbon::create($tahun, $m, 1)->endOfMonth();
-
-            if ($label === 'All') {
-                $count = PasangKirimModel::whereHas('interaksi', fn($q) =>
-                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
-                        ->whereIn('status', ['closing produk','closing pasang'])
-                        ->count()
-                        +
-                        SurveyModel::whereHas('interaksi', fn($q) =>
-                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
-                        ->count();
-            } elseif ($label === 'Produk') {
-                $count = PasangKirimModel::whereHas('interaksi', fn($q) =>
-                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
-                        ->where('status', 'closing produk')
-                        ->count();
-            } elseif ($label === 'Pasang') {
-                $count = PasangKirimModel::whereHas('interaksi', fn($q) =>
-                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
-                        ->where('status', 'closing pasang')
-                        ->count();
-            } else { // Survei
-                $count = SurveyModel::whereHas('interaksi', fn($q) =>
-                            $q->whereBetween('tanggal_chat', [$startDate, $endDate]))
-                        ->count();
-            }
-
-            $data[] = $count;
-        }
-
-        $rateClosingDatasets[] = [
-            'label' => $label,
-            'data' => $data,
-            'borderColor' => $label === 'All' ? '#6C63AC' :
-                             ($label === 'Produk' ? '#FF7373' :
-                             ($label === 'Pasang' ? '#87CEEB' : '#5C54AD')),
-            'tension' => 0.3,
-            'fill' => false,
-        ];
-    }
-}
-
-        // === Data untuk chart kategori produk ===
         $dataAsk = [];
         $dataHold = [];
         $dataClosing = [];
+
         foreach ($kategoriLabels as $kategori) {
             $dataAsk[] = $askKategori[$kategori] ?? 0;
             $dataHold[] = $holdKategori[$kategori] ?? 0;
             $dataClosing[] = $closingKategori[$kategori] ?? 0;
         }
 
-        $jumlahProdukAsk     = array_sum($dataAsk);
-        $jumlahProdukHold    = array_sum($dataHold);
-        $jumlahProdukClosing = array_sum($dataClosing);
-
-        // Filter hanya kategori dengan closing > 0
-        $penjualanData = collect($closingKategori)->filter(fn($v) => $v > 0);
-
-        $doughnutLabels = $penjualanData->keys();
-        $doughnutData   = $penjualanData->values();
-
-        $doughnutColors = [
-            '#6690FF',
-            '#A374FF',
-            '#5C54AD',
-            '#FF7373',
-            '#6C63AC',
-            '#FFB6C1',
-            '#87CEEB'
-        ];
-
-        return view('dashboard.index', [
-            'breadcrumb' => $breadcrumb,
-            'page' => $page,
-            'activeMenu' => $activeMenu,
-
-            'tahun' => $tahun,
-            'bulan' => $bulan,
-            'availableYears' => $availableYears,
-            'bulanList' => $bulanList,
-
-            'jumlahInteraksi' => $jumlahInteraksi,
-            'prosesSurvey' => $prosesSurvey,
-            'prosesPasang' => $prosesPasang,
-            'prosesOrder' => $prosesOrder,
-
-            'jumlahAsk' => $jumlahAsk,
-            'jumlahFollowUp' => $jumlahFollowUp,
-            'jumlahHold' => $jumlahHold,
-            'jumlahClosing' => $jumlahClosing,
-            'jumlahProdukAsk' => $jumlahProdukAsk,
-            'jumlahProdukHold' => $jumlahProdukHold,
-            'jumlahProdukClosing' => $jumlahProdukClosing,
-
-            'chartLabels' => $chartLabels,
-            'dataLeadsLama' => $dataLeadsLama,
-            'dataLeadsBaru' => $dataLeadsBaru,
-            'totalLeadsBaru' => $totalLeadsBaru,
-            'totalLeadsLama' => $totalLeadsLama,
-
+        return [
             'kategoriLabels' => $kategoriLabels,
             'dataAsk' => $dataAsk,
             'dataHold' => $dataHold,
             'dataClosing' => $dataClosing,
-
-            'doughnutLabels' => $doughnutLabels,
-            'doughnutData' => $doughnutData,
-            'doughnutColors' => array_slice($doughnutColors, 0, $doughnutLabels->count()),
-
-            'customerDoughnutLabels' => $customerDoughnutLabels,
-            'customerDoughnutData' => $customerDoughnutData,
-            'customerDoughnutColors' => $customerDoughnutColors,
-
-            'rateClosingLabels' => $rateClosingLabels,
-            'rateClosingDatasets' => $rateClosingDatasets,
-        ]);
+            'jumlahProdukAsk' => array_sum($dataAsk),
+            'jumlahProdukHold' => array_sum($dataHold),
+            'jumlahProdukClosing' => array_sum($dataClosing),
+            'closingKategori' => $closingKategori,
+        ];
     }
+    private function getCustomerDoughnutData($tahun, $bulan = null)
+    {
+        $queryBase = InteraksiModel::whereYear('tanggal_chat', $tahun);
+        if ($bulan) {
+            $queryBase->whereMonth('tanggal_chat', $bulan);
+        }
+
+        $jumlahAsk = (clone $queryBase)->where('status', 'ask')->count();
+        $jumlahFollowUp = (clone $queryBase)->whereIn('status', ['followup', 'follow up'])->count();
+        $jumlahHold = (clone $queryBase)->where('status', 'hold')->count();
+        $jumlahClosing = (clone $queryBase)->where('status', 'closing')->count();
+
+        return [
+            'customerDoughnutLabels' => ['Ask', 'Follow up', 'Hold', 'Closing'],
+            'customerDoughnutData'   => [$jumlahAsk, $jumlahFollowUp, $jumlahHold, $jumlahClosing],
+            'customerDoughnutColors' => ['#87CEEB', '#A374FF', '#5C54AD', '#FF7373'],
+        ];
+    }
+
+
+
     public function ask(Request $request)
     {
         $query = InteraksiModel::with('customer')

@@ -293,8 +293,9 @@ class RekapController extends Controller
             $interaksi = InteraksiModel::findOrFail($id_interaksi);
             // Log::info('Interaksi ditemukan.', ['interaksi' => $interaksi]);
 
-            $produk = ProdukModel::select('produk_id', 'produk_nama', 'satuan')->get();
-
+            $produk = ProdukModel::with('kategori')
+                ->select('produk_id', 'produk_nama', 'satuan', 'kategori_id')
+                ->get();
             $rincian = RincianModel::with('produk')
                 ->where('interaksi_id', $id_interaksi)
                 ->get();
