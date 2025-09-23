@@ -28,7 +28,7 @@
             <div class="modal-body">
 
     <input type="hidden" name="rincian_id" value="{{ $rincian->rincian_id }}">
-    <input type="hidden" name="interaksi_id" id="interaksi_id" value="{{ $pasang->interaksi_id }}">
+    <input type="hidden" name="interaksi_id" id="interaksi_id" value="{{ $rincian->interaksi_id }}">
 
     <!-- Produk -->
     <div class="form-group">
