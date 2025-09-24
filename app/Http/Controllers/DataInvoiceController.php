@@ -29,10 +29,12 @@ class DataInvoiceController extends Controller
     }
     public function show($id)
     {
-        $invoice = InvoiceModel::with(['customer', 'pic', 'details.pasang'])
-            ->findOrFail($id);
+        $invoice = InvoiceModel::with([
+            'details.pasang.produk',
+            'details.pasang.interaksi',
+            'customer'
+        ])->findOrFail($id);
 
-        // return partial view untuk AJAX (detail modal)
-        return view('datainvoice.detail', compact('invoice'));
+        return response()->json($invoice);
     }
 }
