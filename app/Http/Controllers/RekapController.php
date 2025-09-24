@@ -134,6 +134,9 @@ class RekapController extends Controller
             ->with('pic')
             ->orderBy('tanggal', 'asc')
             ->get();
+        $invoices = InvoiceModel::whereHas('details.pasang', function ($q) use ($interaksi_id) {
+        $q->where('interaksi_id', $interaksi_id);
+    })->with(['details.pasang'])->get();
 
         $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang/Kirim'];
 
@@ -165,7 +168,8 @@ class RekapController extends Controller
             'followUpOptions'   => ['Ask', 'Follow Up', 'Hold', 'Closing'],
             'selectedFollowUp'  => $interaksi->status ?? '',
             'closeValue'        => $interaksi->close ?? '',
-            'interaksiAwalList' => $interaksiAwalList
+            'interaksiAwalList' => $interaksiAwalList,
+            'invoices'          => $invoices
         ]);
     }
     // RekapController.php
@@ -340,8 +344,9 @@ class RekapController extends Controller
             $pasang = PasangKirimModel::with('produk')
                 ->where('interaksi_id', $id_interaksi)
                 ->get();
+        $lastInvoice = InvoiceModel::latest()->first();
 
-            return view('rekap.create_invoice', compact('interaksi', 'pasang'));
+        return view('rekap.create_invoice', compact('interaksi', 'pasang', 'lastInvoice'));
         } catch (\Exception $e) {
             Log::error('createInvoice error: ' . $e->getMessage());
             return response()->json([

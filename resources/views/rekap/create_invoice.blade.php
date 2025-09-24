@@ -13,11 +13,13 @@
         <div class="row mb-2">
             <div class="col-md-6">
                 <label>Nomor Invoice</label>
-                <input type="text" name="nomor_invoice" class="form-control">
+                <input type="text" name="nomor_invoice" class="form-control"
+                       value="{{ $lastInvoice->nomor_invoice ?? '' }}">
             </div>
             <div class="col-md-6">
                 <label>Customer Invoice</label>
-                <input type="text" name="customer_invoice" class="form-control" value="{{ $interaksi->customer->customer_nama ?? '' }}">
+                <input type="text" name="customer_invoice" class="form-control"
+                       value="{{ $lastInvoice->customer_invoice ?? ($interaksi->customer->customer_nama ?? '') }}">
             </div>
         </div>
 
@@ -36,46 +38,29 @@
             </div>
         </div>
 
-        <div class="mb-2 text-right">
-            <button type="button" id="btn-add-item" class="btn btn-sm btn-success">
-                <i class="fa fa-plus"></i> Tambah Item
-            </button>
-        </div>
-
         <div class="table-responsive">
-            <table class="table table-bordered" id="table-items">
+            <table class="table table-bordered table-sm" id="tablePasang">
                 <thead>
                     <tr>
-                        <th>Pasang/Kirim (pilih)</th>
+                        <th>Pasang/Kirim</th>
+                        <th>Kuantitas</th>
                         <th>Harga Satuan</th>
                         <th>Total</th>
-                        <th>Diskon</th>
+                        <th>Diskon (%)</th>
                         <th>Grand Total</th>
-                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="item-row">
-                        <td>
-                            <select name="pasangkirim_id[]" class="form-control select-pasang">
-                                <option value="">-- Pilih Pasang/Kirim --</option>
-                                @foreach($pasang as $p)
-                                    <option value="{{ $p->pasangkirim_id }}"
-                                        data-harga="{{ $p->harga_satuan ?? 0 }}">
-                                        {{ $p->produk->produk_nama ?? '-' }} — {{ $p->jadwal_pasang_kirim }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </td>
-
-                        <td><input type="number" step="0.01" name="harga_satuan[]" class="form-control harga_satuan" value="0"></td>
-                        <td><input type="number" step="0.01" name="total[]" class="form-control total" value="0"></td>
-                        <td><input type="number" step="0.01" name="diskon[]" class="form-control diskon" value="0"></td>
-                        <td><input type="number" step="0.01" name="grand_total[]" class="form-control grand_total" value="0"></td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-danger btn-remove-row"><i class="fa fa-trash"></i></button>
-                        </td>
-                    </tr>
+                    @foreach($pasang as $p)
+                        <tr>
+                            <td>{{ $p->produk->produk_nama ?? '-' }} — {{ $p->jadwal_pasang_kirim }}</td>
+                            <td><input type="number" name="kuantitas[]" class="form-control qty" value="{{ $p->kuantitas ?? 1 }}"></td>
+                            <td><input type="text" name="harga_satuan[]" class="form-control rupiah harga" value=""></td>
+                            <td><input type="text" name="total[]" class="form-control rupiah total" readonly></td>
+                            <td><input type="number" name="diskon[]" class="form-control diskon" value=""></td>
+                            <td><input type="text" name="grand_total[]" class="form-control rupiah grand_total" readonly></td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -83,42 +68,48 @@
         <hr>
 
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <label>Potongan Harga</label>
-                <input type="number" step="0.01" name="potongan_harga" class="form-control" value="0">
+                <input type="text" name="potongan_harga" class="form-control rupiah manual" value="">
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <label>Cashback</label>
-                <input type="number" step="0.01" name="cashback" class="form-control" value="0">
-            </div>
-            <div class="col-md-4">
-                <label>Total Akhir</label>
-                <input type="number" step="0.01" name="total_akhir" class="form-control" value="0">
+                <input type="text" name="cashback" class="form-control rupiah manual" value="">
             </div>
         </div>
 
         <div class="row mt-2">
             <div class="col-md-6">
                 <label>DP</label>
-                <input type="number" step="0.01" name="dp" class="form-control" value="0">
+                <input type="text" name="dp" class="form-control rupiah manual" value="">
+            </div>
+            <div class="col-md-6">
+                <label>Sisa Pelunasan</label>
+                <input type="text" name="sisa_pelunasan" class="form-control rupiah" readonly>
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div class="col-md-6">
+                <label>Total Akhir</label>
+                <input type="text" name="total_akhir" class="form-control rupiah" readonly>
             </div>
             <div class="col-md-6">
                 <label>Tanggal DP</label>
-                <input type="date" name="tanggal_dp" class="form-control">
+                <input type="date" name="tanggal_dp" class="form-control"
+                       value="{{ $lastInvoice->tanggal_dp ?? '' }}">
             </div>
+        </div>
 
-            <div class="col-md-6 mt-2">
-                <label>Sisa Pelunasan</label>
-                <input type="number" step="0.01" name="sisa_pelunasan" class="form-control" value="0">
-            </div>
-            <div class="col-md-6 mt-2">
+        <div class="row mt-2">
+            <div class="col-md-6">
                 <label>Tanggal Pelunasan</label>
-                <input type="date" name="tanggal_pelunasan" class="form-control">
+                <input type="date" name="tanggal_pelunasan" class="form-control"
+                       value="{{ $lastInvoice->tanggal_pelunasan ?? '' }}">
             </div>
-
-            <div class="col-md-12 mt-2">
+            <div class="col-md-6">
                 <label>Catatan</label>
-                <textarea name="catatan" class="form-control" rows="3"></textarea>
+                <textarea name="catatan" class="form-control" rows="2">{{ $lastInvoice->catatan ?? '' }}</textarea>
             </div>
         </div>
     </div>
@@ -130,62 +121,61 @@
 </form>
 
 <script>
-$(function () {
-    // tambah baris item
-    $('#btn-add-item').click(function () {
-        let row = $('#table-items tbody tr.item-row:first').clone();
-        row.find('input').val('0');
-        row.find('select').val('');
-        $('#table-items tbody').append(row);
-    });
+$(function(){
+    function formatRupiah(angka) {
+        if(!angka) return '';
+        return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
 
-    // hapus baris
-    $(document).on('click', '.btn-remove-row', function () {
-        if ($('#table-items tbody tr').length > 1) {
-            $(this).closest('tr').remove();
-        } else {
-            // kosongkan jika tinggal 1 baris
-            let r = $(this).closest('tr');
-            r.find('input').val('0');
-            r.find('select').val('');
-        }
-    });
+    function parseRupiah(str) {
+        return parseInt(str.replace(/[^0-9]/g, '')) || 0;
+    }
 
-    // otomatis isi harga_satuan ketika pilih pasang (jika pasang punya harga)
-    $(document).on('change', '.select-pasang', function () {
-        let harga = $(this).find(':selected').data('harga') || 0;
-        let row = $(this).closest('tr');
-        row.find('.harga_satuan').val(harga);
-        // jika total dihitung dari harga * qty, kamu bisa set di sini (qty field belum disediakan)
-    });
+    // Hitung otomatis
+    function hitungRow(row) {
+        let qty = parseInt($(row).find('.qty').val()) || 0;
+        let harga = parseRupiah($(row).find('.harga').val());
+        let diskon = parseFloat($(row).find('.diskon').val()) || 0;
 
-    // submit form via AJAX (akan mengembalikan JSON)
-    $('#form-create-invoice').submit(function (e) {
-        e.preventDefault();
-        let form = this;
-        let data = new FormData(form);
+        let total = qty * harga;
+        let grand = total - (total * (diskon / 100));
 
-        $.ajax({
-            url: "{{ route('invoice.store') }}",
-            method: 'POST',
-            data: data,
-            processData: false,
-            contentType: false,
-            success: function (res) {
-                if (res.status === 'success') {
-                    toastr.success(res.message);
-                    // reload bagian yang perlu di UI, atau tutup modal:
-                    $('#myModal').modal('hide');
-                    // optional: reload halaman / datatable
-                } else {
-                    toastr.error(res.message || 'Simpan gagal');
-                }
-            },
-            error: function (xhr) {
-                console.error(xhr.responseText);
-                toastr.error('Terjadi kesalahan server');
-            }
+        $(row).find('.total').val(formatRupiah(total));
+        $(row).find('.grand_total').val(formatRupiah(grand));
+
+        hitungSummary();
+    }
+
+    function hitungSummary() {
+        let grandTotal = 0;
+        $('#tablePasang tbody tr').each(function(){
+            grandTotal += parseRupiah($(this).find('.grand_total').val());
         });
+
+        let potongan = parseRupiah($('input[name="potongan_harga"]').val());
+        let cashback = parseRupiah($('input[name="cashback"]').val());
+        let dp = parseRupiah($('input[name="dp"]').val());
+
+        let totalAkhir = grandTotal - potongan - cashback;
+        let sisa = totalAkhir - dp;
+
+        $('input[name="total_akhir"]').val(formatRupiah(totalAkhir));
+        $('input[name="sisa_pelunasan"]').val(formatRupiah(sisa));
+    }
+
+    $(document).on('input', '.rupiah', function () {
+        let value = $(this).val().replace(/[^0-9]/g, '');
+        $(this).val(value ? formatRupiah(value) : '');
+        hitungSummary();
+    });
+
+    $(document).on('input', '.qty, .harga, .diskon', function () {
+        let row = $(this).closest('tr');
+        hitungRow(row);
+    });
+
+    $(document).on('input', '.manual', function(){
+        hitungSummary();
     });
 });
 </script>
