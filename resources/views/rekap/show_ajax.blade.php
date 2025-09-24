@@ -361,30 +361,22 @@
                         updateNomor();
                     });
                     // Simpan kebutuhan harian
-                    $(document).on('submit', '#form-kebutuhan-harian', function(e) {
+                    $(document).on('submit', '#form-kebutuhan-harian', function(e){
                         e.preventDefault();
 
-    $.post("{{ url('rekap/realtime/store') }}", $(this).serialize(), function(res){
-        if(res.status === 'success'){
-            $('#modalTambahKebutuhan').modal('hide');
-
-            // toastr sukses
-            toastr.success("Data realtime berhasil tersimpan");
-
-            // reload modal myModal
-            let interaksiId = $("#interaksi_id").val();
-            $("#myModal").load("{{ url('rekap') }}/" + interaksiId + "/show_ajax");
-
-            // reload list realtime
-            loadRealtimeList();
-        }else{
-            toastr.error(res.message || "Gagal menyimpan data");
-        }
-    }).fail(function(xhr){
-        console.error(xhr.responseText);
-        toastr.error("Terjadi kesalahan server");
-    });
-});
+                        $.post("{{ url('rekap/realtime/store') }}", $(this).serialize(), function(res){
+                            if(res.status === 'success'){
+                                $('#modalTambahKebutuhan').modal('hide');
+                                Swal.fire({icon:'success', title:'Berhasil', text:'Data berhasil ditambahkan', timer:1500, showConfirmButton:false});
+                                loadRealtimeList();
+                            }else{
+                                Swal.fire({icon:'error', title:'Gagal', text:res.message || 'Gagal menyimpan data'});
+                            }
+                        }).fail(function(xhr){
+                            console.error(xhr.responseText);
+                            Swal.fire({icon:'error', title:'Error', text:'Terjadi kesalahan server'});
+                        });
+                    });
 
 
                     function loadRealtimeList() {
@@ -714,44 +706,21 @@
             });
 
 
-            // Submit form (sama seperti sebelumnya)
-            $(document).on('submit', '#form-interaksi-realtime', function(e) {
+            // Simpan kebutuhan harian
+            $(document).on('submit', '#form-kebutuhan-harian', function(e){
                 e.preventDefault();
-                $.post("{{ route('rekap.storeRealtime') }}", $(this).serialize(), function(res) {
-                    if (res.status === 'success') {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil!',
-                            text: 'Data kebutuhan harian berhasil ditambahkan',
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
-                        $('#form-interaksi-realtime')[0].reset();
-                        $('#kebutuhan-container').html(` 
-                    <div class="row mb-2 kebutuhan-row">
-                        <div class="col-md-4 mb-1">
-                            <input type="date" name="tanggal[]" class="form-control form-control-sm" required>
-                        </div>
-                        <div class="col-md-6 mb-1">
-                            <input type="text" name="keterangan[]" class="form-control form-control-sm" placeholder="Keterangan">
-                        </div>
-                        <div class="col-md-2 mb-1">
-                            <button type="button" class="btn btn-success btn-sm w-100 btn-add-row">Tambah</button>
-                        </div>
-                    </div>
-                `);
+
+                $.post("{{ url('rekap/realtime/store') }}", $(this).serialize(), function(res){
+                    if(res.status === 'success'){
+                        $('#modalTambahKebutuhan').modal('hide');
+                        Swal.fire({icon:'success', title:'Berhasil', text:'Data berhasil ditambahkan', timer:1500, showConfirmButton:false});
                         loadRealtimeList();
-                    } else Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal!',
-                        text: res.message || 'Tidak bisa menyimpan data'
-                    });
-                }).fail(function() {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'Terjadi kesalahan saat menyimpan'
-                    });
+                    }else{
+                        Swal.fire({icon:'error', title:'Gagal', text:res.message || 'Gagal menyimpan data'});
+                    }
+                }).fail(function(xhr){
+                    console.error(xhr.responseText);
+                    Swal.fire({icon:'error', title:'Error', text:'Terjadi kesalahan server'});
                 });
             });
 
