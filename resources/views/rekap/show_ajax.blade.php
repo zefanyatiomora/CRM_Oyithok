@@ -422,7 +422,13 @@ function loadRealtimeList(){
                     <tr>
                         <td>{{ $interaksi->survey->alamat_survey }}</td>
                         <td>{{ $interaksi->survey->jadwal_survey }}</td>
-                        <td>{{ $interaksi->survey->status }}</td>
+                        <td>
+                            @if($interaksi->survey->status == 'closing survey')
+                                <span class="badge bg-success">Closing Survey</span>
+                            @else
+                                <span class="badge bg-warning">pending</span>
+                            @endif
+                        </td>
                     </tr>
                 @else
                     <tr>
@@ -530,12 +536,12 @@ function loadRealtimeList(){
                             <td>{{ $pasang->jadwal_pasang_kirim}}</td>
                             <td>{{ $pasang->alamat}}</td>
                             <td>
-                                @if($pasang->status == 'hold')
-                                    <span class="badge bg-warning text-dark">Hold</span>
-                                @elseif(in_array($pasang->status, ['closing all', 'closing produk', 'closing pasang']))
-                                    <span class="badge bg-success"> {{ ucfirst($pasang->status) }} </span>
+                                @if($pasang->status == 'closing all')
+                                    <span class="badge bg-primary">closing all</span>
+                                @elseif($pasang->status == 'closing produk')
+                                    <span class="badge bg-success">closing produk </span>
                                 @else
-                                    <span class="badge bg-secondary">{{ ucfirst($pasang->status) }}</span>
+                                    <span class="badge bg-warning">closing pasang</span>
                                 @endif
                             </td>
                             <td>
