@@ -135,8 +135,8 @@ class RekapController extends Controller
             ->orderBy('tanggal', 'asc')
             ->get();
         $invoices = InvoiceModel::whereHas('details.pasang', function ($q) use ($interaksi_id) {
-        $q->where('interaksi_id', $interaksi_id);
-    })->with(['details.pasang'])->get();
+            $q->where('interaksi_id', $interaksi_id);
+        })->with(['details.pasang'])->get();
 
         $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang/Kirim'];
 
@@ -344,9 +344,9 @@ class RekapController extends Controller
             $pasang = PasangKirimModel::with('produk')
                 ->where('interaksi_id', $id_interaksi)
                 ->get();
-        $lastInvoice = InvoiceModel::latest()->first();
+            $lastInvoice = InvoiceModel::latest()->first();
 
-        return view('rekap.create_invoice', compact('interaksi', 'pasang', 'lastInvoice'));
+            return view('rekap.create_invoice', compact('interaksi', 'pasang', 'lastInvoice'));
         } catch (\Exception $e) {
             Log::error('createInvoice error: ' . $e->getMessage());
             return response()->json([
@@ -689,5 +689,109 @@ class RekapController extends Controller
         ]);
 
         return $interaksi;
+    }
+public function editInvoice($invoice_id)
+    {
+        try {
+            // Ambil invoice beserta detail -> pasang -> produk
+            $invoice = InvoiceModel::with(['details.pasang.produk'])->findOrFail($invoice_id);
+
+            // Jika invoice belum punya interaksi_id, coba ambil interaksi dari detail->pasang
+            if (!$invoice->interaksi && $invoice->details->isNotEmpty()) {
+                $firstPasang = $invoice->details->first()->pasang;
+                $interaksi = $firstPasang ? $firstPasang->interaksi : null;
+            } else {
+                $interaksi = $invoice->interaksi;
+            }
+
+            // Jika butuh daftar pasang terkait interaksi (untuk menampilkan di view)
+            $pasang = $interaksi
+                ? PasangKirimModel::with('produk')->where('interaksi_id', $interaksi->interaksi_id)->get()
+                : collect();
+
+            // Kirim ke view edit
+            return view('rekap.edit_invoice', compact('invoice', 'pasang', 'interaksi'));
+        } catch (\Exception $e) {
+            Log::error('editInvoice error: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invoice / Interaksi tidak ditemukan: ' . $e->getMessage()
+            ], 404);
+        }
+    }
+
+    // PUT /invoice/{invoice_id}/update
+    public function updateInvoice(Request $request, $invoice_id)
+    {
+        $request->validate([
+            // header
+            'nomor_invoice' => 'nullable|string|max:120',
+            'customer_invoice' => 'nullable|string|max:255',
+            'pesanan_masuk' => 'nullable|date',
+            'batas_pelunasan' => 'nullable|in:H+1 setelah pasang,H-1 sebelum kirim',
+            'potongan_harga' => 'nullable|numeric',
+            'cashback' => 'nullable|numeric',
+            'total_akhir' => 'nullable|numeric',
+            'dp' => 'nullable|numeric',
+            'tanggal_dp' => 'nullable|date',
+            'tanggal_pelunasan' => 'nullable|date',
+            'sisa_pelunasan' => 'nullable|numeric',
+            'catatan' => 'nullable|string',
+
+            // detail arrays (optional: validate if present)
+            'pasangkirim_id' => 'required|array',
+            'pasangkirim_id.*' => 'required|integer|exists:pasang_kirim,pasangkirim_id',
+            'harga_satuan' => 'required|array',
+            'harga_satuan.*' => 'numeric',
+            'total' => 'required|array',
+            'total.*' => 'numeric',
+            'diskon' => 'nullable|array',
+            'diskon.*' => 'numeric',
+            'grand_total' => 'required|array',
+            'grand_total.*' => 'numeric',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $invoice = InvoiceModel::findOrFail($invoice_id);
+
+            // update header
+            $invoice->update([
+                'nomor_invoice' => $request->nomor_invoice,
+                'customer_invoice' => $request->customer_invoice,
+                'pesanan_masuk' => $request->pesanan_masuk,
+                'batas_pelunasan' => $request->batas_pelunasan,
+                'potongan_harga' => $request->potongan_harga ?? 0,
+                'cashback' => $request->cashback ?? 0,
+                'total_akhir' => $request->total_akhir ?? 0,
+                'dp' => $request->dp ?? 0,
+                'tanggal_dp' => $request->tanggal_dp,
+                'tanggal_pelunasan' => $request->tanggal_pelunasan,
+                'sisa_pelunasan' => $request->sisa_pelunasan ?? 0,
+                'catatan' => $request->catatan,
+            ]);
+
+            // For simplicity: delete old details and insert new ones.
+            // (alternatif: sync/patch individual details)
+            InvoiceDetailModel::where('invoice_id', $invoice->invoice_id)->delete();
+
+            foreach ($request->pasangkirim_id as $i => $pasangId) {
+                InvoiceDetailModel::create([
+                    'invoice_id' => $invoice->invoice_id,
+                    'pasangkirim_id' => $pasangId,
+                    'harga_satuan' => $request->harga_satuan[$i],
+                    'total' => $request->total[$i],
+                    'diskon' => $request->diskon[$i] ?? 0,
+                    'grand_total' => $request->grand_total[$i],
+                ]);
+            }
+
+            DB::commit();
+            return response()->json(['status'=>'success','message'=>'Invoice diperbarui']);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('updateInvoice error: ' . $e->getMessage());
+            return response()->json(['status'=>'error','message'=>$e->getMessage()], 500);
+        }
     }
 }
