@@ -364,33 +364,28 @@
                     $(document).on('submit', '#form-kebutuhan-harian', function(e) {
                         e.preventDefault();
 
-                        $.post("{{ url('rekap/realtime/store') }}", $(this).serialize(), function(res) {
-                            if (res.status === 'success') {
-                                $('#modalTambahKebutuhan').modal('hide');
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Berhasil',
-                                    text: 'Data berhasil ditambahkan',
-                                    timer: 1500,
-                                    showConfirmButton: false
-                                });
-                                loadRealtimeList();
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Gagal',
-                                    text: res.message || 'Gagal menyimpan data'
-                                });
-                            }
-                        }).fail(function(xhr) {
-                            console.error(xhr.responseText);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Terjadi kesalahan server'
-                            });
-                        });
-                    });
+    $.post("{{ url('rekap/realtime/store') }}", $(this).serialize(), function(res){
+        if(res.status === 'success'){
+            $('#modalTambahKebutuhan').modal('hide');
+
+            // toastr sukses
+            toastr.success("Data realtime berhasil tersimpan");
+
+            // reload modal myModal
+            let interaksiId = $("#interaksi_id").val();
+            $("#myModal").load("{{ url('rekap') }}/" + interaksiId + "/show_ajax");
+
+            // reload list realtime
+            loadRealtimeList();
+        }else{
+            toastr.error(res.message || "Gagal menyimpan data");
+        }
+    }).fail(function(xhr){
+        console.error(xhr.responseText);
+        toastr.error("Terjadi kesalahan server");
+    });
+});
+
 
                     function loadRealtimeList() {
                         let id = "{{ $interaksi->interaksi_id }}";
