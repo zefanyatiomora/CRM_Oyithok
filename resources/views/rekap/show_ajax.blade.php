@@ -382,7 +382,7 @@ function loadRealtimeList(){
 <div class="card card-purple collapsed-card shadow-sm border-0">
     <div class="card-header bg-gradient-purple position-relative" style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
         <h3 class="card-title fw-bold text-white mb-0">
-            <i class="fas fa-tools me-2"></i> Data Survey
+            <i class="fas fa-tools me-2"></i> Survey & Rincian
         </h3>
         {{-- Tombol collapse di pojok kanan --}}
         <div class="card-tools position-absolute" style="top: 12px; right: 15px;">
@@ -494,7 +494,7 @@ function loadRealtimeList(){
    <div class="card card-purple collapsed-card shadow-sm border-0">
     <div class="card-header bg-gradient-purple position-relative" style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
         <h3 class="card-title fw-bold text-white mb-0">
-            <i class="fas fa-truck me-2"></i> Data Pasang/Kirim
+            <i class="fas fa-truck me-2"></i> Pasang/Kirim
         </h3>
         {{-- Tombol collapse di pojok kanan --}}
         <div class="card-tools position-absolute" style="top: 12px; right: 15px;">
@@ -537,11 +537,11 @@ function loadRealtimeList(){
                             <td>{{ $pasang->alamat}}</td>
                             <td>
                                 @if($pasang->status == 'closing all')
-                                    <span class="badge bg-primary">closing all</span>
+                                    <span class="badge bg-primary">Closing All</span>
                                 @elseif($pasang->status == 'closing produk')
-                                    <span class="badge bg-success">closing produk </span>
+                                    <span class="badge bg-success">Closing Produk </span>
                                 @else
-                                    <span class="badge bg-warning">closing pasang</span>
+                                    <span class="badge bg-warning">Closing Pasang</span>
                                 @endif
                             </td>
                             <td>
