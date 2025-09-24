@@ -132,7 +132,7 @@ Route::prefix('pic')->group(function () {
 Route::get('/datainvoice', [DataInvoiceController::class, 'index'])->name('datainvoice.index');
 Route::get('/datainvoice/{id}', [DataInvoiceController::class, 'show'])->name('datainvoice.show');
 Route::get('/datainvoice/{id}/export-pdf', [DataInvoiceController::class, 'exportPdf'])->name('datainvoice.exportPdf');
-
+Route::get('datainvoice/{id}', [DataInvoiceController::class, 'show'])->name('datainvoice.show');
 
 
 
