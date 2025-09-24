@@ -124,59 +124,53 @@
     }
 </style>
 @endpush
+
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-$(function () {
-    // Tombol "Hari Ini" dan "Kemarin"
-    $('#btn-today').click(function() {
+    // Use event delegation for all dynamically loaded content
+    $(document).on('click', '#btn-today', function() {
         let today = new Date().toISOString().split('T')[0];
         $('#tanggal_chat').val(today);
     });
 
-    $('#btn-yesterday').click(function() {
+    $(document).on('click', '#btn-yesterday', function() {
         let d = new Date();
         d.setDate(d.getDate() - 1);
         let yesterday = d.toISOString().split('T')[0];
         $('#tanggal_chat').val(yesterday);
     });
-    // Select2
-    $('#produk_id').select2({
-        placeholder: 'Pilih produk yang dibutuhkan',
-        allowClear: true
-    });
 
-    // Autosuggest nama pelanggan
-    $('#customer_nama').on('input', function () {
+    $(document).on('input', '#customer_nama', function () {
         let keyword = $(this).val();
+        let customerList = $('#customer_list');
         if (keyword.length >= 2) {
             $.get('{{ route("kebutuhan.searchCustomer") }}', { keyword: keyword }, function (data) {
                 let list = '';
                 if (data.length > 0) {
                     data.forEach(customer => {
                         list += `<a href="#" class="list-group-item list-group-item-action" 
-                                        data-id="${customer.customer_id}" 
-                                        data-nama="${customer.customer_nama}"
-                                        data-kode="${customer.customer_kode}"
-                                        data-nohp="${customer.customer_nohp}" 
-                                        data-alamat="${customer.customer_alamat}" 
-                                        data-media="${customer.informasi_media}">
-                                        ${customer.customer_nama} - ${customer.customer_nohp}
-                                    </a>`;
+                                     data-id="${customer.customer_id}" 
+                                     data-nama="${customer.customer_nama}"
+                                     data-kode="${customer.customer_kode}"
+                                     data-nohp="${customer.customer_nohp}" 
+                                     data-alamat="${customer.customer_alamat}" 
+                                     data-media="${customer.informasi_media}">
+                                     ${customer.customer_nama} - ${customer.customer_nohp}
+                                 </a>`;
                     });
                 } else {
-                    $('#customer_id').val(''); // reset kalau tidak ada
+                    $('#customer_id').val(''); 
                     list = `<a href="#" class="list-group-item list-group-item-action disabled">Tidak ditemukan</a>`;
                 }
-                $('#customer_list').html(list).show();
+                customerList.html(list).show();
             });
         } else {
-            $('#customer_list').hide();
+            customerList.hide();
         }
     });
 
-    // Pilih dari hasil pencarian
-    $('#customer_list').on('click', '.list-group-item', function (e) {
+    $(document).on('click', '#customer_list .list-group-item', function (e) {
         e.preventDefault();
         if ($(this).hasClass('disabled')) return;
 
@@ -184,7 +178,6 @@ $(function () {
         $('#customer_nama').val($(this).data('nama'));
         $('#customer_kode').val($(this).data('kode'));
 
-        // FIX: Ensure the data is a string before calling .replace()
         let nohp = $(this).data('nohp');
         if (nohp !== null && nohp !== undefined) {
             nohp = nohp.toString().replace(/\D/g, '');
@@ -193,7 +186,7 @@ $(function () {
             }
             $('#customer_nohp').val(nohp);
         } else {
-            $('#customer_nohp').val(''); // Clear the field if data is null or undefined
+            $('#customer_nohp').val('');
         }
 
         $('#customer_alamat').val($(this).data('alamat'));
@@ -201,24 +194,8 @@ $(function () {
         $('#customer_list').hide();
     });
 
-    // Sembunyikan daftar saat klik di luar
-    $(document).click(function (e) {
-        if (!$(e.target).closest('#customer_nama, #customer_list').length) {
-            $('#customer_list').hide();
-        }
-    });
-
-    // Format input nomor hp
-    $('#customer_nohp').on('input', function () {
-        let val = $(this).val().replace(/\D/g, '');
-        if (val.startsWith('0')) {
-            val = val.substring(1);
-        }
-        $(this).val(val);
-    });
-
-    // Submit via AJAX
-    $('#formKebutuhan').on('submit', function(e){
+    // Handle form submission using event delegation
+    $(document).on('submit', '#formKebutuhan', function(e){
         e.preventDefault();
         $.ajax({
             url: this.action,
@@ -236,13 +213,13 @@ $(function () {
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {
-                        // Jika klik Ya → buka show_ajax
-                        // window.location.href = "{{ url('rekap') }}/" + response.interaksi_id + "/show_ajax";
-                        modalAction("{{ url('/rekap')}}/" + response.interaksi_id . "/show_ajax"); 
+                            // If yes, open a new modal for the next step
+                            // Assumes you have a function to open the modal
+                            openModal("{{ url('/rekap')}}/" + response.interaksi_id + "/show_ajax"); 
                         } else {
-                            // Jika klik Tidak → balik ke index
+                            // If not, redirect back to the index page
                             window.location.href = "{{ route('rekap.index') }}";
-                        }                        
+                        }
                     });
                 } else {
                     Swal.fire({
@@ -252,21 +229,46 @@ $(function () {
                     });
                 }
             },
-            error: function(xhr, status, error) {
-            // Tambahkan penanganan error, misalnya validasi dari server
-            let errors = xhr.responseJSON.errors;
-            let errorMessage = "Terjadi kesalahan. Pastikan semua data terisi dengan benar.";
-            if (errors) {
-                errorMessage = Object.values(errors).join('<br>');
+            error: function(xhr) {
+                let errors = xhr.responseJSON.errors;
+                let errorMessage = "Terjadi kesalahan. Pastikan semua data terisi dengan benar.";
+                if (errors) {
+                    errorMessage = Object.values(errors).join('<br>');
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validasi Gagal',
+                    html: errorMessage
+                });
             }
-            Swal.fire({
-                icon: 'error',
-                title: 'Validasi Gagal',
-                html: errorMessage
-            });
-        }
         });
     });
-});
+
+    // You need to initialize Select2 and other plugins on the modal's `shown` event.
+    // This part is crucial and needs to be added to your modal's JavaScript.
+    $('#yourModalId').on('shown.bs.modal', function () {
+        $('#produk_id').select2({
+            placeholder: 'Pilih produk yang dibutuhkan',
+            allowClear: true,
+            dropdownParent: $('#yourModalId') // Important for Select2 inside a modal
+        });
+    });
+
+    // Format phone number input using event delegation
+    $(document).on('input', '#customer_nohp', function () {
+        let val = $(this).val().replace(/\D/g, '');
+        if (val.startsWith('0')) {
+            val = val.substring(1);
+        }
+        $(this).val(val);
+    });
+
+    // Hide autosuggest list when clicking outside
+    $(document).on('click', function (e) {
+        if (!$(e.target).closest('#customer_nama, #customer_list').length) {
+            $('#customer_list').hide();
+        }
+    });
+
 </script>
 @endpush

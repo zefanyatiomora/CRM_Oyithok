@@ -22,42 +22,57 @@
                         <th>Aksi</th>
                     </tr>
                 </thead>
-<tbody>
-    @foreach($invoices as $inv)
-    <tr>
-        <td class="text-center">{{ $inv->pesanan_masuk }}</td>
-        <td>{{ $inv->nomor_invoice }}</td>
-        <td>{{ $inv->customer_invoice ?? '-' }}</td>
-        <td>Rp {{ number_format($inv->total_akhir, 0, ',', '.') }}</td>
-        <td>Rp {{ number_format($inv->sisa_pelunasan, 0, ',', '.') }}</td>
-        <td>
-    @if($inv->sisa_pelunasan == 0)
-        <span class="badge badge-success">Lunas</span>
-    @else
-        <span class="badge badge-danger">Belum Lunas</span>
-    @endif
-</td>
-
-        <td class="text-center">
-            <button onclick="openModal('{{ route('datainvoice.show', $inv->invoice_id) }}')" 
-                    class="btn btn-sm btn-info">
-                <i class="fas fa-eye"></i> Detail
-            </button>
-            <a href="{{ route('datainvoice.exportPdf', $inv->invoice_id) }}" 
-               class="btn btn-sm btn-danger" target="_blank">
-                <i class="fas fa-file-pdf"></i> PDF
-            </a>
-        </td>
-    </tr>
-    @endforeach
-</tbody>
-
+                <tbody>
+                    @foreach($invoices as $inv)
+                    <tr>
+                        <td class="text-center">{{ $inv->pesanan_masuk }}</td>
+                        <td>{{ $inv->nomor_invoice }}</td>
+                        <td>{{ $inv->customer_invoice ?? '-' }}</td>
+                        <td>Rp {{ number_format($inv->total_akhir, 0, ',', '.') }}</td>
+                        <td>Rp {{ number_format($inv->sisa_pelunasan, 0, ',', '.') }}</td>
+                        <td>
+                            @if($inv->sisa_pelunasan == 0)
+                                <span class="badge badge-success">Lunas</span>
+                            @else
+                                <span class="badge badge-danger">Belum Lunas</span>
+                            @endif
+                        </td>
+                        <td class="text-center">
+                            <button type="button"
+                                class="btn btn-sm btn-info btn-show-invoice"
+                                data-id="{{ $inv->invoice_id }}">
+                                <i class="fas fa-eye"></i> Detail
+                            </button>
+                            <a href="{{ route('datainvoice.exportPdf', $inv->invoice_id) }}"
+                               class="btn btn-sm btn-danger" target="_blank">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
             </table>
         </div>
     </div>
 </div>
-@endsection
 
+<!-- Modal -->
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detail Invoice</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-detail-content">
+                <!-- Konten AJAX -->
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
 @push('css')
 <style>
     .card-header.bg-gradient-primary {
@@ -81,6 +96,20 @@
 @push('js')
 <script>
     var dataInvoice;
+    $(document).on('click', '.btn-show-invoice', function () {
+    let id = $(this).data('id');
+    $.get("{{ url('datainvoice') }}/" + id, function (res) {
+        if (res.status === 'success') {
+            $('#myModal .modal-content').html(res.html);
+            $('#myModal').modal('show');
+        } else {
+            toastr.error('Gagal load data invoice');
+        }
+    }).fail(function () {
+        toastr.error('Terjadi kesalahan server');
+    });
+});
+
     $(document).ready(function () {
         dataInvoice = $('#invoiceTable').DataTable({
             processing: true,
