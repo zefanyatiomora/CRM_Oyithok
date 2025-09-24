@@ -397,22 +397,23 @@
 
 
 
-{{-- ========== DATA SURVEY ========== --}}
-<div class="card card-purple collapsed-card shadow-sm border-0">
-    <div class="card-header bg-gradient-purple position-relative" style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
-        <h3 class="card-title fw-bold text-white mb-0">
-            <i class="fas fa-tools me-2"></i> Survey & Rincian
-        </h3>
-        {{-- Tombol collapse di pojok kanan --}}
-        <div class="card-tools position-absolute" style="top: 12px; right: 15px;">
-            <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
-                <i class="fas fa-plus"></i>
-            </button>
-        </div>
-    </div>
-    <div class="card-body">
-        <h4 class="mt-4 d-flex justify-content-between">
-            <span style="font-size:17px;">Survey</span>
+            {{-- ========== DATA SURVEY ========== --}}
+            <div class="card card-purple collapsed-card shadow-sm border-0">
+                <div class="card-header bg-gradient-purple position-relative"
+                    style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
+                    <h3 class="card-title fw-bold text-white mb-0">
+                        <i class="fas fa-tools me-2"></i> Survey & Rincian
+                    </h3>
+                    {{-- Tombol collapse di pojok kanan --}}
+                    <div class="card-tools position-absolute" style="top: 12px; right: 15px;">
+                        <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h4 class="mt-4 d-flex justify-content-between">
+                        <span style="font-size:17px;">Survey</span>
 
                         {{-- Icon Tambah Survey hanya muncul kalau BELUM ada survey --}}
                         @if (!$interaksi->survey)
@@ -426,210 +427,212 @@
 
                     <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
 
-        <table class="table table-bordered table-striped table-hover table-sm">
-            <thead>
-                <tr>
-                    <th>Alamat Survey</th>
-                    <th>Waktu Survey</th>
-                    <th>Status</th>
-                    {{-- <th>Aksi</th> --}}
-                </tr>
-            </thead>
-            <tbody>
-                @if($interaksi->survey)
-                    <tr>
-                        <td>{{ $interaksi->survey->alamat_survey }}</td>
-                        <td>{{ $interaksi->survey->jadwal_survey }}</td>
-                        <td>
-                            @if($interaksi->survey->status == 'closing survey')
-                                <span class="badge bg-success">Closing Survey</span>
+                    <table class="table table-bordered table-striped table-hover table-sm">
+                        <thead>
+                            <tr>
+                                <th>Alamat Survey</th>
+                                <th>Waktu Survey</th>
+                                <th>Status</th>
+                                {{-- <th>Aksi</th> --}}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if ($interaksi->survey)
+                                <tr>
+                                    <td>{{ $interaksi->survey->alamat_survey }}</td>
+                                    <td>{{ $interaksi->survey->jadwal_survey }}</td>
+                                    <td>
+                                        @if ($interaksi->survey->status == 'closing survey')
+                                            <span class="badge bg-success">Closing Survey</span>
+                                        @else
+                                            <span class="badge bg-warning">pending</span>
+                                        @endif
+                                    </td>
+                                </tr>
                             @else
-                                <span class="badge bg-warning">pending</span>
+                                <tr>
+                                    <td colspan="3">Tidak ada data survey.</td>
+                                </tr>
                             @endif
-                        </td>
-                    </tr>
-                @else
-                    <tr>
-                        <td colspan="3">Tidak ada data survey.</td>
-                    </tr>
-                @endif
-            </tbody>
-        </table>
-            <h4 class="mt-4 d-flex justify-content-between">
-                <span style="font-size:17px;">Rincian Produk</span>
-                <!-- Icon Tambah Rincian -->
-                <a href="javascript:void(0);" 
-                onclick="openModal('{{ route('rincian.create', $interaksi->interaksi_id) }}')" 
-                class="text-primary" 
-                title="Tambah Rincian">
-                    <i class="fas fa-plus fa-xs"></i>
-                </a>
-            </h4>
-            
-            <table class="table table-bordered table-striped table-hover table-sm">
-                <thead>
-                    <tr>
-                        <th>Produk</th>
-                        <th>Jumlah</th>
-                        <th>Keterangan</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($interaksi->rincian as $rincian)
-                    <tr class="produk-row">
-                        <td>{{ $rincian->produk->kategori->kategori_nama}} {{ $rincian->produk->produk_nama}}</td>
-                        <td>{{ $rincian->kuantitas}} {{ $rincian->produk->satuan}}</td>
-                        <td>{{ $rincian->deskripsi}}</td>
-                        <td>
-                            @if($rincian->status == 'hold')
-                                <span class="badge bg-warning text-dark">Hold</span>
-                            {{-- @elseif(in_array($rincian->status, ['closing']))
+                        </tbody>
+                    </table>
+                    <h4 class="mt-4 d-flex justify-content-between">
+                        <span style="font-size:17px;">Rincian Produk</span>
+                        <!-- Icon Tambah Rincian -->
+                        <a href="javascript:void(0);"
+                            onclick="openModal('{{ route('rincian.create', $interaksi->interaksi_id) }}')"
+                            class="text-primary" title="Tambah Rincian">
+                            <i class="fas fa-plus fa-xs"></i>
+                        </a>
+                    </h4>
+
+                    <table class="table table-bordered table-striped table-hover table-sm">
+                        <thead>
+                            <tr>
+                                <th>Produk</th>
+                                <th>Jumlah</th>
+                                <th>Keterangan</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($interaksi->rincian as $rincian)
+                                <tr class="produk-row">
+                                    <td>{{ $rincian->produk->kategori->kategori_nama }}
+                                        {{ $rincian->produk->produk_nama }}</td>
+                                    <td>{{ $rincian->kuantitas }} {{ $rincian->produk->satuan }}</td>
+                                    <td>{{ $rincian->deskripsi }}</td>
+                                    <td>
+                                        @if ($rincian->status == 'hold')
+                                            <span class="badge bg-warning text-dark">Hold</span>
+                                            {{-- @elseif(in_array($rincian->status, ['closing']))
                                 <span class="badge bg-success"> {{ ucfirst($rincian->status) }} </span> --}}
-                            @else
-                                <span class="badge bg-success">Closing</span>
-                            @endif
-                        </td>
-                        <td>
-                            <!-- Tombol Edit -->
-                            <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ url('/rincian/' . $rincian->rincian_id . '/edit') }}')">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="4">Tidak ada rincian produk.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div> {{-- card-body rincian --}}
-    </div> {{-- card rincian produk --}}
-    
-    {{-- ========== DATA PASANG ========== --}}
-   <div class="card card-purple collapsed-card shadow-sm border-0">
-    <div class="card-header bg-gradient-purple position-relative" style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
-        <h3 class="card-title fw-bold text-white mb-0">
-            <i class="fas fa-truck me-2"></i> Pasang/Kirim
-        </h3>
-        {{-- Tombol collapse di pojok kanan --}}
-        <div class="card-tools position-absolute" style="top: 12px; right: 15px;">
-            <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
-                <i class="fas fa-plus"></i>
-            </button>
+                                        @else
+                                            <span class="badge bg-success">Closing</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <!-- Tombol Edit -->
+                                        <a href="javascript:void(0);" class="btn btn-warning btn-sm"
+                                            onclick="openModal('{{ url('/rincian/' . $rincian->rincian_id . '/edit') }}')">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4">Tidak ada rincian produk.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div> {{-- card-body rincian --}}
+            </div> {{-- card rincian produk --}}
+
+            {{-- ========== DATA PASANG ========== --}}
+            <div class="card card-purple collapsed-card shadow-sm border-0">
+                <div class="card-header bg-gradient-purple position-relative"
+                    style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
+                    <h3 class="card-title fw-bold text-white mb-0">
+                        <i class="fas fa-truck me-2"></i> Pasang/Kirim
+                    </h3>
+                    {{-- Tombol collapse di pojok kanan --}}
+                    <div class="card-tools position-absolute" style="top: 12px; right: 15px;">
+                        <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h4 class="mt-4 d-flex justify-content-between">
+                        <span style="font-size:17px;">Jadwal Pasang</span>
+                        <!-- Icon Tambah Pasang -->
+                        <a href="javascript:void(0);"
+                            onclick="openModal('{{ route('pasang.create', $interaksi->interaksi_id) }}')"
+                            class="text-primary" title="Tambah Rincian">
+                            <i class="fas fa-plus fa-xs"></i>
+                        </a>
+                    </h4>
+                    <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
+                    <table class="table table-bordered table-striped table-hover table-sm mb-4">
+                        <thead>
+                            <tr>
+                                <th>Produk</th>
+                                <th>Kuantitas</th>
+                                <th>Deskripsi</th>
+                                <th>Jadwal</th>
+                                <th>Alamat</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($interaksi->pasang as $pasang)
+                                <tr>
+                                    <td>{{ $pasang->produk->kategori->kategori_nama }}
+                                        {{ $pasang->produk->produk_nama }} </td>
+                                    <td>{{ $pasang->kuantitas }} {{ $pasang->produk->satuan }}</td>
+                                    <td>{{ $pasang->deskripsi }}</td>
+                                    <td>{{ $pasang->jadwal_pasang_kirim }}</td>
+                                    <td>{{ $pasang->alamat }}</td>
+                                    <td>
+                                        @if ($pasang->status == 'closing all')
+                                            <span class="badge bg-primary">Closing All</span>
+                                        @elseif($pasang->status == 'closing produk')
+                                            <span class="badge bg-success">Closing Produk </span>
+                                        @else
+                                            <span class="badge bg-warning">Closing Pasang</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <!-- Tombol Edit -->
+                                        <a href="javascript:void(0);" class="btn btn-warning btn-sm"
+                                            onclick="openModal('{{ url('/pasang/' . $pasang->pasangkirim_id . '/edit') }}')">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4">Tidak ada pemasangan.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                    </table>
+                    <h4 class="mt-4 d-flex justify-content-between">
+                        <span style="font-size:17px;">Invoice</span>
+                        <!-- Icon Tambah Invoice -->
+                        <a href="javascript:void(0);"
+                            onclick="openModal('{{ route('invoice.create', $interaksi->interaksi_id) }}')"
+                            class="text-primary" title="Tambah Invoice">
+                            <i class="fas fa-plus fa-xs"></i>
+                        </a>
+                    </h4>
+
+                    <table class="table table-bordered table-striped table-hover table-sm">
+                        <thead>
+                            <tr>
+                                <th>Nomor Invoice</th>
+                                <th>Total</th>
+                                <th>DP</th>
+                                <th>Sisa Pelunasan</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($invoices as $invoice)
+                                <tr>
+                                    <td>{{ $invoice->nomor_invoice }}</td>
+                                    <td>Rp {{ number_format($invoice->total_akhir, 0, ',', '.') }}</td>
+                                    <td>Rp {{ number_format($invoice->dp, 0, ',', '.') }}</td>
+                                    <td>Rp {{ number_format($invoice->sisa_pelunasan, 0, ',', '.') }}</td>
+                                    <td class="text-nowrap">
+                                        <!-- Tombol Export PDF -->
+                                        <a href="{{ url('/invoice/' . $invoice->invoice_id . '/export-pdf') }}"
+                                            class="btn btn-primary btn-sm" title="Export PDF" target="_blank">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </a>
+
+                                        <!-- Tombol Edit -->
+                                        <a href="javascript:void(0);" class="btn btn-warning btn-sm"
+                                            onclick="openModal('{{ url('/invoice/' . $invoice->invoice_id . '/edit') }}')"
+                                            title="Edit Invoice">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center">Tidak ada invoice.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div> {{-- end modal-body --}}
+            </div> {{-- end card --}}
         </div>
     </div>
-        <div class="card-body">
-            <h4 class="mt-4 d-flex justify-content-between">
-                <span style="font-size:17px;">Jadwal Pasang</span>
-                <!-- Icon Tambah Pasang -->
-                <a href="javascript:void(0);" 
-                onclick="openModal('{{ route('pasang.create', $interaksi->interaksi_id) }}')" 
-                class="text-primary" 
-                title="Tambah Rincian">
-                <i class="fas fa-plus fa-xs"></i>
-            </a>
-        </h4>
-        <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
-            <table class="table table-bordered table-striped table-hover table-sm mb-4">
-                <thead>
-                    <tr>
-                        <th>Produk</th>
-                        <th>Kuantitas</th>
-                        <th>Deskripsi</th>
-                        <th>Jadwal</th>
-                        <th>Alamat</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($interaksi->pasang as $pasang)
-                        <tr>
-                            <td>{{ $pasang->produk->kategori->kategori_nama}} {{ $pasang->produk->produk_nama}} </td>
-                            <td>{{ $pasang->kuantitas}} {{ $pasang->produk->satuan}}</td>
-                            <td>{{ $pasang->deskripsi}}</td>
-                            <td>{{ $pasang->jadwal_pasang_kirim}}</td>
-                            <td>{{ $pasang->alamat}}</td>
-                            <td>
-                                @if($pasang->status == 'closing all')
-                                    <span class="badge bg-primary">Closing All</span>
-                                @elseif($pasang->status == 'closing produk')
-                                    <span class="badge bg-success">Closing Produk </span>
-                                @else
-                                    <span class="badge bg-warning">Closing Pasang</span>
-                                @endif
-                            </td>
-                            <td>
-                                <!-- Tombol Edit -->
-                                <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ url('/pasang/' . $pasang->pasangkirim_id . '/edit') }}')">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4">Tidak ada pemasangan.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-            </table>
-            <h4 class="mt-4 d-flex justify-content-between">
-                <span style="font-size:17px;">Invoice</span>
-                <!-- Icon Tambah Invoice -->
-                <a href="javascript:void(0);" 
-                onclick="openModal('{{ route('invoice.create', $interaksi->interaksi_id) }}')" 
-                class="text-primary" 
-                title="Tambah Invoice">
-                    <i class="fas fa-plus fa-xs"></i>
-                </a>
-            </h4>
-            
-            <table class="table table-bordered table-striped table-hover table-sm">
-                <thead>
-                    <tr>
-                        <th>Nomor Invoice</th>
-                        <th>Total</th>
-                        <th>DP</th>
-                        <th>Sisa Pelunasan</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($interaksi->rincian as $rincian)
-                    <tr class="produk-row">
-                        <td>{{ $rincian->produk->produk_nama}}</td>
-                        <td>{{ $rincian->kuantitas}} {{ $rincian->satuan}}</td>
-                        <td>{{ $rincian->deskripsi}}</td>
-                        <td>
-                            @if($rincian->status == 'hold')
-                                <span class="badge bg-warning text-dark">Hold</span>
-                            @elseif(in_array($rincian->status, ['closing all', 'closing produk', 'closing pasang']))
-                                <span class="badge bg-success"> {{ ucfirst($rincian->status) }} </span>
-                            @else
-                                <span class="badge bg-secondary">{{ ucfirst($rincian->status) }}</span>
-                            @endif
-                        </td>
-                        <td>
-                            <!-- Tombol Edit -->
-                            <a href="javascript:void(0);" class="btn btn-warning btn-sm" onclick="openModal('{{ url('/rincian/' . $rincian->rincian_id . '/edit') }}')">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="4">Tidak ada rincian produk.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-            </div> {{-- end modal-body --}}
-        </div> {{-- end card --}}
-    </div>
-</div>
 
 
     @push('css')
