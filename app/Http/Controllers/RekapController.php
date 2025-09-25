@@ -807,6 +807,7 @@ class RekapController extends Controller
             ->setPaper('a4', 'portrait')
             ->setOption('isRemoteEnabled', true);
 
-        return $pdf->stream('Invoice-' . $invoice->nomor_invoice . '.pdf');
+        $filename = preg_replace('/[\/\\\\]/', '-', $invoice->nomor_invoice);
+        return $pdf->stream('Invoice-' . $filename . '.pdf');
     }
 }
