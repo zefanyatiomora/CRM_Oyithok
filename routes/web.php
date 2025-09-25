@@ -55,7 +55,7 @@ Route::post('/broadcast/closing/send', [ClosingController::class, 'sendBroadcast
 Route::post('/customers/list', [CustomersController::class, 'data'])->name('customers.data');
 Route::get('/customers', [CustomersController::class, 'index'])->name('customers.index');
 Route::get('/customers/{id}/show_ajax', [CustomersController::class, 'show_ajax']);
-Route::get('/customers/{id}/edit', [CustomersController::class, 'edit'])->name('customers.edit');
+Route::get('/customers/{id}/edit_ajax', [CustomersController::class, 'edit'])->name('customers.edit_ajax');
 Route::put('/customers/{id}/update', [CustomersController::class, 'update'])->name('customers.update');
 //kebutuhan//
 // routes/web.php
