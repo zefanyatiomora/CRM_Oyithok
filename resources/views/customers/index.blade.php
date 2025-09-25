@@ -37,6 +37,7 @@
         </div>
     </div>
 </div>
+<div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>
 @endsection
 
 @push('css')
@@ -62,6 +63,11 @@
 @push('js')
 <script>
     var dataCustomers;
+    function modalAction(url = '') {
+    $('#myModal').load(url, function () {
+        $('#myModal').modal('show');
+    });
+}
     $(document).ready(function () {
         dataCustomers = $('#table-customers').DataTable({
             serverSide: true,
@@ -79,7 +85,18 @@
                 { data: "customer_kode", orderable: true, searchable: true },
                 { data: "customer_nama", orderable: true, searchable: true },
                 { data: "total_transaction", orderable: true, searchable: true },
-                { data: "total_cash_spent", orderable: true, searchable: true },
+                 { 
+        data: "total_cash_spent", 
+        orderable: true, 
+        searchable: true,
+        render: function(data, type, row) {
+            if (type === 'display' || type === 'filter') {
+                let number = parseInt(data) || 0;
+                return 'Rp ' + number.toLocaleString('id-ID');
+            }
+            return data;
+        }
+    },
                 { data: "aksi", className: "text-center", orderable: false, searchable: false }
             ],
             language: {
