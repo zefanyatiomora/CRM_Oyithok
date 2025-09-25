@@ -122,10 +122,9 @@ class RekapController extends Controller
             ->rawColumns(['aksi'])
             ->make(true);
     }
-
     public function show_ajax($interaksi_id)
     {
-        $interaksi = InteraksiModel::with('customer', 'produk', 'survey', 'rincian', 'pasang')
+        $interaksi = InteraksiModel::with('customer', 'survey', 'rincian', 'pasang')
             ->findOrFail($interaksi_id);
 
         $produkList = ProdukModel::select('produk_id', 'produk_nama')->get();
@@ -166,7 +165,7 @@ class RekapController extends Controller
             'steps'             => $steps,
             'currentStep'       => $currentStep,
             'skippedSteps'      => $skippedSteps,  // cuma ini yang dipakai di blade
-            'followUpOptions'   => ['Ask', 'Follow Up', 'Hold', 'Closing'],
+            'followUpOptions'   => ['Ghost', 'Ask', 'Follow Up', 'Hold', 'Closing'],
             'selectedFollowUp'  => $interaksi->status ?? '',
             'closeValue'        => $interaksi->close ?? '',
             'interaksiAwalList' => $interaksiAwalList,
@@ -691,7 +690,7 @@ class RekapController extends Controller
 
         return $interaksi;
     }
-public function editInvoice($invoice_id)
+    public function editInvoice($invoice_id)
     {
         try {
             // Ambil invoice beserta detail -> pasang -> produk
@@ -788,29 +787,26 @@ public function editInvoice($invoice_id)
             }
 
             DB::commit();
-            return response()->json(['status'=>'success','message'=>'Invoice diperbarui']);
+            return response()->json(['status' => 'success', 'message' => 'Invoice diperbarui']);
         } catch (\Throwable $e) {
             DB::rollBack();
             Log::error('updateInvoice error: ' . $e->getMessage());
-            return response()->json(['status'=>'error','message'=>$e->getMessage()], 500);
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 
     public function export_pdf($id)
     {
-        // Ambil data invoice + relasi items
-        $invoice = InvoiceModel::with('details')->findOrFail($id);
+        $invoice = InvoiceModel::with([
+            'details.pasang.produk.kategori', // langsung dari pasang ke produk
+            'details.pasang.interaksi.customer' // kalau butuh customer dari interaksi
+        ])->findOrFail($id);
 
         // Load view export-pdf
         $pdf = Pdf::loadView('invoice.export_pdf', compact('invoice'))
-                ->setPaper('a4', 'portrait')
-                ->setOption('isRemoteEnabled', true);
+            ->setPaper('a4', 'portrait')
+            ->setOption('isRemoteEnabled', true);
 
-        // Tampilkan di browser
-        return $pdf->stream('Invoice-'.$invoice->nomor_invoice.'.pdf');
-
-        // Kalau mau download langsung:
-        // return $pdf->download('Invoice-'.$invoice->nomor_invoice.'.pdf');
+        return $pdf->stream('Invoice-' . $invoice->nomor_invoice . '.pdf');
     }
 }
-

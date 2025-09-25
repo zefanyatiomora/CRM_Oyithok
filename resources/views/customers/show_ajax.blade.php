@@ -28,10 +28,15 @@
                     <th>Informasi Media</th> 
                     <td>{{ $customer->informasi_media }}</td> 
                 </tr> 
-                <tr> 
-                    <th>Point Loyalty</th> 
-                    <td>{{ $customer->loyalty_point }}</td> 
-                </tr> 
+                 <tr>
+    <th>Total Transaksi</th>
+    <td>{{ $customer->total_transaction }}</td>
+</tr>
+<tr>
+    <th>Total Cash Spent</th>
+    <td>Rp {{ number_format($customer->total_cash_spent, 0, ',', '.') }}</td>
+</tr>
+
             </table>
         </div>
         <div class="modal-footer">
@@ -48,14 +53,22 @@
                 url: '/user/show_ajax/' + userId,
                 type: 'GET',
                 success: function(response) {
-                    if (response.status) {
-                        // Populate modal fields with the retrieved data
-                        $('#customer_kode').text(response.data.customer_kode);
-                        $('#customer_nama').text(response.data.customer_nama);
-                        $('#customer_alamat').text(response.data.customer_alamat);
-                        $('#customer_nohp').text(response.data.customer_nohp);
-                        $('#informasi_media').text(response.data.informasi_media);
-                        $('#loyalty_point').text(response.data.loyalty_point);
+    if (response.status) {
+        // Populate modal fields
+        $('#customer_kode').text(response.data.customer_kode);
+        $('#customer_nama').text(response.data.customer_nama);
+        $('#customer_alamat').text(response.data.customer_alamat);
+        $('#customer_nohp').text(response.data.customer_nohp);
+        $('#informasi_media').text(response.data.informasi_media);
+
+        // Format angka ke Rupiah
+        function formatRupiah(angka) {
+            return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        // Isi field transaksi & cash spent
+        $('#total_transaction').text(response.data.total_transaction);
+        $('#total_cash_spent').text(formatRupiah(response.data.total_cash_spent));
                         // Populate other fields as necessary
                     } else {
                         Swal.fire({

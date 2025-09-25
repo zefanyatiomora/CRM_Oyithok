@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\InvoiceDetailModel;
+use App\Models\CustomersModel;
 use App\Models\InvoiceModel;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -28,13 +29,18 @@ class DataInvoiceController extends Controller
         return $pdf->stream('Invoice-' . $invoice->invoice_number . '.pdf');
     }
     public function show($id)
-    {
-        $invoice = InvoiceModel::with([
-            'details.pasang.produk',
-            'details.pasang.interaksi',
-            'customer'
-        ])->findOrFail($id);
+{
+    $invoice = InvoiceModel::with([
+        'details.pasang.produk',
+        'details.pasang.interaksi',
+        'customer'
+    ])->findOrFail($id);
 
-        return response()->json($invoice);
-    }
+    $html = view('datainvoice.detail', compact('invoice'))->render();
+
+    return response()->json([
+        'status' => 'success',
+        'html'   => $html
+    ]);
+}
 }

@@ -200,10 +200,10 @@
                     $grandTotal += $lineGrand;
                 @endphp
                 <tr>
-                    <td class="center">{{ $details->pasang->interaksi->produk->kategori->kategori_kode ?? '-' }}</td>
-                    <td>{{ $details->pasang->interaksi->produk->produk_nama ?? '-' }}</td>
-                    <td class="center">{{ $details->qty }}</td>
-                    <td class="center">{{ $details->satuan }}</td>
+                    <td class="center">{{ $details->pasang->produk->kategori->kategori_kode ?? '-' }}</td>
+                    <td>{{ $details->pasang->produk->kategori->kategori_nama ?? '-' }} {{ $details->pasang->produk->produk_nama ?? '-' }}</td>
+                    <td class="center">{{ $details->pasang->kuantitas }}</td>
+                    <td class="center">{{ $details->pasang->produk->satuan ?? '-' }}</td>
                     <td class="right">Rp{{ number_format($details->harga_satuan,0,',','.') }}</td>
                     <td class="right">Rp{{ number_format($lineTotal,0,',','.') }}</td>
                     <td class="center" style="color: red;">{{ $details->diskon ? $details->diskon.'%' : '-' }}</td>

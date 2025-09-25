@@ -126,7 +126,8 @@
                         <tr>
                         <tr>
                             <th>Total Cash Spent</th>
-                            <td>{{ $interaksi->customer->total_cash_spentr }}</td>
+                            <td>Rp {{ number_format($interaksi->customer->total_cash_spent, 0, ',', '.') }}</td>
+                            {{-- <td>Rp {{ number_format($invoice->total_akhir, 0, ',', '.') }}</td> --}}
                         </tr>
                         <tr>
                             <th>Status</th>
