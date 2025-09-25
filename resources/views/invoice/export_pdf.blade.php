@@ -194,8 +194,7 @@
                 @endphp
                 <tr>
                     <td class="center">{{ $details->pasang->interaksi->produk->kategori->kategori_kode ?? '-' }}</td>
-
-                    <td>{{ $details->nama_barang }}</td>
+                    <td>{{ $details->pasang->interaksi->produk->produk_nama ?? '-' }}</td>
                     <td class="center">{{ $details->qty }}</td>
                     <td class="center">{{ $details->satuan }}</td>
                     <td class="right">Rp{{ number_format($details->harga_satuan,0,',','.') }}</td>
