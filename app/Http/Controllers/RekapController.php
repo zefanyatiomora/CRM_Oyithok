@@ -124,7 +124,7 @@ class RekapController extends Controller
     }
     public function show_ajax($interaksi_id)
     {
-        $interaksi = InteraksiModel::with('customer', 'produk', 'survey', 'rincian', 'pasang')
+        $interaksi = InteraksiModel::with('customer', 'survey', 'rincian', 'pasang')
             ->findOrFail($interaksi_id);
 
         $produkList = ProdukModel::select('produk_id', 'produk_nama')->get();

@@ -32,13 +32,6 @@ class InteraksiModel extends Model
     {
         return $this->belongsTo(CustomersModel::class, 'customer_id', 'customer_id');
     }
-
-    // Relasi ke Produk
-    public function produk()
-    {
-        return $this->belongsTo(ProdukModel::class, 'produk_id', 'produk_id');
-    }
-
     public function realtime()
     {
         return $this->hasMany(InteraksiRealtime::class, 'interaksi_id', 'interaksi_id');
