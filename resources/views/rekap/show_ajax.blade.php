@@ -361,20 +361,34 @@
                         updateNomor();
                     });
                     // Simpan kebutuhan harian
-                    $(document).on('submit', '#form-kebutuhan-harian', function(e){
+                    $(document).on('submit', '#form-kebutuhan-harian', function(e) {
                         e.preventDefault();
 
-                        $.post("{{ url('rekap/realtime/store') }}", $(this).serialize(), function(res){
-                            if(res.status === 'success'){
+                        $.post("{{ url('rekap/realtime/store') }}", $(this).serialize(), function(res) {
+                            if (res.status === 'success') {
                                 $('#modalTambahKebutuhan').modal('hide');
-                                Swal.fire({icon:'success', title:'Berhasil', text:'Data berhasil ditambahkan', timer:1500, showConfirmButton:false});
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil',
+                                    text: 'Data berhasil ditambahkan',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
                                 loadRealtimeList();
-                            }else{
-                                Swal.fire({icon:'error', title:'Gagal', text:res.message || 'Gagal menyimpan data'});
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal',
+                                    text: res.message || 'Gagal menyimpan data'
+                                });
                             }
-                        }).fail(function(xhr){
+                        }).fail(function(xhr) {
                             console.error(xhr.responseText);
-                            Swal.fire({icon:'error', title:'Error', text:'Terjadi kesalahan server'});
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Terjadi kesalahan server'
+                            });
                         });
                     });
 
@@ -580,55 +594,18 @@
                         </tbody>
                     </table>
                     </table>
-                    <h4 class="mt-4 d-flex justify-content-between">
-                        <span style="font-size:17px;">Invoice</span>
-                        <!-- Icon Tambah Invoice -->
+                    <h4 class="mt-4 d-flex justify-content-end gap-2">
                         <a href="javascript:void(0);"
                             onclick="openModal('{{ route('invoice.create', $interaksi->interaksi_id) }}')"
-                            class="text-primary" title="Tambah Invoice">
-                            <i class="fas fa-plus fa-xs"></i>
+                            class="btn btn-sm btn-primary" title="Buat Invoice">
+                            <i class="fas fa-plus fa-sm"></i> Buat Invoice
+                        </a>
+
+                        <a href="{{ route('datainvoice.exportPdf', $interaksi->interaksi_id) }}"
+                            class="btn btn-sm btn-danger" title="Export PDF" target="_blank">
+                            <i class="fas fa-file-pdf fa-sm"></i> PDF
                         </a>
                     </h4>
-
-                    <table class="table table-bordered table-striped table-hover table-sm">
-                        <thead>
-                            <tr>
-                                <th>Nomor Invoice</th>
-                                <th>Total</th>
-                                <th>DP</th>
-                                <th>Sisa Pelunasan</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($invoices as $invoice)
-                                <tr>
-                                    <td>{{ $invoice->nomor_invoice }}</td>
-                                    <td>Rp {{ number_format($invoice->total_akhir, 0, ',', '.') }}</td>
-                                    <td>Rp {{ number_format($invoice->dp, 0, ',', '.') }}</td>
-                                    <td>Rp {{ number_format($invoice->sisa_pelunasan, 0, ',', '.') }}</td>
-                                    <td class="text-nowrap">
-                                        <!-- Tombol Export PDF -->
-                                        <a href="{{ url('/invoice/' . $invoice->invoice_id . '/export-pdf') }}"
-                                            class="btn btn-primary btn-sm" title="Export PDF" target="_blank">
-                                            <i class="fas fa-file-pdf"></i>
-                                        </a>
-
-                                        <!-- Tombol Edit -->
-                                        <a href="javascript:void(0);" class="btn btn-warning btn-sm"
-                                            onclick="openModal('{{ url('/invoice/' . $invoice->invoice_id . '/edit') }}')"
-                                            title="Edit Invoice">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center">Tidak ada invoice.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
                 </div> {{-- end modal-body --}}
             </div> {{-- end card --}}
         </div>
@@ -710,20 +687,34 @@
 
 
             // Simpan kebutuhan harian
-            $(document).on('submit', '#form-kebutuhan-harian', function(e){
+            $(document).on('submit', '#form-kebutuhan-harian', function(e) {
                 e.preventDefault();
 
-                $.post("{{ url('rekap/realtime/store') }}", $(this).serialize(), function(res){
-                    if(res.status === 'success'){
+                $.post("{{ url('rekap/realtime/store') }}", $(this).serialize(), function(res) {
+                    if (res.status === 'success') {
                         $('#modalTambahKebutuhan').modal('hide');
-                        Swal.fire({icon:'success', title:'Berhasil', text:'Data berhasil ditambahkan', timer:1500, showConfirmButton:false});
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: 'Data berhasil ditambahkan',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
                         loadRealtimeList();
-                    }else{
-                        Swal.fire({icon:'error', title:'Gagal', text:res.message || 'Gagal menyimpan data'});
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: res.message || 'Gagal menyimpan data'
+                        });
                     }
-                }).fail(function(xhr){
+                }).fail(function(xhr) {
                     console.error(xhr.responseText);
-                    Swal.fire({icon:'error', title:'Error', text:'Terjadi kesalahan server'});
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Terjadi kesalahan server'
+                    });
                 });
             });
 
