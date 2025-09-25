@@ -6,25 +6,33 @@
 </div>
 
 <div class="modal-body">
-    <div class="row mb-2">
-        <div class="col-md-6">
+    {{-- Bagian Atas: Customer, Pesanan Masuk, Batas Pelunasan --}}
+    <div class="row mb-3">
+        <div class="col-md-4">
             <label><strong>Customer</strong></label>
-             <p>{{ $invoice->customer->customer_nama ?? '-' }}</p>
+            <p class="form-control-plaintext border p-2">
+                {{ $invoice->details->first()->pasang->interaksi->customer->customer_nama ?? '-' }}
+            </p>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
             <label><strong>Pesanan Masuk</strong></label>
-            <p>{{ $invoice->pesanan_masuk ?? '-' }}</p>
+            <p class="form-control-plaintext border p-2">
+                {{ $invoice->pesanan_masuk ?? '-' }}
+            </p>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
             <label><strong>Batas Pelunasan</strong></label>
-            <p>{{ $invoice->batas_pelunasan ?? '-' }}</p>
+            <p class="form-control-plaintext border p-2">
+                {{ $invoice->batas_pelunasan ?? '-' }}
+            </p>
         </div>
     </div>
 
+    {{-- Item Invoice --}}
     <h6 class="mt-3">Item Invoice</h6>
     <div class="table-responsive">
         <table class="table table-bordered">
-            <thead>
+            <thead class="table-light">
                 <tr>
                     <th>Produk</th>
                     <th>Harga Satuan</th>
@@ -34,13 +42,14 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($invoice->details as $d)
+                @foreach ($invoice->details as $d)
                     <tr>
-                        <td>{{ $d->pasang->produk->produk_nama ?? '-' }} — {{ $d->pasang->jadwal_pasang_kirim ?? '' }}</td>
-                        <td>{{ number_format($d->harga_satuan, 0, ',', '.') }}</td>
-                        <td>{{ number_format($d->total, 0, ',', '.') }}</td>
-                        <td>{{ number_format($d->diskon, 0, ',', '.') }}</td>
-                        <td>{{ number_format($d->grand_total, 0, ',', '.') }}</td>
+                        <td>{{ $d->pasang->produk->produk_nama ?? '-' }} — {{ $d->pasang->jadwal_pasang_kirim ?? '' }}
+                        </td>
+                        <td>Rp {{ number_format($d->harga_satuan, 0, ',', '.') }}</td>
+                        <td>Rp {{ number_format($d->total, 0, ',', '.') }}</td>
+                        <td>Rp {{ number_format($d->diskon, 0, ',', '.') }}</td>
+                        <td>Rp {{ number_format($d->grand_total, 0, ',', '.') }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -48,42 +57,66 @@
     </div>
 
     <hr>
-    <div class="row">
-        <div class="col-md-4">
-            <label>Potongan Harga</label>
-            <p>{{ number_format($invoice->potongan_harga, 0, ',', '.') }}</p>
+
+    {{-- Bagian bawah tabel: kiri tanggal, kanan angka --}}
+    <div class="row g-3">
+        {{-- Kiri --}}
+        <div class="col-md-6">
+            <div class="mb-2">
+                <label>Tanggal DP</label>
+                <p class="form-control-plaintext border p-2">
+                    {{ $invoice->tanggal_dp ?? '-' }}
+                </p>
+            </div>
+            <div>
+                <label>Tanggal Pelunasan</label>
+                <p class="form-control-plaintext border p-2">
+                    {{ $invoice->tanggal_pelunasan ?? '-' }}
+                </p>
+            </div>
         </div>
-        <div class="col-md-4">
-            <label>Cashback</label>
-            <p>{{ number_format($invoice->cashback, 0, ',', '.') }}</p>
-        </div>
-        <div class="col-md-4">
-            <label>Total Akhir</label>
-            <p><strong>{{ number_format($invoice->total_akhir, 0, ',', '.') }}</strong></p>
+
+        {{-- Kanan --}}
+        <div class="col-md-6">
+            <div class="mb-2">
+                <label>Potongan Harga</label>
+                <p class="form-control-plaintext border p-2">
+                    Rp {{ number_format($invoice->potongan_harga, 0, ',', '.') }}
+                </p>
+            </div>
+            <div class="mb-2">
+                <label>Cashback</label>
+                <p class="form-control-plaintext border p-2">
+                    Rp {{ number_format($invoice->cashback, 0, ',', '.') }}
+                </p>
+            </div>
+            <div class="mb-2">
+                <label>DP</label>
+                <p class="form-control-plaintext border p-2">
+                    Rp {{ number_format($invoice->dp, 0, ',', '.') }}
+                </p>
+            </div>
+            <div class="mb-2">
+                <label>Sisa Pelunasan</label>
+                <p class="form-control-plaintext border p-2">
+                    Rp {{ number_format($invoice->sisa_pelunasan, 0, ',', '.') }}
+                </p>
+            </div>
+            <div>
+                <label>Total Akhir</label>
+                <p class="form-control-plaintext border p-2 fw-bold">
+                    Rp {{ number_format($invoice->total_akhir, 0, ',', '.') }}
+                </p>
+            </div>
         </div>
     </div>
 
-    <div class="row mt-2">
-        <div class="col-md-6">
-            <label>DP</label>
-            <p>{{ number_format($invoice->dp, 0, ',', '.') }}</p>
-        </div>
-        <div class="col-md-6">
-            <label>Tanggal DP</label>
-            <p>{{ $invoice->tanggal_dp ?? '-' }}</p>
-        </div>
-        <div class="col-md-6">
-            <label>Sisa Pelunasan</label>
-            <p>{{ number_format($invoice->sisa_pelunasan, 0, ',', '.') }}</p>
-        </div>
-        <div class="col-md-6">
-            <label>Tanggal Pelunasan</label>
-            <p>{{ $invoice->tanggal_pelunasan ?? '-' }}</p>
-        </div>
-        <div class="col-md-12">
-            <label>Catatan</label>
-            <p>{{ $invoice->catatan ?? '-' }}</p>
-        </div>
+    {{-- Catatan --}}
+    <div class="mt-3">
+        <label>Catatan</label>
+        <p class="form-control-plaintext border p-2">
+            {{ $invoice->catatan ?? '-' }}
+        </p>
     </div>
 </div>
 

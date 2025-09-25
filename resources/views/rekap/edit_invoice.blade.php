@@ -222,10 +222,10 @@
         let sisa = totalAkhir - dpVal;
 
         $('#totalakhir').val(totalAkhir);
-        $('#totalakhir_display').val(totalAkhir ? formatRupiah(totalAkhir) : '');
+        $('#totalakhir_display').val(formatRupiah(totalAkhir));
 
         $('#sisa').val(sisa);
-        $('#sisa_display').val(sisa ? formatRupiah(sisa) : '');
+        $('#sisa_display').val(formatRupiah(sisa));
 
         $('#potongan').val(pot);
         $('#cashback').val(cash);
@@ -302,6 +302,7 @@
     }
 
     // initialize formatting + initial calculations
+    // initialize formatting + initial calculations
     $(function() {
         $('#tablePasang tbody tr').each(function() {
             let $r = $(this);
@@ -321,6 +322,22 @@
 
             hitungRow($r);
         });
+
+        // ⬇️ Tambahkan bagian ini untuk potongan/cashback/dp
+        let pot = parseRupiah($('#potongan_display').val());
+        $('#potongan_display').val(formatRupiah(pot));
+
+        let cash = parseRupiah($('#cashback_display').val());
+        $('#cashback_display').val(formatRupiah(cash));
+
+        let dpVal = parseRupiah($('#dp_display').val());
+        $('#dp_display').val(formatRupiah(dpVal));
+
+        let sisaVal = parseRupiah($('#sisa_display').val());
+        $('#sisa_display').val(formatRupiah(sisaVal));
+
+        let totalVal = parseRupiah($('#totalakhir_display').val());
+        $('#totalakhir_display').val(formatRupiah(totalVal));
 
         hitungSummary();
     });
