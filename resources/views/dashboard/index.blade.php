@@ -23,12 +23,12 @@
             <div class="form-row align-items-end">
                 <!-- Pilih Tahun -->
                 <div class="col-md-3 mb-3">
-                    <label for="tahun" 
-                           class="small text-muted font-weight-bold"
-                           data-bs-toggle="tooltip"
-                           title="Pilih tahun untuk menampilkan data dashboard">
-                        Tahun
-                    </label>
+                    <label for="tahun" class="small text-muted font-weight-bold">
+    Tahun
+    <i class="fas fa-question-circle text-secondary ml-1" 
+       data-bs-toggle="tooltip" 
+       title="Pilih tahun untuk menampilkan data dashboard"></i>
+</label>
                     <select name="tahun" id="tahun" class="form-control rounded-pill shadow-sm" required>
                         <option value="">-- Pilih Tahun --</option>
                         @foreach($availableYears as $year)
@@ -41,12 +41,13 @@
 
                 <!-- Pilih Bulan -->
                 <div class="col-md-3 mb-3">
-                    <label for="bulan" 
-                           class="small text-muted font-weight-bold"
-                           data-bs-toggle="tooltip"
-                           title="Pilih bulan untuk menampilkan data dashboard (opsional)">
-                        Bulan
-                    </label>
+                    <label for="bulan" class="small text-muted font-weight-bold">
+    Bulan
+    <i class="fas fa-question-circle text-secondary ml-1" 
+       data-bs-toggle="tooltip" 
+       title="Pilih bulan untuk menampilkan data dashboard (opsional)"></i>
+</label>
+
                     <select name="bulan" id="bulan" class="form-control rounded-pill shadow-sm">
                         <option value="">-- Semua Bulan --</option>
                         @foreach($bulanList as $key => $label)
@@ -207,11 +208,12 @@
         <div class="col-md-4 mb-3">
             <div class="card h-100">
     <div class="card-body">
-              <h3 class="card-title font-weight-bold" 
-            data-bs-toggle="tooltip" 
-            title="Distribusi customer berdasarkan status ASK, FOLLOW UP, HOLD, dan CLOSING">
-            Data Customer
-        </h3>
+              <h3 class="card-title font-weight-bold" style="color: #5C54AD;">
+    Data Customer 
+    <i class="fas fa-question-circle text-muted ml-1" 
+       data-bs-toggle="tooltip" 
+       title="Distribusi customer berdasarkan status ASK, FOLLOW UP, HOLD, dan CLOSING"></i>
+</h3>
         <div style="height: 300px;">
             <canvas id="customerDoughnutChart"></canvas>
         </div>
@@ -243,7 +245,13 @@
         <div class="col-md-4 mb-3">
             <div class="card h-100">
                 <div class="card-header bg-white border-0">
-                    <h3 class="card-title font-weight-bold" style="color: #5C54AD;">Rate Customer Closing</h3>
+                    <h3 class="card-title font-weight-bold" style="color: #5C54AD;">
+    Rate Customer Closing 
+    <i class="fas fa-question-circle text-muted ml-1" 
+       data-bs-toggle="tooltip" 
+       title="Persentase jumlah customer yang berhasil closing per minggu"></i>
+</h3>
+
                 </div>
                 <div class="card-body">
                     <div style="height: 300px;">
@@ -464,22 +472,18 @@ body {
     font-weight: 700;
     color: #5C54AD;
 }
+.tooltip .tooltip-arrow {
+    display: none !important; /* sembunyikan panah */
+}
 .tooltip-inner {
-    font-size: 0.6rem; /* lebih kecil dari default */
-    padding: 3px 7px;  /* padding lebih ringkas */
-    background-color: #fff;  /* background putih */
-    color: #000;             /* teks hitam */
-    border: 1px solid #ccc;  /* optional border agar lebih jelas */
+    font-size: 11px;         /* kecilkan teks */
+    border-radius: 4px;      /* sudut lebih rapat */
+    padding: 3px 6px;        /* kotak lebih kecil */
+    background-color: #333;  /* warna background */
+    color: #fff;             /* warna teks */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
-.tooltip.bs-tooltip-top .tooltip-arrow::before,
-.tooltip.bs-tooltip-bottom .tooltip-arrow::before,
-.tooltip.bs-tooltip-start .tooltip-arrow::before,
-.tooltip.bs-tooltip-end .tooltip-arrow::before {
-    border-top-color: #fff;    /* sesuaikan warna arrow */
-    border-bottom-color: #fff;
-    border-left-color: #fff;
-    border-right-color: #fff;
-}
+
 /* ====== Custom Colors ====== */
 .bg-custom-ask { background-color: #87b0ff !important; }
 .bg-custom-follow-up { background-color: #A374FF !important; }
