@@ -609,7 +609,7 @@
                                     <td>Rp {{ number_format($invoice->sisa_pelunasan, 0, ',', '.') }}</td>
                                     <td class="text-nowrap">
                                         <!-- Tombol Export PDF -->
-                                        <a href="{{ url('/invoice/' . $invoice->invoice_id . '/export-pdf') }}"
+                                        <a href="{{ url('/invoice/' . $invoice->invoice_id . '/export_pdf') }}"
                                             class="btn btn-primary btn-sm" title="Export PDF" target="_blank">
                                             <i class="fas fa-file-pdf"></i>
                                         </a>

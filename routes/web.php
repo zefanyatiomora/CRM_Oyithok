@@ -160,4 +160,7 @@ Route::prefix('pasang')->group(function () {
 Route::prefix('invoice')->group(function () {
     Route::get('/{id}/create', [RekapController::class, 'createInvoice'])->name('invoice.create');
     Route::post('/store', [RekapController::class, 'storeInvoice'])->name('invoice.store');
+    Route::get('/{id}/export_pdf', [RekapController::class, 'export_pdf'])
+    ->name('invoice.export_pdf');
+
 });

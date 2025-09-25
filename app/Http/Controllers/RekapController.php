@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 
@@ -690,4 +691,22 @@ class RekapController extends Controller
 
         return $interaksi;
     }
+
+    public function export_pdf($id)
+    {
+        // Ambil data invoice + relasi items
+        $invoice = InvoiceModel::with('details')->findOrFail($id);
+
+        // Load view export-pdf
+        $pdf = Pdf::loadView('invoice.export_pdf', compact('invoice'))
+                ->setPaper('a4', 'portrait')
+                ->setOption('isRemoteEnabled', true);
+
+        // Tampilkan di browser
+        return $pdf->stream('Invoice-'.$invoice->nomor_invoice.'.pdf');
+
+        // Kalau mau download langsung:
+        // return $pdf->download('Invoice-'.$invoice->nomor_invoice.'.pdf');
+    }
 }
+
