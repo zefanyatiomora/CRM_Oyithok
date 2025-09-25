@@ -6,11 +6,10 @@
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 12px;
+            font-size: 10px;
             color: #000;
             margin: 0;
             padding: 20px;
-            line-height: 1.5;
         }
 
         table { 
@@ -30,12 +29,12 @@
             letter-spacing: 2px;
             text-transform: uppercase;
         }
-        .logo { width: 140px; }
+        .logo { width: 200px; }
 
         /* Info Section */
         .section-title {
             font-weight: bold;
-            font-size: 12px;
+            font-size: 10px;
         }
 
         /* Tabel Barang */
@@ -43,12 +42,12 @@
         .border th {
             background: #d8c6e5;
             color: #000000;
-            font-size: 11px;
+            font-size: 10px;
             text-transform: capitalize each word;
             text-align: center;
             padding: 4px;
         }
-        .border td { font-size: 11px; padding: 6px; }
+        .border td { font-size: 10px; padding: 6px; }
 
         /* Alignments */
         .right { text-align: right; }
@@ -56,14 +55,14 @@
 
         /* Summary */
         .summary {
-            margin-top: 10px;
+            margin-top: 8px;
             border: 1px solid #ffffff;
             width: 40%;
             float: right;
         }
         .summary td {
-            padding: 4px;
-            font-size: 11px;
+            padding: 6px;
+            font-size: 10px;
         }
         .summary .label {
             background: #eee;
@@ -72,14 +71,14 @@
 
         /* Note */
         .note {
-            font-size: 11px;
-            margin-top: 200px;
+            font-size: 10px;
+            margin-top: 150px;
             line-height: 1.5;
         }
 
         /* Footer */
         .footer { margin-top: 25px; font-size: 11px; }
-        .signature { text-align: center; font-size: 11px; }
+        .signature { text-align: center; font-size: 10px; }
 
          /* Garis pembatas */
         .divider {
@@ -87,7 +86,7 @@
             margin: 5px 0 10px 0;
         }
 
-                 /* Garis pembatas */
+         /* Garis pembatas */
         .divider2 {
             border-bottom: 1px solid #000;
             margin: 5px 0 10px 0;
@@ -101,62 +100,70 @@
         <tr>
             <td class="header-title">INVOICE</td>
             <td class="right">
-                <img src="{{ public_path('images/logo.png') }}" alt="Logo" class="logo">
+                <img src="{{ public_path('images/Logo WPM.png') }}" alt="Logo" class="logo">
             </td>
         </tr>
     </table>
 
     <div class="divider"></div>
 
-    {{-- Detail Invoice --}}
-    <table style="margin-top: 15px; width: 100%; font-family: Arial, sans-serif; font-size: 12px; border-collapse: collapse;">
-        <tr>
-            <td style="font-weight: bold; width: 60%;">
-                <div style="margin-bottom: 6px;">
-                    NOMOR INVOICE : {{ $invoice->nomor_invoice }}
-                </div>
-                <div>
-                    CUSTOMER ID : {{ $invoice->customer_id }}
-                </div>
-            </td>
-            <td style="text-align: left; width: 40%;">
-                <div style="margin-bottom: 6px;">
-                    <span style="font-weight: bold;">PESANAN MASUK</span> &nbsp; {{ \Carbon\Carbon::parse($invoice->created_at)->format('d/m/Y') }}
-                </div>
-                <div>
-                    <span style="font-weight: bold;">BATAS PELUNASAN</span> &nbsp; <i>H+1 Setelah Pasang</i>
-                </div>
-            </td>
-        </tr>
-    </table>
+{{-- Detail Invoice --}}
+<table style="margin-top: 15px; width: 100%; font-family: Arial, sans-serif; font-size: 11px; border-collapse: collapse;">
+    <tr>
+        <td style="font-weight: bold; width: 40%;">
+            <table style="border-collapse: collapse; font-size: 11px; line-height: 1.2;">
+                <tr>
+                    <td style="width: 100px; text-align: right; padding: 2px 4px;">NOMOR INVOICE</td>
+                    <td style="padding: 2px 4px;">: {{ $invoice->nomor_invoice }}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: right; padding: 2px 4px;">CUSTOMER ID</td>
+                    <td style="padding: 2px 4px;">: {{ $invoice->customer_id }}</td>
+                </tr>
+            </table>
+        </td>
+        <td style="width: 40%;"></td> {{-- kolom kosong untuk dorong ke kanan --}}
+        <td style="width: 60%; text-align: right;">
+            <table style="border-collapse: collapse; font-size: 11px; line-height: 1.2; margin-left: auto;">
+                <tr>
+                    <td style="font-weight: bold; text-align: right; padding: 2px 4px;">PESANAN MASUK</td>
+                    <td style="padding: 2px 4px;">: {{ \Carbon\Carbon::parse($invoice->created_at)->format('d/m/Y') }}</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold; text-align: right; padding: 2px 4px;">BATAS PELUNASAN</td>
+                    <td style="padding: 2px 4px;">: <i>H+1 Setelah Pasang</i></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
 
     <div class="divider2"></div>
 
 {{-- Customer & Payment --}}
-<table style="margin-top: 15px; width: 100%; font-family: Arial, sans-serif; font-size: 12px; border-collapse: collapse;">
+<table style="margin-top: 15px; width: 100%; font-family: Arial, sans-serif; font-size: 11px; border-collapse: collapse;">
     <tr>
-        <!-- Kolom Customer -->
-        <td style="vertical-align: top; width: 70%;">
-            <table style="width: 100%; border-collapse: collapse;">
-                @foreach($invoice->details as $detail)
-                    @if($detail->pasang && $detail->pasang->interaksi && $detail->pasang->interaksi->customer)
-                        <tr>
-                            <td style="font-weight: bold; width: 80px;">Nama</td>
-                            <td>: {{ $detail->pasang->interaksi->customer->customer_nama }}</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: bold;">Alamat</td>
-                            <td>: {{ $detail->pasang->alamat ?? '-' }}</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: bold;">No Telp</td>
-                            <td>: {{ $detail->pasang->interaksi->customer->customer_nohp ?? '-' }}</td>
-                        </tr>
-                    @endif
-                @endforeach
-            </table>
-        </td>
-
+    <!-- Kolom Customer -->
+    <td style="vertical-align: top; width: 50%;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 11px; line-height: 1.2;">
+            @foreach($invoice->details as $detail)
+                @if($detail->pasang && $detail->pasang->interaksi && $detail->pasang->interaksi->customer)
+                    <tr>
+                        <td style="font-weight: bold; width: 80px; padding: 2px 4px;">Nama</td>
+                        <td style="padding: 2px 4px;">: {{ $detail->pasang->interaksi->customer->customer_nama }}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold; padding: 2px 4px;">Alamat</td>
+                        <td style="padding: 2px 4px;">: {{ $detail->pasang->alamat ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold; padding: 2px 4px;">No Telp</td>
+                        <td style="padding: 2px 4px;">: {{ $detail->pasang->interaksi->customer->customer_nohp ?? '-' }}</td>
+                    </tr>
+                @endif
+            @endforeach
+        </table>
+    </td>
         <!-- Kolom Payment -->
         <td style="vertical-align: top; width: 30%; text-align: left;">
             <span style="font-weight: bold; display: inline-block; margin-bottom: 6px;">
@@ -293,12 +300,19 @@
                     <span style="font-weight: bold;">WhatsApp</span>
                     &nbsp; 62 87803144655
                 </div>
-            </td>
             <td class="signature" style="text-align: left; width: 20%;">
                 <div>Admin,</div>
-                <br><br><br><br>
-                <div><strong>Annisa Rahman</strong></div>
-                <div>CS & Konsultan</div>
+                {{-- Gambar tanda tangan --}}
+                <div style="margin: 0 0 2px 0;"> {{-- atas=0, bawah=2px --}}
+                    <img src="{{ public_path('images/ttd Anisa.png') }}" 
+                        alt="Tanda Tangan"
+                        style="width:100px; height:auto; display:block;">
+                </div>
+                {{-- Nama + Jabatan --}}
+                <div style="text-decoration: underline; line-height: 1;">
+                    <strong>Anisa Rahman</strong>
+                </div>
+                <div style="line-height: 1;">CS & Konsultan</div>
             </td>
         </tr>
     </table>
