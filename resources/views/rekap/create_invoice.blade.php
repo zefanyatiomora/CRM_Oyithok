@@ -6,21 +6,25 @@
     </button>
 </div>
 
-<form id="form-create-invoice">
+<form id="form-create-invoice" action="{{ route('invoice.store') }}" method="POST">
     @csrf
 
     <div class="modal-body">
+        <!-- Nomor & Customer -->
         <div class="row mb-2">
             <div class="col-md-6">
                 <label>Nomor Invoice</label>
-                <input type="text" name="nomor_invoice" class="form-control">
+                <input type="text" name="nomor_invoice" class="form-control"
+                       value="{{ $lastInvoice->nomor_invoice ?? '' }}">
             </div>
             <div class="col-md-6">
                 <label>Customer Invoice</label>
-                <input type="text" name="customer_invoice" class="form-control" value="{{ $interaksi->customer->customer_nama ?? '' }}">
+                <input type="text" name="customer_invoice" class="form-control"
+                       value="{{ $lastInvoice->customer_invoice ?? ($interaksi->customer->customer_nama ?? '') }}">
             </div>
         </div>
 
+        <!-- Pesanan masuk & Batas pelunasan -->
         <div class="row mb-2">
             <div class="col-md-6">
                 <label>Pesanan Masuk</label>
@@ -36,46 +40,47 @@
             </div>
         </div>
 
-        <div class="mb-2 text-right">
-            <button type="button" id="btn-add-item" class="btn btn-sm btn-success">
-                <i class="fa fa-plus"></i> Tambah Item
-            </button>
-        </div>
-
+        <!-- Table Pasang/Kirim -->
         <div class="table-responsive">
-            <table class="table table-bordered" id="table-items">
+            <table class="table table-bordered table-sm" id="tablePasang">
                 <thead>
-                    <tr>
-                        <th>Pasang/Kirim (pilih)</th>
-                        <th>Harga Satuan</th>
-                        <th>Total</th>
-                        <th>Diskon</th>
-                        <th>Grand Total</th>
-                        <th>Aksi</th>
-                    </tr>
+                <tr>
+                    <th>Pasang/Kirim</th>
+                    <th>Kuantitas</th>
+                    <th>Harga Satuan</th>
+                    <th>Total</th>
+                    <th>Diskon (%)</th>
+                    <th>Grand Total</th>
+                </tr>
                 </thead>
                 <tbody>
-                    <tr class="item-row">
+                @foreach ($pasang as $p)
+                    <tr data-pasangkirim-id="{{ $p->pasangkirim_id }}">
                         <td>
-                            <select name="pasangkirim_id[]" class="form-control select-pasang">
-                                <option value="">-- Pilih Pasang/Kirim --</option>
-                                @foreach($pasang as $p)
-                                    <option value="{{ $p->pasangkirim_id }}"
-                                        data-harga="{{ $p->harga_satuan ?? 0 }}">
-                                        {{ $p->produk->produk_nama ?? '-' }} — {{ $p->jadwal_pasang_kirim }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            {{ $p->produk->produk_nama ?? '-' }} — {{ $p->jadwal_pasang_kirim }}
+                            <input type="hidden" name="pasangkirim_id[]" value="{{ $p->pasangkirim_id }}">
                         </td>
-
-                        <td><input type="number" step="0.01" name="harga_satuan[]" class="form-control harga_satuan" value="0"></td>
-                        <td><input type="number" step="0.01" name="total[]" class="form-control total" value="0"></td>
-                        <td><input type="number" step="0.01" name="diskon[]" class="form-control diskon" value="0"></td>
-                        <td><input type="number" step="0.01" name="grand_total[]" class="form-control grand_total" value="0"></td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-danger btn-remove-row"><i class="fa fa-trash"></i></button>
+                        <td>
+                            <input type="number" name="kuantitas[]" class="form-control qty" min="0"
+                                   value="{{ $p->kuantitas ?? 1 }}">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control harga_display rupiah" value="">
+                            <input type="hidden" name="harga_satuan[]" class="harga">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control total_display rupiah" readonly>
+                            <input type="hidden" name="total[]" class="total">
+                        </td>
+                        <td>
+                            <input type="number" name="diskon[]" class="form-control diskon" step="0.01" min="0" value="0">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control grand_display rupiah" readonly>
+                            <input type="hidden" name="grand_total[]" class="grand_total">
                         </td>
                     </tr>
+                @endforeach
                 </tbody>
             </table>
         </div>
@@ -83,42 +88,44 @@
         <hr>
 
         <div class="row">
-            <div class="col-md-4">
+            <!-- Kiri -->
+            <div class="col-md-6">
+                <label>Tanggal DP</label>
+                       <input type="date" name="tanggal_dp" class="form-control">
+
+                <label class="mt-2">Tanggal Pelunasan</label>
+                       <input type="date" name="tanggal_pelunasan" class="form-control">
+            </div>
+
+            <!-- Kanan -->
+            <div class="col-md-6">
                 <label>Potongan Harga</label>
-                <input type="number" step="0.01" name="potongan_harga" class="form-control" value="0">
-            </div>
-            <div class="col-md-4">
-                <label>Cashback</label>
-                <input type="number" step="0.01" name="cashback" class="form-control" value="0">
-            </div>
-            <div class="col-md-4">
-                <label>Total Akhir</label>
-                <input type="number" step="0.01" name="total_akhir" class="form-control" value="0">
+                <input type="text" id="potongan_display" class="form-control rupiah" value="">
+                <input type="hidden" name="potongan_harga" id="potongan">
+
+                <label class="mt-2">Cashback</label>
+                <input type="text" id="cashback_display" class="form-control rupiah" value="">
+                <input type="hidden" name="cashback" id="cashback">
+
+                <label class="mt-2">DP</label>
+                <input type="text" id="dp_display" class="form-control rupiah" value="">
+                <input type="hidden" name="dp" id="dp">
+
+                <label class="mt-2">Sisa Pelunasan</label>
+                <input type="text" id="sisa_display" class="form-control rupiah" readonly>
+                <input type="hidden" name="sisa_pelunasan" id="sisa">
+
+                <label class="mt-2">Total Akhir</label>
+                <input type="text" id="totalakhir_display" class="form-control rupiah" readonly>
+                <input type="hidden" name="total_akhir" id="totalakhir">
             </div>
         </div>
 
-        <div class="row mt-2">
-            <div class="col-md-6">
-                <label>DP</label>
-                <input type="number" step="0.01" name="dp" class="form-control" value="0">
-            </div>
-            <div class="col-md-6">
-                <label>Tanggal DP</label>
-                <input type="date" name="tanggal_dp" class="form-control">
-            </div>
-
-            <div class="col-md-6 mt-2">
-                <label>Sisa Pelunasan</label>
-                <input type="number" step="0.01" name="sisa_pelunasan" class="form-control" value="0">
-            </div>
-            <div class="col-md-6 mt-2">
-                <label>Tanggal Pelunasan</label>
-                <input type="date" name="tanggal_pelunasan" class="form-control">
-            </div>
-
-            <div class="col-md-12 mt-2">
+        <!-- Catatan -->
+        <div class="row mt-3">
+            <div class="col-12">
                 <label>Catatan</label>
-                <textarea name="catatan" class="form-control" rows="3"></textarea>
+                <textarea name="catatan" class="form-control" rows="2"></textarea>
             </div>
         </div>
     </div>
@@ -130,62 +137,183 @@
 </form>
 
 <script>
-$(function () {
-    // tambah baris item
-    $('#btn-add-item').click(function () {
-        let row = $('#table-items tbody tr.item-row:first').clone();
-        row.find('input').val('0');
-        row.find('select').val('');
-        $('#table-items tbody').append(row);
+    // formatting helpers
+    function formatRupiah(num) {
+        if (!num && num !== 0) return '';
+        num = parseInt(num) || 0;
+        return 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+    function parseRupiah(str) {
+        if (!str) return 0;
+        return parseInt(String(str).replace(/[^0-9]/g, '')) || 0;
+    }
+
+    // Hitung row (qty, harga(hidden), diskon) => total, grand
+    function hitungRow($row) {
+        let qty = parseInt($row.find('.qty').val()) || 0;
+        let harga = parseInt($row.find('.harga').val()) || 0; // hidden numeric
+        let diskon = parseFloat($row.find('.diskon').val()) || 0;
+
+        let total = qty * harga;
+        let grand = Math.round(total - (total * (diskon / 100)));
+
+        // set hidden + display
+        $row.find('.total').val(total);
+        $row.find('.total_display').val(formatRupiah(total));
+
+        $row.find('.grand_total').val(grand);
+        $row.find('.grand_display').val(formatRupiah(grand));
+
+        hitungSummary();
+    }
+
+function hitungSummary() {
+    let grandSum = 0;
+    $('#tablePasang tbody tr').each(function() {
+        grandSum += parseInt($(this).find('.grand_total').val()) || 0;
     });
 
-    // hapus baris
-    $(document).on('click', '.btn-remove-row', function () {
-        if ($('#table-items tbody tr').length > 1) {
-            $(this).closest('tr').remove();
+    let pot = parseRupiah($('#potongan_display').val() || '') || 0;
+    let cash = parseRupiah($('#cashback_display').val() || '') || 0;
+    let dpVal = parseRupiah($('#dp_display').val() || '') || 0;
+
+    let totalAkhir = grandSum - pot - cash;
+    let sisa = totalAkhir - dpVal;
+
+    // isi hidden + tampil
+    $('#totalakhir').val(totalAkhir);
+    $('#totalakhir_display').val(formatRupiah(totalAkhir));
+
+    $('#sisa').val(sisa);
+    $('#sisa_display').val(formatRupiah(sisa));
+
+    // isi hidden pot/cash/dp
+    $('#potongan').val(pot);
+    $('#cashback').val(cash);
+    $('#dp').val(dpVal);
+}
+
+
+    // --- EVENTS ---
+
+    // When user types in harga display -> update hidden .harga and recalc
+    $(document).on('input', '.harga_display', function() {
+        let $row = $(this).closest('tr');
+        let v = parseRupiah($(this).val());
+        // set hidden harga (if you use .harga hidden input)
+        // But our markup uses hidden input .harga — ensure it's present
+        if ($row.find('.harga').length) {
+            $row.find('.harga').val(v);
         } else {
-            // kosongkan jika tinggal 1 baris
-            let r = $(this).closest('tr');
-            r.find('input').val('0');
-            r.find('select').val('');
+            // If using visible named harga_satuan[] directly, set that value:
+            $row.find('input[name="harga_satuan[]"]').val(v);
         }
+        // reformat display to Rupiah
+        $(this).val(v ? formatRupiah(v) : '');
+        hitungRow($row);
     });
 
-    // otomatis isi harga_satuan ketika pilih pasang (jika pasang punya harga)
-    $(document).on('change', '.select-pasang', function () {
-        let harga = $(this).find(':selected').data('harga') || 0;
-        let row = $(this).closest('tr');
-        row.find('.harga_satuan').val(harga);
-        // jika total dihitung dari harga * qty, kamu bisa set di sini (qty field belum disediakan)
+    // qty or diskon change
+    $(document).on('input', '.qty, .diskon', function() {
+        let $row = $(this).closest('tr');
+        hitungRow($row);
     });
 
-    // submit form via AJAX (akan mengembalikan JSON)
-    $('#form-create-invoice').submit(function (e) {
+    // manual fields potongan, cashback, dp: keep display + hidden synchronized
+    $('#potongan_display').on('input', function(){
+        let v = parseRupiah($(this).val());
+        $('#potongan').val(v);
+        $(this).val(v ? formatRupiah(v) : '');
+        hitungSummary();
+    });
+    $('#cashback_display').on('input', function(){
+        let v = parseRupiah($(this).val());
+        $('#cashback').val(v);
+        $(this).val(v ? formatRupiah(v) : '');
+        hitungSummary();
+    });
+    $('#dp_display').on('input', function(){
+        let v = parseRupiah($(this).val());
+        $('#dp').val(v);
+        $(this).val(v ? formatRupiah(v) : '');
+        hitungSummary();
+    });
+
+    // on form submit: ensure all display inputs converted to hidden numeric values
+    $('#form-create-invoice').on('submit', function(e){
+        // convert any remaining display rupiah inputs to numeric hidden before submit
+        // for every row:
+        $('#tablePasang tbody tr').each(function(){
+            let $row = $(this);
+            // harga: if display exists, ensure hidden exists or value assigned to name input
+            let hargaVal = 0;
+            if ($row.find('.harga_display').length) hargaVal = parseRupiah($row.find('.harga_display').val());
+            // set the hidden input that controller expects: input[name="harga_satuan[]"]
+            if ($row.find('input[name="harga_satuan[]"]').length) {
+                $row.find('input[name="harga_satuan[]"]').val(hargaVal);
+            } else if ($row.find('.harga').length) {
+                $row.find('.harga').val(hargaVal);
+            }
+            // totals & grand totals: ensure hidden present
+            let totalVal = parseRupiah($row.find('.total_display').val() || $row.find('.total').val());
+            if ($row.find('input[name="total[]"]').length) $row.find('input[name="total[]"]').val(totalVal);
+            if ($row.find('input[name="grand_total[]"]').length) $row.find('input[name="grand_total[]"]').val(parseRupiah($row.find('.grand_display').val()) || $row.find('.grand_total').val());
+        });
+
+        // potongan/cash/dp already have hidden ids set by events; ensure fallback:
+        if (!$('#potongan').val()) $('#potongan').val(parseRupiah($('#potongan_display').val()));
+        if (!$('#cashback').val()) $('#cashback').val(parseRupiah($('#cashback_display').val()));
+        if (!$('#dp').val()) $('#dp').val(parseRupiah($('#dp_display').val()));
+
+        // allow submit to continue
+    });
+
+    // initialize: format existing blanks and calc
+    $(document).ready(function() {
+        $('#tablePasang tbody tr').each(function(){
+            let $r = $(this);
+            // if there is an existing harga input with value (unformatted), format it
+            if ($r.find('input[name="harga_satuan[]"]').length && $r.find('input[name="harga_satuan[]"]').val()) {
+                let hv = parseRupiah($r.find('input[name="harga_satuan[]"]').val());
+                $r.find('.harga_display').val(hv ? formatRupiah(hv) : '');
+                $r.find('.harga').val(hv);
+            }
+            // trigger initial calc
+            hitungRow($r);
+        });
+        hitungSummary();
+        $(document).ready(function () {
+    $("#form-create-invoice").on("submit", function (e) {
         e.preventDefault();
-        let form = this;
-        let data = new FormData(form);
+
+        let form = $(this);
+        let formData = new FormData(this);
 
         $.ajax({
-            url: "{{ route('invoice.store') }}",
-            method: 'POST',
-            data: data,
+            url: form.attr("action"),
+            type: "POST",
+            data: formData,
             processData: false,
             contentType: false,
             success: function (res) {
-                if (res.status === 'success') {
-                    toastr.success(res.message);
-                    // reload bagian yang perlu di UI, atau tutup modal:
-                    $('#myModal').modal('hide');
-                    // optional: reload halaman / datatable
-                } else {
-                    toastr.error(res.message || 'Simpan gagal');
-                }
+                toastr.success("Invoice berhasil disimpan");
+
+                // reload datatable rekap (jika ada)
+                tableRekap.ajax.reload(null, false);
+
+                // reload detail interaksi agar invoice baru muncul
+                let interaksiId = $("#interaksi_id").val();
+                $("#myModal").load("{{ url('rekap') }}/" + interaksiId + "/show_ajax");
+
+                // tutup modal create
+                $("#crudModal").modal("hide");
             },
             error: function (xhr) {
-                console.error(xhr.responseText);
-                toastr.error('Terjadi kesalahan server');
+                Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
+                console.error("Server Error:", xhr.responseText);
             }
         });
     });
 });
+    });
 </script>

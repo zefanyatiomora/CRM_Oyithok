@@ -39,7 +39,7 @@ class InvoiceModel extends Model
     {
         return $this->hasMany(InvoiceKeteranganModel::class, 'invoice_id', 'invoice_id');
     }
-     public function customer()
+    public function customer()
     {
         return $this->belongsTo(CustomersModel::class, 'customer_invoice', 'customer_id');
     }

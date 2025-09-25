@@ -39,15 +39,22 @@ class CustomersModel extends Model
 
         $totalTransaction = $closingInteraksi->count();
 
-        $totalCashSpent = $closingInteraksi->sum(function ($interaksi) {
-            $sum = 0;
-            foreach ($interaksi->pasang as $pasang) {
-                if ($pasang->invoiceDetail && $pasang->invoiceDetail->invoice) {
-                    $sum += $pasang->invoiceDetail->invoice->total_akhir;
-                }
-            }
-            return $sum;
-        });
+        // $totalCashSpent = $closingInteraksi->sum(function ($interaksi) {
+        //     $sum = 0;
+        //     foreach ($interaksi->pasang as $pasang) {
+        //         if ($pasang->invoiceDetail && $pasang->invoiceDetail->invoice) {
+        //             $sum += $pasang->invoiceDetail->invoice->total_akhir;
+        //         }
+        //     }
+        //     return $sum;
+        // });
+        $totalCashSpent = $closingInteraksi
+            ->flatMap(fn($interaksi) => $interaksi->pasang->map(fn($p) => optional($p->invoiceDetail->invoice)->invoice_id))
+            ->unique()
+            ->filter()
+            ->map(fn($id) => InvoiceModel::find($id)?->total_akhir ?? 0)
+            ->sum();
+
 
         $this->update([
             'total_transaction' => $totalTransaction,
