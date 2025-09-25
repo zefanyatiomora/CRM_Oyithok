@@ -131,7 +131,7 @@
     <a href="{{ route('dashboard.ask', ['status' => 'ask']) }}" 
        class="text-decoration-none text-white"
        data-bs-toggle="tooltip" 
-       title="Total ASK customer untuk bulan/tahun yang dipilih">
+       title="adalah customer yang sudah diketahui kebutuhannya, tetapi tidak jadi pesan">
         <div class="small-box bg-custom-ask box-hover">
             <div class="inner text-center">
                 <h3>{{ $jumlahAsk }}</h3>
@@ -152,7 +152,7 @@
     <a href="{{ route('dashboard.followup') }}" 
        class="text-decoration-none text-white"
        data-bs-toggle="tooltip" 
-       title="Total follow up customer untuk bulan/tahun yang dipilih">
+       title="adalah customer yang perlu ditindaklanjuti untuk dipastikan jadi pesan atau tidak">
         <div class="small-box bg-custom-follow-up box-hover">
             <div class="inner text-center">
                 <h3>{{ $jumlahFollowUp }}</h3>
@@ -169,7 +169,7 @@
     <a href="{{ route('dashboard.hold') }}" 
        class="text-decoration-none text-white"
        data-bs-toggle="tooltip" 
-       title="Jumlah customer yang statusnya HOLD">
+       title="adalah customer yang menjanjikan pemesanan di lain waktu">
         <div class="small-box bg-custom-hold box-hover">
             <div class="inner text-center">
                 <h3>{{ $jumlahHold }}</h3>
@@ -186,7 +186,7 @@
     <a href="{{ route('dashboard.closing', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
        class="text-decoration-none text-white"
        data-bs-toggle="tooltip" 
-       title="Jumlah customer yang berhasil closing">
+       title="adalah customer yang telah selesai pemesanan (pemasangan/pengiriman)">
         <div class="small-box bg-custom-closing box-hover">
             <div class="inner text-center">
                 <h3>{{ $jumlahClosing }}</h3>
