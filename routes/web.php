@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\TambahKebutuhanController;
 use App\Http\Controllers\PICController;
@@ -29,7 +30,12 @@ use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 |
 */
 
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard/ghost', [DashboardController::class, 'ghost'])->name('dashboard.ghost');
 Route::get('/dashboard/ask', [DashboardController::class, 'ask'])->name('dashboard.ask');
 Route::get('/dashboard/followup', [DashboardController::class, 'followup'])->name('dashboard.followup');
 Route::get('/dashboard/hold', [DashboardController::class, 'hold'])->name('dashboard.hold');
@@ -130,7 +136,6 @@ Route::prefix('pic')->group(function () {
 });
 
 Route::get('/datainvoice', [DataInvoiceController::class, 'index'])->name('datainvoice.index');
-Route::get('/datainvoice/{id}', [DataInvoiceController::class, 'show'])->name('datainvoice.show');
 Route::get('/datainvoice/{id}/export-pdf', [DataInvoiceController::class, 'exportPdf'])->name('datainvoice.exportPdf');
 Route::get('datainvoice/{id}', [DataInvoiceController::class, 'show'])->name('datainvoice.show');
 

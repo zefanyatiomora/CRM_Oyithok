@@ -39,10 +39,11 @@
                         </td>
                         <td class="text-center">
                             <button type="button"
-                                class="btn btn-sm btn-info btn-show-invoice"
-                                data-id="{{ $inv->invoice_id }}">
-                                <i class="fas fa-eye"></i> Detail
-                            </button>
+    class="btn btn-sm btn-info btn-show-invoice"
+    data-id="{{ $inv->invoice_id }}">
+    <i class="fas fa-eye"></i> Detail
+</button>
+
                             <a href="{{ route('datainvoice.exportPdf', $inv->invoice_id) }}"
                                class="btn btn-sm btn-danger" target="_blank">
                                 <i class="fas fa-file-pdf"></i> PDF
@@ -96,12 +97,12 @@
 @push('js')
 <script>
     var dataInvoice;
-    $(document).on('click', '.btn-show-invoice', function () {
+   $(document).on('click', '.btn-show-invoice', function () {
     let id = $(this).data('id');
-    $.get("{{ url('datainvoice') }}/" + id, function (res) {
+    $.get("{{ route('datainvoice.show', ':id') }}".replace(':id', id), function (res) {
         if (res.status === 'success') {
-            $('#myModal .modal-content').html(res.html);
-            $('#myModal').modal('show');
+            $('#detailModal .modal-content').html(res.html);
+            $('#detailModal').modal('show');
         } else {
             toastr.error('Gagal load data invoice');
         }

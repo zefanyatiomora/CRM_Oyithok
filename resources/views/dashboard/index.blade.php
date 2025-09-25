@@ -127,8 +127,28 @@
   <!-- TAB CUSTOMER -->
    <div class="tab-pane fade show active" id="customer" role="tabpanel">
       <div class="row">
-<!-- STATUS ASK -->
-<div class="col-lg-3 col-6">
+<div class="status-boxes">
+    <!-- STATUS GHOST -->
+    <a href="{{ route('dashboard.ghost', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
+       class="text-decoration-none text-white"
+       data-bs-toggle="tooltip" 
+       title="Jumlah customer yang statusnya GHOST">
+        <div class="small-box bg-custom-ghost box-hover">
+            <div class="inner text-center">
+                <h3>{{ $jumlahGhost }}</h3>
+                <p>GHOST 
+                    @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
+                    @else TAHUN {{ $tahun }} 
+                    @endif
+                </p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-user-secret"></i>
+            </div>
+        </div>
+    </a>
+
+    <!-- STATUS ASK -->
     <a href="{{ route('dashboard.ask', ['status' => 'ask']) }}" 
        class="text-decoration-none text-white"
        data-bs-toggle="tooltip" 
@@ -147,9 +167,8 @@
             </div>
         </div>
     </a>
-</div>
-<!-- STATUS FOLLOW UP -->
-<div class="col-lg-3 col-6">
+
+    <!-- STATUS FOLLOW UP -->
     <a href="{{ route('dashboard.followup') }}" 
        class="text-decoration-none text-white"
        data-bs-toggle="tooltip" 
@@ -164,9 +183,8 @@
             </div>
         </div>
     </a>
-</div>
-<!-- STATUS HOLD -->
-<div class="col-lg-3 col-6">
+
+    <!-- STATUS HOLD -->
     <a href="{{ route('dashboard.hold') }}" 
        class="text-decoration-none text-white"
        data-bs-toggle="tooltip" 
@@ -181,9 +199,8 @@
             </div>
         </div>
     </a>
-</div>
-<!-- STATUS CLOSING -->
-<div class="col-lg-3 col-6">
+
+    <!-- STATUS CLOSING -->
     <a href="{{ route('dashboard.closing', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
        class="text-decoration-none text-white"
        data-bs-toggle="tooltip" 
@@ -212,7 +229,7 @@
     Data Customer 
     <i class="fas fa-question-circle text-muted ml-1" 
        data-bs-toggle="tooltip" 
-       title="Distribusi customer berdasarkan status ASK, FOLLOW UP, HOLD, dan CLOSING"></i>
+       title="Distribusi customer berdasarkan status GHOST, ASK, FOLLOW UP, HOLD, dan CLOSING"></i>
 </h3>
         <div style="height: 300px;">
             <canvas id="customerDoughnutChart"></canvas>
@@ -358,7 +375,6 @@ $(function () {
             </div>
         </div>
     </div>
-
     <div class="col-md-6">
         <div class="card h-100">
             <div class="card-header bg-white border-0">
@@ -377,6 +393,12 @@ $(function () {
             </div>
         </div>
     </div>
+       </div>
+    </div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <section>
 
@@ -438,23 +460,41 @@ body {
 }
 
 /* ====== Small Box ====== */
+.status-boxes {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 25px; /* jarak antar box */
+    margin-bottom: 20px;
+}
 .small-box {
-    border-radius: 18px !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    transition: all 0.3s ease;
+    position: relative;
+    border-radius: 12px;
+    padding: 20px;
+    height: 140px; /* 🔹 lebih pendek, jadi persegi panjang */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.2s ease-in-out;
 }
 .small-box .inner h3 {
-    font-weight: 700;
-    font-size: 1.8rem;
+    font-size: 30px;
+    margin: 0;
+    font-weight: bold;
 }
-.small-box p {
-    font-size: 0.9rem;
-    font-weight: 500;
-    margin-top: 5px;
-    color: rgba(255,255,255,0.85);
+
+.small-box .inner p {
+    margin: 5px 0 0 0;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
 }
 .small-box .icon {
-    opacity: 0.4;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 45px;
+    opacity: 0.1;
 }
 .box-hover:hover {
     transform: translateY(-5px);
@@ -483,8 +523,21 @@ body {
     color: #fff;             /* warna teks */
     box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
+.status-boxes {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* tetap 5 sejajar */
+    gap: 15px; /* 🔹 perkecil jarak antar box */
+    margin-bottom: 20px;
+}
+footer {
+    text-align: left;
+    padding: 10px 0;
+    color: #555;
+    font-size: 14px;
+}
 
 /* ====== Custom Colors ====== */
+.bg-custom-ghost { background-color: #a1a6a7 !important; } /* biru langit */
 .bg-custom-ask { background-color: #87b0ff !important; }
 .bg-custom-follow-up { background-color: #A374FF !important; }
 .bg-custom-hold { background-color: #5C54AD !important; }

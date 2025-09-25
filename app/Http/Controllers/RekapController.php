@@ -121,7 +121,6 @@ class RekapController extends Controller
             ->rawColumns(['aksi'])
             ->make(true);
     }
-
     public function show_ajax($interaksi_id)
     {
         $interaksi = InteraksiModel::with('customer', 'produk', 'survey', 'rincian', 'pasang')
@@ -162,7 +161,7 @@ class RekapController extends Controller
             'steps'             => $steps,
             'currentStep'       => $currentStep,
             'skippedSteps'      => $skippedSteps,  // cuma ini yang dipakai di blade
-            'followUpOptions'   => ['Ask', 'Follow Up', 'Hold', 'Closing'],
+            'followUpOptions'   => ['Ghost','Ask', 'Follow Up', 'Hold', 'Closing'],
             'selectedFollowUp'  => $interaksi->status ?? '',
             'closeValue'        => $interaksi->close ?? '',
             'interaksiAwalList' => $interaksiAwalList

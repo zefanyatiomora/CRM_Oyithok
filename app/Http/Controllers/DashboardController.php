@@ -182,10 +182,11 @@ class DashboardController extends Controller
 
             'jumlahInteraksi' => $jumlahInteraksi,
 
-            'jumlahAsk' => $customerDoughnut['customerDoughnutData'][0],
-            'jumlahFollowUp' => $customerDoughnut['customerDoughnutData'][1],
-            'jumlahHold' => $customerDoughnut['customerDoughnutData'][2],
-            'jumlahClosing' => $customerDoughnut['customerDoughnutData'][3],
+            'jumlahGhost' => $customerDoughnut['customerDoughnutData'][0],
+            'jumlahAsk' => $customerDoughnut['customerDoughnutData'][1],
+            'jumlahFollowUp' => $customerDoughnut['customerDoughnutData'][2],
+            'jumlahHold' => $customerDoughnut['customerDoughnutData'][3],
+            'jumlahClosing' => $customerDoughnut['customerDoughnutData'][4],
 
             'chartLabels' => $chartLabels,
             'dataLeadsLama' => $dataLeadsLama,
@@ -321,19 +322,41 @@ class DashboardController extends Controller
             $queryBase->whereMonth('tanggal_chat', $bulan);
         }
 
+        $jumlahGhost = (clone $queryBase)->where('status', 'ghost')->count();
         $jumlahAsk = (clone $queryBase)->where('status', 'ask')->count();
         $jumlahFollowUp = (clone $queryBase)->whereIn('status', ['followup', 'follow up'])->count();
         $jumlahHold = (clone $queryBase)->where('status', 'hold')->count();
         $jumlahClosing = (clone $queryBase)->where('status', 'closing')->count();
 
         return [
-            'customerDoughnutLabels' => ['Ask', 'Follow up', 'Hold', 'Closing'],
-            'customerDoughnutData'   => [$jumlahAsk, $jumlahFollowUp, $jumlahHold, $jumlahClosing],
-            'customerDoughnutColors' => ['#87CEEB', '#A374FF', '#5C54AD', '#FF7373'],
+            'customerDoughnutLabels' => ['Ghost','Ask', 'Follow up', 'Hold', 'Closing'],
+            'customerDoughnutData'   => [$jumlahGhost, $jumlahAsk, $jumlahFollowUp, $jumlahHold, $jumlahClosing],
+            'customerDoughnutColors' => ['#9a9d9eff','#87CEEB', '#A374FF', '#5C54AD', '#FF7373'],
         ];
     }
+public function ghost(Request $request)
+{
+    $query = InteraksiModel::with('customer')
+        ->where('status', 'ghost');
 
+    if ($request->ajax()) {
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
+            ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
+            ->addColumn('aksi', function ($row) {
+                $url = route('rekap.show_ajax', $row->interaksi_id);
+                return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-primary">
+                    <i class="fas fa-eye"></i> Detail
+                </button>';
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
+    }
 
+    $activeMenu = 'dashboard';
+    return view('dashboard.ghost', compact('activeMenu'));
+}
 
     public function ask(Request $request)
     {
