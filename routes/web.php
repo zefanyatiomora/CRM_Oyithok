@@ -162,4 +162,7 @@ Route::prefix('invoice')->group(function () {
     Route::post('/store', [RekapController::class, 'storeInvoice'])->name('invoice.store');
     Route::get('/{id}/edit', [RekapController::class, 'editInvoice'])->name('invoice.edit');
     Route::put('/{id}/update', [RekapController::class, 'updateInvoice'])->name('invoice.update');
+    Route::get('/{id}/export_pdf', [RekapController::class, 'export_pdf'])
+    ->name('invoice.export_pdf');
+
 });
