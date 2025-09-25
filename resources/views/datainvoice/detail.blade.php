@@ -9,7 +9,7 @@
     <div class="row mb-2">
         <div class="col-md-6">
             <label><strong>Customer</strong></label>
-            <p>{{ $invoice->customer->customer_nama ?? '-' }}</p>
+             <p>{{ $invoice->customer->customer_nama ?? '-' }}</p>
         </div>
         <div class="col-md-6">
             <label><strong>Pesanan Masuk</strong></label>
@@ -36,7 +36,7 @@
             <tbody>
                 @foreach($invoice->details as $d)
                     <tr>
-                        <td>{{ $d->pasangkirim->produk->produk_nama ?? '-' }} — {{ $d->pasangkirim->jadwal_pasang_kirim ?? '' }}</td>
+                        <td>{{ $d->pasang->produk->produk_nama ?? '-' }} — {{ $d->pasang->jadwal_pasang_kirim ?? '' }}</td>
                         <td>{{ number_format($d->harga_satuan, 0, ',', '.') }}</td>
                         <td>{{ number_format($d->total, 0, ',', '.') }}</td>
                         <td>{{ number_format($d->diskon, 0, ',', '.') }}</td>
@@ -90,21 +90,3 @@
 <div class="modal-footer">
     <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
 </div>
-
-@push('js')
-<script>
-    $(document).on('click', '.btn-show-invoice', function () {
-    let id = $(this).data('id');
-    $.get("{{ url('invoice') }}/" + id, function (res) {
-        if (res.status === 'success') {
-            $('#myModal .modal-content').html(res.html);
-            $('#myModal').modal('show');
-        } else {
-            toastr.error('Gagal load data invoice');
-        }
-    }).fail(function () {
-        toastr.error('Terjadi kesalahan server');
-    });
-});
-</script>
-@endpush

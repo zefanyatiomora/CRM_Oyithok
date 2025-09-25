@@ -58,11 +58,18 @@
                     <label>Informasi Media</label>
                     <input type="text" name="informasi_media" class="form-control" value="{{ $customer->informasi_media }}" readonly>
                 </div>
+ <div class="form-group">
+                    <label>Total Transaksi</label>
+                    <input type="number" class="form-control" 
+                           value="{{ $customer->total_transaction }}" readonly>
+                </div>
 
                 <div class="form-group">
-                    <label>Loyalty Point</label>
-                    <input type="number" name="loyalty_point" class="form-control" value="{{ $customer->loyalty_point }}" readonly>
-                </div>
+    <label>Total Cash Spent</label>
+    <input type="text" class="form-control" 
+           value="Rp {{ number_format($customer->total_cash_spent, 0, ',', '.') }}" readonly>
+</div>
+
 
             </div>
             <div class="modal-footer">

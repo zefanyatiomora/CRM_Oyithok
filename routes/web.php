@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\TambahKebutuhanController;
 use App\Http\Controllers\PICController;
@@ -29,7 +30,12 @@ use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 |
 */
 
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard/ghost', [DashboardController::class, 'ghost'])->name('dashboard.ghost');
 Route::get('/dashboard/ask', [DashboardController::class, 'ask'])->name('dashboard.ask');
 Route::get('/dashboard/followup', [DashboardController::class, 'followup'])->name('dashboard.followup');
 Route::get('/dashboard/hold', [DashboardController::class, 'hold'])->name('dashboard.hold');
@@ -49,7 +55,7 @@ Route::post('/broadcast/closing/send', [ClosingController::class, 'sendBroadcast
 Route::post('/customers/list', [CustomersController::class, 'data'])->name('customers.data');
 Route::get('/customers', [CustomersController::class, 'index'])->name('customers.index');
 Route::get('/customers/{id}/show_ajax', [CustomersController::class, 'show_ajax']);
-Route::get('/customers/{id}/edit', [CustomersController::class, 'edit'])->name('customers.edit');
+Route::get('/customers/{id}/edit_ajax', [CustomersController::class, 'edit'])->name('customers.edit_ajax');
 Route::put('/customers/{id}/update', [CustomersController::class, 'update'])->name('customers.update');
 //kebutuhan//
 // routes/web.php
@@ -130,7 +136,6 @@ Route::prefix('pic')->group(function () {
 });
 
 Route::get('/datainvoice', [DataInvoiceController::class, 'index'])->name('datainvoice.index');
-Route::get('/datainvoice/{id}', [DataInvoiceController::class, 'show'])->name('datainvoice.show');
 Route::get('/datainvoice/{id}/export-pdf', [DataInvoiceController::class, 'exportPdf'])->name('datainvoice.exportPdf');
 Route::get('datainvoice/{id}', [DataInvoiceController::class, 'show'])->name('datainvoice.show');
 
@@ -162,4 +167,7 @@ Route::prefix('invoice')->group(function () {
     Route::post('/store', [RekapController::class, 'storeInvoice'])->name('invoice.store');
     Route::get('/{id}/edit', [RekapController::class, 'editInvoice'])->name('invoice.edit');
     Route::put('/{id}/update', [RekapController::class, 'updateInvoice'])->name('invoice.update');
+    Route::get('/{id}/export_pdf', [RekapController::class, 'export_pdf'])
+    ->name('invoice.export_pdf');
+
 });

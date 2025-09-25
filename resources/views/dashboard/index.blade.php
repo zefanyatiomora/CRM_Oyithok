@@ -23,12 +23,12 @@
             <div class="form-row align-items-end">
                 <!-- Pilih Tahun -->
                 <div class="col-md-3 mb-3">
-                    <label for="tahun" 
-                           class="small text-muted font-weight-bold"
-                           data-bs-toggle="tooltip"
-                           title="Pilih tahun untuk menampilkan data dashboard">
-                        Tahun
-                    </label>
+                    <label for="tahun" class="small text-muted font-weight-bold">
+    Tahun
+    <i class="fas fa-question-circle text-secondary ml-1" 
+       data-bs-toggle="tooltip" 
+       title="Pilih tahun untuk menampilkan data dashboard"></i>
+</label>
                     <select name="tahun" id="tahun" class="form-control rounded-pill shadow-sm" required>
                         <option value="">-- Pilih Tahun --</option>
                         @foreach($availableYears as $year)
@@ -41,12 +41,13 @@
 
                 <!-- Pilih Bulan -->
                 <div class="col-md-3 mb-3">
-                    <label for="bulan" 
-                           class="small text-muted font-weight-bold"
-                           data-bs-toggle="tooltip"
-                           title="Pilih bulan untuk menampilkan data dashboard (opsional)">
-                        Bulan
-                    </label>
+                    <label for="bulan" class="small text-muted font-weight-bold">
+    Bulan
+    <i class="fas fa-question-circle text-secondary ml-1" 
+       data-bs-toggle="tooltip" 
+       title="Pilih bulan untuk menampilkan data dashboard (opsional)"></i>
+</label>
+
                     <select name="bulan" id="bulan" class="form-control rounded-pill shadow-sm">
                         <option value="">-- Semua Bulan --</option>
                         @foreach($bulanList as $key => $label)
@@ -126,12 +127,32 @@
   <!-- TAB CUSTOMER -->
    <div class="tab-pane fade show active" id="customer" role="tabpanel">
       <div class="row">
-<!-- STATUS ASK -->
-<div class="col-lg-3 col-6">
+<div class="status-boxes">
+    <!-- STATUS GHOST -->
+    <a href="{{ route('dashboard.ghost', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
+       class="text-decoration-none text-white"
+       data-bs-toggle="tooltip" 
+       title="Jumlah customer yang statusnya GHOST">
+        <div class="small-box bg-custom-ghost box-hover">
+            <div class="inner text-center">
+                <h3>{{ $jumlahGhost }}</h3>
+                <p>GHOST 
+                    @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
+                    @else TAHUN {{ $tahun }} 
+                    @endif
+                </p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-user-secret"></i>
+            </div>
+        </div>
+    </a>
+
+    <!-- STATUS ASK -->
     <a href="{{ route('dashboard.ask', ['status' => 'ask']) }}" 
        class="text-decoration-none text-white"
        data-bs-toggle="tooltip" 
-       title="Total ASK customer untuk bulan/tahun yang dipilih">
+       title="adalah customer yang sudah diketahui kebutuhannya, tetapi tidak jadi pesan">
         <div class="small-box bg-custom-ask box-hover">
             <div class="inner text-center">
                 <h3>{{ $jumlahAsk }}</h3>
@@ -146,13 +167,12 @@
             </div>
         </div>
     </a>
-</div>
-<!-- STATUS FOLLOW UP -->
-<div class="col-lg-3 col-6">
+
+    <!-- STATUS FOLLOW UP -->
     <a href="{{ route('dashboard.followup') }}" 
        class="text-decoration-none text-white"
        data-bs-toggle="tooltip" 
-       title="Total follow up customer untuk bulan/tahun yang dipilih">
+       title="adalah customer yang perlu ditindaklanjuti untuk dipastikan jadi pesan atau tidak">
         <div class="small-box bg-custom-follow-up box-hover">
             <div class="inner text-center">
                 <h3>{{ $jumlahFollowUp }}</h3>
@@ -163,13 +183,12 @@
             </div>
         </div>
     </a>
-</div>
-<!-- STATUS HOLD -->
-<div class="col-lg-3 col-6">
+
+    <!-- STATUS HOLD -->
     <a href="{{ route('dashboard.hold') }}" 
        class="text-decoration-none text-white"
        data-bs-toggle="tooltip" 
-       title="Jumlah customer yang statusnya HOLD">
+       title="adalah customer yang menjanjikan pemesanan di lain waktu">
         <div class="small-box bg-custom-hold box-hover">
             <div class="inner text-center">
                 <h3>{{ $jumlahHold }}</h3>
@@ -180,13 +199,12 @@
             </div>
         </div>
     </a>
-</div>
-<!-- STATUS CLOSING -->
-<div class="col-lg-3 col-6">
+
+    <!-- STATUS CLOSING -->
     <a href="{{ route('dashboard.closing', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
        class="text-decoration-none text-white"
        data-bs-toggle="tooltip" 
-       title="Jumlah customer yang berhasil closing">
+       title="adalah customer yang telah selesai pemesanan (pemasangan/pengiriman)">
         <div class="small-box bg-custom-closing box-hover">
             <div class="inner text-center">
                 <h3>{{ $jumlahClosing }}</h3>
@@ -207,11 +225,12 @@
         <div class="col-md-4 mb-3">
             <div class="card h-100">
     <div class="card-body">
-              <h3 class="card-title font-weight-bold" 
-            data-bs-toggle="tooltip" 
-            title="Distribusi customer berdasarkan status ASK, FOLLOW UP, HOLD, dan CLOSING">
-            Data Customer
-        </h3>
+              <h3 class="card-title font-weight-bold" style="color: #5C54AD;">
+    Data Customer 
+    <i class="fas fa-question-circle text-muted ml-1" 
+       data-bs-toggle="tooltip" 
+       title="Distribusi customer berdasarkan status GHOST, ASK, FOLLOW UP, HOLD, dan CLOSING"></i>
+</h3>
         <div style="height: 300px;">
             <canvas id="customerDoughnutChart"></canvas>
         </div>
@@ -243,7 +262,13 @@
         <div class="col-md-4 mb-3">
             <div class="card h-100">
                 <div class="card-header bg-white border-0">
-                    <h3 class="card-title font-weight-bold" style="color: #5C54AD;">Rate Customer Closing</h3>
+                    <h3 class="card-title font-weight-bold" style="color: #5C54AD;">
+    Rate Customer Closing 
+    <i class="fas fa-question-circle text-muted ml-1" 
+       data-bs-toggle="tooltip" 
+       title="Persentase jumlah customer yang berhasil closing per minggu"></i>
+</h3>
+
                 </div>
                 <div class="card-body">
                     <div style="height: 300px;">
@@ -350,7 +375,6 @@ $(function () {
             </div>
         </div>
     </div>
-
     <div class="col-md-6">
         <div class="card h-100">
             <div class="card-header bg-white border-0">
@@ -369,6 +393,12 @@ $(function () {
             </div>
         </div>
     </div>
+       </div>
+    </div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <section>
 
@@ -430,23 +460,41 @@ body {
 }
 
 /* ====== Small Box ====== */
+.status-boxes {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 25px; /* jarak antar box */
+    margin-bottom: 20px;
+}
 .small-box {
-    border-radius: 18px !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    transition: all 0.3s ease;
+    position: relative;
+    border-radius: 12px;
+    padding: 20px;
+    height: 140px; /* 🔹 lebih pendek, jadi persegi panjang */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.2s ease-in-out;
 }
 .small-box .inner h3 {
-    font-weight: 700;
-    font-size: 1.8rem;
+    font-size: 30px;
+    margin: 0;
+    font-weight: bold;
 }
-.small-box p {
-    font-size: 0.9rem;
-    font-weight: 500;
-    margin-top: 5px;
-    color: rgba(255,255,255,0.85);
+
+.small-box .inner p {
+    margin: 5px 0 0 0;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
 }
 .small-box .icon {
-    opacity: 0.4;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 45px;
+    opacity: 0.1;
 }
 .box-hover:hover {
     transform: translateY(-5px);
@@ -464,23 +512,32 @@ body {
     font-weight: 700;
     color: #5C54AD;
 }
+.tooltip .tooltip-arrow {
+    display: none !important; /* sembunyikan panah */
+}
 .tooltip-inner {
-    font-size: 0.6rem; /* lebih kecil dari default */
-    padding: 3px 7px;  /* padding lebih ringkas */
-    background-color: #fff;  /* background putih */
-    color: #000;             /* teks hitam */
-    border: 1px solid #ccc;  /* optional border agar lebih jelas */
+    font-size: 11px;         /* kecilkan teks */
+    border-radius: 4px;      /* sudut lebih rapat */
+    padding: 3px 6px;        /* kotak lebih kecil */
+    background-color: #333;  /* warna background */
+    color: #fff;             /* warna teks */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
-.tooltip.bs-tooltip-top .tooltip-arrow::before,
-.tooltip.bs-tooltip-bottom .tooltip-arrow::before,
-.tooltip.bs-tooltip-start .tooltip-arrow::before,
-.tooltip.bs-tooltip-end .tooltip-arrow::before {
-    border-top-color: #fff;    /* sesuaikan warna arrow */
-    border-bottom-color: #fff;
-    border-left-color: #fff;
-    border-right-color: #fff;
+.status-boxes {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* tetap 5 sejajar */
+    gap: 15px; /* 🔹 perkecil jarak antar box */
+    margin-bottom: 20px;
 }
+footer {
+    text-align: left;
+    padding: 10px 0;
+    color: #555;
+    font-size: 14px;
+}
+
 /* ====== Custom Colors ====== */
+.bg-custom-ghost { background-color: #a1a6a7 !important; } /* biru langit */
 .bg-custom-ask { background-color: #87b0ff !important; }
 .bg-custom-follow-up { background-color: #A374FF !important; }
 .bg-custom-hold { background-color: #5C54AD !important; }

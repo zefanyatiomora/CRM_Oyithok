@@ -215,7 +215,9 @@
                         if (result.isConfirmed) {
                             // If yes, open a new modal for the next step
                             // Assumes you have a function to open the modal
-                            openModal("{{ url('/rekap')}}/" + response.interaksi_id + "/show_ajax"); 
+                            $('#myModal .modal-content').load("{{ url('/rekap')}}/" + response.interaksi_id + "/show_ajax");
+                            $('#myModal').modal('show');
+
                         } else {
                             // If not, redirect back to the index page
                             window.location.href = "{{ route('rekap.index') }}";
