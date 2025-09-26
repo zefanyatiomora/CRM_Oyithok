@@ -9,18 +9,35 @@
 <form id="form-create-invoice" action="{{ route('invoice.store') }}" method="POST">
     @csrf
 
+    <style>
+        input.form-control.no-arrow::-webkit-outer-spin-button,
+        input.form-control.no-arrow::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input.form-control.no-arrow[type=number] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        .table .form-control.no-arrow {
+            padding-right: .5rem;
+        }
+    </style>
+
     <div class="modal-body">
         <!-- Nomor & Customer -->
         <div class="row mb-2">
             <div class="col-md-6">
                 <label>Nomor Invoice</label>
                 <input type="text" name="nomor_invoice" class="form-control"
-                       value="{{ $lastInvoice->nomor_invoice ?? '' }}">
+                    value="{{ $lastInvoice->nomor_invoice ?? '' }}">
             </div>
             <div class="col-md-6">
                 <label>Customer Invoice</label>
                 <input type="text" name="customer_invoice" class="form-control"
-                       value="{{ $lastInvoice->customer_invoice ?? ($interaksi->customer->customer_nama ?? '') }}">
+                    value="{{ $lastInvoice->customer_invoice ?? ($interaksi->customer->customer_nama ?? '') }}">
             </div>
         </div>
 
@@ -44,43 +61,68 @@
         <div class="table-responsive">
             <table class="table table-bordered table-sm" id="tablePasang">
                 <thead>
-                <tr>
-                    <th>Pasang/Kirim</th>
-                    <th>Kuantitas</th>
-                    <th>Harga Satuan</th>
-                    <th>Total</th>
-                    <th>Diskon (%)</th>
-                    <th>Grand Total</th>
-                </tr>
+                    <tr>
+                        <th style="width:15%;">Produk</th>
+                        <th style="width:5%;">Kuantitas</th>
+                        <th style="width:14%;">Harga Satuan</th>
+                        <th style="width:20%;">Total</th>
+                        <th style="width:5%;">Diskon (%)</th>
+                        <th style="width:20%;">Grand Total</th>
+                    </tr>
                 </thead>
                 <tbody>
-                @foreach ($pasang as $p)
-                    <tr data-pasangkirim-id="{{ $p->pasangkirim_id }}">
-                        <td>
-                            {{ $p->produk->produk_nama ?? '-' }} — {{ $p->jadwal_pasang_kirim }}
-                            <input type="hidden" name="pasangkirim_id[]" value="{{ $p->pasangkirim_id }}">
-                        </td>
-                        <td>
-                            <input type="number" name="kuantitas[]" class="form-control qty" min="0"
-                                   value="{{ $p->kuantitas ?? 1 }}">
-                        </td>
-                        <td>
-                            <input type="text" class="form-control harga_display rupiah" value="">
-                            <input type="hidden" name="harga_satuan[]" class="harga">
-                        </td>
-                        <td>
-                            <input type="text" class="form-control total_display rupiah" readonly>
-                            <input type="hidden" name="total[]" class="total">
-                        </td>
-                        <td>
-                            <input type="number" name="diskon[]" class="form-control diskon" step="0.01" min="0" value="0">
-                        </td>
-                        <td>
-                            <input type="text" class="form-control grand_display rupiah" readonly>
-                            <input type="hidden" name="grand_total[]" class="grand_total">
-                        </td>
-                    </tr>
-                @endforeach
+                    @foreach ($pasang as $p)
+                        @php
+                            $produk = $p->produk ?? null;
+                            // fallback kuantitas jika tidak ada di model pasang
+                            $kuantitas = $p->kuantitas ?? 1;
+                        @endphp
+
+                        <tr data-pasangkirim-id="{{ $p->pasangkirim_id }}">
+                            <td>
+                                {{-- tampilkan "Kategori — Produk" (aman jika salah satu null) --}}
+                                {{ ($produk->kategori->kategori_nama ?? '-') . ' — ' . ($produk->produk_nama ?? '-') }}
+                                <input type="hidden" name="pasangkirim_id[]" value="{{ $p->pasangkirim_id }}">
+                            </td>
+
+                            <td>
+                                {{-- kuantitas bisa diubah, tanpa panah (gunakan class no-arrow yg ada di stylesheet) --}}
+                                <input type="number" name="kuantitas[]" class="form-control qty no-arrow text-center"
+                                    min="0" value="{{ $kuantitas }}">
+                            </td>
+
+                            <td>
+                                {{-- harga display (format rupiah ditangani oleh JS saat inisialisasi) --}}
+                                <input type="text" class="form-control harga_display rupiah"
+                                    value="{{ old('harga_satuan.' . $loop->index) ?? '' }}">
+                                {{-- hidden numeric yang dikirim ke server --}}
+                                <input type="hidden" name="harga_satuan[]" class="harga"
+                                    value="{{ old('harga_satuan.' . $loop->index) ?? '' }}">
+                            </td>
+
+                            <td>
+                                {{-- total (readonly) + hidden numeric --}}
+                                <input type="text" class="form-control total_display rupiah" readonly
+                                    value="{{ old('total.' . $loop->index) ?? '' }}">
+                                <input type="hidden" name="total[]" class="total"
+                                    value="{{ old('total.' . $loop->index) ?? '' }}">
+                            </td>
+
+                            <td>
+                                {{-- diskon editable, tanpa panah --}}
+                                <input type="number" name="diskon[]" class="form-control diskon no-arrow text-center"
+                                    step="0.01" min="0" value="{{ old('diskon.' . $loop->index, 0) }}">
+                            </td>
+
+                            <td>
+                                {{-- grand total readonly + hidden numeric --}}
+                                <input type="text" class="form-control grand_display rupiah" readonly
+                                    value="{{ old('grand_total.' . $loop->index) ?? '' }}">
+                                <input type="hidden" name="grand_total[]" class="grand_total"
+                                    value="{{ old('grand_total.' . $loop->index) ?? '' }}">
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -91,10 +133,10 @@
             <!-- Kiri -->
             <div class="col-md-6">
                 <label>Tanggal DP</label>
-                       <input type="date" name="tanggal_dp" class="form-control">
+                <input type="date" name="tanggal_dp" class="form-control">
 
                 <label class="mt-2">Tanggal Pelunasan</label>
-                       <input type="date" name="tanggal_pelunasan" class="form-control">
+                <input type="date" name="tanggal_pelunasan" class="form-control">
             </div>
 
             <!-- Kanan -->
@@ -143,6 +185,7 @@
         num = parseInt(num) || 0;
         return 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
+
     function parseRupiah(str) {
         if (!str) return 0;
         return parseInt(String(str).replace(/[^0-9]/g, '')) || 0;
@@ -167,31 +210,31 @@
         hitungSummary();
     }
 
-function hitungSummary() {
-    let grandSum = 0;
-    $('#tablePasang tbody tr').each(function() {
-        grandSum += parseInt($(this).find('.grand_total').val()) || 0;
-    });
+    function hitungSummary() {
+        let grandSum = 0;
+        $('#tablePasang tbody tr').each(function() {
+            grandSum += parseInt($(this).find('.grand_total').val()) || 0;
+        });
 
-    let pot = parseRupiah($('#potongan_display').val() || '') || 0;
-    let cash = parseRupiah($('#cashback_display').val() || '') || 0;
-    let dpVal = parseRupiah($('#dp_display').val() || '') || 0;
+        let pot = parseRupiah($('#potongan_display').val() || '') || 0;
+        let cash = parseRupiah($('#cashback_display').val() || '') || 0;
+        let dpVal = parseRupiah($('#dp_display').val() || '') || 0;
 
-    let totalAkhir = grandSum - pot - cash;
-    let sisa = totalAkhir - dpVal;
+        let totalAkhir = grandSum - pot - cash;
+        let sisa = totalAkhir - dpVal;
 
-    // isi hidden + tampil
-    $('#totalakhir').val(totalAkhir);
-    $('#totalakhir_display').val(formatRupiah(totalAkhir));
+        // isi hidden + tampil
+        $('#totalakhir').val(totalAkhir);
+        $('#totalakhir_display').val(formatRupiah(totalAkhir));
 
-    $('#sisa').val(sisa);
-    $('#sisa_display').val(formatRupiah(sisa));
+        $('#sisa').val(sisa);
+        $('#sisa_display').val(formatRupiah(sisa));
 
-    // isi hidden pot/cash/dp
-    $('#potongan').val(pot);
-    $('#cashback').val(cash);
-    $('#dp').val(dpVal);
-}
+        // isi hidden pot/cash/dp
+        $('#potongan').val(pot);
+        $('#cashback').val(cash);
+        $('#dp').val(dpVal);
+    }
 
 
     // --- EVENTS ---
@@ -220,19 +263,19 @@ function hitungSummary() {
     });
 
     // manual fields potongan, cashback, dp: keep display + hidden synchronized
-    $('#potongan_display').on('input', function(){
+    $('#potongan_display').on('input', function() {
         let v = parseRupiah($(this).val());
         $('#potongan').val(v);
         $(this).val(v ? formatRupiah(v) : '');
         hitungSummary();
     });
-    $('#cashback_display').on('input', function(){
+    $('#cashback_display').on('input', function() {
         let v = parseRupiah($(this).val());
         $('#cashback').val(v);
         $(this).val(v ? formatRupiah(v) : '');
         hitungSummary();
     });
-    $('#dp_display').on('input', function(){
+    $('#dp_display').on('input', function() {
         let v = parseRupiah($(this).val());
         $('#dp').val(v);
         $(this).val(v ? formatRupiah(v) : '');
@@ -240,14 +283,15 @@ function hitungSummary() {
     });
 
     // on form submit: ensure all display inputs converted to hidden numeric values
-    $('#form-create-invoice').on('submit', function(e){
+    $('#form-create-invoice').on('submit', function(e) {
         // convert any remaining display rupiah inputs to numeric hidden before submit
         // for every row:
-        $('#tablePasang tbody tr').each(function(){
+        $('#tablePasang tbody tr').each(function() {
             let $row = $(this);
             // harga: if display exists, ensure hidden exists or value assigned to name input
             let hargaVal = 0;
-            if ($row.find('.harga_display').length) hargaVal = parseRupiah($row.find('.harga_display').val());
+            if ($row.find('.harga_display').length) hargaVal = parseRupiah($row.find('.harga_display')
+                .val());
             // set the hidden input that controller expects: input[name="harga_satuan[]"]
             if ($row.find('input[name="harga_satuan[]"]').length) {
                 $row.find('input[name="harga_satuan[]"]').val(hargaVal);
@@ -256,8 +300,11 @@ function hitungSummary() {
             }
             // totals & grand totals: ensure hidden present
             let totalVal = parseRupiah($row.find('.total_display').val() || $row.find('.total').val());
-            if ($row.find('input[name="total[]"]').length) $row.find('input[name="total[]"]').val(totalVal);
-            if ($row.find('input[name="grand_total[]"]').length) $row.find('input[name="grand_total[]"]').val(parseRupiah($row.find('.grand_display').val()) || $row.find('.grand_total').val());
+            if ($row.find('input[name="total[]"]').length) $row.find('input[name="total[]"]').val(
+                totalVal);
+            if ($row.find('input[name="grand_total[]"]').length) $row.find(
+                'input[name="grand_total[]"]').val(parseRupiah($row.find('.grand_display').val()) ||
+                $row.find('.grand_total').val());
         });
 
         // potongan/cash/dp already have hidden ids set by events; ensure fallback:
@@ -270,10 +317,11 @@ function hitungSummary() {
 
     // initialize: format existing blanks and calc
     $(document).ready(function() {
-        $('#tablePasang tbody tr').each(function(){
+        $('#tablePasang tbody tr').each(function() {
             let $r = $(this);
             // if there is an existing harga input with value (unformatted), format it
-            if ($r.find('input[name="harga_satuan[]"]').length && $r.find('input[name="harga_satuan[]"]').val()) {
+            if ($r.find('input[name="harga_satuan[]"]').length && $r.find(
+                    'input[name="harga_satuan[]"]').val()) {
                 let hv = parseRupiah($r.find('input[name="harga_satuan[]"]').val());
                 $r.find('.harga_display').val(hv ? formatRupiah(hv) : '');
                 $r.find('.harga').val(hv);
@@ -282,38 +330,39 @@ function hitungSummary() {
             hitungRow($r);
         });
         hitungSummary();
-        $(document).ready(function () {
-    $("#form-create-invoice").on("submit", function (e) {
-        e.preventDefault();
+        $(document).ready(function() {
+            $("#form-create-invoice").on("submit", function(e) {
+                e.preventDefault();
 
-        let form = $(this);
-        let formData = new FormData(this);
+                let form = $(this);
+                let formData = new FormData(this);
 
-        $.ajax({
-            url: form.attr("action"),
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (res) {
-                toastr.success("Invoice berhasil disimpan");
+                $.ajax({
+                    url: form.attr("action"),
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(res) {
+                        toastr.success("Invoice berhasil disimpan");
 
-                // reload datatable rekap (jika ada)
-                tableRekap.ajax.reload(null, false);
+                        // reload datatable rekap (jika ada)
+                        tableRekap.ajax.reload(null, false);
 
-                // reload detail interaksi agar invoice baru muncul
-                let interaksiId = $("#interaksi_id").val();
-                $("#myModal").load("{{ url('rekap') }}/" + interaksiId + "/show_ajax");
+                        // reload detail interaksi agar invoice baru muncul
+                        let interaksiId = $("#interaksi_id").val();
+                        $("#myModal").load("{{ url('rekap') }}/" + interaksiId +
+                            "/show_ajax");
 
-                // tutup modal create
-                $("#crudModal").modal("hide");
-            },
-            error: function (xhr) {
-                Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
-                console.error("Server Error:", xhr.responseText);
-            }
+                        // tutup modal create
+                        $("#crudModal").modal("hide");
+                    },
+                    error: function(xhr) {
+                        Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
+                        console.error("Server Error:", xhr.responseText);
+                    }
+                });
+            });
         });
-    });
-});
     });
 </script>

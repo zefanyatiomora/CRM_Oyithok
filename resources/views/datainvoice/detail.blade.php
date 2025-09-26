@@ -31,6 +31,8 @@
         </div>
     </div>
 
+    {{-- Item Invoice --}}
+    <h6 class="mt-3">Item Invoice</h6>
     <!-- Table Pasang/Kirim -->
     <div class="table-responsive">
         <table class="table table-bordered table-sm">
@@ -100,6 +102,14 @@
             <label>Catatan</label>
             <textarea class="form-control" rows="2" disabled>{{ $invoice->catatan ?? '-' }}</textarea>
         </div>
+    </div>
+
+    {{-- Catatan --}}
+    <div class="mt-3">
+        <label>Catatan</label>
+        <p class="form-control-plaintext border p-2">
+            {{ $invoice->catatan ?? '-' }}
+        </p>
     </div>
 </div>
 
