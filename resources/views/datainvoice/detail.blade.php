@@ -1,46 +1,62 @@
-<div class="modal-header">
-    <h5 class="modal-title">Detail Invoice #{{ $invoice->nomor_invoice }}</h5>
-    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
-</div>
+<div class="modal-header bg-wallpaper-gradient text-white">
+            <h5 class="modal-title">Detail Invoice</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true" class="text-white">&times;</span>
+            </button>
+        </div>
 
 <div class="modal-body">
+    <!-- Nomor & Customer -->
     <div class="row mb-2">
         <div class="col-md-6">
-            <label><strong>Customer</strong></label>
-             <p>{{ $invoice->customer->customer_nama ?? '-' }}</p>
+            <label>Nomor Invoice</label>
+            <input type="text" class="form-control" value="{{ $invoice->nomor_invoice }}" disabled>
         </div>
         <div class="col-md-6">
-            <label><strong>Pesanan Masuk</strong></label>
-            <p>{{ $invoice->pesanan_masuk ?? '-' }}</p>
-        </div>
-        <div class="col-md-6">
-            <label><strong>Batas Pelunasan</strong></label>
-            <p>{{ $invoice->batas_pelunasan ?? '-' }}</p>
+            <label>Customer Invoice</label>
+            <input type="text" class="form-control"
+                value="{{ $invoice->customer_invoice ?? ($invoice->customer->customer_nama ?? '-') }}" disabled>
         </div>
     </div>
 
-    <h6 class="mt-3">Item Invoice</h6>
+    <!-- Pesanan masuk & Batas pelunasan -->
+    <div class="row mb-2">
+        <div class="col-md-6">
+            <label>Pesanan Masuk</label>
+            <input type="date" class="form-control" value="{{ $invoice->pesanan_masuk }}" disabled>
+        </div>
+        <div class="col-md-6">
+            <label>Batas Pelunasan</label>
+            <input type="text" class="form-control" value="{{ $invoice->batas_pelunasan }}" disabled>
+        </div>
+    </div>
+
+    <!-- Table Pasang/Kirim -->
     <div class="table-responsive">
-        <table class="table table-bordered">
+        <table class="table table-bordered table-sm">
             <thead>
                 <tr>
-                    <th>Produk</th>
+                    <th>Pasang/Kirim</th>
+                    <th>Kuantitas</th>
                     <th>Harga Satuan</th>
                     <th>Total</th>
-                    <th>Diskon</th>
+                    <th>Diskon (%)</th>
                     <th>Grand Total</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($invoice->details as $d)
+                @foreach ($invoice->details as $detail)
+                    @php
+                        $p = $detail->pasang;
+                        $produk = $p->produk ?? null;
+                    @endphp
                     <tr>
-                        <td>{{ $d->pasang->produk->produk_nama ?? '-' }} — {{ $d->pasang->jadwal_pasang_kirim ?? '' }}</td>
-                        <td>{{ number_format($d->harga_satuan, 0, ',', '.') }}</td>
-                        <td>{{ number_format($d->total, 0, ',', '.') }}</td>
-                        <td>{{ number_format($d->diskon, 0, ',', '.') }}</td>
-                        <td>{{ number_format($d->grand_total, 0, ',', '.') }}</td>
+                        <td>{{ $produk->produk_nama ?? '-' }} — {{ $p->jadwal_pasang_kirim ?? '-' }}</td>
+                        <td><input type="number" class="form-control" value="{{ $p->kuantitas ?? 1 }}" disabled></td>
+                        <td><input type="text" class="form-control" value="Rp {{ number_format($detail->harga_satuan, 0, ',', '.') }}" disabled></td>
+                        <td><input type="text" class="form-control" value="Rp {{ number_format($detail->total, 0, ',', '.') }}" disabled></td>
+                        <td><input type="text" class="form-control" value="{{ $detail->diskon }}" disabled></td>
+                        <td><input type="text" class="form-control" value="Rp {{ number_format($detail->grand_total, 0, ',', '.') }}" disabled></td>
                     </tr>
                 @endforeach
             </tbody>
@@ -48,41 +64,41 @@
     </div>
 
     <hr>
+
     <div class="row">
-        <div class="col-md-4">
+        <!-- Kiri -->
+        <div class="col-md-6">
+            <label>Tanggal DP</label>
+            <input type="date" class="form-control" value="{{ $invoice->tanggal_dp }}" disabled>
+
+            <label class="mt-2">Tanggal Pelunasan</label>
+            <input type="date" class="form-control" value="{{ $invoice->tanggal_pelunasan }}" disabled>
+        </div>
+
+        <!-- Kanan -->
+        <div class="col-md-6">
             <label>Potongan Harga</label>
-            <p>{{ number_format($invoice->potongan_harga, 0, ',', '.') }}</p>
-        </div>
-        <div class="col-md-4">
-            <label>Cashback</label>
-            <p>{{ number_format($invoice->cashback, 0, ',', '.') }}</p>
-        </div>
-        <div class="col-md-4">
-            <label>Total Akhir</label>
-            <p><strong>{{ number_format($invoice->total_akhir, 0, ',', '.') }}</strong></p>
+            <input type="text" class="form-control" value="Rp {{ number_format($invoice->potongan_harga, 0, ',', '.') }}" disabled>
+
+            <label class="mt-2">Cashback</label>
+            <input type="text" class="form-control" value="Rp {{ number_format($invoice->cashback, 0, ',', '.') }}" disabled>
+
+            <label class="mt-2">DP</label>
+            <input type="text" class="form-control" value="Rp {{ number_format($invoice->dp, 0, ',', '.') }}" disabled>
+
+            <label class="mt-2">Sisa Pelunasan</label>
+            <input type="text" class="form-control" value="Rp {{ number_format($invoice->sisa_pelunasan, 0, ',', '.') }}" disabled>
+
+            <label class="mt-2">Total Akhir</label>
+            <input type="text" class="form-control" value="Rp {{ number_format($invoice->total_akhir, 0, ',', '.') }}" disabled>
         </div>
     </div>
 
-    <div class="row mt-2">
-        <div class="col-md-6">
-            <label>DP</label>
-            <p>{{ number_format($invoice->dp, 0, ',', '.') }}</p>
-        </div>
-        <div class="col-md-6">
-            <label>Tanggal DP</label>
-            <p>{{ $invoice->tanggal_dp ?? '-' }}</p>
-        </div>
-        <div class="col-md-6">
-            <label>Sisa Pelunasan</label>
-            <p>{{ number_format($invoice->sisa_pelunasan, 0, ',', '.') }}</p>
-        </div>
-        <div class="col-md-6">
-            <label>Tanggal Pelunasan</label>
-            <p>{{ $invoice->tanggal_pelunasan ?? '-' }}</p>
-        </div>
-        <div class="col-md-12">
+    <!-- Catatan -->
+    <div class="row mt-3">
+        <div class="col-12">
             <label>Catatan</label>
-            <p>{{ $invoice->catatan ?? '-' }}</p>
+            <textarea class="form-control" rows="2" disabled>{{ $invoice->catatan ?? '-' }}</textarea>
         </div>
     </div>
 </div>
