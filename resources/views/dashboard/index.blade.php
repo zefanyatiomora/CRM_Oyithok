@@ -5,17 +5,6 @@
 <!-- Main content -->
 <section class="content">
     <div class="container-fluid">
-<div class="card shadow-lg mb-4 border-0" 
-     style="background: linear-gradient(135deg, #8147be, #c97aeb, #a661c2); 
-            border-radius: 20px; 
-            color: #fff;">
-    <div class="card-body text-center py-5">
-  <h1 class="display-5 fw-bold">
-    ✨ Selamat Datang di 
-    <span class="wallpaper-text">WALLPAPER ID</span> ✨
-  </h1>
-</div>
-</div>
 <!-- Filter Tahun & Bulan -->
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
@@ -221,64 +210,68 @@
     </a>
 </div>
       </div>
-      <div class="row">
-        <div class="col-md-4 mb-3">
-            <div class="card h-100">
-    <div class="card-body">
-              <h3 class="card-title font-weight-bold" style="color: #5C54AD;">
-    Data Customer 
-    <i class="fas fa-question-circle text-muted ml-1" 
-       data-bs-toggle="tooltip" 
-       title="Distribusi customer berdasarkan status GHOST, ASK, FOLLOW UP, HOLD, dan CLOSING"></i>
-</h3>
-        <div style="height: 300px;">
-            <canvas id="customerDoughnutChart"></canvas>
-        </div>
-    </div>
-    <div class="card-footer">
-        <div id="customerDoughnutLegend" class="row">
-            @foreach ($customerDoughnutLabels as $index => $label)
-                <div class="col-lg-6 col-12 mb-1">
-                    <span style="display:inline-block; width:12px; height:12px; background-color:{{ $customerDoughnutColors[$index] }}; border-radius:3px; margin-right: 5px;"></span>
-                    <small>Sebanyak <strong>{{ $customerDoughnutData[$index] }}</strong> Customer {{ $label }}</small>
+<div class="row">
+    <!-- Card Doughnut -->
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div style="height: 300px;">
+                    <canvas id="customerDoughnutChart"></canvas>
                 </div>
-            @endforeach
+            </div>
+            <div class="card-footer">
+                <div id="customerDoughnutLegend" class="row">
+                    @php
+                        $statuses = [
+                            'Ghost' => '#9A9D9E',      // Abu-abu
+                            'Ask' => '#87CEEB',        // Biru toska
+                            'Hold' => '#5C54AD',       // Ungu
+                            'Follow Up' => '#A374FF',  // Ungu muda
+                            'Closing' => '#FF7373',    // Merah
+                        ];
+                    @endphp
+
+                    @foreach ($statuses as $label => $color)
+                        <div class="col-lg-6 col-12 mb-1">
+                            <span style="display:inline-block; width:12px; height:12px; background-color:{{ $color }}; border-radius:3px; margin-right: 5px;"></span>
+                            <small>Kategori {{ $label }}</small>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
         </div>
     </div>
-</div>
-        </div>
-            <div class="col-md-4 mb-3">
-                <div class="card h-100">
-                    <div class="card-header bg-white border-0">
-                        <h3 class="card-title font-weight-bold" style="color: #5C54AD;">Rating Customer</h3>
-                    </div>
-                    <div class="card-body">
+
+    <!-- Card Bar + Line Chart -->
+<div class="col-md-8 mb-3">
+    <p class="text-muted mb-2">
+        > Diagram dibawah adalah data uraian setiap tipe customer yang masuk dan telah diketahui kebutuhannya.
+    </p>
+    <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <!-- Grafik Rating Customer -->
+                    <div class="col-md-6 mb-3">
+                        <h5 class="font-weight-bold" style="color: #5C54AD;">Rating Customer</h5>
                         <div style="height: 300px;">
                             <canvas id="customerLeadsBarChart"></canvas>
                         </div>
                     </div>
-                </div>
-            </div>
-        <div class="col-md-4 mb-3">
-            <div class="card h-100">
-                <div class="card-header bg-white border-0">
-                    <h3 class="card-title font-weight-bold" style="color: #5C54AD;">
-    Rate Customer Closing 
-    <i class="fas fa-question-circle text-muted ml-1" 
-       data-bs-toggle="tooltip" 
-       title="Persentase jumlah customer yang berhasil closing per minggu"></i>
-</h3>
 
-                </div>
-                <div class="card-body">
-                    <div style="height: 300px;">
-                        <canvas id="rateClosingLineChart"></canvas>
+                    <!-- Grafik Rate Customer Closing -->
+                    <div class="col-md-6 mb-3">
+                        <h5 class="font-weight-bold" style="color: #5C54AD;">
+                            Rate Customer Closing
+                        <div style="height: 300px;">
+                            <canvas id="rateClosingLineChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-  </div>
+</div>
+</div>
 
 <!-- TAB PRODUK -->
 <div class="tab-pane fade" id="produk" role="tabpanel">
@@ -351,7 +344,7 @@ $(function () {
         {{-- Baris BARU untuk menyejajarkan kedua chart --}}
        <div class="row mt-3">
     <div class="col-md-6">
-        <div class="card h-100">
+        <div class="card">
             <div class="card-body">
                 <h3 class="card-title font-weight-bold" 
                     style="color: #5C54AD;"
@@ -365,24 +358,17 @@ $(function () {
             </div>
             <div class="card-footer">
                 <div id="penjualanChartLegend" class="row">
-                    @foreach ($doughnutLabels as $index => $label)
-                    <div class="col-lg-6 col-12 mb-1">
-                        <span style="display:inline-block; width:12px; height:12px; background-color:{{ $doughnutColors[$index] }}; border-radius:3px; margin-right: 5px;"></span>
-                        <small>Sebanyak <strong>{{ $doughnutData[$index] }}</strong> {{ $label }}</small>
-                    </div>
-                    @endforeach
                 </div>
             </div>
         </div>
     </div>
     <div class="col-md-6">
-        <div class="card h-100">
+        <p class="text-muted mb-2">
+        > Diagram dibawah adalah perolehan data setiap produk yang telah teridentifikasi.
+    </p>
+        <div class="card">
             <div class="card-header bg-white border-0">
-                <p class="mb-0">> Diagram dibawah adalah perolehan data setiap produk yang telah teridentifikasi.</p>
-                <h3 class="card-title font-weight-bold" 
-                    style="color: #5C54AD;"
-                    data-bs-toggle="tooltip"
-                    title="Menampilkan jumlah ASK, HOLD, dan CLOSING setiap produk">
+                <h3 class="card-title font-weight-bold">
                     Data per-Produk
                 </h3>
             </div>
@@ -631,55 +617,31 @@ footer {
                     }
                 });
             }
-            // ... di dalam $(function () { ... }); ...
-
-            // --- BARU: Line Chart (Rate Customer Closing) ---
-            const rateClosingCanvas = document.getElementById('rateClosingLineChart');
-            if (rateClosingCanvas) {
-                new Chart(rateClosingCanvas, {
-                    type: 'line',
-                    data: {
-                        labels: {!! json_encode($rateClosingLabels) !!},
-                        // Dataset diambil langsung dari controller, sudah lengkap dengan style
-                        datasets: {!! json_encode($rateClosingDatasets) !!}
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: { precision: 0 }
-                            }
-                        },
-                        plugins: {
-                            datalabels: {
-                                display: false
-                            },
-                            tooltip: {
-                                enabled: true, // Pastikan ini 'true' atau hapus baris ini (karena default-nya sudah true)
-                                mode: 'index',
-                                intersect: false,
-                            },
-                            legend: {
-                                position: 'top',
-                                labels: {
-                                    // TAMBAHKAN BARIS INI
-                                    usePointStyle: true,
-                                    // Mengganti label default (Minggu 1) menjadi angka (1)
-                                    generateLabels: function(chart) {
-                                        const originalLabels = Chart.defaults.plugins.legend.labels.generateLabels(chart);
-                                        originalLabels.forEach(label => {
-                                            label.text = label.text.replace('Minggu ', '');
-                                        });
-                                        return originalLabels;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
+// --- Rate Customer Closing Chart ---
+const rateClosingCanvas = document.getElementById('rateClosingLineChart');
+if (rateClosingCanvas) {
+    new Chart(rateClosingCanvas, {
+    type: 'line',
+    data: {
+        labels: {!! json_encode($rateClosingLabels) !!}, // ['All','Produk','Survey','Pasang']
+        datasets: {!! json_encode($rateClosingDatasets) !!}
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { precision: 0 }
             }
+        },
+        plugins: {
+            tooltip: { enabled: true, mode: 'index', intersect: false },
+            legend: { position: 'top', labels: { usePointStyle: true } }
+        }
+    }
+});
+}
 
             // ======================================================
             // LOGIKA UNTUK SEMUA CHART DI DALAM TAB "PRODUK"
