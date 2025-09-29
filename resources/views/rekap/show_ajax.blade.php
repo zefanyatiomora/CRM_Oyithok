@@ -120,12 +120,12 @@
                             <td>{{ $interaksi->customer->customer_hp ?? '-' }}</td>
                         </tr>
                         <tr>
-                            <th>Total Transaction</th>
+                            <th>Number of Transaction</th>
                             <td>{{ $interaksi->customer->total_transaction }}</td>
                         </tr>
                         <tr>
                         <tr>
-                            <th>Total Cash Spent</th>
+                            <th>Number of Cash</th>
                             <td>Rp {{ number_format($interaksi->customer->total_cash_spent, 0, ',', '.') }}</td>
                             {{-- <td>Rp {{ number_format($invoice->total_akhir, 0, ',', '.') }}</td> --}}
                         </tr>
