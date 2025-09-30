@@ -20,6 +20,8 @@ class InvoiceModel extends Model
         'customer_invoice',
         'pesanan_masuk',
         'batas_pelunasan',
+        'ppn',
+        'nominal_ppn',
         'potongan_harga',
         'cashback',
         'total_akhir',

@@ -277,7 +277,7 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $item->tanggal }}</td>
                                     <td>{{ $item->keterangan }}</td>
-                                    <td>{{ $item->user->nama }}</td>
+                                    <td>{{ $item->user->nama ?? '-' }}</td>
                                 </tr>
                             @empty
                                 <tr>
