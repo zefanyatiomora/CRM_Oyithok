@@ -29,7 +29,10 @@
             letter-spacing: 2px;
             text-transform: uppercase;
         }
-        .logo { width: 200px; }
+    .logo {
+        width: 160px;
+        padding-top: 10px; /* atur sesuai kebutuhan */
+    }
 
         /* Info Section */
         .section-title {
@@ -98,9 +101,9 @@
     {{-- Header --}}
     <table>
         <tr>
-            <td class="header-title">INVOICE</td>
-            <td class="right">
-                <img src="{{ public_path('images/Logo WPM.png') }}" alt="Logo" class="logo">
+            <td class="header-title" style="vertical-align: middle;">INVOICE</td>
+            <td class="right" style="vertical-align: middle;">
+                <img src="{{ public_path('images/Logo WPM.png') }}" alt="Logo" class="logo" style="padding-top: 10px;">
             </td>
         </tr>
     </table>
@@ -108,30 +111,36 @@
     <div class="divider"></div>
 
 {{-- Detail Invoice --}}
-<table style="margin-top: 15px; width: 100%; font-family: Arial, sans-serif; font-size: 11px; border-collapse: collapse;">
+<table style="border-collapse: collapse; font-size: 11px; line-height: 1.6; width:100%;">
     <tr>
-        <td style="font-weight: bold; width: 40%;">
-            <table style="border-collapse: collapse; font-size: 11px; line-height: 1.2;">
+        {{-- Bagian kiri --}}
+        <td style="width:60%; vertical-align: top;">
+            <table style="border-collapse: collapse; font-size: 11px; line-height: 1.4;">
                 <tr>
-                    <td style="width: 100px; text-align: right; padding: 2px 4px;">NOMOR INVOICE</td>
-                    <td style="padding: 2px 4px;">: {{ $invoice->nomor_invoice }}</td>
+                    <td style="font-weight:bold; width:120px; padding:2px 4px;">NOMOR INVOICE</td>
+                    <td style="width:10px; padding:2px 4px;">:</td>
+                    <td style="padding:2px 4px;">{{ $invoice->nomor_invoice }}</td>
                 </tr>
                 <tr>
-                    <td style="text-align: right; padding: 2px 4px;">CUSTOMER ID</td>
-                    <td style="padding: 2px 4px;">: {{ $invoice->customer_id }}</td>
+                    <td style="font-weight:bold; padding:2px 4px;">CUSTOMER ID</td>
+                    <td style="padding:2px 4px;">:</td>
+                    <td style="padding:2px 4px;">{{ $invoice->customer_id }}</td>
                 </tr>
             </table>
         </td>
-        <td style="width: 40%;"></td> {{-- kolom kosong untuk dorong ke kanan --}}
-        <td style="width: 60%; text-align: right;">
-            <table style="border-collapse: collapse; font-size: 11px; line-height: 1.2; margin-left: auto;">
+
+        {{-- Bagian kanan --}}
+        <td style="width:40%; vertical-align: top;">
+            <table style="border-collapse: collapse; font-size: 11px; line-height: 1.4; margin-left:auto;">
                 <tr>
-                    <td style="font-weight: bold; text-align: right; padding: 2px 4px;">PESANAN MASUK</td>
-                    <td style="padding: 2px 4px;">: {{ \Carbon\Carbon::parse($invoice->created_at)->format('d/m/Y') }}</td>
+                    <td style="font-weight: bold; padding: 2px 4px;">PESANAN MASUK</td>
+                    <td style="width:10px; padding:2px 4px;">:</td>
+                    <td style="padding: 2px 4px;">{{ \Carbon\Carbon::parse($invoice->created_at)->format('d/m/Y') }}</td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold; text-align: right; padding: 2px 4px;">BATAS PELUNASAN</td>
-                    <td style="padding: 2px 4px;">: <i>H+1 Setelah Pasang</i></td>
+                    <td style="font-weight: bold; padding: 2px 4px;">BATAS PELUNASAN</td>
+                    <td style="padding:2px 4px;">:</td>
+                    <td style="padding: 2px 4px;"><i>H+1 Setelah Pasang</i></td>
                 </tr>
             </table>
         </td>
@@ -206,12 +215,19 @@
                     <td class="center">{{ $details->pasang->produk->satuan ?? '-' }}</td>
                     <td class="right">Rp{{ number_format($details->harga_satuan,0,',','.') }}</td>
                     <td class="right">Rp{{ number_format($lineTotal,0,',','.') }}</td>
-                    <td class="center" style="color: red;">{{ $details->diskon ? $details->diskon.'%' : '-' }}</td>
+                    <td class="center">
+                        @if($details->diskon !== null && $details->diskon > 0)
+                            <span style="color:red; font-weight:bold;">
+                                {{ rtrim(rtrim(number_format($details->diskon, 2), '0'), '.') }}%
+                            </span>
+                        @endif
+                    </td>
                     <td class="right">Rp{{ number_format($lineGrand,0,',','.') }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
+
     <table style="width:100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 12px;">
     <tr>
         <!-- Kolom Catatan -->
@@ -243,21 +259,27 @@
                     <td class="right" style="padding: 6px; background-color: #ffffff; text-align: center;">
                     Rp{{ number_format($cashback ?? 0,0,',','.') }}</td>
                 </tr>
-            <tr style="font-weight: bold; text-align: center;">
-                    <td class="label" style="padding: 6px; background-color: #b28ee1; font-weight: bold;">Grand Total</td>
-                    <td class="right" style="padding: 6px; background-color: #b28ee1; text-align: center;">
-                    Rp{{ number_format($grandTotal ?? 0,0,',','.') }}</td>
-            </tr>
                 <tr style="text-align: center;">
-                    <td class="label" style="padding: 6px; background-color: #ffffff; font-weight: bold;">DP</td>
+                    <td class="label" style="padding: 6px; background-color: #ffffff; font-weight: bold;">PPN (11%)</td>
                     <td class="right" style="padding: 6px; background-color: #ffffff; text-align: center;">
-                    Rp{{ number_format($invoice->dp ?? 0,0,',','.') }}</td>
-            </tr>
-            <tr style="font-weight: bold; text-align: center;">
-                    <td class="label" style="padding: 6px; background-color: #b28ee1; font-weight: bold;">Sisa Pelunasan</td>
-                    <td class="right" style="padding: 6px; background-color: #b28ee1; text-align: center;">
-                    Rp{{ number_format($grandTotal - ($invoice->dp ?? 0),0,',','.') }}</td>
-            </tr>
+                        Rp{{ number_format(($grandTotal * 0.11) ?? 0,0,',','.') }}
+                    </td>
+                </tr>
+                <tr style="font-weight: bold; text-align: center;">
+                        <td class="label" style="padding: 6px; background-color: #b28ee1; font-weight: bold;">Grand Total</td>
+                        <td class="right" style="padding: 6px; background-color: #b28ee1; text-align: center;">
+                        Rp{{ number_format($grandTotal ?? 0,0,',','.') }}</td>
+                </tr>
+                    <tr style="text-align: center;">
+                        <td class="label" style="padding: 6px; background-color: #ffffff; font-weight: bold;">DP</td>
+                        <td class="right" style="padding: 6px; background-color: #ffffff; text-align: center;">
+                        Rp{{ number_format($invoice->dp ?? 0,0,',','.') }}</td>
+                </tr>
+                <tr style="font-weight: bold; text-align: center;">
+                        <td class="label" style="padding: 6px; background-color: #b28ee1; font-weight: bold;">Sisa Pelunasan</td>
+                        <td class="right" style="padding: 6px; background-color: #b28ee1; text-align: center;">
+                        Rp{{ number_format($grandTotal - ($invoice->dp ?? 0),0,',','.') }}</td>
+                </tr>
             </table>
 
         </td>

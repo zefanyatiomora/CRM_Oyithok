@@ -137,7 +137,6 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::get('/datainvoice', [DataInvoiceController::class, 'index'])->name('datainvoice.index');
-    Route::get('/datainvoice/{id}/export-pdf', [DataInvoiceController::class, 'exportPdf'])->name('datainvoice.exportPdf');
     Route::get('datainvoice/{id}', [DataInvoiceController::class, 'show'])->name('datainvoice.show');
 
 
@@ -168,7 +167,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/store', [RekapController::class, 'storeInvoice'])->name('invoice.store');
         Route::get('/{id}/edit', [RekapController::class, 'editInvoice'])->name('invoice.edit');
         Route::put('/{id}/update', [RekapController::class, 'updateInvoice'])->name('invoice.update');
-        Route::get('/{id}/export_pdf', [RekapController::class, 'export_pdf'])
+        Route::get('invoice/{id}/export_pdf', [RekapController::class, 'export_pdf'])
             ->name('invoice.export_pdf');
     });
 });
