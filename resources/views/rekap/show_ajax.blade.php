@@ -254,163 +254,40 @@
                     </div>
                 </div>
                 <div class="card-body">
-
-                    <!-- Tombol tambah data -->
-                    <button type="button" class="btn btn-sm btn-success" data-toggle="modal"
-                        data-target="#modalTambahKebutuhan">
-                        <i class="fas fa-plus"></i>
-                    </button>
-
-                    <!-- Modal Tambah Kebutuhan -->
-                    <div class="modal fade" id="modalTambahKebutuhan" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form id="form-kebutuhan-harian">
-                                    @csrf
-                                    <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
-
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Tambah Kebutuhan Harian</h5>
-                                        <button type="button" class="close"
-                                            data-dismiss="modal"><span>&times;</span></button>
-                                    </div>
-
-                                    <div class="modal-body">
-                                        <div class="form-group">
-                                            <label>Tanggal</label>
-                                            <input type="date" name="tanggal" class="form-control form-control-sm"
-                                                required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Keterangan</label>
-                                            <input type="text" name="keterangan"
-                                                class="form-control form-control-sm" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>PIC</label>
-                                            <select name="pic_id" class="form-control form-control-sm" required>
-                                                <option value="">-- Pilih PIC --</option>
-                                                @foreach ($picList as $pic)
-                                                    <option value="{{ $pic->pic_id }}">{{ $pic->pic_nama }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="modal-footer">
-                                        <button type="submit" class="btn btn-primary">Simpan</button>
-                                        <button type="button" class="btn btn-secondary"
-                                            data-dismiss="modal">Batal</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
+                    <!-- Icon Tambah Rincian -->
+                    <a href="javascript:void(0);"
+                        onclick="openModal('{{ route('realtime.create', $interaksi->interaksi_id) }}')"
+                        class="text-primary" title="Tambah Rincian">
+                        <i class="fas fa-plus fa-xs"></i>
+                    </a>
                     <!-- Tabel kebutuhan -->
-                    <div id="list-realtime" class="mt-3">
-                        <table class="table table-bordered table-striped table-hover table-sm">
-                            <thead>
+                    <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
+                    <table class="table table-bordered table-striped table-hover table-sm">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Tanggal</th>
+                                <th>Keterangan</th>
+                                <th>PIC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($kebutuhanList as $index => $item)
                                 <tr>
-                                    <th>No</th>
-                                    <th>Tanggal</th>
-                                    <th>Keterangan</th>
-                                    <th>PIC</th>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $item->tanggal }}</td>
+                                    <td>{{ $item->keterangan }}</td>
+                                    <td>{{ $item->user->nama }}</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($kebutuhanList as $index => $item)
-                                    <tr>
-                                        <td>{{ $index + 1 }}</td>
-                                        <td>{{ $item->tanggal }}</td>
-                                        <td>{{ $item->keterangan }}</td>
-                                        <td>{{ $item->pic->pic_nama ?? '-' }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="4" class="text-center">Belum ada data</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center">Belum ada data</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
-
-            <script>
-                $(document).ready(function() {
-                    function updateNomor() {
-                        $('#kebutuhan-container tr').each(function(index) {
-                            $(this).find('td:first').text(index + 1);
-                        });
-                    }
-
-                    // Tambah baris hanya dari tombol header
-                    $('#btn-add-row-header').click(function() {
-                        let newRow = `<tr>
-            <td></td>
-            <td><input type="date" name="tanggal[]" class="form-control form-control-sm"></td>
-            <td><input type="text" name="keterangan[]" class="form-control form-control-sm"></td>
-            <td class="text-center">
-                <button type="button" class="btn btn-sm btn-danger btn-remove-row">
-                    <i class="fas fa-minus"></i>
-                </button>
-            </td>
-        </tr>`;
-                        $('#kebutuhan-container').append(newRow);
-                        updateNomor();
-                    });
-                    // Simpan kebutuhan harian
-                    $(document).on('submit', '#form-kebutuhan-harian', function(e) {
-                        e.preventDefault();
-
-                        $.post("{{ url('rekap/realtime/store') }}", $(this).serialize(), function(res) {
-                            if (res.status === 'success') {
-                                $('#modalTambahKebutuhan').modal('hide');
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Berhasil',
-                                    text: 'Data berhasil ditambahkan',
-                                    timer: 1500,
-                                    showConfirmButton: false
-                                });
-                                loadRealtimeList();
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Gagal',
-                                    text: res.message || 'Gagal menyimpan data'
-                                });
-                            }
-                        }).fail(function(xhr) {
-                            console.error(xhr.responseText);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Terjadi kesalahan server'
-                            });
-                        });
-                    });
-
-
-                    function loadRealtimeList() {
-                        let id = "{{ $interaksi->interaksi_id }}";
-                        $.get("{{ url('/rekap/realtime/list') }}/" + id, function(html) {
-                            $('#list-realtime').html(html);
-                        });
-                    }
-                    // Hapus baris
-                    $(document).on('click', '.btn-remove-row', function() {
-                        $(this).closest('tr').remove();
-                        updateNomor();
-                    });
-
-                    updateNomor();
-                });
-            </script>
-
-
 
             {{-- ========== DATA SURVEY ========== --}}
             <div class="card card-purple collapsed-card shadow-sm border-0">

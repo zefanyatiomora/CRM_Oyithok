@@ -12,6 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RekapController;
 use App\Http\Controllers\KebutuhanController;
 use App\Http\Controllers\SurveyController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\Produk\AskController;
 use App\Http\Controllers\Produk\HoldController;
 use App\Http\Controllers\Produk\ClosingController;
@@ -105,9 +106,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/rekap/identifikasi-awal/create', [RekapController::class, 'createIdentifikasiAwal'])->name('rekap.createIdentifikasiAwal');
         Route::post('/rekap/identifikasi-awal/store', [RekapController::class, 'storeIdentifikasiAwal'])->name('interaksiAwal.store');
         Route::get('/rekap/identifikasi-awal/list/{interaksi_id}', [RekapController::class, 'listIdentifikasiAwal'])->name('interaksiAwal.list');
-        Route::post('/realtime/store', [RekapController::class, 'storeRealtime'])->name('rekap.storeRealtime');
-        Route::get('/realtime/list/{id}', [RekapController::class, 'listRealtime'])->name('rekap.listRealtime');
-        Route::delete('/realtime/delete/{id}', [RekapController::class, 'deleteRealtime'])->name('rekap.deleteRealtime');
+        // Route::post('/realtime/store', [RekapController::class, 'storeRealtime'])->name('rekap.storeRealtime');
+        // Route::get('/realtime/list/{id}', [RekapController::class, 'listRealtime'])->name('rekap.listRealtime');
+        // Route::delete('/realtime/delete/{id}', [RekapController::class, 'deleteRealtime'])->name('rekap.deleteRealtime');
     });
     // TARUH DI LUAR Route::prefix('rekap')
     Route::post('/rekap/update-status/{interaksi_id}', [RekapController::class, 'updateStatus'])->name('rekap.updateStatus');
@@ -127,13 +128,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/list', [ClosingController::class, 'list'])->name('closing.list');
         Route::get('/{id}/show_ajax', [ClosingController::class, 'show_ajax'])->name('closing.show_ajax');
     });
-    Route::prefix('pic')->group(function () {
-        Route::get('/', [PICController::class, 'index'])->name('pic.index');
-        Route::get('/data', [PICController::class, 'getData'])->name('pic.data');
-        Route::post('/store', [PICController::class, 'store'])->name('pic.store');
-        Route::get('/edit/{id}', [PICController::class, 'edit'])->name('pic.edit');
-        Route::post('/update/{id}', [PICController::class, 'update'])->name('pic.update');
-        Route::delete('/delete/{id}', [PICController::class, 'destroy'])->name('pic.delete');
+    Route::group(['prefix' => 'user'], function () {
+        Route::get('/', [UserController::class, 'index'])->name('user.index');
+        Route::post('/list', [UserController::class, 'list']);      //menampilkan data user dalam bentuk json untuk datatables
+        Route::get('/create_ajax', [UserController::class, 'create_ajax']);  //menampilkan halaman form tambah user Ajax
+        Route::post('/ajax', [UserController::class, 'store_ajax']);         //menyimpan data user baru Ajax
+        Route::get('/{id}/edit_ajax', [UserController::class, 'edit_ajax']);  //menampilkan halaman form edit user Ajax
+        Route::put('/{id}/update_ajax', [UserController::class, 'update_ajax']);  //Menyimpan halaman form edit user Ajax
+        Route::get('/{id}/delete_ajax', [UserController::class, 'confirm_ajax']);  //tampilan form confirm delete user Ajax
+        Route::delete('/{id}/delete_ajax', [UserController::class, 'delete_ajax']); //menghapus data user Ajax
     });
 
     Route::get('/datainvoice', [DataInvoiceController::class, 'index'])->name('datainvoice.index');
@@ -146,6 +149,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/profil', [DashboardController::class, 'index']);
 
+    Route::prefix('realtime')->group(function () {
+        Route::get('/create/{id_interaksi}', [RekapController::class, 'createRealtime'])->name('realtime.create');
+        Route::post('/store', [RekapController::class, 'storeRealtime'])->name('realtime.store');
+    });
     Route::prefix('rincian')->group(function () {
         Route::get('/create/{id_interaksi}', [RekapController::class, 'createRincian'])->name('rincian.create');
         Route::post('/store', [RekapController::class, 'storeRincian'])->name('rincian.store');

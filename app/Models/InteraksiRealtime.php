@@ -18,7 +18,7 @@ class InteraksiRealtime extends Model
         'interaksi_id',
         'tanggal',
         'keterangan',
-        'pic_id',
+        'user_id',
     ];
 
     // Relasi ke model Interaksi
@@ -26,8 +26,8 @@ class InteraksiRealtime extends Model
     {
         return $this->belongsTo(InteraksiModel::class, 'interaksi_id', 'interaksi_id');
     }
-       public function pic()
+    public function user()
     {
-        return $this->belongsTo(PICModel::class, 'pic_id', 'pic_id');
+        return $this->belongsTo(UserModel::class, 'user_id', 'user_id');
     }
 }

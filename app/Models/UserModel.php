@@ -30,6 +30,10 @@ class UserModel extends Authenticatable
             get: fn($image) => url('/storage/posts/' . $image),
         );
     }
+    public function interaksiRealtimes()
+    {
+        return $this->hasMany(InteraksiRealtime::class, 'user_id', 'user_id');
+    }
 
 
     public function getRoleName(): string
