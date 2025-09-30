@@ -27,11 +27,11 @@ class DashboardController extends Controller
     {
         $activeMenu = 'dashboard';
         $breadcrumb = (object) [
-            'title' => 'Dashboard CRM',
+            'title' => 'Selamat Datang, Wallpaper Indonesia ID',
             'list' => ['Home', 'Dashboard']
         ];
         $page = (object) [
-            'title' => 'Dashboard CRM'
+            'title' => 'Selamat Datang, Wallpaper Indonesia ID'
         ];
 
         $tahun = $request->get('tahun', date('Y'));
@@ -214,53 +214,106 @@ class DashboardController extends Controller
             'rateClosingDatasets' => $rateClosing['rateClosingDatasets'],
         ]);
     }
-    private function getRateClosingData($tahun, $bulan)
-    {
-        $rateClosingLabels = ['All', 'Produk', 'Pasang', 'Survei'];
-        $rateClosingDatasets = [];
+private function getRateClosingData($tahun, $bulan)
+{
+    $startOfMonth = Carbon::create($tahun, $bulan, 1);
+    $endOfMonth   = $startOfMonth->copy()->endOfMonth();
 
-        if ($bulan) {
-            $weeks = [
-                ['start' => 1, 'end' => 7],
-                ['start' => 8, 'end' => 14],
-                ['start' => 15, 'end' => 21],
-                ['start' => 22, 'end' => Carbon::create($tahun, $bulan)->endOfMonth()->day],
-            ];
+    // Tentukan minggu dalam bulan
+    $weeks = [];
+    $current = $startOfMonth->copy()->startOfWeek(Carbon::MONDAY);
 
-            $lineColors = ['#5C54AD', '#818CF8', '#000000', '#FF7373'];
-
-            foreach ($weeks as $index => $week) {
-                $startDate = Carbon::create($tahun, $bulan, $week['start'])->startOfDay();
-                $endDate   = Carbon::create($tahun, $bulan, $week['end'])->endOfDay();
-
-                $pasangQuery = PasangKirimModel::whereHas('interaksi', function ($q) use ($startDate, $endDate) {
-                    $q->whereBetween('tanggal_chat', [$startDate, $endDate]);
-                });
-
-                $countAll = (clone $pasangQuery)->where('status', 'closing all')->count();
-                $countProduk = (clone $pasangQuery)->where('status', 'closing produk')->count();
-                $countPasang = (clone $pasangQuery)->where('status', 'closing pasang')->count();
-
-                $countSurvey = SurveyModel::whereHas('interaksi', function ($q) use ($startDate, $endDate) {
-                    $q->whereBetween('tanggal_chat', [$startDate, $endDate]);
-                })->count();
-
-                $rateClosingDatasets[] = [
-                    'label' => 'Minggu ' . ($index + 1),
-                    'data' => [$countAll, $countProduk, $countPasang, $countSurvey],
-                    'borderColor' => $lineColors[$index],
-                    'backgroundColor' => $lineColors[$index],
-                    'tension' => 0.1,
-                    'fill' => false,
-                ];
-            }
-        }
-
-        return [
-            'rateClosingLabels' => $rateClosingLabels,
-            'rateClosingDatasets' => $rateClosingDatasets,
+    while ($current <= $endOfMonth) {
+        $weeks[] = [
+            'start' => $current->copy(),
+            'end'   => $current->copy()->endOfWeek(Carbon::SUNDAY),
         ];
+        $current->addWeek();
     }
+
+    $rateClosingLabels = [];
+    $allData    = [];
+    $produkData = [];
+    $surveyData = [];
+    $pasangData = [];
+
+    foreach ($weeks as $index => $week) {
+        $startDate = $week['start'];
+        $endDate   = $week['end'];
+
+        $rateClosingLabels[] = "Minggu " . ($index + 1);
+
+        // === Closing All ===
+        $countAll = PasangKirimModel::where('status', 'closing all')
+            ->whereBetween('jadwal_pasang_kirim', [$startDate, $endDate])
+            ->count();
+
+        // === Closing Produk ===
+        $countProduk = PasangKirimModel::where('status', 'closing produk')
+            ->whereBetween('jadwal_pasang_kirim', [$startDate, $endDate])
+            ->count();
+
+        // === Closing Survey ===
+        $countSurvey = SurveyModel::where('status', 'closing')
+            ->whereBetween('jadwal_survey', [$startDate, $endDate])
+            ->count();
+
+        // === Closing Pasang ===
+        $countPasang = PasangKirimModel::where('status', 'closing')
+            ->whereBetween('jadwal_pasang_kirim', [$startDate, $endDate])
+            ->count();
+
+        $allData[]    = $countAll;
+        $produkData[] = $countProduk;
+        $surveyData[] = $countSurvey;
+        $pasangData[] = $countPasang;
+    }
+return [
+    'rateClosingLabels' => ['All', 'Produk', 'Survey', 'Pasang'],
+    'rateClosingDatasets' => [
+        [
+            'label' => 'Minggu 1',
+            'data'  => [$allData[0] ?? 0, $produkData[0] ?? 0, $surveyData[0] ?? 0, $pasangData[0] ?? 0],
+            'borderColor' => '#5C54AD',
+            'backgroundColor' => 'rgba(92, 84, 173, 0.2)',
+            'tension' => 0.3,
+            'fill' => false,
+        ],
+        [
+            'label' => 'Minggu 2',
+            'data'  => [$allData[1] ?? 0, $produkData[1] ?? 0, $surveyData[1] ?? 0, $pasangData[1] ?? 0],
+            'borderColor' => '#6690FF',
+            'backgroundColor' => 'rgba(102, 144, 255, 0.2)',
+            'tension' => 0.3,
+            'fill' => false,
+        ],
+        [
+            'label' => 'Minggu 3',
+            'data'  => [$allData[2] ?? 0, $produkData[2] ?? 0, $surveyData[2] ?? 0, $pasangData[2] ?? 0],
+            'borderColor' => '#A374FF',
+            'backgroundColor' => 'rgba(163, 116, 255, 0.2)',
+            'tension' => 0.3,
+            'fill' => false,
+        ],
+        [
+            'label' => 'Minggu 4',
+            'data'  => [$allData[3] ?? 0, $produkData[3] ?? 0, $surveyData[3] ?? 0, $pasangData[3] ?? 0],
+            'borderColor' => '#FF7373',
+            'backgroundColor' => 'rgba(255, 115, 115, 0.2)',
+            'tension' => 0.3,
+            'fill' => false,
+        ],
+        [
+            'label' => 'Minggu 5',
+            'data'  => [$allData[4] ?? 0, $produkData[4] ?? 0, $surveyData[4] ?? 0, $pasangData[4] ?? 0],
+            'borderColor' => '#A26360',
+            'backgroundColor' => 'rgba(162, 99, 96, 0.2)',
+            'tension' => 0.3,
+            'fill' => false,
+        ],
+    ],
+];
+}
     private function getProdukChartData($tahun, $bulan)
     {
         $kategoriLabels = KategoriModel::pluck('kategori_nama');
