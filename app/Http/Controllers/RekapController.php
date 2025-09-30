@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\InteraksiModel;
 use App\Models\InteraksiRealtime;
 use App\Models\InteraksiAwalModel;
-use App\Models\PICModel;
 use App\Models\KategoriModel;
 use App\Models\ProdukModel;
 use App\Models\SurveyModel;
@@ -129,9 +128,8 @@ class RekapController extends Controller
 
         $produkList = ProdukModel::select('produk_id', 'produk_nama')->get();
         $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)->get();
-        $picList = PICModel::orderBy('pic_nama')->get();
         $kebutuhanList = InteraksiRealtime::where('interaksi_id', $interaksi_id)
-            ->with('pic')
+            ->with('user')
             ->orderBy('tanggal', 'asc')
             ->get();
         $invoices = InvoiceModel::whereHas('details.pasang', function ($q) use ($interaksi_id) {
@@ -161,7 +159,6 @@ class RekapController extends Controller
             'interaksi'         => $interaksi,
             'kebutuhanList'     => $kebutuhanList,
             'produkList'        => $produkList,
-            'picList'           => $picList,
             'steps'             => $steps,
             'currentStep'       => $currentStep,
             'skippedSteps'      => $skippedSteps,  // cuma ini yang dipakai di blade
@@ -197,22 +194,17 @@ class RekapController extends Controller
             'interaksi_id' => 'required|exists:interaksi,interaksi_id',
             'tanggal'      => 'required|date',
             'keterangan'   => 'required|string',
-            'pic_id'       => 'required|exists:pic,pic_id',
+            'user_id'       => 'required|exists:m_user,user_id',
         ]);
 
         // Simpan ke tabel interaksi_realtime
-        InteraksiRealtime::create([
-            'interaksi_id' => $request->interaksi_id,
-            'tanggal'      => $request->tanggal,
-            'keterangan'   => $request->keterangan,
-            'pic_id'       => $request->pic_id,
-        ]);
+        InteraksiRealtime::create($request->all());
 
         // Update juga ke tabel interaksi (kolom pic_id)
-        \App\Models\InteraksiRealtime::where('interaksi_id', $request->interaksi_id)
-            ->update([
-                'pic_id' => $request->pic_id,
-            ]);
+        // \App\Models\InteraksiRealtime::where('interaksi_id', $request->interaksi_id)
+        //     ->update([
+        //         'pic_id' => $request->pic_id,
+        //     ]);
 
         return response()->json(['status' => 'success']);
     }
@@ -290,6 +282,26 @@ class RekapController extends Controller
             ->get(['produk_id as id', 'produk_nama as text']);
 
         return response()->json(['results' => $produks]);
+    }
+    public function createRealtime($id_interaksi)
+    {
+        try {
+            // Log::info('Create Rincian dipanggil.', ['id_interaksi' => $id_interaksi]);
+
+            $interaksi = InteraksiModel::findOrFail($id_interaksi);
+            // Log::info('Interaksi ditemukan.', ['interaksi' => $interaksi]);
+
+            $realtime = InteraksiRealtime::with('user')
+                ->where('interaksi_id', $id_interaksi)
+                ->get();
+
+            return view('rekap.create_realtime', compact('interaksi',  'realtime'));
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Interaksi tidak ditemukan.',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
     }
     public function createRincian($id_interaksi)
     {

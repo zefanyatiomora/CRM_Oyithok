@@ -55,9 +55,9 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="{{ url('/pic') }}" class="nav-link {{ ($activeMenu == 'pic') ? 'active' : '' }}">
+            <a href="{{ url('/user') }}" class="nav-link {{ ($activeMenu == 'user') ? 'active' : '' }}">
               <i class="fas fa-user-tie nav-icon"></i>
-              <p>Data PIC</p>
+              <p>Data User</p>
             </a>
           </li>
         </ul>
