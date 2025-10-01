@@ -31,12 +31,13 @@
                                 <td>Rp {{ number_format($inv->total_akhir, 0, ',', '.') }}</td>
                                 <td>Rp {{ number_format($inv->sisa_pelunasan, 0, ',', '.') }}</td>
                                 <td>
-                                    @if ($inv->sisa_pelunasan == 0)
-                                        <span class="badge badge-success">Lunas</span>
-                                    @else
-                                        <span class="badge badge-danger">Belum Lunas</span>
-                                    @endif
-                                </td>
+    @if (!empty($inv->tanggal_pelunasan))
+        <span class="badge badge-success">Lunas</span>
+    @else
+        <span class="badge badge-danger">Belum Lunas</span>
+    @endif
+</td>
+
                                 <td class="text-center">
                                     <button type="button" class="btn btn-sm btn-info btn-show-invoice"
                                         data-id="{{ $inv->invoice_id }}">

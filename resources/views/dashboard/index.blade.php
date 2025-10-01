@@ -36,7 +36,6 @@
        data-bs-toggle="tooltip" 
        title="Pilih bulan untuk menampilkan data dashboard (opsional)"></i>
 </label>
-
                     <select name="bulan" id="bulan" class="form-control rounded-pill shadow-sm">
                         <option value="">-- Semua Bulan --</option>
                         @foreach($bulanList as $key => $label)
@@ -101,7 +100,6 @@
         </a>
     </div>
 </div>
-
         <!-- Tabs Customer & Produk -->
 <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
   <li class="nav-item">

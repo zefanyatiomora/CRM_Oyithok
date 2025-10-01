@@ -11,10 +11,16 @@ class PICController extends Controller
     /**
      * Halaman index
      */
-        public function index()
+    public function index()
     {
         $activeMenu = 'pic'; // supaya sidebar aktif
-        return view('pic.index', compact('activeMenu'));
+
+        $breadcrumb = (object) [
+            'title' => 'Data PIC',
+            'list'  => ['Data PIC']
+        ];
+
+        return view('pic.index', compact('activeMenu', 'breadcrumb'));
     }
 
     /**

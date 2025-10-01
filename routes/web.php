@@ -41,6 +41,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/followup', [DashboardController::class, 'followup'])->name('dashboard.followup');
     Route::get('/dashboard/hold', [DashboardController::class, 'hold'])->name('dashboard.hold');
     Route::get('/dashboard/closing', [DashboardController::class, 'closing'])->name('dashboard.closing');
+    Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
 
     //broadcast//
     Route::get('/ask/broadcast', [AskController::class, 'broadcast'])->name('ask.broadcast');
