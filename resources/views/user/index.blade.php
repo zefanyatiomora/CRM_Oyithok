@@ -1,8 +1,8 @@
 @extends('layouts.template')
 
 @section('content')
-    <div class="card card-outline card-primary">
-        <div class="card-header">
+    <div class="card card-outline shadow-sm border-0">
+      <div class="card-header bg-wallpaper-gradient position-relative" style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
             <h3 class="card-title">{{ $page->title }}</h3>
             <div class="card-tools">
                 <button onclick="modalAction('{{ url('/user/create_ajax') }}')" class="btn btn-sm btn-success mt-1">Tambah User</button>
@@ -48,6 +48,23 @@
 @endsection
 
 @push('css')
+<style>
+    .card-header.bg-gradient-primary {
+        background: linear-gradient(135deg, #8147be, #c97aeb, #a661c2) !important;
+        border-radius: 15px 15px 0 0;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        color: #fff !important;
+    }
+    .bg-wallpaper-gradient {
+        background: linear-gradient(135deg, #8147be, #c97aeb, #a661c2);
+        border-radius: 15px 15px 0 0;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        color: #fff;
+    }
+    #table-produk th {
+        vertical-align: middle;
+    }
+</style>
 @endpush
 
 @push('js') l

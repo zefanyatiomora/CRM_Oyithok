@@ -16,19 +16,13 @@ class UserModel extends Authenticatable
     use HasFactory;
     protected $table = 'm_user'; //Mendefinisikan nama tabel yang digunakan oleh model ini
     protected $primaryKey = 'user_id'; //Mendefiniskan primary key dari tabel yang digunakan
-    protected $fillable = ['username', 'password', 'nama', 'level_id', 'avatar', 'image'];
+    protected $fillable = ['username', 'password', 'nama', 'level_id', 'ttd', 'image'];
     // protected $hidden = ['password'];
     protected $casts =  ['password' => 'hashed'];
 
     public function level(): BelongsTo
     {
         return $this->belongsTo(LevelModel::class, 'level_id', 'level_id');
-    }
-    protected function image()
-    {
-        return Attribute::make(
-            get: fn($image) => url('/storage/posts/' . $image),
-        );
     }
     public function interaksiRealtimes()
     {

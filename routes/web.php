@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RekapController;
+use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\KebutuhanController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\UserController;
@@ -143,12 +144,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('datainvoice/{id}', [DataInvoiceController::class, 'show'])->name('datainvoice.show');
 
 
-
-
-
-
-    Route::get('/profil', [DashboardController::class, 'index']);
-
     Route::prefix('realtime')->group(function () {
         Route::get('/create/{id_interaksi}', [RekapController::class, 'createRealtime'])->name('realtime.create');
         Route::post('/store', [RekapController::class, 'storeRealtime'])->name('realtime.store');
@@ -177,4 +172,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('invoice/{id}/export_pdf', [RekapController::class, 'export_pdf'])
             ->name('invoice.export_pdf');
     });
+    Route::get('/profil', [ProfilController::class, 'index']);
+    Route::post('/profil/update', [ProfilController::class, 'update']);
+    Route::post('/profil/update_data_diri', [ProfilController::class, 'update_data_diri']);
+    Route::post('/profil/update_password', [ProfilController::class, 'updatePassword']);
 });

@@ -8,12 +8,12 @@
         </h3>
 
         {{-- Tombol tambah elegan di pojok kanan --}}
-<div class="card-tools position-absolute" style="top: 8px; right: 25px;">
-    <button onclick="modalAction('{{ url('/produk/create_ajax') }}')" 
-            class="btn btn-success btn-sm btn-rounded shadow-sm d-flex align-items-center">
-        <i class="fas fa-plus me-1"></i> Tambah
-    </button>
-</div>
+    <div class="card-tools position-absolute" style="top: 8px; right: 25px;">
+        <button onclick="modalAction('{{ url('/produk/create_ajax') }}')" 
+                class="btn btn-success btn-sm btn-rounded shadow-sm d-flex align-items-center">
+            <i class="fas fa-plus me-1"></i> Tambah
+        </button>
+    </div>
     </div>
 
         <div class="card-body">

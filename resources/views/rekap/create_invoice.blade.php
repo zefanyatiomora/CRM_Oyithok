@@ -8,6 +8,8 @@
 
 <form id="form-create-invoice" action="{{ route('invoice.store') }}" method="POST">
     @csrf
+    <!-- Hidden input untuk ID Interaksi dan ID User-->
+    <input type="hidden" id="interaksi_id" value="{{ $interaksi->interaksi_id }}">
 
     <style>
         input.form-control.no-arrow::-webkit-outer-spin-button,

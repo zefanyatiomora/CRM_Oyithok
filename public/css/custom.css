@@ -1,6 +1,6 @@
 /* SIDEBAR LATAR GRADIENT */
 .custom-sidebar {
-    background: linear-gradient(180deg, #a66dd4, #9c27b0) !important;
+    background: #a66dd4 !important;
     color: #ffffff !important;
 }
 
@@ -42,10 +42,9 @@
     color: white !important;
 }
 .custom-title {
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     font-weight: 800; /* bold */
-    font-size: 20px;  /* bisa disesuaikan */
-    color: #491668;      /* bisa diganti sesuai selera */
+    font-size: 20px; /* bisa disesuaikan */
+    color: #491668; /* bisa diganti sesuai selera */
     margin-bottom: 20px;
 }
-
