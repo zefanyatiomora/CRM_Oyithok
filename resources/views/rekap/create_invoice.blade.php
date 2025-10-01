@@ -294,13 +294,14 @@
         let cash = parseRupiah($('#cashback_display').val() || '') || 0;
         let dpVal = parseRupiah($('#dp_display').val() || '') || 0;
 
-        // subtotal sebelum PPN
-        let subtotalBeforePpn = grandSum - pot - cash;
-        if (subtotalBeforePpn < 0) subtotalBeforePpn = 0;
+        // PPN dihitung dari gross (grandSum) — tidak dikurangi potongan/cashback
+        let nominalPpn = calculatePpnNominal(grandSum);
 
-        let nominalPpn = calculatePpnNominal(subtotalBeforePpn);
+        // total akhir: gross + ppn - pot - cash
+        let totalAkhir = (grandSum + nominalPpn) - pot - cash;
+        if (totalAkhir < 0) totalAkhir = 0;
 
-        let totalAkhir = subtotalBeforePpn + nominalPpn;
+        // sisa pelunasan = total akhir - dp
         let sisa = totalAkhir - dpVal;
 
         // tulis ke field
