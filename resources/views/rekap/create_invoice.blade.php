@@ -463,10 +463,33 @@
                 processData: false,
                 contentType: false,
                 success: function(res) {
-                    if (typeof toastr !== 'undefined') toastr.success(
+                    // re-enable submit button
+                    $submitBtn.prop('disabled', false);
+
+                    // tampilkan notifikasi
+                    if (typeof toastr !== 'undefined') toastr.success(res.message ||
                         "Invoice berhasil disimpan");
-                    else if (typeof Swal !== 'undefined') Swal.fire("Sukses",
+                    else if (typeof Swal !== 'undefined') Swal.fire("Sukses", res.message ||
                         "Invoice berhasil disimpan", "success");
+
+                    // update lastInvoice agar suggestion berikutnya memakai data terbaru
+                    if (res && (res.nomor_invoice || res.customer_invoice)) {
+                        lastInvoice = {
+                            nomor_invoice: res.nomor_invoice || (res.invoice && res
+                                .invoice.nomor_invoice) || null,
+                            customer_invoice: res.customer_invoice || (res.invoice &&
+                                res.invoice.customer_invoice) || null,
+                            invoice_id: res.invoice_id || (res.invoice && res.invoice
+                                .invoice_id) || null
+                        };
+                        if (lastInvoice.nomor_invoice) {
+                            $('#nomor_suggestion_text').text(lastInvoice.nomor_invoice);
+                        }
+                        if (lastInvoice.customer_invoice) {
+                            $('#customer_suggestion_text').text(lastInvoice
+                                .customer_invoice);
+                        }
+                    }
 
                     // reload datatable rekap jika ada
                     try {

@@ -480,7 +480,7 @@ class RekapController extends Controller
                 'customer_invoice'  => $request->customer_invoice,
                 'pesanan_masuk'     => $request->pesanan_masuk,
                 'batas_pelunasan'   => $request->batas_pelunasan,
-                'ppn'         => $request->ppn !== null ? $request->ppn : null,
+                'ppn'         => $request->ppn ?? 0,
                 'nominal_ppn' => $request->nominal_ppn ?? 0,
                 'potongan_harga'    => $request->potongan_harga ?? 0,
                 'cashback'          => $request->cashback ?? 0,
@@ -505,10 +505,16 @@ class RekapController extends Controller
             }
 
             DB::commit();
+
+            $invoice->refresh();
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Invoice berhasil dibuat',
-                'invoice_id' => $invoice->invoice_id
+                'invoice_id' => $invoice->invoice_id,
+                'nomor_invoice' => $invoice->nomor_invoice,
+                'customer_invoice' => $invoice->customer_invoice,
+                'invoice' => $invoice,
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
