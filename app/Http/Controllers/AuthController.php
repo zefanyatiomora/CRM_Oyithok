@@ -37,6 +37,11 @@ class AuthController extends Controller
         }
         return redirect('login');
     }
+    public function profile()
+{
+    $user = auth()->user();
+    return view('profile.index', compact('user'));
+}
 
     public function logout(Request $request)
     {

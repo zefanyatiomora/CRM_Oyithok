@@ -10,16 +10,21 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class DataInvoiceController extends Controller
 {
-   public function index()
-{
-    $invoices = InvoiceModel::with(['details'])->get();
+ public function index()
+    {
+        $invoices = InvoiceModel::with(['details'])->get();
 
-    return view('datainvoice.index', [
-        'activeMenu' => 'datainvoice',
-        'invoices'   => $invoices
-    ]);
-}
+        $breadcrumb = (object) [
+            'title' => 'Data Invoice',
+            'list'  => ['Data Invoice']
+        ];
 
+        return view('datainvoice.index', [
+            'activeMenu' => 'datainvoice',
+            'breadcrumb' => $breadcrumb,
+            'invoices'   => $invoices
+        ]);
+    }
     public function exportPdf($id)
     {
         $invoice = InvoiceModel::with(['customer', 'pic', 'items.produk', 'payments'])

@@ -31,7 +31,7 @@ class DashboardController extends Controller
             'list' => ['Home', 'Dashboard']
         ];
         $page = (object) [
-            'title' => 'Selamat Datang, Wallpaper Indonesia ID'
+            'title' => 'Selamat Datang, Wallpaper Indonesia ID!'
         ];
 
         $tahun = $request->get('tahun', date('Y'));
