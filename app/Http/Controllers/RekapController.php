@@ -350,17 +350,18 @@ class RekapController extends Controller
     public function createInvoice($id_interaksi)
     {
         try {
-            // Cari interaksi
             $interaksi = InteraksiModel::findOrFail($id_interaksi);
 
             $pasang = PasangKirimModel::with('produk')
                 ->where('interaksi_id', $id_interaksi)
                 ->get();
+
             $lastInvoice = InvoiceModel::latest()->first();
 
             return view('rekap.create_invoice', compact('interaksi', 'pasang', 'lastInvoice'));
         } catch (\Exception $e) {
             Log::error('createInvoice error: ' . $e->getMessage());
+            // Jika di-load via ajax/modal, kembalikan respon JSON agar frontend bisa tangani.
             return response()->json([
                 'message' => 'Interaksi tidak ditemukan.',
                 'error'   => $e->getMessage()
@@ -467,15 +468,36 @@ class RekapController extends Controller
             'grand_total.*'  => 'numeric',
         ]);
 
+        // cek duplikat di database (sistem-wide)
+        $errors = [];
+
+        if (!empty($request->nomor_invoice)) {
+            $existsNomor = InvoiceModel::where('nomor_invoice', $request->nomor_invoice)->exists();
+            if ($existsNomor) {
+                $errors['nomor_invoice'][] = 'Nomor invoice sudah digunakan sebelumnya. Silakan gunakan nomor lain.';
+            }
+        }
+
+        if (!empty($request->customer_invoice)) {
+            $existsCust = InvoiceModel::where('customer_invoice', $request->customer_invoice)->exists();
+            if ($existsCust) {
+                $errors['customer_invoice'][] = 'Customer invoice sudah ada pada invoice lain. Silakan periksa dan ubah.';
+            }
+        }
+
+        if (!empty($errors)) {
+            return response()->json(['message' => 'Validasi duplikat', 'errors' => $errors], 422);
+        }
+
         DB::beginTransaction();
         try {
-            // Ambil interaksi_id dari pasang pertama yang dipilih
-            $firstPasang = \App\Models\PasangKirimModel::findOrFail($request->pasangkirim_id[0]);
+            // Ambil interaksi_id dari pasang pertama yang dipilih (safety)
+            $firstPasang = PasangKirimModel::findOrFail($request->pasangkirim_id[0]);
             $interaksiId = $firstPasang->interaksi_id;
 
             // simpan header invoice
             $invoice = InvoiceModel::create([
-                'interaksi_id'      => $interaksiId, // auto ambil dari pasang
+                'interaksi_id'      => $interaksiId,
                 'nomor_invoice'     => $request->nomor_invoice,
                 'customer_invoice'  => $request->customer_invoice,
                 'pesanan_masuk'     => $request->pesanan_masuk,
