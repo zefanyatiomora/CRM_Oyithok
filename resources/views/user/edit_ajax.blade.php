@@ -63,6 +63,7 @@
                             </label>
                         </div>
                         <small id="error-password" class="error-text form-text text-danger"></small>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" data-dismiss="modal" class="btn btn-warning">Batal</button>

@@ -8,7 +8,7 @@
       <img src="{{ asset('adminlte/dist/img/user10-1024.png') }}" class="img-circle elevation-2" alt="User Image">
     </div>
     <div class="info">
-    <a href="{{ url('/profil') }}" class="d-block user-name">Alexander Pierce</a>
+    <a href="{{ url('/profil') }}" class="d-block user-name">{{ Auth::user()->nama }}</a>
     </div>
   </div>
   <hr class="my-0 border-purple mx-n3">
@@ -76,7 +76,7 @@
 
       <!-- Logout -->
       <li class="nav-item mt-3">
-    <a href="#" class="nav-link text-danger"
+    <a href="{{ url('logout') }}" class="nav-link text-danger"
        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
         <i class="nav-icon fas fa-sign-out-alt"></i>
         <p>Logout</p>

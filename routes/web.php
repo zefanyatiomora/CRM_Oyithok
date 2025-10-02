@@ -34,7 +34,7 @@ use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 Route::get('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/login', [AuthController::class, 'postLogin']);
-Route::get('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -166,13 +166,14 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{id}/update', [RekapController::class, 'updatePasang'])->name('pasang.update');
     });
     Route::prefix('invoice')->group(function () {
+        Route::get('/{id}/export-pdf', [RekapController::class, 'export_pdf'])->name('invoice.export_pdf');
         Route::get('/{id}/create', [RekapController::class, 'createInvoice'])->name('invoice.create');
         Route::post('/store', [RekapController::class, 'storeInvoice'])->name('invoice.store');
         Route::get('/{id}/edit', [RekapController::class, 'editInvoice'])->name('invoice.edit');
         Route::put('/{id}/update', [RekapController::class, 'updateInvoice'])->name('invoice.update');
-        Route::get('invoice/{id}/export_pdf', [RekapController::class, 'export_pdf'])
-            ->name('invoice.export_pdf');
     });
+
+
     Route::get('/profil', [ProfilController::class, 'index']);
     Route::post('/profil/update', [ProfilController::class, 'update']);
     Route::post('/profil/update_data_diri', [ProfilController::class, 'update_data_diri']);

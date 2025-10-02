@@ -134,7 +134,7 @@ class RekapController extends Controller
             ->get();
         $invoices = InvoiceModel::whereHas('details.pasang', function ($q) use ($interaksi_id) {
             $q->where('interaksi_id', $interaksi_id);
-        })->with(['details.pasang'])->get();
+        })->with(['details.pasang'])->first();
 
         $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang/Kirim'];
 

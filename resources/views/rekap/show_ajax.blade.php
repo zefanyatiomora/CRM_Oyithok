@@ -478,7 +478,7 @@
                             class="btn btn-sm btn-primary" title="Buat Invoice">
                             <i class="fas fa-plus fa-sm"></i> Buat Invoice
                         </a>
-                        <a href="{{ route('invoice.export_pdf', $interaksi->interaksi_id) }}"
+                        <a href="{{ route('invoice.export_pdf', $invoices->invoice_id) }}"
                             class="btn btn-sm btn-danger" title="Export PDF" target="_blank">
                             <i class="fas fa-file-pdf fa-sm"></i> PDF
                         </a>

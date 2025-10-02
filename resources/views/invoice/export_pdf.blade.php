@@ -367,13 +367,13 @@
                 <div>Admin,</div>
                 {{-- Gambar tanda tangan --}}
                 <div style="margin: 0 0 2px 0;"> {{-- atas=0, bawah=2px --}}
-                    <img src="{{ public_path('images/ttd Anisa.png') }}" 
+                    <img src="{{ asset('storage/' . Auth::user()->ttd) }}" 
                         alt="Tanda Tangan"
                         style="width:100px; height:auto; display:block;">
                 </div>
                 {{-- Nama + Jabatan --}}
                 <div style="text-decoration: underline; line-height: 1;">
-                    <strong>Anisa Rahman</strong>
+                    <strong>{{ Auth::user()->nama }}</strong>
                 </div>
                 <div style="line-height: 1;">CS & Konsultan</div>
             </td>
