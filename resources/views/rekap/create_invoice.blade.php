@@ -340,58 +340,100 @@
         hitungSummary();
 
         // suggestion behavior + inline warning saat mengetik
-        $('#nomor_invoice').on('focus input', function() {
-            let v = ($(this).val() || '').trim();
-            if (lastInvoice && lastInvoice.nomor_invoice) {
-                $('#nomor_suggestion_text').text(lastInvoice.nomor_invoice);
-                $('#nomor_suggestion').show().attr('aria-hidden', 'false');
-                if (v !== '' && v === String(lastInvoice.nomor_invoice)) {
-                    $('#nomor_inline_warning').show();
-                } else {
-                    $('#nomor_inline_warning').hide();
-                }
-            }
-        }).on('blur', function() {
-            setTimeout(function() {
-                $('#nomor_suggestion').hide().attr('aria-hidden', 'true');
-            }, 200);
-            setTimeout(function() {
-                $('#nomor_inline_warning').hide();
-            }, 200);
-        });
-        $('#nomor_suggestion').on('click keypress', function(e) {
-            if (e.type === 'click' || (e.type === 'keypress' && (e.key === 'Enter' || e.key === ' '))) {
-                if (!lastInvoice) return;
-                $('#nomor_invoice').val(lastInvoice.nomor_invoice).trigger('input').focus();
-                $('#nomor_suggestion').hide().attr('aria-hidden', 'true');
-            }
-        });
+        let lastInvoice = {!! json_encode($lastInvoice ?? null) !!} || null;
+        console.log('[create_invoice] lastInvoice =', lastInvoice);
 
-        $('#customer_invoice').on('focus input', function() {
-            let v = ($(this).val() || '').trim();
-            if (lastInvoice && lastInvoice.customer_invoice) {
-                $('#customer_suggestion_text').text(lastInvoice.customer_invoice);
-                $('#customer_suggestion').show().attr('aria-hidden', 'false');
-                if (v !== '' && v === String(lastInvoice.customer_invoice)) {
-                    $('#customer_inline_warning').show();
-                } else {
-                    $('#customer_inline_warning').hide();
+        function safeTriggerInput($el) {
+            try {
+                $el.trigger('input');
+            } catch (e) {}
+        }
+
+        $(document).ready(function() {
+            if (lastInvoice) {
+                if (lastInvoice.nomor_invoice) $('#nomor_suggestion_text').text(lastInvoice
+                    .nomor_invoice);
+                if (lastInvoice.customer_invoice) $('#customer_suggestion_text').text(lastInvoice
+                    .customer_invoice);
+            }
+
+            // Nomor Invoice
+            $(document).on('focus input', '#nomor_invoice', function() {
+                let v = ($(this).val() || '').trim();
+                if (lastInvoice && lastInvoice.nomor_invoice) {
+                    $('#nomor_suggestion_text').text(lastInvoice.nomor_invoice);
+                    $('#nomor_suggestion').show().attr('aria-hidden', 'false');
+                    if (v !== '' && v === String(lastInvoice.nomor_invoice)) {
+                        $('#nomor_inline_warning').show();
+                    } else {
+                        $('#nomor_inline_warning').hide();
+                    }
                 }
-            }
-        }).on('blur', function() {
-            setTimeout(function() {
-                $('#customer_suggestion').hide().attr('aria-hidden', 'true');
-            }, 200);
-            setTimeout(function() {
-                $('#customer_inline_warning').hide();
-            }, 200);
-        });
-        $('#customer_suggestion').on('click keypress', function(e) {
-            if (e.type === 'click' || (e.type === 'keypress' && (e.key === 'Enter' || e.key === ' '))) {
-                if (!lastInvoice) return;
-                $('#customer_invoice').val(lastInvoice.customer_invoice).trigger('input').focus();
-                $('#customer_suggestion').hide().attr('aria-hidden', 'true');
-            }
+            });
+
+            $(document).on('blur', '#nomor_invoice', function() {
+                setTimeout(function() {
+                    $('#nomor_suggestion').hide().attr('aria-hidden', 'true');
+                }, 250);
+                setTimeout(function() {
+                    $('#nomor_inline_warning').hide();
+                }, 300);
+            });
+
+            $(document).on('mousedown keypress', '#nomor_suggestion', function(e) {
+                if (e.type === 'mousedown' || (e.type === 'keypress' && (e.key === 'Enter' || e
+                        .key === ' '))) {
+                    if (!lastInvoice || !lastInvoice.nomor_invoice) return;
+                    e.preventDefault();
+                    $('#nomor_invoice').val(lastInvoice.nomor_invoice);
+                    safeTriggerInput($('#nomor_invoice'));
+                    $('#nomor_inline_warning').show();
+                    setTimeout(function() {
+                        $('#nomor_suggestion').hide().attr('aria-hidden', 'true');
+                    }, 120);
+                    console.log('[create_invoice] nomor suggestion applied:', lastInvoice
+                        .nomor_invoice);
+                }
+            });
+
+            // Customer Invoice
+            $(document).on('focus input', '#customer_invoice', function() {
+                let v = ($(this).val() || '').trim();
+                if (lastInvoice && lastInvoice.customer_invoice) {
+                    $('#customer_suggestion_text').text(lastInvoice.customer_invoice);
+                    $('#customer_suggestion').show().attr('aria-hidden', 'false');
+                    if (v !== '' && v === String(lastInvoice.customer_invoice)) {
+                        $('#customer_inline_warning').show();
+                    } else {
+                        $('#customer_inline_warning').hide();
+                    }
+                }
+            });
+
+            $(document).on('blur', '#customer_invoice', function() {
+                setTimeout(function() {
+                    $('#customer_suggestion').hide().attr('aria-hidden', 'true');
+                }, 250);
+                setTimeout(function() {
+                    $('#customer_inline_warning').hide();
+                }, 300);
+            });
+
+            $(document).on('mousedown keypress', '#customer_suggestion', function(e) {
+                if (e.type === 'mousedown' || (e.type === 'keypress' && (e.key === 'Enter' || e
+                        .key === ' '))) {
+                    if (!lastInvoice || !lastInvoice.customer_invoice) return;
+                    e.preventDefault();
+                    $('#customer_invoice').val(lastInvoice.customer_invoice);
+                    safeTriggerInput($('#customer_invoice'));
+                    $('#customer_inline_warning').show();
+                    setTimeout(function() {
+                        $('#customer_suggestion').hide().attr('aria-hidden', 'true');
+                    }, 120);
+                    console.log('[create_invoice] customer suggestion applied:', lastInvoice
+                        .customer_invoice);
+                }
+            });
         });
 
         /* === SUBMIT AJAX === */
