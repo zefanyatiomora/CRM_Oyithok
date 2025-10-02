@@ -75,7 +75,7 @@
         /* Note */
         .note {
             font-size: 10px;
-            margin-top: 20px;
+            margin-top: 50px;
             line-height: 1.5;
         }
 
@@ -137,7 +137,7 @@
                 <tr>
                     <td style="font-weight:bold; padding:2px 4px;">CUSTOMER ID</td>
                     <td style="padding:2px 4px;">:</td>
-                    <td style="padding:2px 4px;">{{ $invoice->customer_id }}</td>
+                    <td style="padding:2px 4px;">{{ $invoice->customer_invoice}}</td>
                 </tr>
             </table>
         </td>
@@ -234,15 +234,15 @@
                     <td class="center">{{ $details->pasang->kuantitas }}</td>
                     <td class="center">{{ $details->pasang->produk->satuan ?? '-' }}</td>
                     <td class="center">Rp{{ number_format($details->harga_satuan,0,',','.') }}</td>
-                    <td class="center">Rp{{ number_format($lineTotal,0,',','.') }}</td>
+                    <td class="center">Rp{{ number_format($details->total,0,',','.') }}</td>
                     <td class="center">
                         @if($details->diskon !== null && $details->diskon > 0)
                             <span style="color:red; font-weight:bold;">
-                                {{ rtrim(rtrim(number_format($details->diskon, 2), '0'), '.') }}%
+                                {{ number_format($details->diskon, 0) }}%
                             </span>
                         @endif
                     </td>
-                    <td class="center">Rp{{ number_format($lineGrand,0,',','.') }}</td>
+                    <td class="center">Rp{{ number_format($details->grand_total,0,',','.') }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -252,13 +252,17 @@
     <tr>
         <!-- Kolom Catatan -->
         <td style="vertical-align: top; width: 40%;">
-        <table class="catatan">
-            <tr>
-            <td><strong><em>Catatan:</em></strong></td>
-            </tr>
-        </table>
+            <table class="catatan" style="font-family: Arial, sans-serif; border-collapse: collapse;">
+                <tr>
+                    <td style="font-size: 12px;"><strong><em>Catatan:</em></strong></td>
+                </tr>
+                <tr>
+                    <td style="padding-top: 5px; font-size: 10px;">
+                        {{ $invoice->catatan ?? '-' }}
+                    </td>
+                </tr>
+            </table>
         </td>
-
         <!-- Kolom Ringkasan -->
         <td style="vertical-align: top; text-align: right; width: 60%; position: relative;">
         <div class="summary-wrapper" style="position: relative; display: inline-block;">
@@ -268,58 +272,62 @@
                     <td style="width: 80px;"></td> <!-- kosong -->
                     <td class="label" style="padding: 6px; background-color: #d8c6e5; font-weight: bold;">Total</td>
                     <td class="right" style="padding: 6px; background-color: #d8c6e5; text-align: center;">
-                        Rp{{ number_format($total ?? 0,0,',','.') }}
+                        Rp{{ number_format($invoice->total_produk, 0, ',', '.') }}
                     </td>
                 </tr>
                 <tr style="text-align: center;">
                     <td style="width: 80px;"></td> <!-- kosong -->
                     <td class="label" style="padding: 6px; background-color: #ffffff; font-weight: bold;">Potongan Harga</td>
                     <td class="right" style="padding: 6px; background-color: #ffffff; text-align: center;">
-                    Rp{{ number_format($discount ?? 0,0,',','.') }}</td>
+                    Rp{{ number_format($invoice->potongan_harga ?? 0, 0, ',', '.') }}</td>
                 </tr>
                 <tr style="text-align: center;">
                     <td style="width: 80px;"></td>
                     <td class="label" style="padding: 6px; background-color: #ffffff; font-weight: bold;">Cashback</td>
                     <td class="right" style="padding: 6px; background-color: #ffffff; text-align: center;">
-                    Rp{{ number_format($cashback ?? 0,0,',','.') }}</td>
+                    Rp{{ number_format($invoice->cashback ?? 0, 0, ',', '.') }}</td>
                 </tr>
                 <tr style="text-align: center;">
                     <td style="width: 80px;"></td>
-                    <td class="label" style="padding: 6px; background-color: #ffffff; font-weight: bold;">PPN (11%)</td>
+                    <td class="label" style="padding: 6px; background-color: #ffffff; font-weight: bold;">
+                        PPN ({{ number_format($invoice->ppn ?? 0, 0, ',', '.') }}%)
+                    </td>
                     <td class="right" style="padding: 6px; background-color: #ffffff; text-align: center;">
-                        Rp{{ number_format(($grandTotal * 0.11) ?? 0,0,',','.') }}
+                        Rp{{ number_format($invoice->ppn ?? 0, 0, ',', '.') }}
                     </td>
                 </tr>
                 <tr style="font-weight: bold; text-align: center;">
                     <td style="width: 80px;"></td>
                     <td class="label" style="padding: 6px; background-color: #b28ee1; font-weight: bold;">Grand Total</td>
                     <td class="right" style="padding: 6px; background-color: #b28ee1; text-align: center;">
-                    Rp{{ number_format($grandTotal ?? 0,0,',','.') }}</td>
+                    Rp{{ number_format($invoice->total_akhir ?? 0, 0, ',', '.') }}</td>
                 </tr>
                 <tr style="font-weight: bold; text-align: center;">
-                    <td style="padding: 6px; text-align: left; font-size: 11px; font-style: italic; white-space: nowrap;">
+                    <td style="padding: 6px; text-align: right; font-size: 11px; font-style: italic; white-space: nowrap;">
                         {{ $invoice->tanggal_dp ? \Carbon\Carbon::parse($invoice->tanggal_dp)->format('d/m/Y') : '' }}
                     </td>
                     <td class="label" style="padding: 6px; background-color: #ffffff; font-weight: bold;">DP</td>
                     <td class="right" style="padding: 6px; background-color: #ffffff; text-align: right;">
-                        Rp{{ number_format($invoice->dp ?? 0,0,',','.') }}
+                    Rp{{ number_format($invoice->dp ?? 0,0,',','.') }}
                     </td>
                 </tr>
                 <tr style="font-weight: bold; text-align: center;">
-                    <td style="width: 80px;"></td>
+                    <td style="padding: 6px; text-align: right; font-size: 11px; font-style: italic; white-space: nowrap;">
+                        {{ $invoice->tanggal_pelunasan ? \Carbon\Carbon::parse($invoice->tanggal_pelunasan)->format('d/m/Y') : '' }}
+                    </td>
                     <td class="label" style="padding: 6px; background-color: #b28ee1; font-weight: bold;">Sisa Pelunasan</td>
                     <td class="right" style="padding: 6px; background-color: #b28ee1; text-align: center;">
-                    Rp{{ number_format($grandTotal - ($invoice->dp ?? 0),0,',','.') }}</td>
+                    Rp{{ number_format($invoice->sisa_pelunasan ?? 0, 0, ',', '.') }}</td>
                 </tr>
             </table>
             </td>
             {{-- Gambar LUNAS --}}
-            @if(($grandTotal - ($invoice->dp ?? 0)) <= 0)
+            @if(!empty($invoice->tanggal_pelunasan))
             <tr>
                 <td style="text-align:right; padding:20;" colspan="100%">
                     <img src="{{ public_path('images/stempel lunas.png') }}"
                         alt="LUNAS"
-                        style="width: 120px; opacity:0.8; margin:0; margin-top:80px;">
+                        style="width: 120px; opacity:0.8; margin:0; margin-top:30px;">
                 </td>
             </tr>
             @endif
