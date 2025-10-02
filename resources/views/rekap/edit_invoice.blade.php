@@ -10,6 +10,8 @@
     @csrf
     @method('PUT')
 
+    <input type="hidden" id="editing_invoice_id" value="{{ $invoice->invoice_id }}">
+
     <style>
         input.form-control.no-arrow::-webkit-outer-spin-button,
         input.form-control.no-arrow::-webkit-inner-spin-button {
@@ -25,6 +27,34 @@
         .table .form-control.no-arrow {
             padding-right: .5rem;
         }
+
+        .suggestion-bar {
+            background: #f8f9fa;
+            border: 1px solid #e2e6ea;
+            padding: 8px;
+            border-radius: 6px;
+            margin-top: 6px;
+            display: none;
+            cursor: pointer;
+        }
+
+        .suggestion-bar small {
+            margin: 0;
+        }
+
+        .suggestion-bar:hover {
+            background: #e9f0ff;
+        }
+
+        .inline-warning {
+            color: #856404;
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 6px 8px;
+            border-radius: 4px;
+            margin-top: 6px;
+            display: none;
+        }
     </style>
 
     <div class="modal-body">
@@ -32,12 +62,24 @@
         <div class="row mb-2">
             <div class="col-md-6">
                 <label>Nomor Invoice</label>
-                <input type="text" name="nomor_invoice" class="form-control" value="{{ $invoice->nomor_invoice }}">
+                <input type="text" id="nomor_invoice" name="nomor_invoice" class="form-control"
+                    value="{{ $invoice->nomor_invoice }}">
+                <div id="nomor_suggestion" class="suggestion-bar" role="button" tabindex="0" aria-hidden="true">
+                    <small>Terakhir: <span id="nomor_suggestion_text"></span></small>
+                </div>
+                <div id="nomor_inline_warning" class="inline-warning">Nomor ini sama dengan invoice yang sudah ada.
+                    Mohon ubah nomor agar tidak duplikat.</div>
             </div>
+
             <div class="col-md-6">
                 <label>Customer ID</label>
-                <input type="text" name="customer_invoice" class="form-control"
+                <input type="text" id="customer_invoice" name="customer_invoice" class="form-control"
                     value="{{ $invoice->customer_invoice ?? ($interaksi->customer->customer_nama ?? '') }}">
+                <div id="customer_suggestion" class="suggestion-bar" role="button" tabindex="0" aria-hidden="true">
+                    <small>Terakhir: <span id="customer_suggestion_text"></span></small>
+                </div>
+                <div id="customer_inline_warning" class="inline-warning">Customer ini sama dengan customer pada invoice
+                    lain. Silakan ubah.</div>
             </div>
         </div>
 
@@ -86,8 +128,8 @@
                                 <input type="hidden" name="pasangkirim_id[]" value="{{ $detail->pasangkirim_id }}">
                             </td>
                             <td>
-                                <input type="number" name="kuantitas[]" class="form-control qty no-arrow" readonly
-                                    min="0" value="{{ $p->kuantitas ?? 1 }}">
+                                <input type="number" name="kuantitas[]" class="form-control qty no-arrow text-center"
+                                    readonly min="0" value="{{ $p->kuantitas ?? 1 }}">
                             </td>
                             <td>
                                 <input type="text" class="form-control harga_display rupiah"
@@ -101,7 +143,7 @@
                                 <input type="hidden" name="total[]" class="total" value="{{ (int) $detail->total }}">
                             </td>
                             <td>
-                                <input type="number" name="diskon[]" class="form-control diskon no-arrow"
+                                <input type="number" name="diskon[]" class="form-control diskon no-arrow text-center"
                                     step="0.01" min="0"
                                     value="{{ fmod($detail->diskon, 1) == 0 ? intval($detail->diskon) : $detail->diskon }}">
                             </td>
@@ -132,31 +174,46 @@
 
             <!-- Kanan -->
             <div class="col-md-6">
+                <!-- PPN: persen + nominal display + hidden nominal -->
+                <label>PPN</label>
+                <div class="input-group mb-2">
+                    <input type="number" id="ppn" name="ppn" class="form-control no-arrow text-center"
+                        min="0" step="0.01"
+                        value="{{ isset($invoice->ppn) ? (floatval($invoice->ppn) == intval($invoice->ppn) ? intval($invoice->ppn) : rtrim(rtrim(number_format($invoice->ppn, 2, '.', ''), '0'), '.')) : '' }}">
+                    <div class="input-group-append"><span class="input-group-text">%</span></div>
+
+                    <input type="text" id="ppn_nominal_display" class="form-control rupiah ml-2" readonly
+                        placeholder="Nominal PPN">
+                    <input type="hidden" name="nominal_ppn" id="ppn_nominal"
+                        value="{{ isset($invoice->nominal_ppn) ? (int) $invoice->nominal_ppn : 0 }}">
+                </div>
+
                 <label>Potongan Harga</label>
                 <input type="text" id="potongan_display" class="form-control rupiah"
-                    value="{{ number_format($invoice->potongan_harga, 0, ',', '.') }}">
-                <input type="hidden" name="potongan_harga" id="potongan" value="{{ $invoice->potongan_harga }}">
+                    value="{{ number_format($invoice->potongan_harga ?? 0, 0, ',', '.') }}">
+                <input type="hidden" name="potongan_harga" id="potongan"
+                    value="{{ $invoice->potongan_harga ?? 0 }}">
 
                 <label class="mt-2">Cashback</label>
                 <input type="text" id="cashback_display" class="form-control rupiah"
-                    value="{{ number_format($invoice->cashback, 0, ',', '.') }}">
-                <input type="hidden" name="cashback" id="cashback" value="{{ $invoice->cashback }}">
+                    value="{{ number_format($invoice->cashback ?? 0, 0, ',', '.') }}">
+                <input type="hidden" name="cashback" id="cashback" value="{{ $invoice->cashback ?? 0 }}">
 
                 <label class="mt-2">DP</label>
                 <input type="text" id="dp_display" class="form-control rupiah"
-                    value="{{ number_format($invoice->dp, 0, ',', '.') }}">
-                <input type="hidden" name="dp" id="dp" value="{{ $invoice->dp }}">
+                    value="{{ number_format($invoice->dp ?? 0, 0, ',', '.') }}">
+                <input type="hidden" name="dp" id="dp" value="{{ $invoice->dp ?? 0 }}">
 
                 <label class="mt-2">Sisa Pelunasan</label>
                 <input type="text" id="sisa_display" class="form-control rupiah" readonly
-                    value="{{ number_format($invoice->sisa_pelunasan, 0, ',', '.') }}">
-                <input type="hidden" name="sisa_pelunasan" id="sisa" value="{{ $invoice->sisa_pelunasan }}">
+                    value="{{ number_format($invoice->sisa_pelunasan ?? 0, 0, ',', '.') }}">
+                <input type="hidden" name="sisa_pelunasan" id="sisa"
+                    value="{{ $invoice->sisa_pelunasan ?? 0 }}">
 
                 <label class="mt-2">Total Akhir</label>
                 <input type="text" id="totalakhir_display" class="form-control rupiah" readonly
-                    value="{{ number_format($invoice->total_akhir, 0, ',', '.') }}">
-                <input type="hidden" name="total_akhir" id="totalakhir" value="{{ $invoice->total_akhir }}">
-
+                    value="{{ number_format($invoice->total_akhir ?? 0, 0, ',', '.') }}">
+                <input type="hidden" name="total_akhir" id="totalakhir" value="{{ $invoice->total_akhir ?? 0 }}">
             </div>
         </div>
 
@@ -175,11 +232,16 @@
     </div>
 </form>
 
+{{-- inject lastInvoice ke javascript (dipakai untuk suggestion/quick client-side check) --}}
 <script>
-    // --- formatting helpers ---
+    // lastInvoice berasal dari controller; null jika tidak ada
+    let lastInvoice = {!! json_encode($lastInvoice ?? null) !!} || null;
+</script>
+
+<script>
+    /* === Helpers === */
     function formatRupiah(num) {
         if (num === null || num === undefined || num === '') return '';
-        // pastikan integer
         num = parseInt(num) || 0;
         return 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
@@ -189,21 +251,30 @@
         return parseInt(String(str).replace(/[^0-9]/g, '')) || 0;
     }
 
-    // --- per-row calculations ---
+    function calculatePpnNominal(subtotalBefore) {
+        let percentRaw = $('#ppn').val();
+        if (percentRaw === '' || percentRaw === null || typeof percentRaw === 'undefined') return 0;
+        let percent = parseFloat(percentRaw);
+        if (isNaN(percent) || percent <= 0) return 0;
+        return Math.round(subtotalBefore * (percent / 100));
+    }
+
+    /* === Row & Summary (with PPN) === */
     function hitungRow($row) {
         let qty = parseInt($row.find('input[name="kuantitas[]"]').val()) || 0;
         let harga = parseInt($row.find('input[name="harga_satuan[]"]').val()) || 0;
-        let diskon = parseFloat($row.find('.diskon').val()) || 0;
+        let diskonRaw = $row.find('.diskon').val();
+        let diskon = (diskonRaw === '' || typeof diskonRaw === 'undefined') ? 0 : parseFloat(diskonRaw) || 0;
 
         let total = qty * harga;
-        let grand = Math.round(total - (total * (diskon / 100)));
+        let grand = Math.round(total - Math.round(total * (diskon / 100)));
 
-        // set hidden + display
-        $row.find('input.total').val(total);
-        $row.find('.total_display').val(total ? formatRupiah(total) : '');
+        // write to hidden + display (ensure selectors exist)
+        if ($row.find('input[name="total[]"]').length) $row.find('input[name="total[]"]').val(total);
+        if ($row.find('.total_display').length) $row.find('.total_display').val(total ? formatRupiah(total) : '');
 
-        $row.find('input.grand_total').val(grand);
-        $row.find('.grand_display').val(grand ? formatRupiah(grand) : '');
+        if ($row.find('input[name="grand_total[]"]').length) $row.find('input[name="grand_total[]"]').val(grand);
+        if ($row.find('.grand_display').length) $row.find('.grand_display').val(grand ? formatRupiah(grand) : '');
 
         hitungSummary();
     }
@@ -211,49 +282,58 @@
     function hitungSummary() {
         let grandSum = 0;
         $('#tablePasang tbody tr').each(function() {
-            grandSum += parseInt($(this).find('input.grand_total').val()) || 0;
+            grandSum += parseInt($(this).find('input[name="grand_total[]"]').val()) || 0;
         });
 
         let pot = parseRupiah($('#potongan_display').val() || '') || 0;
         let cash = parseRupiah($('#cashback_display').val() || '') || 0;
         let dpVal = parseRupiah($('#dp_display').val() || '') || 0;
 
-        let totalAkhir = grandSum - pot - cash;
+        // nominal PPN dihitung dari grandSum
+        let nominalPpn = calculatePpnNominal(grandSum);
+
+        // total akhir: gross + ppn - pot - cash
+        let totalAkhir = (grandSum + nominalPpn) - pot - cash;
+        if (totalAkhir < 0) totalAkhir = 0;
+
         let sisa = totalAkhir - dpVal;
 
+        // tulis ke field
+        $('#ppn_nominal').val(nominalPpn);
+        $('#ppn_nominal_display').val(nominalPpn ? formatRupiah(nominalPpn) : '');
+
         $('#totalakhir').val(totalAkhir);
-        $('#totalakhir_display').val(formatRupiah(totalAkhir));
+        $('#totalakhir_display').val(totalAkhir ? formatRupiah(totalAkhir) : '');
 
         $('#sisa').val(sisa);
-        $('#sisa_display').val(formatRupiah(sisa));
+        $('#sisa_display').val(sisa ? formatRupiah(sisa) : '');
 
         $('#potongan').val(pot);
         $('#cashback').val(cash);
         $('#dp').val(dpVal);
     }
 
-    // --- events (use off() to avoid double-binding) ---
+    /* === Events === */
+    // harga input
     $(document).off('input', '.harga_display').on('input', '.harga_display', function() {
         let $row = $(this).closest('tr');
         let v = parseRupiah($(this).val());
-        // set hidden harga_satuan[]
         if ($row.find('input[name="harga_satuan[]"]').length) {
             $row.find('input[name="harga_satuan[]"]').val(v);
         } else if ($row.find('.harga').length) {
             $row.find('.harga').val(v);
         }
-        // reformat display
         $(this).val(v ? formatRupiah(v) : '');
         hitungRow($row);
     });
 
+    // qty / diskon
     $(document).off('input', '.diskon').on('input', '.diskon', function() {
-        // diskon change recalculates only
         let $row = $(this).closest('tr');
         hitungRow($row);
     });
 
-    // potongan/cashback/dp display sync
+    // potongan/cashback/dp sync
     $(document).off('input', '#potongan_display').on('input', '#potongan_display', function() {
         let v = parseRupiah($(this).val());
         $('#potongan').val(v);
@@ -273,41 +353,16 @@
         hitungSummary();
     });
 
-    // Convert display fields to hidden numeric values before submit
-    function syncDisplayToHidden() {
-        $('#tablePasang tbody tr').each(function() {
-            let $row = $(this);
+    // ppn percent change
+    $(document).off('input', '#ppn').on('input', '#ppn', function() {
+        hitungSummary();
+    });
 
-            // harga: ensure harga_satuan[] hidden has numeric
-            let hargaVal = 0;
-            if ($row.find('.harga_display').length) hargaVal = parseRupiah($row.find('.harga_display').val());
-            if ($row.find('input[name="harga_satuan[]"]').length) {
-                $row.find('input[name="harga_satuan[]"]').val(hargaVal);
-            } else if ($row.find('.harga').length) {
-                $row.find('.harga').val(hargaVal);
-            }
-
-            // totals & grand totals
-            let totalVal = parseRupiah($row.find('.total_display').val() || $row.find('.total').val());
-            if ($row.find('input[name="total[]"]').length) $row.find('input[name="total[]"]').val(totalVal);
-            let grandVal = parseRupiah($row.find('.grand_display').val() || $row.find('.grand_total').val());
-            if ($row.find('input[name="grand_total[]"]').length) $row.find('input[name="grand_total[]"]').val(
-                grandVal);
-        });
-
-        // fallback for pot/cash/dp
-        if (!$('#potongan').val()) $('#potongan').val(parseRupiah($('#potongan_display').val()));
-        if (!$('#cashback').val()) $('#cashback').val(parseRupiah($('#cashback_display').val()));
-        if (!$('#dp').val()) $('#dp').val(parseRupiah($('#dp_display').val()));
-    }
-
-    // initialize formatting + initial calculations
-    // initialize formatting + initial calculations
-    $(function() {
+    // suggestion & inline warning (like create)
+    $(document).ready(function() {
+        // init rows
         $('#tablePasang tbody tr').each(function() {
             let $r = $(this);
-
-            // if harga_satuan[] exists and unformatted, format display
             if ($r.find('input[name="harga_satuan[]"]').length && $r.find(
                     'input[name="harga_satuan[]"]').val()) {
                 let hv = parseRupiah($r.find('input[name="harga_satuan[]"]').val());
@@ -315,70 +370,228 @@
                 $r.find('input[name="harga_satuan[]"]').val(hv);
             }
 
-            // ensure hidden inputs have classes for script to find
-            if (!$r.find('input.total').length) $r.find('input[name="total[]"]').addClass('total');
-            if (!$r.find('input.grand_total').length) $r.find('input[name="grand_total[]"]').addClass(
-                'grand_total');
+            // ensure class presence for totals
+            if (!$r.find('input[name="total[]"]').hasClass('total')) $r.find('input[name="total[]"]')
+                .addClass('total');
+            if (!$r.find('input[name="grand_total[]"]').hasClass('grand_total')) $r.find(
+                'input[name="grand_total[]"]').addClass('grand_total');
 
             hitungRow($r);
         });
 
-        // ⬇️ Tambahkan bagian ini untuk potongan/cashback/dp
-        let pot = parseRupiah($('#potongan_display').val());
-        $('#potongan_display').val(formatRupiah(pot));
+        // init pot/cash/dp/ppn displays from server values
+        let pot = parseRupiah($('#potongan').val() || $('#potongan_display').val());
+        $('#potongan_display').val(pot ? formatRupiah(pot) : '');
 
-        let cash = parseRupiah($('#cashback_display').val());
-        $('#cashback_display').val(formatRupiah(cash));
+        let cash = parseRupiah($('#cashback').val() || $('#cashback_display').val());
+        $('#cashback_display').val(cash ? formatRupiah(cash) : '');
 
-        let dpVal = parseRupiah($('#dp_display').val());
-        $('#dp_display').val(formatRupiah(dpVal));
+        let dpVal = parseRupiah($('#dp').val() || $('#dp_display').val());
+        $('#dp_display').val(dpVal ? formatRupiah(dpVal) : '');
 
-        let sisaVal = parseRupiah($('#sisa_display').val());
-        $('#sisa_display').val(formatRupiah(sisaVal));
-
-        let totalVal = parseRupiah($('#totalakhir_display').val());
-        $('#totalakhir_display').val(formatRupiah(totalVal));
+        // ppn init: if server provided nominal_ppn, format
+        let ppnNominalInit = parseInt($('#ppn_nominal').val() || 0);
+        $('#ppn_nominal_display').val(ppnNominalInit ? formatRupiah(ppnNominalInit) : '');
+        // ensure percent input has server value (already set in blade value attribute)
 
         hitungSummary();
+
+        // suggestion behavior + inline warning for nomor/customer
+        $('#nomor_invoice').on('focus input', function() {
+            let v = ($(this).val() || '').trim();
+            if (lastInvoice && lastInvoice.nomor_invoice) {
+                $('#nomor_suggestion_text').text(lastInvoice.nomor_invoice);
+                $('#nomor_suggestion').show().attr('aria-hidden', 'false');
+                if (v !== '' && v === String(lastInvoice.nomor_invoice)) $('#nomor_inline_warning')
+                    .show();
+                else $('#nomor_inline_warning').hide();
+            }
+        }).on('blur', function() {
+            setTimeout(function() {
+                $('#nomor_suggestion').hide().attr('aria-hidden', 'true');
+            }, 200);
+            setTimeout(function() {
+                $('#nomor_inline_warning').hide();
+            }, 200);
+        });
+        $('#nomor_suggestion').on('click keypress', function(e) {
+            if (e.type === 'click' || (e.type === 'keypress' && (e.key === 'Enter' || e.key === ' '))) {
+                if (!lastInvoice) return;
+                $('#nomor_invoice').val(lastInvoice.nomor_invoice).trigger('input').focus();
+                $('#nomor_suggestion').hide().attr('aria-hidden', 'true');
+            }
+        });
+
+        $('#customer_invoice').on('focus input', function() {
+            let v = ($(this).val() || '').trim();
+            if (lastInvoice && lastInvoice.customer_invoice) {
+                $('#customer_suggestion_text').text(lastInvoice.customer_invoice);
+                $('#customer_suggestion').show().attr('aria-hidden', 'false');
+                if (v !== '' && v === String(lastInvoice.customer_invoice)) $(
+                    '#customer_inline_warning').show();
+                else $('#customer_inline_warning').hide();
+            }
+        }).on('blur', function() {
+            setTimeout(function() {
+                $('#customer_suggestion').hide().attr('aria-hidden', 'true');
+            }, 200);
+            setTimeout(function() {
+                $('#customer_inline_warning').hide();
+            }, 200);
+        });
+        $('#customer_suggestion').on('click keypress', function(e) {
+            if (e.type === 'click' || (e.type === 'keypress' && (e.key === 'Enter' || e.key === ' '))) {
+                if (!lastInvoice) return;
+                $('#customer_invoice').val(lastInvoice.customer_invoice).trigger('input').focus();
+                $('#customer_suggestion').hide().attr('aria-hidden', 'true');
+            }
+        });
     });
 
-    // --- single submit handler for edit form ---
+    // Convert display fields to hidden numeric values before submit
+    function syncDisplayToHidden() {
+        $('#tablePasang tbody tr').each(function() {
+            let $row = $(this);
+            let hargaVal = 0;
+            if ($row.find('.harga_display').length) hargaVal = parseRupiah($row.find('.harga_display').val());
+            if ($row.find('input[name="harga_satuan[]"]').length) $row.find('input[name="harga_satuan[]"]').val(
+                hargaVal);
+            else if ($row.find('.harga').length) $row.find('.harga').val(hargaVal);
+
+            let totalVal = parseInt($row.find('input[name="total[]"]').val()) || 0;
+            if ($row.find('input[name="total[]"]').length) $row.find('input[name="total[]"]').val(totalVal);
+
+            let grandVal = parseInt($row.find('input[name="grand_total[]"]').val()) || 0;
+            if ($row.find('input[name="grand_total[]"]').length) $row.find('input[name="grand_total[]"]').val(
+                grandVal);
+        });
+
+        // ensure pot/cash/dp values synced
+        if (!$('#potongan').val()) $('#potongan').val(parseRupiah($('#potongan_display').val()));
+        if (!$('#cashback').val()) $('#cashback').val(parseRupiah($('#cashback_display').val()));
+        if (!$('#dp').val()) $('#dp').val(parseRupiah($('#dp_display').val()));
+
+        // ensure ppn hidden present
+        if (!$('#ppn_nominal').val()) $('#ppn_nominal').val(parseRupiah($('#ppn_nominal_display').val()));
+        if (!$('input[name="ppn"]').length) {
+            // nothing: ppn input has name attribute already
+        }
+    }
+
+    // submit handler for edit form (AJAX)
     $(document).off('submit', '#form-edit-invoice').on('submit', '#form-edit-invoice', function(e) {
         e.preventDefault();
 
-        // sync displays to hidden numeric
+        // quick client-side check against lastInvoice: if equals lastInvoice, block and ask to change
+        let nomorVal = ($('#nomor_invoice').val() || '').trim();
+        let customerVal = ($('#customer_invoice').val() || '').trim();
+        if (lastInvoice) {
+            // allow same as current invoice being edited (we will exclude server-side by invoice id)
+            let editingId = $('#editing_invoice_id').val();
+            // if lastInvoice refers to another invoice (different id) and matches -> block
+            if (lastInvoice.invoice_id && String(lastInvoice.invoice_id) !== String(editingId)) {
+                if (nomorVal !== '' && lastInvoice.nomor_invoice && nomorVal === String(lastInvoice
+                        .nomor_invoice)) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: 'Duplikat Nomor Invoice',
+                            html: 'Nomor invoice sama dengan invoice terakhir. Silakan ubah nomor invoice.',
+                            icon: 'warning',
+                            confirmButtonText: 'Ubah Nomor'
+                        }).then(() => {
+                            $('#nomor_invoice').focus().select();
+                        });
+                    } else {
+                        alert('Nomor invoice sama dengan invoice terakhir. Silakan ubah nomor invoice.');
+                        $('#nomor_invoice').focus().select();
+                    }
+                    return;
+                }
+                if (customerVal !== '' && lastInvoice.customer_invoice && customerVal === String(lastInvoice
+                        .customer_invoice)) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: 'Duplikat Customer Invoice',
+                            html: 'Customer invoice sama dengan invoice terakhir. Silakan ubah customer invoice.',
+                            icon: 'warning',
+                            confirmButtonText: 'Ubah Customer'
+                        }).then(() => {
+                            $('#customer_invoice').focus().select();
+                        });
+                    } else {
+                        alert('Customer invoice sama dengan invoice terakhir. Silakan ubah customer invoice.');
+                        $('#customer_invoice').focus().select();
+                    }
+                    return;
+                }
+            }
+        }
+
+        // sync values and send
         syncDisplayToHidden();
 
         let form = $(this);
         let formData = new FormData(this);
-        formData.append('_method', 'PUT'); // method spoofing
+        formData.append('_method', 'PUT');
 
         $.ajax({
-            url: form.attr("action"),
-            type: "POST", // tetap POST karena kita pakai _method=PUT
+            url: form.attr('action'),
+            type: 'POST', // method spoof PUT via _method
             data: formData,
             processData: false,
             contentType: false,
             success: function(res) {
-                // tampilkan notifikasi, tutup modal, lalu redirect ke index invoice list
                 try {
-                    toastr.success(res.message || "Invoice berhasil disimpan");
-                } catch (err) {}
-                $("#crudModal").modal("hide");
-
-                // beri jeda kecil agar modal tertutup halus
+                    if (typeof toastr !== 'undefined') toastr.success(res.message ||
+                        'Invoice berhasil disimpan');
+                } catch (e) {}
+                $('#crudModal').modal('hide');
                 setTimeout(function() {
                     window.location.href = "{{ route('datainvoice.index') }}";
                 }, 300);
             },
             error: function(xhr) {
-                let msg = "Terjadi kesalahan server.";
-                try {
-                    if (xhr && xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON
-                        .message;
-                } catch (e) {}
-                Swal.fire("Gagal", msg, "error");
-                console.error("Server Error:", xhr.responseText);
+                let handled = false;
+                if (xhr.responseJSON) {
+                    let json = xhr.responseJSON;
+                    if (json.errors) {
+                        // show validation messages and focus first field
+                        let messages = [];
+                        for (let k in json.errors) {
+                            if (json.errors.hasOwnProperty(k)) messages.push(json.errors[k].join(
+                                ', '));
+                        }
+                        let msg = messages.join('<br>');
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validasi',
+                                html: msg
+                            }).then(() => {
+                                if (json.errors.nomor_invoice) $('#nomor_invoice').focus()
+                                    .select();
+                                else if (json.errors.customer_invoice) $(
+                                    '#customer_invoice').focus().select();
+                            });
+                        } else {
+                            alert(msg.replace(/<br>/g, '\n'));
+                            if (json.errors.nomor_invoice) $('#nomor_invoice').focus().select();
+                            else if (json.errors.customer_invoice) $('#customer_invoice').focus()
+                                .select();
+                        }
+                        handled = true;
+                    } else if (json.message) {
+                        if (typeof Swal !== 'undefined') Swal.fire('Error', json.message, 'error');
+                        else alert(json.message);
+                        handled = true;
+                    }
+                }
+                if (!handled) {
+                    if (typeof Swal !== 'undefined') Swal.fire('Gagal', 'Terjadi kesalahan server.',
+                        'error');
+                    else alert('Terjadi kesalahan server.');
+                }
+                console.error('Server Error:', xhr.responseText);
             }
         });
     });
