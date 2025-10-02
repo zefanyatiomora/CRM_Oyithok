@@ -18,15 +18,15 @@
             <div class="card card-primary card-outline">
                 <div class="card-body box-profile">
                     <div class="text-center">
-                        <img src="{{ auth()->user()->avatar ? asset('storage/avatars/' . auth()->user()->avatar) : asset('default-avatar.png') }}"
-                 class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px;" alt="Avatar">
+                    <img src="{{ auth()->user()->image ? asset('storage/' . Auth::user()->ttd) : asset('adminlte/dist/img/user10-1024.png') }}"
+                    class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px;" alt="Avatar">
                     </div>
 
                     <h3 class="profile-username text-center">{{ auth()->user()->nama }}</h3>
                     <p class="text-muted text-center">{{ auth()->user()->level->level_nama }}</p>
 
                     <ul class="list-group list-group-unbordered mb-3">
-                        <form action="{{ url('/profil/update') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ url('/profil/update_image') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                         <div class="form-group row">
                             <div class="col-sm-10">
