@@ -96,6 +96,7 @@
         </div>
 
         <!-- Table Pasang/Kirim -->
+        <!-- Table Pasang/Kirim (ganti bagian table lama dengan yang ini) -->
         <div class="table-responsive">
             <table class="table table-bordered table-sm" id="tablePasang">
                 <thead>
@@ -144,6 +145,17 @@
                         </tr>
                     @endforeach
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5" class="text-right font-weight-bold">Jumlah grand total semua produk</td>
+                        <td>
+                            <div class="input-group">
+                                <input type="text" id="total_produk_display" class="form-control rupiah" readonly>
+                                <input type="hidden" name="total_produk" id="total_produk" value="0">
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
 
@@ -158,6 +170,7 @@
             </div>
 
             <div class="col-md-6">
+                <!-- PPN -->
                 <label>PPN</label>
                 <div class="input-group mb-2">
                     <input type="number" id="ppn" name="ppn" class="form-control no-arrow text-center"
@@ -253,6 +266,9 @@
         $('#tablePasang tbody tr').each(function() {
             grandSum += parseInt($(this).find('.grand_total').val()) || 0;
         });
+
+        $('#total_produk').val(grandSum);
+        $('#total_produk_display').val(grandSum ? formatRupiah(grandSum) : '');
 
         let pot = parseRupiah($('#potongan_display').val() || '') || 0;
         let cash = parseRupiah($('#cashback_display').val() || '') || 0;
@@ -402,7 +418,8 @@
                         });
                     } else {
                         alert(
-                        'Nomor invoice sama dengan invoice terakhir. Silakan ubah nomor invoice.');
+                            'Nomor invoice sama dengan invoice terakhir. Silakan ubah nomor invoice.'
+                        );
                         $('#nomor_invoice').focus().select();
                     }
                     return;
@@ -421,7 +438,8 @@
                         });
                     } else {
                         alert(
-                            'Customer invoice sama dengan invoice terakhir. Silakan ubah customer invoice.');
+                            'Customer invoice sama dengan invoice terakhir. Silakan ubah customer invoice.'
+                        );
                         $('#customer_invoice').focus().select();
                     }
                     return;
@@ -462,12 +480,14 @@
             if (!$('#cashback').val()) $('#cashback').val(parseRupiah($('#cashback_display').val()));
             if (!$('#dp').val()) $('#dp').val(parseRupiah($('#dp_display').val()));
 
+            // pastikan total_produk & ppn sinkron sebelum submit
             hitungSummary();
 
             let form = $form[0];
             let formData = new FormData(form);
             if (!formData.has('ppn')) formData.append('ppn', $('#ppn').val() || '');
             if (!formData.has('nominal_ppn')) formData.append('nominal_ppn', $('#ppn_nominal').val() || 0);
+            if (!formData.has('total_produk')) formData.append('total_produk', $('#total_produk').val() || 0);
 
             $.ajax({
                 url: $form.attr("action"),
@@ -511,7 +531,7 @@
                     if (interaksiId) {
                         try {
                             $("#myModal").load("{{ url('rekap') }}/" + interaksiId +
-                            "/show_ajax");
+                                "/show_ajax");
                         } catch (err) {
                             console.warn(err);
                         }
@@ -527,7 +547,6 @@
                     if (xhr.responseJSON) {
                         let json = xhr.responseJSON;
                         if (json.errors) {
-                            // tampilkan sweetalert dan fokuskan field yang bermasalah
                             let messages = [];
                             for (let k in json.errors) {
                                 if (json.errors.hasOwnProperty(k)) {
@@ -541,7 +560,6 @@
                                     title: 'Validasi',
                                     html: msg
                                 }).then(() => {
-                                    // fokus ke field pertama yang error jika tersedia
                                     if (json.errors.nomor_invoice) {
                                         $('#nomor_invoice').focus().select();
                                     } else if (json.errors.customer_invoice) {

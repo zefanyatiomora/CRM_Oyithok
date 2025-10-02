@@ -20,6 +20,7 @@ class InvoiceModel extends Model
         'customer_invoice',
         'pesanan_masuk',
         'batas_pelunasan',
+        'total_produk',
         'ppn',
         'nominal_ppn',
         'potongan_harga',
