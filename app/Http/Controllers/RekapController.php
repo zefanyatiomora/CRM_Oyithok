@@ -454,7 +454,7 @@ class RekapController extends Controller
             'tanggal_pelunasan' => 'nullable|date',
             'sisa_pelunasan'    => 'nullable|numeric',
             'catatan'           => 'nullable|string',
-            'total_produk'      => 'nullable|integer', 
+            'total_produk'      => 'nullable|integer',
             'harga_satuan'   => 'required|array',
             'harga_satuan.*' => 'numeric',
             'total'          => 'required|array',
@@ -740,9 +740,6 @@ class RekapController extends Controller
             ], 404);
         }
     }
-
-    // PUT /invoice/{invoice_id}/update
-    // InvoiceController.php (method updateInvoice)
     public function updateInvoice(Request $request, $invoice_id)
     {
         $request->validate([
@@ -751,9 +748,10 @@ class RekapController extends Controller
             'customer_invoice' => 'nullable|string|max:255',
             'pesanan_masuk' => 'nullable|date',
             'batas_pelunasan' => 'nullable|in:H+1 setelah pasang,H-1 sebelum kirim',
-            // tambahkan validasi PPN
+            // tambahkan validasi PPN & total_produk
             'ppn' => 'nullable|numeric',
             'nominal_ppn' => 'nullable|numeric',
+            'total_produk' => 'nullable|numeric',
             'potongan_harga' => 'nullable|numeric',
             'cashback' => 'nullable|numeric',
             'total_akhir' => 'nullable|numeric',
@@ -780,32 +778,45 @@ class RekapController extends Controller
         try {
             $invoice = InvoiceModel::findOrFail($invoice_id);
 
-            // update header (explicit)
-            $invoice->nomor_invoice     = $request->input('nomor_invoice');
-            $invoice->customer_invoice  = $request->input('customer_invoice');
-            $invoice->pesanan_masuk     = $request->input('pesanan_masuk') ?: null;
-            $invoice->batas_pelunasan   = $request->input('batas_pelunasan') ?: null;
-            $invoice->ppn               = $request->input('ppn') !== null ? $request->input('ppn') : ($invoice->ppn ?? 0);
-            $invoice->nominal_ppn       = $request->input('nominal_ppn') !== null ? $request->input('nominal_ppn') : ($invoice->nominal_ppn ?? 0);
-            $invoice->potongan_harga    = $request->input('potongan_harga') ?? 0;
-            $invoice->cashback          = $request->input('cashback') ?? 0;
-            $invoice->total_akhir       = $request->input('total_akhir') ?? 0;
-            $invoice->dp                = $request->input('dp') ?? 0;
-            $invoice->tanggal_dp        = $request->input('tanggal_dp') ?: null;
-            $invoice->tanggal_pelunasan = $request->input('tanggal_pelunasan') ?: null;
-            $invoice->sisa_pelunasan    = $request->input('sisa_pelunasan') ?? 0;
-            $invoice->catatan           = $request->input('catatan');
-
-            $invoice->save();
-
-            // sinkron detail: hapus & recreate (sederhana dan aman)
-            InvoiceDetailModel::where('invoice_id', $invoice->invoice_id)->delete();
-
+            // Ambil arrays detail dari request
             $pasangIds = $request->input('pasangkirim_id', []);
             $hargaArr  = $request->input('harga_satuan', []);
             $totalArr  = $request->input('total', []);
             $diskonArr = $request->input('diskon', []);
             $grandArr  = $request->input('grand_total', []);
+
+            // Jika total_produk tidak disertakan, hitung dari grand_total[] sebagai fallback
+            $totalProdukFromRequest = $request->input('total_produk', null);
+            if ($totalProdukFromRequest === null) {
+                $computedTotalProduk = 0;
+                foreach ($grandArr as $g) {
+                    $computedTotalProduk += (int) $g;
+                }
+            } else {
+                $computedTotalProduk = $totalProdukFromRequest;
+            }
+
+            // update header (cast tipe agar konsisten)
+            $invoice->nomor_invoice     = $request->input('nomor_invoice');
+            $invoice->customer_invoice  = $request->input('customer_invoice');
+            $invoice->pesanan_masuk     = $request->input('pesanan_masuk') ?: null;
+            $invoice->batas_pelunasan   = $request->input('batas_pelunasan') ?: null;
+            $invoice->ppn               = $request->has('ppn') && $request->input('ppn') !== '' ? (float) $request->input('ppn') : 0.0;
+            $invoice->nominal_ppn       = $request->has('nominal_ppn') ? (int) $request->input('nominal_ppn') : (int) ($invoice->nominal_ppn ?? 0);
+            $invoice->total_produk      = (int) $computedTotalProduk;
+            $invoice->potongan_harga    = $request->input('potongan_harga') !== null ? (int) $request->input('potongan_harga') : 0;
+            $invoice->cashback          = $request->input('cashback') !== null ? (int) $request->input('cashback') : 0;
+            $invoice->total_akhir       = $request->input('total_akhir') !== null ? (int) $request->input('total_akhir') : 0;
+            $invoice->dp                = $request->input('dp') !== null ? (int) $request->input('dp') : 0;
+            $invoice->tanggal_dp        = $request->input('tanggal_dp') ?: null;
+            $invoice->tanggal_pelunasan = $request->input('tanggal_pelunasan') ?: null;
+            $invoice->sisa_pelunasan    = $request->input('sisa_pelunasan') !== null ? (int) $request->input('sisa_pelunasan') : 0;
+            $invoice->catatan           = $request->input('catatan');
+
+            $invoice->save();
+
+            // sinkron detail: hapus & recreate (sederhana)
+            InvoiceDetailModel::where('invoice_id', $invoice->invoice_id)->delete();
 
             foreach ($pasangIds as $index => $pasangId) {
                 InvoiceDetailModel::create([
@@ -819,14 +830,24 @@ class RekapController extends Controller
             }
 
             DB::commit();
-            return response()->json(['status' => 'success', 'message' => 'Invoice diperbarui']);
+
+            // Kembalikan invoice yang diperbarui supaya frontend punya data terbaru
+            $invoice->load('details');
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Invoice diperbarui',
+                'invoice' => $invoice,
+                // opsional: kirim nomor/customer supaya frontend dapat update lastInvoice quick-check
+                'nomor_invoice' => $invoice->nomor_invoice,
+                'customer_invoice' => $invoice->customer_invoice,
+            ]);
         } catch (\Throwable $e) {
             DB::rollBack();
             Log::error('updateInvoice error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
-
     public function export_pdf($id)
     {
         $invoice = InvoiceModel::with([

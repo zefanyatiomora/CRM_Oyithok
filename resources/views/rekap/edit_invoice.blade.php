@@ -156,6 +156,21 @@
                         </tr>
                     @endforeach
                 </tbody>
+
+                <!-- FOOTER: total produk (jumlah grand_total semua produk) -->
+                <tfoot>
+                    <tr>
+                        <td colspan="5" class="text-right font-weight-bold">Jumlah grand total semua produk</td>
+                        <td>
+                            <div class="input-group">
+                                <input type="text" id="total_produk_display" class="form-control rupiah" readonly
+                                    value="{{ isset($invoice->total_produk) ? number_format((int) $invoice->total_produk, 0, ',', '.') : '' }}">
+                                <input type="hidden" name="total_produk" id="total_produk"
+                                    value="{{ $invoice->total_produk ?? 0 }}">
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
 
@@ -259,7 +274,7 @@
         return Math.round(subtotalBefore * (percent / 100));
     }
 
-    /* === Row & Summary (with PPN) === */
+    /* === Row & Summary (with PPN + total_produk) === */
     function hitungRow($row) {
         let qty = parseInt($row.find('input[name="kuantitas[]"]').val()) || 0;
         let harga = parseInt($row.find('input[name="harga_satuan[]"]').val()) || 0;
@@ -284,6 +299,10 @@
         $('#tablePasang tbody tr').each(function() {
             grandSum += parseInt($(this).find('input[name="grand_total[]"]').val()) || 0;
         });
+
+        // total_produk = jumlah semua grand_total
+        $('#total_produk').val(grandSum);
+        $('#total_produk_display').val(grandSum ? formatRupiah(grandSum) : '');
 
         let pot = parseRupiah($('#potongan_display').val() || '') || 0;
         let cash = parseRupiah($('#cashback_display').val() || '') || 0;
@@ -389,10 +408,13 @@
         let dpVal = parseRupiah($('#dp').val() || $('#dp_display').val());
         $('#dp_display').val(dpVal ? formatRupiah(dpVal) : '');
 
+        // init total_produk display from server value (if provided)
+        let totalProdukInit = parseInt($('#total_produk').val() || 0);
+        $('#total_produk_display').val(totalProdukInit ? formatRupiah(totalProdukInit) : '');
+
         // ppn init: if server provided nominal_ppn, format
         let ppnNominalInit = parseInt($('#ppn_nominal').val() || 0);
         $('#ppn_nominal_display').val(ppnNominalInit ? formatRupiah(ppnNominalInit) : '');
-        // ensure percent input has server value (already set in blade value attribute)
 
         hitungSummary();
 
@@ -473,8 +495,14 @@
 
         // ensure ppn hidden present
         if (!$('#ppn_nominal').val()) $('#ppn_nominal').val(parseRupiah($('#ppn_nominal_display').val()));
-        if (!$('input[name="ppn"]').length) {
-            // nothing: ppn input has name attribute already
+
+        // ensure total_produk is synced (recalculate as fallback)
+        if (!$('#total_produk').val() || $('#total_produk').val() == '0') {
+            let computed = 0;
+            $('#tablePasang tbody tr').each(function() {
+                computed += parseInt($(this).find('input[name="grand_total[]"]').val()) || 0;
+            });
+            $('#total_produk').val(computed);
         }
     }
 
@@ -533,6 +561,11 @@
         let form = $(this);
         let formData = new FormData(this);
         formData.append('_method', 'PUT');
+
+        // ensure total_produk and nominal_ppn/ppn included
+        if (!formData.has('total_produk')) formData.append('total_produk', $('#total_produk').val() || 0);
+        if (!formData.has('nominal_ppn')) formData.append('nominal_ppn', $('#ppn_nominal').val() || 0);
+        if (!formData.has('ppn')) formData.append('ppn', $('#ppn').val() || '');
 
         $.ajax({
             url: form.attr('action'),

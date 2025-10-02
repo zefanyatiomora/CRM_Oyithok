@@ -96,7 +96,6 @@
         </div>
 
         <!-- Table Pasang/Kirim -->
-        <!-- Table Pasang/Kirim (ganti bagian table lama dengan yang ini) -->
         <div class="table-responsive">
             <table class="table table-bordered table-sm" id="tablePasang">
                 <thead>
