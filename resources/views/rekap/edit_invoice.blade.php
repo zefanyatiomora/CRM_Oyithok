@@ -72,7 +72,7 @@
             </div>
 
             <div class="col-md-6">
-                <label>Customer Invoice</label>
+                <label>Customer ID</label>
                 <input type="text" id="customer_invoice" name="customer_invoice" class="form-control"
                     value="{{ $invoice->customer_invoice ?? ($interaksi->customer->customer_nama ?? '') }}">
                 <div id="customer_suggestion" class="suggestion-bar" role="button" tabindex="0" aria-hidden="true">
