@@ -28,27 +28,53 @@ class ProfilController extends Controller
     }
     public function update(Request $request)
     {
-        $request->validate([
-            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
-
+        /** @var \App\Models\User $user **/
         $user = Auth::user();
 
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+
         // Jika ada avatar lama, hapus dari storage
-        if ($user->avatar) {
-            Storage::delete('public/avatars/' . $user->avatar);
+        if ($user->image) {
+            Storage::delete('public/images/' . $user->image);
         }
 
-        if ($request->file('avatar')) {
-            $avatarName = time() . '.' . $request->avatar->extension();
-            $request->avatar->storeAs('public/avatars', $avatarName);
-            /** @var \App\Models\User $user **/
-            $user->avatar = $avatarName;
+        if ($request->file('image')) {
+            $imageName = time() . '.' . $request->image->extension();
+            $request->image->storeAs('public/images', $imageName);
+            $user->image = $imageName;
             $user->save();
-        } // Upload avatar baru
+        } // Upload image baru
 
         return redirect('/profil')->with('success', 'Foto Profil Berhasil Diperbarui!');
     }
+
+    public function update_image(Request $request)
+    {
+        /** @var \App\Models\User $user **/
+        $user = Auth::user();
+        $request->validate([
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+
+        if ($request->hasFile('image')) {
+            // Hapus gambar lama jika ada
+            if ($user->image && Storage::exists($user->image)) {
+                Storage::delete($user->image);
+            }
+
+            // Simpan gambar baru
+            $path = $request->file('image')->store('users/image', 'public');
+            $user->image = $path;
+            $user->save();
+        }
+
+        return redirect()->back()->with('success', 'Foto profil berhasil diperbarui');
+    }
+
     public function update_data_diri(Request $request)
     {
         /** @var \App\Models\UserModel $user */
@@ -78,60 +104,6 @@ class ProfilController extends Controller
         return back()->with('success', 'Data berhasil diperbarui');
     }
 
-    public function updateDataDiri(Request $request)
-    {
-        // Validasi input menggunakan Validator langsung
-        $rules = [
-            'nama' => 'required|string|max:255',
-        ];
-
-        // Jalankan validasi
-        $validator = Validator::make($request->all(), $rules);
-
-        // Jika validasi gagal, kembalikan pesan error dalam format JSON
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Validasi Gagal',
-                'msgField' => $validator->errors(),
-            ]);
-        }
-
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        $user->nama = $request->nama;
-        $user->save();
-
-        // Update data profil di tabel profil_user
-        $profil = $user->profil; // Mengambil data profil yang terkait
-
-        // Periksa jika profil ada
-        if ($profil) {
-            $profil->tempat_lahir = $request->tempat_lahir;
-            $profil->tanggal_lahir = $request->tanggal_lahir;
-            $profil->jenis_kelamin = $request->jenis_kelamin;
-            $profil->agama = $request->agama;
-            $profil->no_hp = $request->no_hp;
-            $profil->alamat = $request->alamat;
-            $profil->save(); // Simpan perubahan pada profil
-        } else {
-            return redirect('/profil')->with('error', 'Profil tidak ditemukan.');
-        }
-
-        return redirect('/profil')->with('success', 'Data Diri Berhasil Diperbarui!');
-        //     // Kembalikan response sukses jika semua berhasil
-        //     return response()->json([
-        //         'status' => true,
-        //         'message' => 'Data Diri Berhasil Diperbarui!',
-        //     ]);
-        // } else {
-        //     // Jika profil tidak ditemukan, kembalikan pesan error dalam format JSON
-        //     return response()->json([
-        //         'status' => false,
-        //         'message' => 'Profil tidak ditemukan.',
-        //     ]);
-        // }
-    }
     public function updatePassword(Request $request)
     {
         // Validasi input

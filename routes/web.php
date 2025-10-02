@@ -175,7 +175,7 @@ Route::middleware(['auth'])->group(function () {
 
 
     Route::get('/profil', [ProfilController::class, 'index']);
-    Route::post('/profil/update', [ProfilController::class, 'update']);
+    Route::post('/profil/update_image', [ProfilController::class, 'update_image']);
     Route::post('/profil/update_data_diri', [ProfilController::class, 'update_data_diri']);
     Route::post('/profil/update_password', [ProfilController::class, 'updatePassword']);
 });

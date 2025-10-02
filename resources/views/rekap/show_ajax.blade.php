@@ -473,12 +473,21 @@
                     </table>
                     </table>
                     <h4 class="mt-4 d-flex justify-content-end gap-2">
-                        <a href="javascript:void(0);"
-                            onclick="openModal('{{ route('invoice.create', $interaksi->interaksi_id) }}')"
-                            class="btn btn-sm btn-primary" title="Buat Invoice">
-                            <i class="fas fa-plus fa-sm"></i> Buat Invoice
-                        </a>
-
+                        {{-- Tombol Buat Invoice --}}
+                        @if($interaksi->pasang && $interaksi->pasang->count() > 0)
+                            <a href="javascript:void(0);"
+                                onclick="openModal('{{ route('invoice.create', $interaksi->interaksi_id) }}')"
+                                class="btn btn-sm btn-primary" title="Buat Invoice">
+                                <i class="fas fa-plus fa-sm"></i> Buat Invoice
+                            </a>
+                        @else
+                            <button class="btn btn-sm btn-primary" disabled
+                                    data-toggle="tooltip" data-placement="top"
+                                    title="Belum ada closing untuk interaksi ini">
+                                <i class="fas fa-plus fa-sm"></i> Buat Invoice
+                            </button>
+                        @endif
+                        {{-- Tombol PDF --}}
                         @if($invoices)
                             <a href="{{ route('invoice.export_pdf', $invoices->invoice_id) }}"
                                 class="btn btn-sm btn-danger" title="Export PDF" target="_blank">
