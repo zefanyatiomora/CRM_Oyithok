@@ -58,29 +58,31 @@
 
         /* Summary */
         .summary {
-            margin-top: 8px;
+            margin-top: 5px;
             border: 1px solid #ffffff;
             width: 40%;
             float: right;
+            border-spacing: 0;
         }
         .summary td {
-            padding: 6px;
+            padding: 0.5px 1px;
             font-size: 10px;
+            line-height: 0.8;
         }
         .summary .label {
             background: #eee;
             font-weight: bold;
         }
 
-        /* Note */
         .note {
             font-size: 10px;
-            margin-top: 50px;
-            line-height: 1.5;
+            margin-top: 0px;
+            line-height: 1.4;
+            clear: both;
         }
 
         /* Footer */
-        .footer { margin-top: 25px; font-size: 11px; }
+        .footer { margin-top: 5px; font-size: 10ch; }
         .signature { text-align: center; font-size: 10px; }
 
          /* Garis pembatas */
@@ -97,14 +99,18 @@
 
         .overlay-lunas {
         position: absolute;
+        top: 70%;
+        left: 50%;
         transform: translate(-50%, -50%);
-        opacity: 0.9;
+        opacity: 0.8;
         z-index: 0;
-        width: 200px;
+        width: 160px;
     }
     .summary-wrapper {
         position: relative;
         display: inline-block;
+        margin-bottom: 0;
+        padding-bottom: 0;
     }
 
     </style>
@@ -293,7 +299,7 @@
                         PPN ({{ number_format($invoice->ppn ?? 0, 0, ',', '.') }}%)
                     </td>
                     <td class="right" style="padding: 6px; background-color: #ffffff; text-align: center;">
-                        Rp{{ number_format($invoice->ppn ?? 0, 0, ',', '.') }}
+                        Rp{{ number_format($invoice->nominal_ppn ?? 0, 0, ',', '.') }}
                     </td>
                 </tr>
                 <tr style="font-weight: bold; text-align: center;">
@@ -327,7 +333,7 @@
                 <td style="text-align:right; padding:20;" colspan="100%">
                     <img src="{{ public_path('images/stempel lunas.png') }}"
                         alt="LUNAS"
-                        style="width: 120px; opacity:0.8; margin:0; margin-top:30px;">
+                        style="width: 110px; opacity:0.8; margin:0; margin-top:5px;">
                 </td>
             </tr>
             @endif
