@@ -35,7 +35,7 @@
                 <input type="text" name="nomor_invoice" class="form-control" value="{{ $invoice->nomor_invoice }}">
             </div>
             <div class="col-md-6">
-                <label>Customer Invoice</label>
+                <label>Customer ID</label>
                 <input type="text" name="customer_invoice" class="form-control"
                     value="{{ $invoice->customer_invoice ?? ($interaksi->customer->customer_nama ?? '') }}">
             </div>
