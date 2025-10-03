@@ -27,44 +27,19 @@ class ProfilController extends Controller
         $profil = $user->profil;
         return view('profil.index', ['breadcrumb' => $breadcrumb, 'page' => $page, 'user' => $user, 'profil' => $profil, 'activeMenu' => $activeMenu]);
     }
-    public function update(Request $request)
-    {
-        /** @var \App\Models\User $user **/
-        $user = Auth::user();
-
-        $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
-
-
-        // Jika ada avatar lama, hapus dari storage
-        if ($user->image) {
-            Storage::delete('public/images/' . $user->image);
-        }
-
-        if ($request->file('image')) {
-            $imageName = time() . '.' . $request->image->extension();
-            $request->image->storeAs('public/images', $imageName);
-            $user->image = $imageName;
-            $user->save();
-        } // Upload image baru
-
-        return redirect('/profil')->with('success', 'Foto Profil Berhasil Diperbarui!');
-    }
-
     public function update_image(Request $request)
     {
         /** @var \App\Models\User $user **/
         $user = Auth::user();
+
         $request->validate([
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-
         if ($request->hasFile('image')) {
             // Hapus gambar lama jika ada
-            if ($user->image && Storage::exists($user->image)) {
-                Storage::delete($user->image);
+            if ($user->image && Storage::disk('public')->exists($user->image)) {
+                Storage::disk('public')->delete($user->image);
             }
 
             // Simpan gambar baru
@@ -75,6 +50,7 @@ class ProfilController extends Controller
 
         return redirect()->back()->with('success', 'Foto profil berhasil diperbarui');
     }
+
 
     public function update_data_diri(Request $request)
     {

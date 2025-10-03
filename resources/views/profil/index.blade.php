@@ -18,8 +18,8 @@
             <div class="card card-primary card-outline">
                 <div class="card-body box-profile">
                     <div class="text-center">
-                    <img src="{{ auth()->user()->image ? asset('storage/' . Auth::user()->ttd) : asset('adminlte/dist/img/user10-1024.png') }}"
-                    class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px;" alt="Avatar">
+                    <img src="{{ auth()->user()->image ? asset('storage/' . Auth::user()->image) : asset('adminlte/dist/img/user10-1024.png') }}"
+                    class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px;" alt="Image">
                     </div>
 
                     <h3 class="profile-username text-center">{{ auth()->user()->nama }}</h3>
@@ -31,7 +31,7 @@
                         <div class="form-group row">
                             <div class="col-sm-10">
                                 <div class="input-group">
-                                    <input type="file" name="avatar" id="avatar" class="form-control" required>
+                                    <input type="file" name="image" id="image" class="form-control" required>
                                     <div class="input-group-append">
                                     </div>
                                 </div>

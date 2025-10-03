@@ -6,7 +6,7 @@
   <div class="user-panel mt-2 pb-2 mb-1 d-flex">
     <div class="image">
       {{-- <img src="{{ asset('adminlte/dist/img/user10-1024.png') }}" class="img-circle elevation-2" alt="User Image"> --}}
-      <img src="{{ auth()->user()->image ? asset('storage/' . Auth::user()->ttd) : asset('adminlte/dist/img/user10-1024.png') }}" class="img-circle elevation-2" alt="User Image">
+      <img src="{{ auth()->user()->image ? asset('storage/' . Auth::user()->image) : asset('adminlte/dist/img/user10-1024.png') }}" class="img-circle elevation-2" alt="User Image">
     </div>
     <div class="info">
     <a href="{{ url('/profil') }}" class="d-block user-name">{{ Auth::user()->nama }}</a>
