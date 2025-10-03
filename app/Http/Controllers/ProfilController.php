@@ -23,6 +23,7 @@ class ProfilController extends Controller
             'title' => 'Upload foto'
         ];
         $user = Auth::user();
+        /** @var \App\Models\User $user **/
         $profil = $user->profil;
         return view('profil.index', ['breadcrumb' => $breadcrumb, 'page' => $page, 'user' => $user, 'profil' => $profil, 'activeMenu' => $activeMenu]);
     }
@@ -83,9 +84,13 @@ class ProfilController extends Controller
         $request->validate([
             'nama' => 'required|string|max:255',
             'ttd'  => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'nohp' => 'required|string|max:15',
+            'alamat' => 'required|string|max:255',
         ]);
 
         $user->nama = $request->nama;
+        $user->no_hp  = $request->no_hp;
+        $user->alamat = $request->alamat;
 
         if ($request->hasFile('ttd')) {
             // Hapus TTD lama jika ada

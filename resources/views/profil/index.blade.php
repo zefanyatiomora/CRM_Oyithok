@@ -95,19 +95,19 @@
                                     </div>
                                 </div>
 
-                                {{-- <div class="form-group row">
-                                    <label for="no_hp" class="col-sm-2 col-form-label">No. HP</label>
+                                <div class="form-group row">
+                                    <label for="nohp" class="col-sm-2 col-form-label">No. HP</label>
                                     <div class="col-sm-10">
-                                        <input type="text" name="no_hp" id="no_hp" class="form-control" value="{{ $profil->no_hp ?? '' }}">
+                                        <input type="text" name="nohp" id="nohp" class="form-control" value="{{ Auth::user()->nohp ?? '' }}">
                                     </div>
-                                </div> --}}
+                                </div>
                         
-                                {{-- <div class="form-group row">
+                                <div class="form-group row">
                                     <label for="alamat" class="col-sm-2 col-form-label">Alamat</label>
                                     <div class="col-sm-10">
-                                        <textarea name="alamat" id="alamat" class="form-control">{{ $profil->alamat ?? '' }}</textarea>
+                                        <textarea name="alamat" id="alamat" class="form-control">{{ Auth::user()->alamat ?? '' }}</textarea>
                                     </div>
-                                </div> --}}
+                                </div>
                         
                                 <div class="form-group row">
                                     <div class="col-sm-10 offset-sm-2">

@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('invoices', function (Blueprint $table) {
-            // $table->unique('nomor_invoice');
-            $table->unique('customer_invoice');
+        Schema::table('m_user', function (Blueprint $table) {
+            $table->string('alamat', 100)->after('nama');
+            $table->string('nohp', 20)->nullable()->after('alamat');
         });
     }
 
@@ -22,9 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('invoices', function (Blueprint $table) {
-            // $table->dropUnique(['nomor_invoice']);
-            $table->dropUnique(['customer_invoice']);
+        Schema::table('m_user', function (Blueprint $table) {
+            $table->dropColumn('alamat');
+            $table->dropColumn('nohp');
         });
     }
 };

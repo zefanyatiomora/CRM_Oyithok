@@ -16,7 +16,7 @@ class UserModel extends Authenticatable
     use HasFactory;
     protected $table = 'm_user'; //Mendefinisikan nama tabel yang digunakan oleh model ini
     protected $primaryKey = 'user_id'; //Mendefiniskan primary key dari tabel yang digunakan
-    protected $fillable = ['username', 'password', 'nama', 'level_id', 'ttd', 'image'];
+    protected $fillable = ['username', 'password', 'nama', 'alamat', 'nohp', 'level_id', 'ttd', 'image'];
     // protected $hidden = ['password'];
     protected $casts =  ['password' => 'hashed'];
 
