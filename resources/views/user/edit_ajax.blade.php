@@ -52,6 +52,16 @@
                         <small id="error-nama" class="error-text form-text text-danger"></small>
                     </div>
                     <div class="form-group">
+                        <label>No HP</label>
+                        <input value="{{ $user->nohp }}" type="text" name="nohp" id="nohp" class="form-control" required>
+                        <small id="error-nohp" class="error-text form-text text-danger"></small>
+                    </div>
+                    <div class="form-group">
+                        <label>Alamat</label>
+                        <input value="{{ $user->alamat }}" type="text" name="alamat" id="alamat" class="form-control" required>
+                        <small id="error-alamat" class="error-text form-text text-danger"></small>
+                    </div>
+                    <div class="form-group">
                         <label for="password">Password</label>
                         <div class="input-group">
                             <input value="" type="password" name="password" id="password" class="form-control">

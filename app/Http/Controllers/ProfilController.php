@@ -89,7 +89,7 @@ class ProfilController extends Controller
         ]);
 
         $user->nama = $request->nama;
-        $user->no_hp  = $request->no_hp;
+        $user->nohp  = $request->nohp;
         $user->alamat = $request->alamat;
 
         if ($request->hasFile('ttd')) {
