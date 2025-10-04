@@ -18,7 +18,7 @@
             <div class="card card-primary card-outline">
                 <div class="card-body box-profile">
                     <div class="text-center">
-                    <img src="{{ auth()->user()->image ? asset('storage/' . Auth::user()->image) : asset('adminlte/dist/img/user10-1024.png') }}"
+                    <img src="{{ auth()->user()->image ? asset('storage/' . $profil->image) : asset('adminlte/dist/img/user10-1024.png') }}"
                     class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px;" alt="Image">
                     </div>
 
@@ -67,14 +67,14 @@
                                 <div class="form-group row">
                                     <label class="col-sm-2 col-form-label">Username</label>
                                     <div class="col-sm-10">
-                                        <input type="text" class="form-control" value="{{ Auth::user()->username }}" disabled>
+                                        <input type="text" class="form-control" value="{{ $profil->username }}" disabled>
                                     </div>
                                 </div>
                                 
                                 <div class="form-group row">
                                     <label for="nama" class="col-sm-2 col-form-label">Nama</label>
                                     <div class="col-sm-10">
-                                        <input type="text" name="nama" id="nama" class="form-control" value="{{ Auth::user()->nama }}" required>
+                                        <input type="text" name="nama" id="nama" class="form-control" value="{{ $profil->nama }}" required>
                                         <small id="error-nama" class="error-text form-text text-danger"></small>
                                     </div>
                                 </div>
@@ -85,7 +85,7 @@
                                         {{-- Tampilkan TTD lama kalau ada --}}
                                         @if(Auth::user()->ttd)
                                             <div class="mb-2">
-                                                <img src="{{ asset('storage/' . Auth::user()->ttd) }}" alt="TTD" width="200">
+                                                <img src="{{ asset('storage/' . $profil->ttd) }}" alt="TTD" width="200">
                                             </div>
                                         @endif
 
@@ -98,14 +98,14 @@
                                 <div class="form-group row">
                                     <label for="nohp" class="col-sm-2 col-form-label">No. HP</label>
                                     <div class="col-sm-10">
-                                        <input type="text" name="nohp" id="nohp" class="form-control" value="{{ Auth::user()->nohp ?? '' }}">
+                                        <input type="text" name="nohp" id="nohp" class="form-control" value="{{ $profil->nohp ?? '' }}">
                                     </div>
                                 </div>
                         
                                 <div class="form-group row">
                                     <label for="alamat" class="col-sm-2 col-form-label">Alamat</label>
                                     <div class="col-sm-10">
-                                        <textarea name="alamat" id="alamat" class="form-control">{{ Auth::user()->alamat ?? '' }}</textarea>
+                                        <textarea name="alamat" id="alamat" class="form-control">{{ $profil->alamat ?? '' }}</textarea>
                                     </div>
                                 </div>
                         

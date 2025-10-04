@@ -24,7 +24,7 @@ class ProfilController extends Controller
         ];
         $user = Auth::user();
         /** @var \App\Models\User $user **/
-        $profil = $user->profil;
+        $profil = $user;
         return view('profil.index', ['breadcrumb' => $breadcrumb, 'page' => $page, 'user' => $user, 'profil' => $profil, 'activeMenu' => $activeMenu]);
     }
     public function update_image(Request $request)

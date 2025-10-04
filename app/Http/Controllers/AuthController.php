@@ -24,9 +24,10 @@ class AuthController extends Controller
         if ($request->ajax() || $request->wantsJson()) {
             $credentials = $request->only('username', 'password');
             if (Auth::attempt($credentials)) {
+                $nama = Auth::user()->nama;
                 return response()->json([
                     'status' => true,
-                    'message' => 'Login Berhasil',
+                    'message' => 'Selamat datang, ' . $nama . '.',
                     'redirect' => url('/')
                 ]);
             }
@@ -38,10 +39,10 @@ class AuthController extends Controller
         return redirect('login');
     }
     public function profile()
-{
-    $user = auth()->user();
-    return view('profile.index', compact('user'));
-}
+    {
+        $user = auth()->user();
+        return view('profile.index', compact('user'));
+    }
 
     public function logout(Request $request)
     {
