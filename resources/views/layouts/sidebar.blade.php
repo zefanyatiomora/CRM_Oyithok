@@ -5,7 +5,7 @@
 <!-- Sidebar user panel (optional) -->
   <div class="user-panel mt-2 pb-2 mb-1 d-flex">
     <div class="image">
-      <img src="{{ auth()->user()->image ? asset('storage/' . Auth::user()->image) : asset('adminlte/dist/img/user10-1024.png') }}"
+      <img src="{{ auth()->user()->image ? asset('storage/' . Auth::user()->image) : asset('adminlte/dist/img/default-avatar.png') }}"
      alt="User Image"
      class="rounded-circle"
      style="width: 30px; height: 30px; object-fit: cover;">

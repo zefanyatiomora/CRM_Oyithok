@@ -36,6 +36,7 @@
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Profil</th>
                         <th>Username</th>
                         <th>Nama</th>
                         <th>Level Pengguna</th>
@@ -94,7 +95,20 @@
               className: "text-center", 
               orderable: false, 
               searchable: false     
-            },{ 
+            },
+            {
+                // Kolom baru untuk foto profil
+                data: "image",
+                className: "text-center",
+                orderable: false,
+                searchable: false,
+                render: function(data, type, row) {
+                    // Jika ada gambar, tampilkan. Jika tidak, tampilkan placeholder.
+                    var imageUrl = data ? '{{ asset("storage/") }}' + '/' + data : '{{ asset("adminlte/dist/img/default-avatar.png") }}';
+                    return '<img src="' + imageUrl + '" alt="Foto Profil" class="img-circle img-size-32 mr-2" style="width: 32px; height: 32px; object-fit: cover;">';
+                }
+            },
+            { 
               data: "username",                
               className: "", 
               orderable: true,     

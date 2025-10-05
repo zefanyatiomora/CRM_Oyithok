@@ -32,7 +32,7 @@ class UserController extends Controller
     // Ambil data user dalam bentuk json untuk datatables  
     public function list(Request $request)
     {
-        $users = UserModel::select('user_id', 'username', 'nama', 'level_id')
+        $users = UserModel::select('user_id', 'username', 'nama', 'level_id', 'image')
             ->with('level');
 
         // Filter data user berdasarkan level_id 
@@ -127,6 +127,32 @@ class UserController extends Controller
             } else {
                 return response()->json([
                     'status'  => false,
+                    'message' => 'Data tidak ditemukan'
+                ]);
+            }
+        }
+        return redirect('/');
+    }
+    public function confirm_ajax(string $id)
+    {
+        $user = UserModel::find($id);
+
+        return view('user.confirm_ajax', ['user' => $user]);
+    }
+    public function delete_ajax(Request $request, $id)
+    {
+        // cek apakah request dari ajax
+        if ($request->ajax() || $request->wantsJson()) {
+            $user = UserModel::find($id);
+            if ($user) {
+                $user->delete();
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Data berhasil dihapus'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
                     'message' => 'Data tidak ditemukan'
                 ]);
             }

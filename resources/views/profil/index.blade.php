@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container-fluid">
-    @if(session('success'))
+    {{-- @if(session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
@@ -11,14 +11,14 @@
         <div class="alert alert-danger">
             {{ session('error') }}
         </div>
-    @endif
+    @endif --}}
     <div class="row">
         <div class="col-md-3">
             <!-- Profile Image -->
             <div class="card card-primary card-outline">
                 <div class="card-body box-profile">
                     <div class="text-center">
-                    <img src="{{ auth()->user()->image ? asset('storage/' . $profil->image) : asset('adminlte/dist/img/user10-1024.png') }}"
+                    <img src="{{ auth()->user()->image ? asset('storage/' . $profil->image) : asset('adminlte/dist/img/default-avatar.png') }}"
                     class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px;" alt="Image">
                     </div>
 
@@ -169,10 +169,65 @@
     <!-- /.row -->
 </div><!-- /.container-fluid -->
 @endsection
-
-@section('scripts')
-<!-- Add any page-specific scripts here -->
+@push('js')
 <script>
+    // Opsi konfigurasi untuk Toastr (opsional, tapi disarankan)
+    toastr.options = {
+        "closeButton": true,
+        // "progressBar": true,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": false,
+        // "showDuration": "300",
+        // "hideDuration": "1000",
+        // "timeOut": "5000",
+        // "extendedTimeOut": "1000",
+    };
 
+    // Skrip untuk menampilkan notifikasi Toastr berdasarkan session
+    @if(session('success'))
+        toastr.success("{{ session('success') }}");
+    @endif
+
+    @if(session('error'))
+        toastr.error("{{ session('error') }}");
+    @endif
 </script>
-@endsection
+@endpush
+
+@push('css')
+<style>
+    /* Mendefinisikan variabel warna ungu */
+    :root {
+        --primary-color: #a66dd4;
+        --primary-color-hover: #9559c3;
+    }
+
+    /* Mengubah warna tombol primary */
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus,
+    .btn-primary:active {
+        background-color: var(--primary-color-hover);
+        border-color: var(--primary-color-hover);
+    }
+
+    /* Mengubah warna garis atas pada card-outline */
+    .card-primary.card-outline {
+        border-top-color: var(--primary-color);
+    }
+
+    /* (Opsional) Mengubah warna tab navigasi yang aktif agar serasi */
+    .nav-pills .nav-link.active,
+    .nav-pills .show>.nav-link {
+        background-color: var(--primary-color);
+    }
+    /* Mengubah warna TEKS saat hover pada tab yang tidak aktif */
+    .nav-pills .nav-link:not(.active):hover {
+        color: var(--primary-color);
+    }
+</style>
+@endpush

@@ -13,6 +13,7 @@ use App\Models\PasangKirimModel;
 use App\Models\RincianModel;
 use App\Models\InvoiceModel;
 use App\Models\InvoiceDetailModel;
+use App\Models\UserModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
@@ -291,11 +292,13 @@ class RekapController extends Controller
             $interaksi = InteraksiModel::findOrFail($id_interaksi);
             // Log::info('Interaksi ditemukan.', ['interaksi' => $interaksi]);
 
+            $picList = UserModel::select('user_id', 'nama')->get();
+
             $realtime = InteraksiRealtime::with('user')
                 ->where('interaksi_id', $id_interaksi)
                 ->get();
 
-            return view('rekap.create_realtime', compact('interaksi',  'realtime'));
+            return view('rekap.create_realtime', compact('interaksi',  'realtime', 'picList'));
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Interaksi tidak ditemukan.',

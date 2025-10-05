@@ -30,6 +30,19 @@
         <small id="error-keterangan" class="text-danger"></small>
     </div>
 
+    <!-- PIC -->
+    <div class="form-group">
+        <label for="pic_id">PIC</label>
+        <select name="pic_id" id="pic_id" class="form-control" required>
+            <option value="">-- Pilih PIC --</option>
+            @foreach($picList as $pic)
+                <option value="{{ $pic->id }}">{{ $pic->nama }}</option>
+            @endforeach
+        </select>
+        <small id="error-pic_id" class="text-danger"></small>
+    </div>
+
+
     <div class="modal-footer">
         <button type="submit" class="btn btn-primary">Simpan</button>
         <button type="button" class="btn btn-secondary"
