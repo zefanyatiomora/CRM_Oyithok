@@ -40,8 +40,7 @@
                             <div class="text-center">
                                 <label>Foto Profil</label>
                                 <div class="mb-3">
-                                    <img src="{{ $user->image ? asset('storage/' . $user->image) : asset('adminlte/dist/img/user10-1024.png') }}"
-                                        alt="Foto Profil" class="img-fluid rounded-circle" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #eee;">
+                                    <img src="{{ $user->image_url }}"alt="Foto Profil" class="img-fluid rounded-circle" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #eee;">
                                 </div>
                             </div>
 
