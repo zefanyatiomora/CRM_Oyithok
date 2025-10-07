@@ -76,13 +76,6 @@
                                 <p>Data User</p>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a href="{{ url('/keterangan-invoice') }}"
-                                class="nav-link {{ $activeMenu == 'keterangan_invoice' ? 'active' : '' }}">
-                                <i class="fas fa-file-invoice nav-icon"></i>
-                                <p>Keterangan Invoice</p>
-                            </a>
-                        </li>
                     @endif
                 </ul>
             </li>
