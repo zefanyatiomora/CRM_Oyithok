@@ -7,6 +7,7 @@ use App\Http\Controllers\TambahKebutuhanController;
 use App\Http\Controllers\PICController;
 use App\Http\Controllers\DataInvoiceController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\InvoiceKeteranganController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RekapController;
@@ -173,6 +174,16 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{id}/update', [RekapController::class, 'updateInvoice'])->name('invoice.update');
     });
 
+    Route::prefix('keterangan-invoice')->group(function () {
+        Route::get('/', [InvoiceKeteranganController::class, 'index'])
+            ->name('keterangan_invoice.index');
+
+        Route::get('/{id}/edit_ajax', [InvoiceKeteranganController::class, 'edit_ajax'])
+            ->name('keterangan_invoice.edit_ajax');
+
+        Route::put('/{id}', [InvoiceKeteranganController::class, 'update'])
+            ->name('keterangan_invoice.update');
+    });
 
     Route::get('/profil', [ProfilController::class, 'index']);
     Route::post('/profil/update_image', [ProfilController::class, 'update_image']);
