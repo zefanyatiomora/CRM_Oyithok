@@ -64,7 +64,55 @@
             background: rgba(103, 58, 183, 0.4);
             border-radius: 15px 0 0 15px;
         } */
-        
+        /* Tambahkan di style */
+/* Animasi Fade & Slide untuk container */
+@keyframes fadeSlide {
+    0% {
+        opacity: 0;
+        transform: translateY(40px) scale(0.98);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Terapkan animasi ke login container */
+.login-container {
+    animation: fadeSlide 1s ease-out;
+}
+
+/* Efek input glow */
+.form-control {
+    transition: all 0.3s ease-in-out;
+}
+.form-control:focus {
+    transform: scale(1.02);
+    box-shadow: 0 0 12px rgba(166, 109, 212, 0.4);
+}
+
+/* Input icon ikut glow */
+.input-group-text {
+    transition: all 0.3s ease-in-out;
+}
+.input-group:focus-within .input-group-text {
+    background: var(--primary-color);
+    color: #fff;
+    box-shadow: 0 0 8px rgba(166, 109, 212, 0.6);
+}
+
+/* Tombol lebih hidup */
+.btn-primary {
+    transition: all 0.3s ease;
+}
+.btn-primary:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 10px 20px rgba(166, 109, 212, 0.3);
+}
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
         .login-form-side {
             width: 50%;
             display: flex;
@@ -205,6 +253,20 @@
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         }
     });
+    $(document).ready(function() {
+    // Animasi fade untuk card form
+    $(".login-card-body").css("opacity", "0").animate({opacity: 1}, 800);
+
+  $(".form-control").on("focus", function() {
+        $(this).closest(".input-group").find(".input-group-text")
+            .css("background", "var(--primary-color)")
+            .css("color", "#fff");
+    }).on("blur", function() {
+        $(this).closest(".input-group").find(".input-group-text")
+            .css("background", "#f3f0fa")
+            .css("color", "#6c757d");
+    });
+});
 
     $(document).ready(function() {
         $("#form-login").validate({

@@ -19,17 +19,20 @@ $(document).on('submit', '#form-identifikasi-awal', function(e){
         if(res.status === 'success'){
             Swal.fire('Berhasil!', res.message, 'success');
 
-            // Hapus form
+            // Tutup form identifikasi
             $('#form-identifikasi-container').slideUp().html('');
 
-            // Reload container tetap
-$.get("{{ route('interaksiAwal.list', $interaksi_id) }}", function(html){
-    $('#identifikasi-tabel-container').html(html);
-});
+            // Ambil interaksi_id dari hidden input
+            let interaksiId = $("input[name='interaksi_id']").val();
+
+            // Reload modal rekap
+            $("#myModal").load("{{ url('rekap') }}/" + interaksiId + "/show_ajax", function() {
+                $("#crudModal").modal('hide'); 
+                $("#myModal").modal('show'); 
+            });
+
         }
     }).fail(function(){
         Swal.fire('Error!', 'Terjadi kesalahan saat menyimpan', 'error');
     });
 });
-
-</script>

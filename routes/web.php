@@ -173,7 +173,6 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{id}/update', [RekapController::class, 'updateInvoice'])->name('invoice.update');
     });
 
-
     Route::get('/profil', [ProfilController::class, 'index']);
     Route::post('/profil/update_image', [ProfilController::class, 'update_image']);
     Route::post('/profil/update_data_diri', [ProfilController::class, 'update_data_diri']);
