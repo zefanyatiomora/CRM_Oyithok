@@ -60,7 +60,7 @@
         </div>
     </div>
 
-    <!-- Modal Detail -->
+    <!-- Modal Detail / Form Keterangan -->
     <div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
             <div class="modal-content">
@@ -91,6 +91,16 @@
 
 @push('js')
     <script>
+        // Fungsi buka modal (bisa untuk detail atau edit keterangan)
+        function openModal(url) {
+            $.get(url, function(res) {
+                $('#modal-detail-content').html(res);
+                $('#detailModal').modal('show');
+            }).fail(function() {
+                toastr.error('Gagal memuat data dari server.');
+            });
+        }
+
         // Tombol detail invoice (AJAX)
         $(document).on('click', '.btn-show-invoice', function() {
             let id = $(this).data('id');
@@ -117,12 +127,13 @@
                 },
                 dom: '<"d-flex justify-content-between mb-2"fB>rt<"d-flex justify-content-between"lip>',
                 buttons: [
-                    // 🔹 Tombol Keterangan (custom)
+                    // 🔹 Tombol Keterangan — diubah jadi panggil modal AJAX
                     {
                         text: '<i class="fas fa-file-alt"></i> Keterangan',
                         className: 'btn btn-warning btn-sm text-white',
                         action: function() {
-                            window.location.href = "{{ route('keterangan_invoice.index') }}";
+                            // karena data cuma 1 record, id fix = 1
+                            openModal("{{ url('/keterangan-invoice/1/edit_ajax') }}");
                         }
                     },
                     // 🔹 Tombol Excel
@@ -194,6 +205,28 @@
                         }
                     }
                 ]
+            });
+        });
+
+        // 🔹 Kirim form edit keterangan via AJAX (biar tidak reload halaman)
+        $(document).on('submit', '#formEditKeterangan', function(e) {
+            e.preventDefault();
+
+            let form = $(this);
+            let url = form.attr('action');
+            let data = form.serialize();
+
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: data,
+                success: function() {
+                    toastr.success('Keterangan berhasil diperbarui!');
+                    $('#detailModal').modal('hide');
+                },
+                error: function() {
+                    toastr.error('Gagal memperbarui keterangan.');
+                }
             });
         });
     </script>

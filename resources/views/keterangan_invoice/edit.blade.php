@@ -6,7 +6,7 @@
     </button>
 </div>
 
-<form action="{{ route('keterangan_invoice.update', $keterangan->keterangan_id) }}" method="POST">
+<form action="{{ route('keterangan_invoice.update', $keterangan->keterangan_id) }}" method="POST" id="formEditKeterangan">
     @csrf
     @method('PUT')
 
@@ -26,3 +26,37 @@
         </button>
     </div>
 </form>
+
+<script>
+    // Hapus event sebelumnya agar tidak dobel
+    $(document).off('submit', '#formEditKeterangan');
+
+    // Submit form edit keterangan via AJAX
+    $(document).on('submit', '#formEditKeterangan', function(e) {
+        e.preventDefault();
+
+        let form = $(this);
+        let url = form.attr('action');
+        let data = form.serialize();
+
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: data,
+            success: function() {
+                toastr.clear(); // pastikan tidak ada toastr sebelumnya
+                toastr.success('Keterangan berhasil diperbarui!');
+                $('#detailModal').modal('hide');
+
+                // 🔹 Arahkan ke halaman Data Invoice
+                setTimeout(function() {
+                    window.location.href = "{{ route('datainvoice.index') }}";
+                }, 1000);
+            },
+            error: function() {
+                toastr.clear();
+                toastr.error('Gagal memperbarui keterangan.');
+            }
+        });
+    });
+</script>
