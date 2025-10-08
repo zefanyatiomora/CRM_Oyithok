@@ -341,24 +341,19 @@
     </tr>
     </table>
 
-    {{-- Catatan --}}
-    <div class="note">
-        <p><strong>KETERANGAN:</strong></p>
+{{-- Catatan --}}
+<div class="note">
+    <p><strong>KETERANGAN:</strong></p>
+
+    @if($invoice_keterangan->keterangan)
         <ol>
-            <li>DP yang sudah masuk tidak dapat direfund dengan alasan apapun.</li>
-            <li>Barang tidak dapat diretur atau dikembalikan.</li>
-            <li>Jika terjadi batal/tukar/retur, maka pembayaran hangus secara profesional.</li>
-            <li>Barang wajib dipasang maksimal 1 bulan setelah tanggal pembelian  (untuk wallpaper).</li>
-            <li>Harga diatas tanpa PPN.</li>
-            <li>Jika pemesanan produk dengan jasa pemasangan wajib melakukan pembayaran DP 60% diawal, pelunasan dilakukan setelah
-                pemasangan selesai.</li>
-            <li>Pengiriman tanpa jasa pasang wajib melakukan pembayaran DP 70% diawal, pelunasan dilakukan setelah barang siap dan sebelum
-                barang dikirim.</li>
-            <li>Jika pemesanan jasa pasang wajib melakukan pembayaran DP 60%-70% (*syarat dan ketentuan berlaku) diawal, pelunasan
-                dilakukan setelah pemasangan selesai.</li>
-            <li>Peraturan ini berlaku setelah nota dibuat dan telah dijelaskan oleh Admin.</li>
+            <li>{{ $invoice_keterangan->keterangan }}</li>
         </ol>
-    </div>
+    @else
+        <p><em>Tidak ada keterangan.</em></p>
+    @endif
+</div>
+
 
     <p style="text-align:center; margin-top:0px;">
         <strong>Terima kasih telah mempercayakan kami sebagai partner kerjasama Anda!</strong>
