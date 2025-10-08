@@ -12,15 +12,16 @@ class InvoiceKeteranganSeeder extends Seeder
         DB::table('invoice_keterangan')->updateOrInsert(
             ['keterangan_id' => 1],
             [
-                'keterangan' => "1. DP yang sudah masuk tidak dapat direfund dengan alasan apapun.\n" .
-                    "2. Barang tidak dapat diretur atau dikembalikan.\n" .
-                    "3. Jika terjadi batal/tukar/retur, maka pembayaran hangus secara profesional.\n" .
-                    "4. Barang wajib dipasang maksimal 1 bulan setelah tanggal pembelian (untuk wallpaper).\n" .
-                    "5. Harga di atas tanpa PPN.\n" .
-                    "6. Jika pemesanan produk dengan jasa pemasangan wajib melakukan pembayaran DP 60% di awal, pelunasan dilakukan setelah pemasangan selesai.\n" .
-                    "7. Pengiriman tanpa jasa pasang wajib melakukan pembayaran DP 70% di awal, pelunasan dilakukan setelah barang siap dan sebelum barang dikirim.\n" .
-                    "8. Jika pemesanan jasa pasang wajib melakukan pembayaran DP 60%-70% (*syarat dan ketentuan berlaku) di awal, pelunasan dilakukan setelah pemasangan selesai.\n" .
-                    "9. Peraturan ini berlaku setelah nota dibuat dan telah dijelaskan oleh Admin.",
+                'keterangan' => "DP yang sudah masuk tidak dapat direfund dengan alasan apapun.\n" .
+                    "Barang tidak dapat diretur atau dikembalikan.\n" .
+                    "Jika terjadi batal/tukar/retur, maka pembayaran hangus secara profesional.\n" .
+                    "Barang wajib dipasang maksimal 1 bulan setelah tanggal pembelian (untuk wallpaper).\n" .
+                    "Harga di atas tanpa PPN.\n" .
+                    "Jika pemesanan produk dengan jasa pemasangan wajib melakukan pembayaran DP 60% di awal, pelunasan dilakukan setelah pemasangan selesai.\n" .
+                    "Pengiriman tanpa jasa pasang wajib melakukan pembayaran DP 70% di awal, pelunasan dilakukan setelah barang siap dan sebelum barang dikirim.\n" .
+                    "Jika pemesanan jasa pasang wajib melakukan pembayaran DP 60%-70% (*syarat dan ketentuan berlaku) di awal, pelunasan dilakukan setelah pemasangan selesai.\n" .
+                    "Peraturan ini berlaku setelah nota dibuat dan telah dijelaskan oleh Admin.",
+
                 'created_at' => now(),
                 'updated_at' => now(),
             ]

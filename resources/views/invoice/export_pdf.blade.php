@@ -345,9 +345,11 @@
 <div class="note">
     <p><strong>KETERANGAN:</strong></p>
 
-    @if($invoice_keterangan->keterangan)
+    @if($invoice_keterangan && $invoice_keterangan->keterangan)
         <ol>
-            <li>{{ $invoice_keterangan->keterangan }}</li>
+            @foreach(explode("\n", $invoice_keterangan->keterangan) as $baris)
+                <li>{{ $baris }}</li>
+            @endforeach
         </ol>
     @else
         <p><em>Tidak ada keterangan.</em></p>
