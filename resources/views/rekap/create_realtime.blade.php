@@ -9,7 +9,7 @@
     @csrf
     <!-- Hidden input untuk ID Interaksi dan ID User-->
     <input type="hidden" id="interaksi_id" value="{{ $interaksi->interaksi_id }}">
-    <input type="hidden" name="user_id" value="{{ auth()->id() }}"> 
+    {{-- <input type="hidden" name="user_id" value="{{ auth()->id() }}">  --}}
 
     <!-- Tanggal -->
     <div class="form-group">
@@ -32,14 +32,14 @@
 
     <!-- PIC -->
     <div class="form-group">
-        <label for="pic_id">PIC</label>
-        <select name="pic_id" id="pic_id" class="form-control" required>
+        <label for="user_id">PIC</label>
+        <select name="user_id" id="user_id" class="form-control" required>
             <option value="">-- Pilih PIC --</option>
             @foreach($picList as $pic)
-                <option value="{{ $pic->id }}">{{ $pic->nama }}</option>
+                <option value="{{ $pic->user_id }}">{{ $pic->nama }}</option>
             @endforeach
         </select>
-        <small id="error-pic_id" class="text-danger"></small>
+        <small id="error-user" class="text-danger"></small>
     </div>
 
 

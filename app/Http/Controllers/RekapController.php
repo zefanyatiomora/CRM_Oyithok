@@ -202,12 +202,6 @@ class RekapController extends Controller
         // Simpan ke tabel interaksi_realtime
         InteraksiRealtime::create($request->all());
 
-        // Update juga ke tabel interaksi (kolom pic_id)
-        // \App\Models\InteraksiRealtime::where('interaksi_id', $request->interaksi_id)
-        //     ->update([
-        //         'pic_id' => $request->pic_id,
-        //     ]);
-
         return response()->json(['status' => 'success']);
     }
 
