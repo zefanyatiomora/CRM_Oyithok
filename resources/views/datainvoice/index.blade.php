@@ -31,13 +31,12 @@
                                 <td>Rp {{ number_format($inv->total_akhir, 0, ',', '.') }}</td>
                                 <td>Rp {{ number_format($inv->sisa_pelunasan, 0, ',', '.') }}</td>
                                 <td>
-    @if (!empty($inv->tanggal_pelunasan))
-        <span class="badge badge-success">Lunas</span>
-    @else
-        <span class="badge badge-danger">Belum Lunas</span>
-    @endif
-</td>
-
+                                    @if (!empty($inv->tanggal_pelunasan))
+                                        <span class="badge badge-success">Lunas</span>
+                                    @else
+                                        <span class="badge badge-danger">Belum Lunas</span>
+                                    @endif
+                                </td>
                                 <td class="text-center">
                                     <button type="button" class="btn btn-sm btn-info btn-show-invoice"
                                         data-id="{{ $inv->invoice_id }}">
@@ -46,7 +45,6 @@
                                     <a href="{{ route('invoice.export_pdf', $inv->invoice_id) }}"
                                         class="btn btn-sm btn-danger" target="_blank">
                                         <i class="fas fa-file-pdf fa-sm"></i> PDF
-                                    </a>
                                     </a>
                                     <a href="javascript:void(0);" class="btn btn-warning btn-sm"
                                         onclick="openModal('{{ url('/invoice/' . $inv->invoice_id . '/edit') }}')"
@@ -93,6 +91,7 @@
 
 @push('js')
     <script>
+        // Tombol detail invoice (AJAX)
         $(document).on('click', '.btn-show-invoice', function() {
             let id = $(this).data('id');
             $.get("{{ route('datainvoice.show', ':id') }}".replace(':id', id), function(res) {
@@ -107,6 +106,7 @@
             });
         });
 
+        // Inisialisasi DataTable
         $(document).ready(function() {
             $('#invoiceTable').DataTable({
                 processing: true,
@@ -116,7 +116,17 @@
                     url: "//cdn.datatables.net/plug-ins/1.11.5/i18n/Indonesian.json"
                 },
                 dom: '<"d-flex justify-content-between mb-2"fB>rt<"d-flex justify-content-between"lip>',
-                buttons: [{
+                buttons: [
+                    // 🔹 Tombol Keterangan (custom)
+                    {
+                        text: '<i class="fas fa-file-alt"></i> Keterangan',
+                        className: 'btn btn-warning btn-sm text-white',
+                        action: function() {
+                            window.location.href = "{{ route('keterangan_invoice.index') }}";
+                        }
+                    },
+                    // 🔹 Tombol Excel
+                    {
                         extend: 'excelHtml5',
                         title: 'Data Invoice',
                         filename: 'Data_Invoice',
@@ -126,6 +136,7 @@
                             columns: [0, 1, 2, 3, 4, 5]
                         }
                     },
+                    // 🔹 Tombol PDF
                     {
                         extend: 'pdfHtml5',
                         title: 'Data Invoice',

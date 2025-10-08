@@ -18,7 +18,7 @@
             <div class="card card-primary card-outline">
                 <div class="card-body box-profile">
                     <div class="text-center">
-                    <img src="{{ auth()->user()->image ? asset('storage/' . $profil->image) : asset('adminlte/dist/img/default-avatar.png') }}"
+                    <img src="{{ auth()->user()->image_url }}"
                     class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px;" alt="Image">
                     </div>
 

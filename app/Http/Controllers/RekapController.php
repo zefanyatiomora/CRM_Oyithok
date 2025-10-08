@@ -13,6 +13,7 @@ use App\Models\PasangKirimModel;
 use App\Models\RincianModel;
 use App\Models\InvoiceModel;
 use App\Models\InvoiceDetailModel;
+use App\Models\InvoiceKeteranganModel;
 use App\Models\UserModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -858,8 +859,10 @@ class RekapController extends Controller
             'details.pasang.interaksi.customer' // kalau butuh customer dari interaksi
         ])->findOrFail($id);
 
+        $invoice_keterangan = InvoiceKeteranganModel::first();
+
         // Load view export-pdf
-        $pdf = Pdf::loadView('invoice.export_pdf', compact('invoice'))
+        $pdf = Pdf::loadView('invoice.export_pdf', compact('invoice', 'invoice_keterangan'))
             ->setPaper('a4', 'portrait')
             ->setOption('isRemoteEnabled', true);
 

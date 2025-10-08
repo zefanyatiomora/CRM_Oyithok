@@ -74,8 +74,9 @@
                 <div id="customer_suggestion" class="suggestion-bar" role="button" tabindex="0" aria-hidden="true">
                     <small>Terakhir: <span id="customer_suggestion_text"></span></small>
                 </div>
-                <div id="customer_inline_warning" class="inline-warning">Customer ini sama dengan customer pada invoice
-                    terakhir. Pastikan data sudah benar.</div>
+                <!-- Customer duplicate warning dihapus / tidak digunakan karena duplikat boleh -->
+                <!-- <div id="customer_inline_warning" class="inline-warning">Customer ini sama dengan customer pada invoice
+                    terakhir. Pastikan data sudah benar.</div> -->
             </div>
         </div>
 
@@ -167,7 +168,6 @@
                 <label class="mt-2">Tanggal Pelunasan</label>
                 <input type="date" name="tanggal_pelunasan" class="form-control">
             </div>
-
             <div class="col-md-6">
                 <!-- PPN -->
                 <label>PPN</label>
@@ -176,7 +176,7 @@
                         min="0" step="0.01">
                     <div class="input-group-append"><span class="input-group-text">%</span></div>
 
-                    <input type="text" id="ppn_nominal_display" class="form-control rupiah ml-2" readonly
+                    <input type="text" id="ppn_nominal_display" class="form-control rupiah ml-2"
                         placeholder="Nominal PPN">
                     <input type="hidden" name="nominal_ppn" id="ppn_nominal" value="0">
                 </div>
@@ -235,14 +235,6 @@
         return parseInt(String(str).replace(/[^0-9]/g, '')) || 0;
     }
 
-    function calculatePpnNominal(subtotalBefore) {
-        let percentRaw = $('#ppn').val();
-        if (percentRaw === '' || percentRaw === null || typeof percentRaw === 'undefined') return 0;
-        let percent = parseFloat(percentRaw);
-        if (isNaN(percent) || percent <= 0) return 0;
-        return Math.round(subtotalBefore * (percent / 100));
-    }
-
     function hitungRow($row) {
         let qty = parseInt($row.find('.qty').val()) || 0;
         let harga = parseInt($row.find('.harga').val()) || 0;
@@ -269,11 +261,13 @@
         $('#total_produk').val(grandSum);
         $('#total_produk_display').val(grandSum ? formatRupiah(grandSum) : '');
 
+        // Ambil nominal PPN dari input manual (ppn_nominal_display / ppn_nominal)
+        let nominalPpn = parseRupiah($('#ppn_nominal_display').val() || '') || 0;
+
         let pot = parseRupiah($('#potongan_display').val() || '') || 0;
         let cash = parseRupiah($('#cashback_display').val() || '') || 0;
         let dpVal = parseRupiah($('#dp_display').val() || '') || 0;
 
-        let nominalPpn = calculatePpnNominal(grandSum);
         let totalAkhir = (grandSum + nominalPpn) - pot - cash;
         if (totalAkhir < 0) totalAkhir = 0;
 
@@ -311,6 +305,7 @@
         hitungRow($row);
     });
 
+    // potongan, cashback, dp input handling (rupiah formatting)
     $('#potongan_display, #cashback_display, #dp_display').on('input', function() {
         let id = $(this).attr('id');
         let v = parseRupiah($(this).val());
@@ -321,8 +316,22 @@
         hitungSummary();
     });
 
-    $('#ppn').on('input', function() {
+    // PPN nominal input (manual, rupiah formatting)
+    $('#ppn_nominal_display').on('input', function() {
+        let v = parseRupiah($(this).val());
+        $(this).val(v ? formatRupiah(v) : '');
+        $('#ppn_nominal').val(v);
         hitungSummary();
+    });
+
+    // PPN persen input (tetap numeric, tidak memengaruhi nominal otomatis)
+    $('#ppn').on('input', function() {
+        // hanya pastikan nilai valid numerik (boleh desimal)
+        let raw = $(this).val();
+        let v = parseFloat(raw);
+        if (isNaN(v)) v = '';
+        $(this).val(v === '' ? '' : v);
+        // tidak memicu perubahan nominal_ppn secara otomatis
     });
 
     $(document).ready(function() {
@@ -349,92 +358,82 @@
             } catch (e) {}
         }
 
-        $(document).ready(function() {
-            if (lastInvoice) {
-                if (lastInvoice.nomor_invoice) $('#nomor_suggestion_text').text(lastInvoice
-                    .nomor_invoice);
-                if (lastInvoice.customer_invoice) $('#customer_suggestion_text').text(lastInvoice
-                    .customer_invoice);
-            }
+        if (lastInvoice) {
+            if (lastInvoice.nomor_invoice) $('#nomor_suggestion_text').text(lastInvoice.nomor_invoice);
+            if (lastInvoice.customer_invoice) $('#customer_suggestion_text').text(lastInvoice.customer_invoice);
+        }
 
-            // Nomor Invoice
-            $(document).on('focus input', '#nomor_invoice', function() {
-                let v = ($(this).val() || '').trim();
-                if (lastInvoice && lastInvoice.nomor_invoice) {
-                    $('#nomor_suggestion_text').text(lastInvoice.nomor_invoice);
-                    $('#nomor_suggestion').show().attr('aria-hidden', 'false');
-                    if (v !== '' && v === String(lastInvoice.nomor_invoice)) {
-                        $('#nomor_inline_warning').show();
-                    } else {
-                        $('#nomor_inline_warning').hide();
-                    }
+        // Nomor Invoice (tetap ada peringatan duplikat karena nomor memang sebaiknya unik)
+        $(document).on('focus input', '#nomor_invoice', function() {
+            let v = ($(this).val() || '').trim();
+            if (lastInvoice && lastInvoice.nomor_invoice) {
+                $('#nomor_suggestion_text').text(lastInvoice.nomor_invoice);
+                $('#nomor_suggestion').show().attr('aria-hidden', 'false');
+                if (v !== '' && v === String(lastInvoice.nomor_invoice)) {
+                    $('#nomor_inline_warning').show();
+                } else {
+                    $('#nomor_inline_warning').hide();
                 }
-            });
+            }
+        });
 
-            $(document).on('blur', '#nomor_invoice', function() {
+        $(document).on('blur', '#nomor_invoice', function() {
+            setTimeout(function() {
+                $('#nomor_suggestion').hide().attr('aria-hidden', 'true');
+            }, 250);
+            setTimeout(function() {
+                $('#nomor_inline_warning').hide();
+            }, 300);
+        });
+
+        $(document).on('mousedown keypress', '#nomor_suggestion', function(e) {
+            if (e.type === 'mousedown' || (e.type === 'keypress' && (e.key === 'Enter' || e
+                    .key === ' '))) {
+                if (!lastInvoice || !lastInvoice.nomor_invoice) return;
+                e.preventDefault();
+                $('#nomor_invoice').val(lastInvoice.nomor_invoice);
+                safeTriggerInput($('#nomor_invoice'));
+                $('#nomor_inline_warning').show();
                 setTimeout(function() {
                     $('#nomor_suggestion').hide().attr('aria-hidden', 'true');
-                }, 250);
-                setTimeout(function() {
-                    $('#nomor_inline_warning').hide();
-                }, 300);
-            });
+                }, 120);
+                console.log('[create_invoice] nomor suggestion applied:', lastInvoice.nomor_invoice);
+            }
+        });
 
-            $(document).on('mousedown keypress', '#nomor_suggestion', function(e) {
-                if (e.type === 'mousedown' || (e.type === 'keypress' && (e.key === 'Enter' || e
-                        .key === ' '))) {
-                    if (!lastInvoice || !lastInvoice.nomor_invoice) return;
-                    e.preventDefault();
-                    $('#nomor_invoice').val(lastInvoice.nomor_invoice);
-                    safeTriggerInput($('#nomor_invoice'));
-                    $('#nomor_inline_warning').show();
-                    setTimeout(function() {
-                        $('#nomor_suggestion').hide().attr('aria-hidden', 'true');
-                    }, 120);
-                    console.log('[create_invoice] nomor suggestion applied:', lastInvoice
-                        .nomor_invoice);
-                }
-            });
+        // Customer Invoice: suggestion tetap ada, TAPI tidak menampilkan warning duplikat dan tidak memblokir submit
+        $(document).on('focus input', '#customer_invoice', function() {
+            let v = ($(this).val() || '').trim();
+            if (lastInvoice && lastInvoice.customer_invoice) {
+                $('#customer_suggestion_text').text(lastInvoice.customer_invoice);
+                $('#customer_suggestion').show().attr('aria-hidden', 'false');
+                // tidak menampilkan customer_inline_warning (duplikat diperbolehkan)
+            }
+        });
 
-            // Customer Invoice
-            $(document).on('focus input', '#customer_invoice', function() {
-                let v = ($(this).val() || '').trim();
-                if (lastInvoice && lastInvoice.customer_invoice) {
-                    $('#customer_suggestion_text').text(lastInvoice.customer_invoice);
-                    $('#customer_suggestion').show().attr('aria-hidden', 'false');
-                    if (v !== '' && v === String(lastInvoice.customer_invoice)) {
-                        $('#customer_inline_warning').show();
-                    } else {
-                        $('#customer_inline_warning').hide();
-                    }
-                }
-            });
+        $(document).on('blur', '#customer_invoice', function() {
+            setTimeout(function() {
+                $('#customer_suggestion').hide().attr('aria-hidden', 'true');
+            }, 250);
+            // tidak ada inline warning hide karena tidak digunakan
+        });
 
-            $(document).on('blur', '#customer_invoice', function() {
+        $(document).on('mousedown keypress', '#customer_suggestion', function(e) {
+            if (e.type === 'mousedown' || (e.type === 'keypress' && (e.key === 'Enter' || e
+                    .key === ' '))) {
+                if (!lastInvoice || !lastInvoice.customer_invoice) return;
+                e.preventDefault();
+                $('#customer_invoice').val(lastInvoice.customer_invoice);
+                safeTriggerInput($('#customer_invoice'));
+                // tidak menampilkan warning karena duplikat customer boleh
                 setTimeout(function() {
                     $('#customer_suggestion').hide().attr('aria-hidden', 'true');
-                }, 250);
-                setTimeout(function() {
-                    $('#customer_inline_warning').hide();
-                }, 300);
-            });
-
-            $(document).on('mousedown keypress', '#customer_suggestion', function(e) {
-                if (e.type === 'mousedown' || (e.type === 'keypress' && (e.key === 'Enter' || e
-                        .key === ' '))) {
-                    if (!lastInvoice || !lastInvoice.customer_invoice) return;
-                    e.preventDefault();
-                    $('#customer_invoice').val(lastInvoice.customer_invoice);
-                    safeTriggerInput($('#customer_invoice'));
-                    $('#customer_inline_warning').show();
-                    setTimeout(function() {
-                        $('#customer_suggestion').hide().attr('aria-hidden', 'true');
-                    }, 120);
-                    console.log('[create_invoice] customer suggestion applied:', lastInvoice
-                        .customer_invoice);
-                }
-            });
+                }, 120);
+                console.log('[create_invoice] customer suggestion applied:', lastInvoice
+                    .customer_invoice);
+            }
         });
+        /* === END suggestion === */
 
         /* === SUBMIT AJAX === */
         $("#form-create-invoice").on("submit", function(e) {
@@ -442,9 +441,10 @@
 
             // ambil nilai input yang relevan
             let nomorVal = ($('#nomor_invoice').val() || '').trim();
+            // customer duplicate tidak lagi menjadi alasan untuk menolak submit
             let customerVal = ($('#customer_invoice').val() || '').trim();
 
-            // cek cepat client-side terhadap lastInvoice -> langsung tolak dan minta ubah
+            // cek cepat client-side terhadap lastInvoice untuk nomor (masih wajib ubah jika duplikat)
             if (lastInvoice) {
                 if (nomorVal !== '' && lastInvoice.nomor_invoice && nomorVal === String(lastInvoice
                         .nomor_invoice)) {
@@ -465,26 +465,7 @@
                     }
                     return;
                 }
-
-                if (customerVal !== '' && lastInvoice.customer_invoice && customerVal === String(
-                        lastInvoice.customer_invoice)) {
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            title: 'Duplikat Customer Invoice',
-                            html: 'Customer invoice sama dengan invoice terakhir. Silakan ubah customer invoice.',
-                            icon: 'warning',
-                            confirmButtonText: 'Ubah Customer'
-                        }).then(() => {
-                            $('#customer_invoice').focus().select();
-                        });
-                    } else {
-                        alert(
-                            'Customer invoice sama dengan invoice terakhir. Silakan ubah customer invoice.'
-                        );
-                        $('#customer_invoice').focus().select();
-                    }
-                    return;
-                }
+                // NOTE: tidak memblokir jika customer sama dengan lastInvoice.customer_invoice
             }
 
             // jika tidak duplikat local -> kirim ke server (server-side juga akan cek sistem-wide)
@@ -521,13 +502,15 @@
             if (!$('#cashback').val()) $('#cashback').val(parseRupiah($('#cashback_display').val()));
             if (!$('#dp').val()) $('#dp').val(parseRupiah($('#dp_display').val()));
 
-            // pastikan total_produk & ppn sinkron sebelum submit
+            // pastikan total_produk & nominal PPN sinkron sebelum submit
             hitungSummary();
 
             let form = $form[0];
             let formData = new FormData(form);
-            if (!formData.has('ppn')) formData.append('ppn', $('#ppn').val() || '');
+            // pastikan nominal_ppn & ppn (persen) disertakan
             if (!formData.has('nominal_ppn')) formData.append('nominal_ppn', $('#ppn_nominal').val() || 0);
+            if (!formData.has('ppn')) formData.append('ppn', $('#ppn').val() || '');
+
             if (!formData.has('total_produk')) formData.append('total_produk', $('#total_produk').val() || 0);
 
             $.ajax({
