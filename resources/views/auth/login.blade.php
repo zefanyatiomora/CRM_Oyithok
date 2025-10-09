@@ -221,15 +221,15 @@
                             <small id="error-username" class="error-text text-danger d-block mb-2"></small>
                             <small id="error-password" class="error-text text-danger d-block mb-2"></small>
 
-                            <div class="row">
-                                <div class="col-8">
-                                    <div class="icheck-primary">
-                                        <input type="checkbox" id="remember">
-                                        <label for="remember">Remember Me</label>
-                                    </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="show_password">
+                                    <label class="form-check-label" for="show_password">
+                                        Tampilkan password
+                                    </label>
                                 </div>
-                                <div class="col-4">
-                                    <button type="submit" class="btn btn-primary btn-block">Masuk</button>
+                                <div>
+                                    <button type="submit" class="btn btn-primary">Masuk</button>
                                 </div>
                             </div>
                         </form>
@@ -336,6 +336,15 @@
             },
             unhighlight: function (element, errorClass, validClass) {
                 $(element).removeClass('is-invalid');
+            }
+        });
+        // toggle show/hide password
+        $('#show_password').on('change', function() {
+            const pwd = $('#password');
+            if (this.checked) {
+                pwd.attr('type', 'text');
+            } else {
+                pwd.attr('type', 'password');
             }
         });
     });
