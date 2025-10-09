@@ -116,18 +116,14 @@
       <div class="row">
 <div class="status-boxes">
     <!-- STATUS GHOST -->
-    <a href="{{ route('dashboard.ghost', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
+    <a href="{{ route('dashboard.ghost') }}" 
        class="text-decoration-none text-white"
        data-bs-toggle="tooltip" 
        title="Customer yang sudah diketahui kebutuhannya, tetapi tidak jadi pesan">
         <div class="small-box bg-custom-ghost box-hover">
             <div class="inner text-center">
                 <h3>{{ $jumlahGhost }}</h3>
-                <p>GHOST 
-                    @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
-                    @else TAHUN {{ $tahun }} 
-                    @endif
-                </p>
+                <p>GHOST (SEMUA DATA)</p>
             </div>
             <div class="icon">
                 <i class="fas fa-user-secret"></i>
@@ -143,11 +139,7 @@
         <div class="small-box bg-custom-ask box-hover">
             <div class="inner text-center">
                 <h3>{{ $jumlahAsk }}</h3>
-                <p>ASK 
-                    @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
-                    @else TAHUN {{ $tahun }} 
-                    @endif
-                </p>
+                <p>ASK (SEMUA DATA)</p>
             </div>
             <div class="icon">
                 <i class="fas fa-question-circle"></i>
@@ -163,7 +155,7 @@
         <div class="small-box bg-custom-follow-up box-hover">
             <div class="inner text-center">
                 <h3>{{ $jumlahFollowUp }}</h3>
-                <p>FOLLOW UP</p>
+                <p>FOLLOW UP (SEMUA DATA)</p>
             </div>
             <div class="icon">
                 <i class="fas fa-comments"></i>
@@ -179,7 +171,7 @@
         <div class="small-box bg-custom-hold box-hover">
             <div class="inner text-center">
                 <h3>{{ $jumlahHold }}</h3>
-                <p>HOLD</p>
+                <p>HOLD (SEMUA DATA)</p>
             </div>
             <div class="icon">
                 <i class="fas fa-clock"></i>
@@ -188,18 +180,14 @@
     </a>
 
     <!-- STATUS CLOSING -->
-    <a href="{{ route('dashboard.closing', ['tahun' => $tahun, 'bulan' => $bulan, 'status' => 'survey']) }}" 
+    <a href="{{ route('dashboard.closing', ['status' => 'survey']) }}" 
        class="text-decoration-none text-white"
        data-bs-toggle="tooltip" 
        title="Customer yang telah selesai pemesanan (pemasangan/pengiriman).">
         <div class="small-box bg-custom-closing box-hover">
             <div class="inner text-center">
                 <h3>{{ $jumlahClosing }}</h3>
-                <p>CLOSING 
-                    @if ($bulan) ({{ $bulanList[$bulan] }} {{ $tahun }}) 
-                    @else TAHUN {{ $tahun }} 
-                    @endif
-                </p>
+                <p>CLOSING (SEMUA DATA)</p>
             </div>
             <div class="icon">
                 <i class="fas fa-check-circle"></i>

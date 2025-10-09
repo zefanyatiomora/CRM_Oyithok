@@ -10,17 +10,15 @@
     <!-- Hidden input untuk ID Interaksi -->
     <input type="hidden" id="interaksi_id" value="{{ $interaksi->interaksi_id }}">
 
-    <!-- Jadwal Survey -->
-    <div class="form-group">
-        <label>Jadwal Survey</label>
-        <div class="input-group">
-            <input type="date" class="form-control" id="jadwal_survey" name="jadwal_survey"
-                value="{{ old('jadwal_survey', \Carbon\Carbon::today()->format('Y-m-d')) }}" required>
-            <button type="button" class="btn btn-outline-primary" id="btn-today">Hari Ini</button>
-            <button type="button" class="btn btn-outline-primary" id="btn-tomorrow">Besok</button>
-        </div>
-        <small id="error-jadwal" class="text-danger"></small>
+<!-- Jadwal Survey -->
+<div class="form-group">
+    <label>Jadwal Survey</label>
+    <div class="input-group mb-2">
+        <input type="datetime-local" class="form-control" id="jadwal_survey" name="jadwal_survey"
+            value="{{ old('jadwal_survey', \Carbon\Carbon::now()->format('Y-m-d\TH:i')) }}" required>
     </div>
+    <small id="error-jadwal" class="text-danger"></small>
+</div>
 
     <!-- Alamat Survey -->
     <div class="form-group">

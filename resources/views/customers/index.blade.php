@@ -27,8 +27,6 @@
                             <th style="width: 50px;" class="text-center">No</th>
                             <th>Kode Customer</th>
                             <th>Nama Customer</th>
-                            <th>Total Transaksi</th>
-                            <th>Total Cash Spent</th>
                             <th style="width: 120px;" class="text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -84,19 +82,6 @@
                 { data: "DT_RowIndex", className: "text-center", orderable: false, searchable: false },
                 { data: "customer_kode", orderable: true, searchable: true },
                 { data: "customer_nama", orderable: true, searchable: true },
-                { data: "total_transaction", orderable: true, searchable: true },
-                 { 
-        data: "total_cash_spent", 
-        orderable: true, 
-        searchable: true,
-        render: function(data, type, row) {
-            if (type === 'display' || type === 'filter') {
-                let number = parseInt(data) || 0;
-                return 'Rp ' + number.toLocaleString('id-ID');
-            }
-            return data;
-        }
-    },
                 { data: "aksi", className: "text-center", orderable: false, searchable: false }
             ],
             language: {

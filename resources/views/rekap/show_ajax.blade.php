@@ -275,7 +275,7 @@
                             @forelse($kebutuhanList as $index => $item)
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
-                                    <td>{{ $item->tanggal }}</td>
+                                    <td>{{ \App\Helpers\FormatHelper::tanggalIndo($item->tanggal) }}</td>
                                     <td>{{ $item->keterangan }}</td>
                                     <td>{{ $item->user->nama ?? '-' }}</td>
                                 </tr>
@@ -332,7 +332,7 @@
                             @if ($interaksi->survey)
                                 <tr>
                                     <td>{{ $interaksi->survey->alamat_survey }}</td>
-                                    <td>{{ $interaksi->survey->jadwal_survey }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($interaksi->survey->jadwal_survey)->format('d-m-Y H:i') }}</td>
                                     <td>
                                         @if ($interaksi->survey->status == 'closing survey')
                                             <span class="badge bg-success">Closing Survey</span>
@@ -446,7 +446,7 @@
                                         {{ $pasang->produk->produk_nama }} </td>
                                     <td>{{ $pasang->kuantitas }} {{ $pasang->produk->satuan }}</td>
                                     <td>{{ $pasang->deskripsi }}</td>
-                                    <td>{{ $pasang->jadwal_pasang_kirim }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($pasang->jadwal_pasang_kirim)->format('d-m-Y H:i') }}</td>
                                     <td>{{ $pasang->alamat }}</td>
                                     <td>
                                         @if ($pasang->status == 'closing all')
