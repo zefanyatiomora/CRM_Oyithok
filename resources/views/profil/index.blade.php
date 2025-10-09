@@ -2,16 +2,6 @@
 
 @section('content')
 <div class="container-fluid">
-    {{-- @if(session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif --}}
     <div class="row">
         <div class="col-md-3">
             <!-- Profile Image -->
@@ -19,7 +9,7 @@
                 <div class="card-body box-profile">
                     <div class="text-center">
                     <img src="{{ auth()->user()->image_url }}"
-                    class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px;" alt="Image">
+                    id="profile-image-preview" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px;" alt="Image">
                     </div>
 
                     <h3 class="profile-username text-center">{{ auth()->user()->nama }}</h3>
@@ -85,7 +75,7 @@
                                         {{-- Tampilkan TTD lama kalau ada --}}
                                         @if(Auth::user()->ttd)
                                             <div class="mb-2">
-                                                <img src="{{ asset('storage/' . $profil->ttd) }}" alt="TTD" width="200">
+                                                <img src="{{ asset('storage/' . $profil->ttd) }}"id="ttd-image-preview" alt="TTD" width="200">
                                             </div>
                                         @endif
 
@@ -171,6 +161,51 @@
 @endsection
 @push('js')
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // --- PREVIEW UNTUK FOTO PROFIL ---
+        const inputGambar = document.getElementById('image');
+        const previewGambar = document.getElementById('profile-image-preview');
+
+        inputGambar.addEventListener('change', function() {
+            const file = this.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    // Update src dari elemen img dengan data URL gambar baru
+                    previewGambar.src = e.target.result;
+                }
+
+                // Baca file sebagai Data URL (format base64)
+                reader.readAsDataURL(file);
+            }
+        });
+
+
+        // --- PREVIEW UNTUK TANDA TANGAN (TTD) ---
+        const inputTtd = document.getElementById('ttd');
+        const previewTtd = document.getElementById('ttd-image-preview');
+
+        inputTtd.addEventListener('change', function() {
+            const file = this.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    // Update src dari elemen img dengan data URL ttd baru
+                    previewTtd.src = e.target.result;
+                    // Pastikan gambar terlihat jika sebelumnya disembunyikan
+                    previewTtd.style.display = 'block'; 
+                }
+
+                reader.readAsDataURL(file);
+            }
+        });
+
+    });
     // Opsi konfigurasi untuk Toastr (opsional, tapi disarankan)
     toastr.options = {
         "closeButton": true,
