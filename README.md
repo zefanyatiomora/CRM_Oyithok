@@ -1,66 +1,132 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel CRM - Manajemen Hubungan Pelanggan
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sebuah aplikasi CRM (Customer Relationship Management) yang dibangun menggunakan framework Laravel. Aplikasi ini berfungsi untuk mengelola data produk, kategori, dan pengguna secara efisien. Proyek ini dioptimalkan dengan tabel data yang interaktif dan fitur untuk mengekspor data ke dalam format PDF.
 
-## About Laravel
+## Fitur Utama
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+-   **Manajemen Pengguna:** Mengelola data pengguna beserta level aksesnya (misal: Admin, Staf).
+-   **Manajemen Produk:** Fungsi CRUD (Create, Read, Update, Delete) lengkap untuk data produk.
+-   **Manajemen Kategori:** Mengelompokkan produk berdasarkan kategori yang dapat dikelola.
+-   **Tabel Interaktif:** Didukung oleh **Yajra Datatables** untuk pencarian, sorting, dan paginasi data yang cepat tanpa perlu me-refresh halaman.
+-   **Ekspor ke PDF:** Membuat laporan atau daftar data dalam format PDF dengan mudah menggunakan **Barryvdh DomPDF**.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Persiapan Awal
 
-## Learning Laravel
+Sebelum melanjutkan ke proses instalasi, pastikan lingkungan pengembangan Anda telah memenuhi persyaratan berikut:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Prasyarat
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+-   **PHP** &ge; 8.1
+-   **Composer** (Manajer dependensi untuk PHP)
+-   **Node.js** & **NPM** (untuk manajemen aset frontend)
+-   **Database Server** (contoh: MySQL, MariaDB, PostgreSQL)
+-   **Web Server** (contoh: Nginx, Apache) - _Opsional jika menggunakan `php artisan serve`_
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## Panduan Instalasi Lokal
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Ikuti langkah-langkah di bawah ini untuk menginstal dan menjalankan proyek di mesin lokal Anda.
 
-### Premium Partners
+### 1. Clone Repositori
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+Buka terminal atau command prompt, lalu clone repositori proyek ke direktori lokal Anda.
 
-## Contributing
+```bash
+git clone https://github.com/zefanyatiomora/CRM_Oyithok.git
+cd CRM_Oyithok
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 2. Install Dependensi
 
-## Code of Conduct
+Instal semua dependensi PHP yang dibutuhkan proyek melalui Composer.
+Bash
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+composer install
+```
 
-## Security Vulnerabilities
+### 3. Konfigurasi Env
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Salin file konfigurasi lingkungan dari contoh yang sudah ada.
+Bash
 
-## License
+```bash
+cp .env.example .env
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Selanjutnya, buka file .env yang baru dibuat dan sesuaikan konfigurasi koneksi database Anda.
+
+```bash
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=db_laravel_crm
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Setelah konfigurasi database selesai, generate application key unik untuk proyek Anda.
+
+```bash
+php artisan key:generate
+```
+
+### 4. Instalasi Package Tambahan
+
+Proyek ini memerlukan dua package eksternal yang harus diinstal melalui Composer.
+
+-   **Instal Yajra Datatables:**
+    Untuk menangani tabel data yang interaktif.
+
+    ```bash
+    composer require yajra/laravel-datatables-oracle
+    ```
+
+-   **Instal Barryvdh DomPDF:**
+    Untuk fungsionalitas ekspor data ke PDF.
+
+    ```bash
+    composer require barryvdh/laravel-dompdf
+    ```
+
+### 5. Migrate & Seeding Database
+
+Langkah ini akan membuat struktur tabel di database dan mengisinya dengan data awal.
+
+-   Jalankan Migrasi
+    Perintah ini akan membuat semua tabel yang didefinisikan dalam direktori database/migrations.
+
+    ```bash
+    php artisan migrate
+    ```
+
+-   Jalankan Seeder (Sesuai Urutan)
+    Isi tabel dengan data awal. PENTING: Jalankan seeder sesuai urutan berikut untuk menjaga integritas relasional data.
+
+    ```bash
+    # 1. Mengisi tabel levels
+    php artisan db:seed --class=LevelSeeder
+
+    # 2. Mengisi tabel users (membutuhkan data dari LevelSeeder)
+    php artisan db:seed --class=UserSeeder
+
+    # 3. Mengisi tabel kategori
+    php artisan db:seed --class=KategoriSeeder
+
+    # 4. Mengisi tabel produk (membutuhkan data dari KategoriSeeder)
+    php artisan db:seed --class=ProdukSeeder
+
+    ```
+
+### 6. Jalankan Server
+
+Terakhir, jalankan server pengembangan lokal bawaan Laravel.
+
+```bash
+php artisan serve
+```
+
+Aplikasi Anda kini siap diakses melalui browser di alamat http://127.0.0.1:8000.
