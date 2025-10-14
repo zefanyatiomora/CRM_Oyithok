@@ -39,7 +39,6 @@
                         <th>Profil</th>
                         <th>Username</th>
                         <th>Nama</th>
-                        <th>Level Pengguna</th>
                         <th>Aksi</th></tr>
                 </thead>
             </table>
@@ -68,74 +67,68 @@
 </style>
 @endpush
 
-@push('js') l
-  <script> 
-  function modalAction(url = ''){ 
-    $('#myModal').load(url,function(){ 
-        $('#myModal').modal('show'); 
-    }); 
-  } 
-    var dataUser;
-    $(document).ready(function() { 
-      dataUser= $('#table-user').DataTable({
-          // serverSide: true, if using server-side processing 
-          serverSide: true,      
-          ajax: { 
-              "url": "{{ url('user/list') }}", 
-              "type": "POST", 
-              "dataType": "json",
-              "data": function (d) { // Send CSRF token with the request
-                  d.level_id = $('#level_id').val();
-              }
-          }, 
-          columns: [ 
-            {
-                // nomor urut from Laravel datatable addIndexColumn() 
-              data: "DT_RowIndex",             
-              className: "text-center", 
-              orderable: false, 
-              searchable: false     
-            },
-            {
-                // Kolom baru untuk foto profil
-                data: "image",
-                className: "text-center",
-                orderable: false,
-                searchable: false,
-                render: function(data, type, row) {
-                    // Jika ada gambar, tampilkan. Jika tidak, tampilkan placeholder.
-                    var imageUrl = data ? '{{ asset("storage/") }}' + '/' + data : '{{ asset("adminlte/dist/img/default-avatar.png") }}';
-                    return '<img src="' + imageUrl + '" alt="Foto Profil" class="img-circle img-size-32 mr-2" style="width: 32px; height: 32px; object-fit: cover;">';
-                }
-            },
-            { 
-              data: "username",                
-              className: "", 
-              orderable: true,     
-              searchable: true     
-            },{ 
-              data: "nama",                
-              className: "", 
-              orderable: true,     
-              searchable: true     
-            },{ 
-              // Fetching related data from 'level' relationship 
-              data: "level.level_nama",                
-              className: "", 
-              orderable: false,     
-              searchable: false     
-            },{ 
-              data: "aksi",                
-              className: "", 
-              orderable: false,     
-              searchable: false     
-            } 
-          ] 
-      }); 
-      $('#level_id').on('change', function(){
-        dataUser.ajax.reload();
-      });
-      
-    }); 
-  </script> 
+@push('js')
+<script>
+function modalAction(url = '') {
+  $('#myModal').load(url, function() {
+    $('#myModal').modal('show');
+  });
+}
+
+var dataUser;
+$(document).ready(function() {
+  dataUser = $('#table-user').DataTable({
+    serverSide: true,
+    ajax: {
+      url: "{{ url('user/list') }}",
+      type: "POST",
+      dataType: "json",
+      data: function (d) {
+        d.level_id = $('#level_id').val();
+        d._token = "{{ csrf_token() }}"; // ✅ wajib
+      }
+    },
+    columns: [
+      {
+        data: "DT_RowIndex",
+        className: "text-center",
+        orderable: false,
+        searchable: false
+      },
+      {
+        data: "image",
+        className: "text-center",
+        orderable: false,
+        searchable: false,
+        render: function(data) {
+          var imageUrl = data ? '{{ asset("storage/") }}/' + data : '{{ asset("adminlte/dist/img/default-avatar.png") }}';
+          return '<img src="' + imageUrl + '" alt="Foto Profil" class="img-circle img-size-32" style="width: 32px; height: 32px; object-fit: cover;">';
+        }
+      },
+      {
+        data: "username",
+        className: "",
+        orderable: true,
+        searchable: true
+      },
+      {
+        data: "nama",
+        className: "",
+        orderable: true,
+        searchable: true
+      },
+      {
+        data: "aksi",
+        className: "",
+        orderable: false,
+        searchable: false
+      }
+    ]
+  });
+
+  $('#level_id').on('change', function() {
+    dataUser.ajax.reload();
+  });
+});
+</script>
 @endpush

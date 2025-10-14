@@ -61,13 +61,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/kebutuhan/search-customer', [KebutuhanController::class, 'searchCustomer'])->name('kebutuhan.searchCustomer');
     Route::get('/kebutuhan/get-customer/{id}', [KebutuhanController::class, 'getCustomer'])->name('kebutuhan.getCustomer');
 
-    Route::prefix('tambahkebutuhan')->name('tambahkebutuhan.')->group(function () {
-        Route::get('/', [TambahKebutuhanController::class, 'index'])->name('index');
-        Route::get('/create/{customer_id}', [TambahKebutuhanController::class, 'create'])->name('create');
-        Route::post('/store', [TambahKebutuhanController::class, 'store'])->name('store');
-        Route::get('/edit/{interaksi_id}', [TambahKebutuhanController::class, 'edit'])->name('edit');
-        Route::post('/update/{interaksi_id}', [TambahKebutuhanController::class, 'update'])->name('update');
-    });
     // kalau mau detail berdasarkan customer_id, kasih nama route beda
     Route::get('/kebutuhan/customer/{customer_id}', [KebutuhanController::class, 'showByCustomer'])->name('kebutuhan.byCustomer');
     Route::get('/rekap/{interaksi_id}/realtime', [KebutuhanController::class, 'index'])->name('rekap.realtime');
@@ -91,9 +84,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{interaksi_id}/show_ajax', [RekapController::class, 'show_ajax'])->name('rekap.show_ajax');    // Route::get('/search-product', [RekapController::class, 'searchProduct'])->name('rekap.searchProduct');
         // web.php
         Route::post('/rekap/update-followup', [RekapController::class, 'updateFollowUp'])->name('rekap.updateFollowUp');
-        Route::get('realtime/list/{interaksi}', [RekapController::class, 'getRealtimeList']);
-        Route::get('/rekap/realtime/{interaksi_id}', [RekapController::class, 'indexRealtime'])->name('rekap.indexRealtime');
-        Route::get('/rekap/{interaksi_id}/kebutuhan', [RekapController::class, 'showKebutuhanProduk'])->name('rekap.showKebutuhanProduk');
+        // Route::get('realtime/list/{interaksi}', [RekapController::class, 'getRealtimeList']);
+        // Route::get('/rekap/realtime/{interaksi_id}', [RekapController::class, 'indexRealtime'])->name('rekap.indexRealtime');
         Route::get('/rekap/{interaksi_id}/identifikasi-awal/', [RekapController::class, 'showIdentifikasiAwal'])->name('rekap.showIdentifikasiAwal');
         Route::delete('/rekap/identifikasi-awal/{awal_id}/delete', [RekapController::class, 'deleteIdentifikasiAwal'])->name('rekap.deleteIdentifikasiAwal');
         Route::get('/rekap/identifikasi-awal/create', [RekapController::class, 'createIdentifikasiAwal'])->name('rekap.createIdentifikasiAwal');
@@ -102,6 +94,12 @@ Route::middleware(['auth'])->group(function () {
         // Route::post('/realtime/store', [RekapController::class, 'storeRealtime'])->name('rekap.storeRealtime');
         // Route::get('/realtime/list/{id}', [RekapController::class, 'listRealtime'])->name('rekap.listRealtime');
         // Route::delete('/realtime/delete/{id}', [RekapController::class, 'deleteRealtime'])->name('rekap.deleteRealtime');
+        Route::get('/interaksi-awal/tabel/{id}', [RekapController::class, 'listIdentifikasiAwal'])->name('interaksiAwal.tabel');
+        Route::post('/interaksi-awal/store', [RekapController::class, 'storeIdentifikasiAwal'])->name('interaksiAwal.store');
+Route::get('rekap/{interaksi_id}/realtime/list', [RekapController::class, 'getRealtimeList'])->name('rekap.getRealtimeList');
+Route::get('realtime/create/{id_interaksi}', [RekapController::class, 'createRealtime'])->name('realtime.create');
+Route::post('realtime/store', [RekapController::class, 'storeRealtime'])->name('realtime.store');
+
     });
     // TARUH DI LUAR Route::prefix('rekap')
     Route::post('/rekap/update-status/{interaksi_id}', [RekapController::class, 'updateStatus'])->name('rekap.updateStatus');

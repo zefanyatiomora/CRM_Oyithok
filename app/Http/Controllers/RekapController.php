@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\InteraksiModel;
 use App\Models\InteraksiRealtime;
@@ -16,13 +17,10 @@ use App\Models\InvoiceDetailModel;
 use App\Models\InvoiceKeteranganModel;
 use App\Models\UserModel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Barryvdh\DomPDF\Facade\Pdf;
-
-
 
 class RekapController extends Controller
 {
@@ -126,17 +124,18 @@ class RekapController extends Controller
     ->rawColumns(['aksi'])
     ->make(true);
     }
-    public function show_ajax($interaksi_id)
+  public function show_ajax($interaksi_id)
     {
         $interaksi = InteraksiModel::with('customer', 'survey', 'rincian', 'pasang')
             ->findOrFail($interaksi_id);
 
         $produkList = ProdukModel::select('produk_id', 'produk_nama')->get();
         $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)->get();
-        $kebutuhanList = InteraksiRealtime::where('interaksi_id', $interaksi_id)
-            ->with('user')
-            ->orderBy('tanggal', 'asc')
+        $realtimeList = InteraksiRealtime::with('user')
+            ->where('interaksi_id', $interaksi->interaksi_id)
+            ->orderBy('tanggal', 'desc')
             ->get();
+
         $invoices = InvoiceModel::whereHas('details.pasang', function ($q) use ($interaksi_id) {
             $q->where('interaksi_id', $interaksi_id);
         })->with(['details.pasang'])->first();
@@ -148,7 +147,6 @@ class RekapController extends Controller
             array_map('strtolower', $steps)
         );
 
-        // Ambil skipped steps dari DB
         $skippedSteps = $interaksi->skipsteps
             ? json_decode($interaksi->skipsteps, true)
             : [];
@@ -162,19 +160,18 @@ class RekapController extends Controller
 
         return view('rekap.show_ajax', [
             'interaksi'         => $interaksi,
-            'kebutuhanList'     => $kebutuhanList,
+            'realtimeList'      => $realtimeList,
             'produkList'        => $produkList,
             'steps'             => $steps,
             'currentStep'       => $currentStep,
-            'skippedSteps'      => $skippedSteps,  // cuma ini yang dipakai di blade
+            'skippedSteps'      => $skippedSteps,
             'followUpOptions'   => ['Ghost', 'Ask', 'Follow Up', 'Hold', 'Closing'],
             'selectedFollowUp'  => $interaksi->status ?? '',
             'closeValue'        => $interaksi->close ?? '',
             'interaksiAwalList' => $interaksiAwalList,
             'invoices'          => $invoices
         ]);
-    }
-    // RekapController.php
+    }    // RekapController.php
     public function updateStatus(Request $request, $interaksi_id)
     {
         Log::info('UpdateStatus dipanggil', [
@@ -192,33 +189,20 @@ class RekapController extends Controller
 
         return response()->json(['success' => true]);
     }
-    // Tambah kebutuhan harian
-    public function storeRealtime(Request $request)
-    {
-        $request->validate([
-            'interaksi_id' => 'required|exists:interaksi,interaksi_id',
-            'tanggal'      => 'required|date',
-            'keterangan'   => 'required|string',
-            'user_id'       => 'required|exists:m_user,user_id',
-        ]);
-
-        // Simpan ke tabel interaksi_realtime
-        InteraksiRealtime::create($request->all());
-
-        return response()->json(['status' => 'success']);
-    }
-
-    public function createIdentifikasiAwal(Request $request)
+ public function createIdentifikasiAwal(Request $request)
     {
         $interaksi_id = $request->interaksi_id;
         $kategoriList = KategoriModel::all(); // ambil semua kategori
         return view('rekap.identifikasi_awal', compact('interaksi_id', 'kategoriList'));
     }
 
+    /**
+     * Tampilkan Data Identifikasi Awal di Halaman Show
+     */
     public function showIdentifikasiAwal($interaksi_id)
     {
         $interaksi = InteraksiModel::with('customer')->findOrFail($interaksi_id);
-        $kategoriList = KategoriModel::all(); // ambil semua kategori
+        $kategoriList = KategoriModel::all();
         $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)->get();
 
         return view('rekap.show_ajax', [
@@ -227,6 +211,10 @@ class RekapController extends Controller
             'interaksiAwalList' => $interaksiAwalList,
         ]);
     }
+
+    /**
+     * Simpan Identifikasi Awal (AJAX)
+     */
     public function storeIdentifikasiAwal(Request $request)
     {
         $request->validate([
@@ -258,45 +246,83 @@ class RekapController extends Controller
             'message' => 'Kategori berhasil ditambahkan ke identifikasi awal'
         ]);
     }
+
+    /**
+     * ✅ Ambil Ulang Tabel Identifikasi Awal (tanpa layout)
+     * Digunakan untuk AJAX reload
+     */
     public function listIdentifikasiAwal($interaksi_id)
     {
-        $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)
-            ->with('kategoris')
+        $interaksiAwalList = InteraksiAwalModel::where('interaksi_id', $interaksi_id)->get();
+
+        return view('rekap.partials.identifikasi_tabel', compact('interaksiAwalList'));
+    }
+public function storeRealtime(Request $request)
+{
+    $request->validate([
+        'interaksi_id' => 'required|exists:interaksi,interaksi_id',
+        'tanggal' => 'required|date',
+        'keterangan' => 'required|string',
+        'user_id' => 'required|exists:m_user,user_id',
+    ]);
+
+    // Simpan data baru
+    $realtime = InteraksiRealtime::create([
+        'interaksi_id' => $request->interaksi_id,
+        'tanggal' => $request->tanggal,
+        'keterangan' => $request->keterangan,
+        'user_id' => $request->user_id,
+    ]);
+
+    // Ambil data realtime terbaru untuk interaksi ini
+    $realtimeList = InteraksiRealtime::with('user')
+        ->where('interaksi_id', $request->interaksi_id)
+        ->orderBy('tanggal', 'desc')
+        ->get();
+
+    // Render ulang partial tabel realtime
+    $html = view('rekap.partials.realtime_tabel', compact('realtimeList'))->render();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Data realtime berhasil disimpan.',
+        'html' => $html
+    ]);
+}
+public function getRealtimeList($interaksi_id)
+{
+    try {
+        $realtimeList = InteraksiRealtime::with('user')
+            ->where('interaksi_id', $interaksi_id)
+            ->orderBy('tanggal', 'desc')
             ->get();
 
-        return view('rekap.identifikasi_list', compact('interaksiAwalList'));
-    }
+        // ✅ Gunakan view() yang menghasilkan HTML partial
+        $html = view('rekap.partials.realtime_tabel', compact('realtimeList'))->render();
 
-    // List realtime
-    public function getRealtimeList($interaksi_id)
-    {
-        $interaksi = InteraksiModel::with('realtime')->findOrFail($interaksi_id);
-        return view('rekap.realtime_list', ['realtime' => $interaksi->realtime]);
+        return response()->json([
+            'status' => 'success',
+            'html' => $html
+        ]);
+    } catch (\Exception $e) {
+        Log::error("Gagal load realtime list: " . $e->getMessage());
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Terjadi kesalahan server',
+            'error' => $e->getMessage()
+        ], 500);
     }
-    public function searchProduct(Request $request)
-    {
-        $keyword = $request->get('keyword');
-
-        $produks = ProdukModel::where('produk_nama', 'like', "%$keyword%")
-            ->get(['produk_id as id', 'produk_nama as text']);
-
-        return response()->json(['results' => $produks]);
-    }
+}
     public function createRealtime($id_interaksi)
     {
         try {
-            // Log::info('Create Rincian dipanggil.', ['id_interaksi' => $id_interaksi]);
-
             $interaksi = InteraksiModel::findOrFail($id_interaksi);
-            // Log::info('Interaksi ditemukan.', ['interaksi' => $interaksi]);
-
             $picList = UserModel::select('user_id', 'nama')->get();
-
             $realtime = InteraksiRealtime::with('user')
                 ->where('interaksi_id', $id_interaksi)
                 ->get();
 
-            return view('rekap.create_realtime', compact('interaksi',  'realtime', 'picList'));
+            return view('rekap.create_realtime', compact('interaksi', 'realtime', 'picList'));
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Interaksi tidak ditemukan.',

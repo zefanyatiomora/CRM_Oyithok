@@ -42,16 +42,12 @@ class UserController extends Controller
 
         return DataTables::of($users)
             ->addIndexColumn()  // menambahkan kolom index / no urut (default nama kolom: DT_RowIndex)  
-            ->addColumn('aksi', function ($user) {  // menambahkan kolom aksi  
-                $btn  = '<button onclick="modalAction(\'' . url('/user/' . $user->user_id .
-                    '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
-                $btn  .= '<button onclick="modalAction(\'' . url('/user/' . $user->user_id .
-                    '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
-                $btn .= '<wbutton onclick="modalAction(\'' . url('/user/' . $user->user_id .
-                    '/delete_ajax') . '\')"  class="btn btn-danger btn-sm">Hapus</button> ';
-
-                return $btn;
-            })
+->addColumn('aksi', function ($user) {
+    $btn  = '<button onclick="modalAction(\'' . url('/user/' . $user->user_id . '/detail_ajax') . '\')" class="btn btn-info btn-sm me-1">Detail</button>';
+    $btn .= '<button onclick="modalAction(\'' . url('/user/' . $user->user_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm me-1">Edit</button>';
+    $btn .= '<button onclick="modalAction(\'' . url('/user/' . $user->user_id . '/delete_ajax') . '\')" class="btn btn-danger btn-sm">Hapus</button>';
+    return $btn;
+})
             ->rawColumns(['aksi']) // memberitahu bahwa kolom aksi adalah html  
             ->make(true);
     }
@@ -141,6 +137,19 @@ class UserController extends Controller
 
         return view('user.confirm_ajax', ['user' => $user]);
     }
+    public function detail_ajax(string $id)
+{
+    $user = UserModel::with('level')->find($id);
+
+    if (!$user) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Data tidak ditemukan'
+        ]);
+    }
+
+    return view('user.detail_ajax', compact('user'));
+}
     public function delete_ajax(Request $request, $id)
     {
         // cek apakah request dari ajax
