@@ -344,6 +344,20 @@ $(function () {
             </div>
             <div class="card-footer">
                 <div id="penjualanChartLegend" class="row">
+                    {{-- Loop melalui setiap label untuk membuat legend --}}
+                    @foreach ($doughnutLabels as $index => $label)
+                        <div class="col-md-4 col-6 mb-2 d-flex align-items-center">
+                            {{-- Kotak Warna --}}
+                            <span class="d-inline-block me-2" 
+                                style="width: 12px; height: 12px; background-color: {{ $doughnutColors[$index] }}; border-radius:3px; margin-right: 5px;">
+                            </span>
+                            
+                            {{-- Nama Label/Kategori --}}
+                            <span class="fw-bold" style="font-size: 0.7rem;">
+                                {{ $label }}
+                            </span>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>

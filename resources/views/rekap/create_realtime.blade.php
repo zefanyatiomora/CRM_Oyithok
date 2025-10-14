@@ -9,7 +9,7 @@
     @csrf
     <!-- Hidden input untuk ID Interaksi dan ID User-->
     <input type="hidden" id="interaksi_id" value="{{ $interaksi->interaksi_id }}">
-    {{-- <input type="hidden" name="user_id" value="{{ auth()->id() }}">  --}}
+    <input type="hidden" name="user_id" value="{{ auth()->id() }}"> 
 
     <!-- Tanggal -->
     <div class="form-group">
@@ -31,7 +31,7 @@
     </div>
 
     <!-- PIC -->
-    <div class="form-group">
+    {{-- <div class="form-group">
         <label for="user_id">PIC</label>
         <select name="user_id" id="user_id" class="form-control" required>
             <option value="">-- Pilih PIC --</option>
@@ -40,7 +40,7 @@
             @endforeach
         </select>
         <small id="error-user" class="text-danger"></small>
-    </div>
+    </div> --}}
 
 
     <div class="modal-footer">
