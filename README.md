@@ -125,8 +125,8 @@ Langkah ini akan membuat struktur tabel di database dan mengisinya dengan data a
 
 Terakhir, jalankan server pengembangan lokal bawaan Laravel.
 
-    ```bash
-    php artisan serve
-    ```
+```bash
+php artisan serve
+```
 
 Aplikasi Anda kini siap diakses melalui browser di alamat http://127.0.0.1:8000.
