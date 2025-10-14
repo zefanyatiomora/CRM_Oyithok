@@ -15,9 +15,6 @@ use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\KebutuhanController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\Produk\AskController;
-use App\Http\Controllers\Produk\HoldController;
-use App\Http\Controllers\Produk\ClosingController;
 use App\Http\Controllers\PasangController;
 use Dflydev\DotAccessData\Data;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
@@ -41,20 +38,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/ghost', [DashboardController::class, 'ghost'])->name('dashboard.ghost');
     Route::get('/dashboard/ask', [DashboardController::class, 'ask'])->name('dashboard.ask');
+    Route::get('/dashboard/askProduk', [DashboardController::class, 'askProduk'])->name('ask.index');
+    Route::get('/dashboard/holdProduk', [DashboardController::class, 'holdProduk'])->name('hold.index');
+    Route::get('/dashboard/closingProduk', [DashboardController::class, 'closingProduk'])->name('closing.index');
     Route::get('/dashboard/followup', [DashboardController::class, 'followup'])->name('dashboard.followup');
     Route::get('/dashboard/hold', [DashboardController::class, 'hold'])->name('dashboard.hold');
     Route::get('/dashboard/closing', [DashboardController::class, 'closing'])->name('dashboard.closing');
     Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
-
-    //broadcast//
-    Route::get('/ask/broadcast', [AskController::class, 'broadcast'])->name('ask.broadcast');
-    Route::post('/ask/send-broadcast', [AskController::class, 'sendBroadcast'])->name('ask.sendBroadcast');
-    Route::get('/broadcast/followup', [DashboardController::class, 'broadcast'])->name('broadcast.followup');
-    Route::post('/broadcast/send-followup', [DashboardController::class, 'sendBroadcast'])->name('broadcast.sendFollowup');
-    Route::get('/broadcast/hold', [HoldController::class, 'broadcast'])->name('broadcast.hold');
-    Route::post('/broadcast/hold/send', [HoldController::class, 'sendBroadcast'])->name('broadcast.sendHold');
-    Route::get('/broadcast/closing', [ClosingController::class, 'broadcast'])->name('broadcast.closing');
-    Route::post('/broadcast/closing/send', [ClosingController::class, 'sendBroadcast'])->name('broadcast.sendClosing');
 
     //customer//
     Route::post('/customers/list', [CustomersController::class, 'data'])->name('customers.data');
@@ -116,21 +106,6 @@ Route::middleware(['auth'])->group(function () {
     // TARUH DI LUAR Route::prefix('rekap')
     Route::post('/rekap/update-status/{interaksi_id}', [RekapController::class, 'updateStatus'])->name('rekap.updateStatus');
 
-    Route::prefix('ask')->group(function () {
-        Route::get('/', [AskController::class, 'index'])->name('ask.index');       // Halaman list monthSurvey
-        Route::post('/list', [AskController::class, 'list'])->name('ask.list');
-        Route::get('/{id}/show_ajax', [AskController::class, 'show_ajax'])->name('ask.show_ajax');
-    });
-    Route::prefix('hold')->group(function () {
-        Route::get('/', [HoldController::class, 'index'])->name('hold.index');       // Halaman list monthSurvey
-        Route::post('/list', [HoldController::class, 'list'])->name('hold.list');
-        Route::get('/{id}/show_ajax', [HoldController::class, 'show_ajax'])->name('hold.show_ajax');
-    });
-    Route::prefix('closing')->group(function () {
-        Route::get('/', [ClosingController::class, 'index'])->name('closing.index');       // Halaman list monthSurvey
-        Route::post('/list', [ClosingController::class, 'list'])->name('closing.list');
-        Route::get('/{id}/show_ajax', [ClosingController::class, 'show_ajax'])->name('closing.show_ajax');
-    });
     Route::group(['prefix' => 'user'], function () {
         Route::get('/', [UserController::class, 'index'])->name('user.index');
         Route::post('/list', [UserController::class, 'list']);      //menampilkan data user dalam bentuk json untuk datatables
