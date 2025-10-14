@@ -96,10 +96,9 @@ Route::middleware(['auth'])->group(function () {
         // Route::delete('/realtime/delete/{id}', [RekapController::class, 'deleteRealtime'])->name('rekap.deleteRealtime');
         Route::get('/interaksi-awal/tabel/{id}', [RekapController::class, 'listIdentifikasiAwal'])->name('interaksiAwal.tabel');
         Route::post('/interaksi-awal/store', [RekapController::class, 'storeIdentifikasiAwal'])->name('interaksiAwal.store');
-Route::get('rekap/{interaksi_id}/realtime/list', [RekapController::class, 'getRealtimeList'])->name('rekap.getRealtimeList');
-Route::get('realtime/create/{id_interaksi}', [RekapController::class, 'createRealtime'])->name('realtime.create');
-Route::post('realtime/store', [RekapController::class, 'storeRealtime'])->name('realtime.store');
-
+        Route::get('rekap/{interaksi_id}/realtime/list', [RekapController::class, 'getRealtimeList'])->name('rekap.getRealtimeList');
+        Route::get('realtime/create/{id_interaksi}', [RekapController::class, 'createRealtime'])->name('realtime.create');
+        Route::post('realtime/store', [RekapController::class, 'storeRealtime'])->name('realtime.store');
     });
     // TARUH DI LUAR Route::prefix('rekap')
     Route::post('/rekap/update-status/{interaksi_id}', [RekapController::class, 'updateStatus'])->name('rekap.updateStatus');
@@ -110,7 +109,7 @@ Route::post('realtime/store', [RekapController::class, 'storeRealtime'])->name('
         Route::get('/create_ajax', [UserController::class, 'create_ajax']);  //menampilkan halaman form tambah user Ajax
         Route::post('/ajax', [UserController::class, 'store_ajax']);         //menyimpan data user baru Ajax
         Route::get('/{id}/edit_ajax', [UserController::class, 'edit_ajax']);  //menampilkan halaman form edit user Ajax
-        Route::get('/{id}/show_ajax', [UserController::class, 'show_ajax']);  //tampilan form confirm show Level Ajax
+        Route::get('/{id}/detail_ajax', [UserController::class, 'detail_ajax']);  //tampilan form confirm show Level Ajax
         Route::put('/{id}/update_ajax', [UserController::class, 'update_ajax']);  //Menyimpan halaman form edit user Ajax
         Route::get('/{id}/delete_ajax', [UserController::class, 'confirm_ajax']);  //tampilan form confirm delete user Ajax
         Route::delete('/{id}/delete_ajax', [UserController::class, 'delete_ajax']); //menghapus data user Ajax
