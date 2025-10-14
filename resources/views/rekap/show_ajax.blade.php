@@ -169,6 +169,7 @@
                         },
                         success: function(res) {
                             toastr.success('Status berhasil disimpan');
+                              $('#follow-up-select').addClass('bg-success text-white');
                         },
                         error: function(xhr) {
                             console.error(xhr.responseText);
@@ -178,117 +179,103 @@
                 });
             </script>
 
-            {{-- ========== IDENTIFIKASI AWAL ========== --}}
-            <div class="card card-purple collapsed-card shadow-sm border-0">
-                <div class="card-header bg-gradient-purple d-flex justify-content-between align-items-center"
-                    style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
-                    <h3 class="card-title fw-bold text-white mb-0">
-                        <i class="fas fa-search me-2"></i> Identifikasi Awal
-                    </h3>
-                    <div class="card-tools position-absolute" style="top: 12px; right: 15px;">
-                        <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <button type="button" class="btn btn-sm btn-success" id="btn-toggle-identifikasi">
-                        <i class="fas fa-plus"></i> Tambah Kategori
-                    </button>
+{{-- ========== IDENTIFIKASI AWAL ========== --}}
+<div class="card card-purple collapsed-card shadow-sm border-0">
+    <div class="card-header bg-gradient-purple d-flex justify-content-between align-items-center"
+        style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
+        <h3 class="card-title fw-bold text-white mb-0">
+            <i class="fas fa-search me-2"></i> Identifikasi Awal
+        </h3>
+        <div class="card-tools position-absolute" style="top: 12px; right: 15px;">
+            <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+    </div>
 
-                    <!-- Container form -->
-                    <div id="form-identifikasi-container" style="display:none; margin-top:10px;"></div>
+    <div class="card-body">
+        <button type="button" class="btn btn-sm btn-success" id="btn-toggle-identifikasi">
+            <i class="fas fa-plus"></i> Tambah Kategori
+        </button>
+        <div id="form-identifikasi-container" style="display:none; margin-top:10px;"></div>
 
-                    @if ($interaksiAwalList->isEmpty())
-                        <div class="alert alert-secondary mt-2">Belum ada data identifikasi awal.</div>
-                    @else
-                        <div id="identifikasi-tabel-container">
-                            <table id="tabel-identifikasi"
-                                class="table table-bordered table-striped table-hover table-sm mt-2">
-                                <thead>
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Nama Kategori</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($interaksiAwalList as $index => $awal)
-                                        <tr>
-                                            <td>{{ $index + 1 }}</td>
-                                            <td>{{ $awal->kategori_nama }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @endif
-                </div>
-            </div>
-
-            <script>
-                // Handler tombol tambah kategori
-                $('#btn-toggle-identifikasi').click(function() {
-                    let interaksi_id = "{{ $interaksi->interaksi_id }}";
-                    $.get("{{ route('rekap.createIdentifikasiAwal') }}", {
-                        interaksi_id: interaksi_id
-                    }, function(res) {
-                        $('#form-identifikasi-container').html(res).slideDown();
-                    }).fail(function(xhr) {
-                        console.error(xhr.responseText);
-                        Swal.fire('Error!', 'Gagal memuat form identifikasi awal', 'error');
-                    });
-                });
-            </script>
-            {{-- ========== KEBUTUHAN HARIAN ========== --}}
-            <div class="card card-purple collapsed-card shadow-sm border-0">
-                <div class="card-header bg-gradient-purple position-relative"
-                    style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
-                    <h3 class="card-title fw-bold text-white mb-0">
-                        <i class="fas fa-calendar-day me-2"></i> Identifikasi Harian
-                    </h3>
-                    {{-- Tombol collapse di pojok kanan --}}
-                    <div class="card-tools position-absolute" style="top: 12px; right: 15px;">
-                        <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <!-- Icon Tambah Rincian -->
-                    <a href="javascript:void(0);"
-                        onclick="openModal('{{ route('realtime.create', $interaksi->interaksi_id) }}')"
-                        class="text-primary" title="Tambah Rincian">
-                        <i class="fas fa-plus fa-xs"></i>
-                    </a>
-                    <!-- Tabel kebutuhan -->
-                    <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
-                    <table class="table table-bordered table-striped table-hover table-sm">
-                        <thead>
+        <!-- Container tabel (selalu ada, bisa kosong) -->
+        <div id="identifikasi-tabel-container" class="mt-2">
+            @if ($interaksiAwalList->isEmpty())
+                <div class="alert alert-secondary">Belum ada data identifikasi awal.</div>
+            @else
+                <table id="tabel-identifikasi" class="table table-bordered table-striped table-hover table-sm">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Kategori</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($interaksiAwalList as $index => $awal)
                             <tr>
-                                <th>No</th>
-                                <th>Tanggal</th>
-                                <th>Keterangan</th>
-                                <th>PIC</th>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $awal->kategori_nama }}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($kebutuhanList as $index => $item)
-                                <tr>
-                                    <td>{{ $index + 1 }}</td>
-                                    <td>{{ \App\Helpers\FormatHelper::tanggalIndo($item->tanggal) }}</td>
-                                    <td>{{ $item->keterangan }}</td>
-                                    <td>{{ $item->user->nama ?? '-' }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center">Belum ada data</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
+        </div>
+    </div>
+</div>
 
+<script>
+    // Handler tombol tambah kategori
+    $('#btn-toggle-identifikasi').click(function() {
+        let interaksi_id = "{{ $interaksi->interaksi_id }}";
+        $.get("{{ route('rekap.createIdentifikasiAwal') }}", { interaksi_id: interaksi_id }, function(res) {
+            $('#form-identifikasi-container').html(res).slideDown();
+        }).fail(function(xhr) {
+            console.error(xhr.responseText);
+            Swal.fire('Error!', 'Gagal memuat form identifikasi awal', 'error');
+        });
+    });
+</script>
+<!-- ================= KEBUTUHAN HARIAN ================= -->
+<div class="card card-purple collapsed-card shadow-sm border-0">
+    <div class="card-header bg-gradient-purple position-relative"
+        style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
+        <h3 class="card-title fw-bold text-white mb-0">
+            <i class="fas fa-calendar-day me-2"></i> Identifikasi Harian
+        </h3>
+        <div class="card-tools position-absolute" style="top: 12px; right: 15px;">
+            <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <!-- Tombol Tambah -->
+        <a href="javascript:void(0);" 
+           onclick="openModal('{{ route('realtime.create', $interaksi->interaksi_id) }}')" 
+           class="text-primary" title="Tambah Rincian">
+            <i class="fas fa-plus fa-xs"></i>
+        </a>
+
+        <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
+
+        <table id="tabel-realtime" class="table table-bordered table-striped table-hover table-sm mt-2">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Tanggal</th>
+                    <th>Keterangan</th>
+                    <th>PIC</th>
+                </tr>
+            </thead>
+            <tbody id="realtime-tabel-container">
+                @include('rekap.partials.realtime_tabel', ['realtimeList' => $realtimeList])
+            </tbody>
+        </table>
+    </div>
+</div>
             {{-- ========== DATA SURVEY ========== --}}
             <div class="card card-purple collapsed-card shadow-sm border-0">
                 <div class="card-header bg-gradient-purple position-relative"
@@ -586,17 +573,21 @@
                 e.preventDefault();
 
                 $.post("{{ url('rekap/realtime/store') }}", $(this).serialize(), function(res) {
-                    if (res.status === 'success') {
-                        $('#modalTambahKebutuhan').modal('hide');
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil',
-                            text: 'Data berhasil ditambahkan',
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
-                        loadRealtimeList();
-                    } else {
+if (res.status === 'success') {
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: 'Data berhasil ditambahkan',
+        timer: 1500,
+        showConfirmButton: false
+    });
+
+    // Form dikosongkan agar bisa input baru tanpa menutup modal
+    $('#form-kebutuhan-harian')[0].reset();
+
+    // Reload data kebutuhan di dalam modal
+    loadRealtimeList();
+}else {
                         Swal.fire({
                             icon: 'error',
                             title: 'Gagal',
@@ -640,19 +631,20 @@
                         pic: $('#pic-input').val(),
                         status: $('#follow-up-select').val()
                     },
-                    success: function(res) {
-                        if (res.status === 'success') {
-                            tableRekap.ajax.reload(null, false);
-                            $('#myModal').modal('hide');
+success: function(res) {
+    if (res.status === 'success') {
+        tableRekap.ajax.reload(null, false);
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: 'Follow up berhasil disimpan',
+            showConfirmButton: false,
+            timer: 1500
+        });
 
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: 'Follow up berhasil disimpan',
-                                showConfirmButton: false,
-                                timer: 1500
-                            });
-                        } else {
+        // tetap di modal, bisa update tampilan tanpa tutup
+        $('#follow-up-select').addClass('bg-success text-white');
+    }else {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal!',

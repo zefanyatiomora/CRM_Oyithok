@@ -50,10 +50,8 @@
     </div>
 </form>
 
-
 <script>
 $(function () {
-    // Tombol "Hari Ini" dan "Besok"
     $('#btn-today').click(function() {
         let today = new Date().toISOString().split('T')[0];
         $('#tanggal').val(today);
@@ -65,7 +63,7 @@ $(function () {
         let yesterday = d.toISOString().split('T')[0];
         $('#tanggal').val(yesterday);
     });
-    // Submit Form dengan AJAX
+
     $("#form-create-realtime").submit(function (e) {
         e.preventDefault();
 
@@ -78,21 +76,24 @@ $(function () {
             data: formData,
             processData: false,
             contentType: false,
-            success: function (res) {
-                toastr.success('Record Realtime berhasil disimpan');
-                tableRekap.ajax.reload(null, false);
+success: function (res) {
+    if (res.status === 'success') {
+        toastr.success(res.message);
 
-                let interaksiId = $("#interaksi_id").val();
-                $("#myModal").load("{{ url('rekap') }}/" + interaksiId + "/show_ajax");
+        // Tutup modal
+        $("#crudModal").modal('hide');
 
-                $("#crudModal").modal('hide');
-            },
-            error: function (xhr) {
-                Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
-                console.error("Server Error:", xhr.responseText);
-            }
+        // Update isi tabel realtime langsung tanpa reload
+        $("#realtime-tabel-container").html(res.html);
+    } else {
+        Swal.fire("Gagal", res.message || "Terjadi kesalahan saat menyimpan data.", "error");
+    }
+},
+error: function (xhr) {
+    Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
+    console.error("Server Error:", xhr.responseText);
+}
+});
         });
     });
-
-});
 </script>
