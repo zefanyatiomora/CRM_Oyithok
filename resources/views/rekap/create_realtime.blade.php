@@ -16,7 +16,7 @@
         <label>Tanggal</label>
         <div class="input-group">
             <input type="date" class="form-control" id="tanggal" name="tanggal"
-                value="{{ old('tanggal', \Carbon\Carbon::today()->format('Y-m-d')) }}" required>
+                value="{{ old('tanggal', \Carbon\Carbon::today()->format('d-m-Y')) }}" required>
                 <button type="button" class="btn btn-outline-primary" id="btn-yesterday">Kemarin</button>
                 <button type="button" class="btn btn-outline-primary" id="btn-today">Hari Ini</button>
         </div>

@@ -53,4 +53,9 @@ class InteraksiModel extends Model
         // Kalau mau simpan banyak survey per interaksi:
         // return $this->hasMany(Survey::class, 'interaksi_id', 'interaksi_id');
     }
+    public function getTanggalAttribute($value)
+{
+    return \Carbon\Carbon::parse($value)->format('d-m-Y');
+}
+
 }

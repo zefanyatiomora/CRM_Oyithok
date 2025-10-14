@@ -44,7 +44,7 @@
 
         .login-image-side {
             width: 50%;
-            background: url('https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=1770&auto=format&fit=crop') center center/cover no-repeat;
+            background: url('{{ asset('images/login.jpg') }}') center center/cover no-repeat;
             display: flex;
             justify-content: center;
             align-items: center;

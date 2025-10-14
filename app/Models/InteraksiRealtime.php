@@ -30,4 +30,9 @@ class InteraksiRealtime extends Model
     {
         return $this->belongsTo(UserModel::class, 'user_id', 'user_id');
     }
+    public function getTanggalAttribute($value)
+{
+    return \Carbon\Carbon::parse($value)->format('d-m-Y');
+}
+
 }

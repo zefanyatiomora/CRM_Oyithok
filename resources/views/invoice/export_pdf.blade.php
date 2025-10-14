@@ -192,8 +192,18 @@
                         <td style="padding: 2px 4px;">: {{ $detail->pasang->alamat ?? '-' }}</td>
                     </tr>
                     <tr>
-                        <td style="font-weight: bold; padding: 2px 4px;">No Telp</td>
-                        <td style="padding: 2px 4px;">: {{ $detail->pasang->interaksi->customer->customer_nohp ?? '-' }}</td>
+<td style="font-weight: bold; padding: 2px 4px;">No Telp</td>
+<td style="padding: 2px 4px;">
+    : 
+    @php
+        $nohp = $detail->pasang->interaksi->customer->customer_nohp ?? '-';
+        // Tambahkan 0 di depan jika belum ada
+        if ($nohp !== '-' && !str_starts_with($nohp, '0')) {
+            $nohp = '0' . $nohp;
+        }
+    @endphp
+    {{ $nohp }}
+</td>
                     </tr>
                 @endif
             @endforeach

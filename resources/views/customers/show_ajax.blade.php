@@ -54,11 +54,19 @@
                 type: 'GET',
                 success: function(response) {
     if (response.status) {
+        // Fungsi untuk pastikan nomor hp ada "0" di depan
+        function formatNoHp(nohp) {
+            if (!nohp.startsWith("0")) {
+                return "0" + nohp;
+            }
+            return nohp;
+        }
+
         // Populate modal fields
         $('#customer_kode').text(response.data.customer_kode);
         $('#customer_nama').text(response.data.customer_nama);
         $('#customer_alamat').text(response.data.customer_alamat);
-        $('#customer_nohp').text(response.data.customer_nohp);
+        $('#customer_nohp').text(formatNoHp(response.data.customer_nohp)); // <<< di sini
         $('#informasi_media').text(response.data.informasi_media);
 
         // Format angka ke Rupiah
@@ -69,15 +77,14 @@
         // Isi field transaksi & cash spent
         $('#total_transaction').text(response.data.total_transaction);
         $('#total_cash_spent').text(formatRupiah(response.data.total_cash_spent));
-                        // Populate other fields as necessary
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.message
-                        });
-                    }
-                },
+    } else {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: response.message
+        });
+    };
+};
                 error: function() {
                     Swal.fire({
                         icon: 'error',

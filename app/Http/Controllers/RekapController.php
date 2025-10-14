@@ -115,13 +115,16 @@ class RekapController extends Controller
         }
 
         return DataTables::of($query)
-            ->addIndexColumn()
-            ->addColumn('aksi', function ($row) {
-                $btn = '<button onclick="modalAction(\'' . url('/rekap/' . $row->interaksi_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
-                return $btn;
-            })
-            ->rawColumns(['aksi'])
-            ->make(true);
+    ->addIndexColumn()
+    ->editColumn('tanggal_chat', function ($row) {
+        return \Carbon\Carbon::parse($row->tanggal_chat)->format('d-m-Y');
+    })
+    ->addColumn('aksi', function ($row) {
+        return '<button onclick="modalAction(\'' . url('/rekap/' . $row->interaksi_id . '/show_ajax') . '\')" 
+                class="btn btn-info btn-sm">Detail</button>';
+    })
+    ->rawColumns(['aksi'])
+    ->make(true);
     }
     public function show_ajax($interaksi_id)
     {

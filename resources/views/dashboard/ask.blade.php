@@ -17,7 +17,6 @@
             <thead class="text-center">
                 <tr>
                     <th>No</th>
-                    <th>ID Interaksi</th>
                     <th>Kode Customer</th>
                     <th>Nama Customer</th>
                     <th>Aksi</th>
@@ -52,7 +51,6 @@
             ajax: "{{ route('dashboard.ask') }}", // route untuk data interaksi status ASK
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', className: 'text-center', orderable: false, searchable: false },
-                { data: 'interaksi_id', name: 'interaksi_id' },
                 { data: 'customer_kode', name: 'customer_kode' },
                 { data: 'customer_nama', name: 'customer_nama' },
                 { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'text-center' }
