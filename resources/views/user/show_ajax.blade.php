@@ -1,29 +1,30 @@
 <div id="modal-user" class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
-        <div class="modal-header bg-wallpaper-gradient text-white">
-            <h5 class="modal-title" id="exampleModalLabel">Detail produk</h5>
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Detail User</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true" class="text-white">&times;</span>
+                <span aria-hidden="true">&times;</span>
             </button>
         </div>
         <div class="modal-body">
             <table class="table table-bordered table-striped table-hover table-sm"> 
                 <tr> 
-                    <th>ID produk</th> 
-                    <td>{{ $produk->produk_id }}</td> 
+                    <th>ID User</th> 
+                    <td>{{ $user->user_id }}</td> 
                 </tr> 
                 <tr> 
-                    <th>Kategori</th> 
-                    <td>{{ $produk->kategori->kategori_nama }}</td> 
+                    <th>Username</th> 
+                    <td>{{ $user->username }}</td> 
                 </tr> 
                 <tr> 
-                    <th>Nama produk</th> 
-                    <td>{{ $produk->produk_nama }}</td> 
+                    <th>Nama</th> 
+                    <td>{{ $user->nama }}</td> 
                 </tr> 
                 <tr> 
-                    <th>Satuan produk</th> 
-                    <td>{{ $produk->satuan }}</td> 
+                    <th>Level</th> 
+                    <td>{{ $user->level->level_nama }}</td> 
                 </tr> 
+                <!-- Add more fields if necessary -->
             </table>
         </div>
         <div class="modal-footer">
@@ -42,11 +43,11 @@
                 success: function(response) {
                     if (response.status) {
                         // Populate modal fields with the retrieved data
-                        $('#produk_id').text(response.data.produk_id);
-                        $('#produk_kode').text(response.data.produk_kode);
-                        $('#produk_nama').text(response.data.produk_nama);
-                        $('#kategori_nama').text(response.data.kategori_nama);
-                        $('#image').html('<img src="/images/produk/' + response.data.image);
+                        $('#user_id').text(response.data.user_id);
+                        $('#username').text(response.data.username);
+                        $('#nama').text(response.data.nama);
+                        $('#level').text(response.data.level ? response.data.level.level_nama : 'N/A'); // Assuming level relationship is loaded
+                        $('#avatar').html('<img src="' + response.data.avatar + '" alt="Avatar" style="width:50px;height:50px;"/>');
                         // Populate other fields as necessary
                     } else {
                         Swal.fire({
@@ -67,3 +68,4 @@
         });
     });
 </script>
+    

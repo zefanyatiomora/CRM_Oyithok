@@ -137,6 +137,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/create_ajax', [UserController::class, 'create_ajax']);  //menampilkan halaman form tambah user Ajax
         Route::post('/ajax', [UserController::class, 'store_ajax']);         //menyimpan data user baru Ajax
         Route::get('/{id}/edit_ajax', [UserController::class, 'edit_ajax']);  //menampilkan halaman form edit user Ajax
+        Route::get('/{id}/show_ajax', [UserController::class, 'show_ajax']);  //tampilan form confirm show Level Ajax
         Route::put('/{id}/update_ajax', [UserController::class, 'update_ajax']);  //Menyimpan halaman form edit user Ajax
         Route::get('/{id}/delete_ajax', [UserController::class, 'confirm_ajax']);  //tampilan form confirm delete user Ajax
         Route::delete('/{id}/delete_ajax', [UserController::class, 'delete_ajax']); //menghapus data user Ajax
