@@ -129,10 +129,13 @@ Route::post('realtime/store', [RekapController::class, 'storeRealtime'])->name('
         Route::post('/store', [RekapController::class, 'storeRincian'])->name('rincian.store');
         Route::get('/{id}/edit', [RekapController::class, 'editRincian'])->name('rincian.edit');
         Route::put('/{id}/update', [RekapController::class, 'updateRincian'])->name('rincian.update');
+        Route::get('/rekap/{interaksi_id}/rincian/list', [RekapController::class, 'getRincianList'])->name('rincian.list');
+
     });
     Route::prefix('survey')->group(function () {
         Route::get('/{id}/create', [RekapController::class, 'createSurvey'])->name('survey.create');
         Route::post('/store', [RekapController::class, 'storeSurvey'])->name('survey.store');
+        Route::get('/rekap/{interaksi_id}/survey/list', [SurveyController::class, 'getSurveyList'])->name('survey.list');
     });
     Route::prefix('pasang')->group(function () {
         Route::get('/{id}/create', [RekapController::class, 'createPasang'])->name('pasang.create');

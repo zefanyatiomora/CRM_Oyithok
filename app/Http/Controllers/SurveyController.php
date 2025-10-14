@@ -92,6 +92,17 @@ class SurveyController extends Controller
             'closeValue'       => $interaksi->close ?? ''
         ]);
     }
+    public function getSurveyList($interaksi_id)
+{
+    $interaksi = InteraksiModel::with('survey')->findOrFail($interaksi_id);
+
+    $html = view('rekap.partials.survey_tabel', ['interaksi' => $interaksi])->render();
+
+    return response()->json([
+        'status' => 'success',
+        'html' => $html
+    ]);
+}
     public function updateFollowUp(Request $request)
     {
         Log::info('updateFollowUp data diterima:', $request->all());

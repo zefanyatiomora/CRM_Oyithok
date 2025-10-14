@@ -32,49 +32,44 @@
 
 </form>
 
-
 <script>
-$(function () {
-    // Tombol "Hari Ini" dan "Besok"
-    $('#btn-today').click(function() {
-        let today = new Date().toISOString().split('T')[0];
-        $('#jadwal_survey').val(today);
+$("#form-create-survey").submit(function (e) {
+    e.preventDefault();
+
+    let formData = new FormData(this);
+    formData.append("interaksi_id", $("#interaksi_id").val());
+
+    $.ajax({
+        url: "{{ route('survey.store') }}",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (res) {
+    if (res.status === 'success') {
+        toastr.success(res.message || 'Survey berhasil disimpan');
+
+        // Tutup modal
+        $("#crudModal").modal('hide');
+
+        // Update tabel survey
+        $("#survey-tabel-body").html(res.html);
+
+        // Sembunyikan tombol tambah kalau survey sudah ada
+        $("a[title='Tambah Survey']").hide();
+    } else {
+        Swal.fire("Gagal", res.message || "Terjadi kesalahan saat menyimpan data.", "error");
+    }
+},
+        error: function (xhr) {
+            let msg = "Terjadi kesalahan server.";
+            try {
+                let json = JSON.parse(xhr.responseText);
+                if (json.message) msg = json.message;
+            } catch (e) {}
+            Swal.fire("Gagal", msg, "error");
+            console.error("Server Error:", xhr.responseText);
+        }
     });
-
-    $('#btn-tomorrow').click(function() {
-        let d = new Date();
-        d.setDate(d.getDate() + 1);
-        let tomorrow = d.toISOString().split('T')[0];
-        $('#jadwal_survey').val(tomorrow);
-    });
-    // Submit Form dengan AJAX
-    $("#form-create-survey").submit(function (e) {
-        e.preventDefault();
-
-        let formData = new FormData(this);
-        formData.append("interaksi_id", $("#interaksi_id").val());
-
-        $.ajax({
-            url: "{{ route('survey.store') }}",
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (res) {
-                toastr.success('Survey berhasil disimpan');
-                tableRekap.ajax.reload(null, false);
-
-                let interaksiId = $("#interaksi_id").val();
-                $("#myModal").load("{{ url('rekap') }}/" + interaksiId + "/show_ajax");
-
-                $("#crudModal").modal('hide');
-            },
-            error: function (xhr) {
-                Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
-                console.error("Server Error:", xhr.responseText);
-            }
-        });
-    });
-
 });
 </script>

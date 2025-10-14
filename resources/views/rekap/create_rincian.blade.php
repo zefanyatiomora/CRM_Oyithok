@@ -51,10 +51,8 @@
     <button type="submit" class="btn btn-success">Simpan</button>
 
 </form>
-
 <script>
-$(document).ready(function () {
-    // Submit Form dengan AJAX
+$(function () {
     $("#form-create-rincian").submit(function (e) {
         e.preventDefault();
 
@@ -68,13 +66,15 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function (res) {
-                toastr.success('Rincian berhasil disimpan');
-                tableRekap.ajax.reload(null, false);
+                if (res.status === 'success') {
+                    toastr.success(res.message);
+                    $("#crudModal").modal('hide');
 
-                let interaksiId = $("#interaksi_id").val();
-                $("#myModal").load("{{ url('rekap') }}/" + interaksiId + "/show_ajax");
-
-                $("#crudModal").modal('hide');
+                    // update tabel langsung pakai HTML hasil dari controller
+                    $("#realtime-tabel-container, .table-rincian tbody").html(res.html);
+                } else {
+                    Swal.fire("Error!", res.message || "Gagal menyimpan rincian", "error");
+                }
             },
             error: function (xhr) {
                 Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
@@ -83,14 +83,10 @@ $(document).ready(function () {
         });
     });
 
-    // Set satuan sesuai produk yang sudah terpilih (saat edit dibuka)
-    let satuanAwal = $("#produk_id").find(":selected").data("satuan") || "";
-    $("#satuan-label").text(satuanAwal);
-
-    // Update satuan setiap kali pilihan produk berubah
+    // Update label satuan
     $("#produk_id").on("change", function () {
         let satuan = $(this).find(":selected").data("satuan") || "";
         $("#satuan-label").text(satuan);
-    }); 
+    });
 });
 </script>

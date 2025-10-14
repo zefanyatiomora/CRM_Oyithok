@@ -306,7 +306,7 @@
 
                     <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
 
-                    <table class="table table-bordered table-striped table-hover table-sm">
+                    <table class="table table-bordered table-striped table-hover table-sm table-survey">
                         <thead>
                             <tr>
                                 <th>Alamat Survey</th>
@@ -315,25 +315,9 @@
                                 {{-- <th>Aksi</th> --}}
                             </tr>
                         </thead>
-                        <tbody>
-                            @if ($interaksi->survey)
-                                <tr>
-                                    <td>{{ $interaksi->survey->alamat_survey }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($interaksi->survey->jadwal_survey)->format('d-m-Y H:i') }}</td>
-                                    <td>
-                                        @if ($interaksi->survey->status == 'closing survey')
-                                            <span class="badge bg-success">Closing Survey</span>
-                                        @else
-                                            <span class="badge bg-warning">pending</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @else
-                                <tr>
-                                    <td colspan="3">Tidak ada data survey.</td>
-                                </tr>
-                            @endif
-                        </tbody>
+                       <tbody id="survey-tabel-body">
+    @include('rekap.partials.survey_tabel', ['interaksi' => $interaksi])                        
+</tbody>
                     </table>
                     <h4 class="mt-4 d-flex justify-content-between">
                         <span style="font-size:17px;">Rincian Produk</span>
@@ -345,7 +329,7 @@
                         </a>
                     </h4>
 
-                    <table class="table table-bordered table-striped table-hover table-sm">
+                    <table class="table table-bordered table-striped table-hover table-sm table-rincian">
                         <thead>
                             <tr>
                                 <th>Produk</th>
@@ -356,34 +340,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($interaksi->rincian as $rincian)
-                                <tr class="produk-row">
-                                    <td>{{ $rincian->produk->kategori->kategori_nama }}
-                                        {{ $rincian->produk->produk_nama }}</td>
-                                    <td>{{ $rincian->kuantitas }} {{ $rincian->produk->satuan }}</td>
-                                    <td>{{ $rincian->deskripsi }}</td>
-                                    <td>
-                                        @if ($rincian->status == 'hold')
-                                            <span class="badge bg-warning text-dark">Hold</span>
-                                            {{-- @elseif(in_array($rincian->status, ['closing']))
-                                <span class="badge bg-success"> {{ ucfirst($rincian->status) }} </span> --}}
-                                        @else
-                                            <span class="badge bg-success">Closing</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <!-- Tombol Edit -->
-                                        <a href="javascript:void(0);" class="btn btn-warning btn-sm"
-                                            onclick="openModal('{{ url('/rincian/' . $rincian->rincian_id . '/edit') }}')">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4">Tidak ada rincian produk.</td>
-                                </tr>
-                            @endforelse
+                            @include('rekap.partials.rincian_tabel', ['rincianList' => $interaksi->rincian])
                         </tbody>
                     </table>
                 </div> {{-- card-body rincian --}}
@@ -427,35 +384,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($interaksi->pasang as $pasang)
-                                <tr>
-                                    <td>{{ $pasang->produk->kategori->kategori_nama }}
-                                        {{ $pasang->produk->produk_nama }} </td>
-                                    <td>{{ $pasang->kuantitas }} {{ $pasang->produk->satuan }}</td>
-                                    <td>{{ $pasang->deskripsi }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($pasang->jadwal_pasang_kirim)->format('d-m-Y H:i') }}</td>
-                                    <td>{{ $pasang->alamat }}</td>
-                                    <td>
-                                        @if ($pasang->status == 'closing all')
-                                            <span class="badge bg-primary">Closing All</span>
-                                        @elseif($pasang->status == 'closing produk')
-                                            <span class="badge bg-success">Closing Produk </span>
-                                        @else
-                                            <span class="badge bg-warning">Closing Pasang</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <!-- Tombol Edit -->
-                                        <a href="javascript:void(0);" class="btn btn-warning btn-sm"
-                                            onclick="openModal('{{ url('/pasang/' . $pasang->pasangkirim_id . '/edit') }}')">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4">Tidak ada pemasangan.</td>
-                                </tr>
-                            @endforelse
+                           @include('rekap.partials.pasang_tabel', ['interaksi' => $interaksi])
                         </tbody>
                     </table>
                     </table>

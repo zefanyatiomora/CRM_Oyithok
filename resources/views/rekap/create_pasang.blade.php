@@ -98,42 +98,34 @@ $(function () {
         $('#jadwal_pasang_kirim').val(tomorrow);
     });
     // Submit Form dengan AJAX
-    $("#form-create-pasang").submit(function (e) {
-        e.preventDefault();
+$("#form-create-pasang").submit(function (e) {
+    e.preventDefault();
 
-        let formData = new FormData(this);
-        formData.append("interaksi_id", $("#interaksi_id").val());
+    let formData = new FormData(this);
+    formData.append("interaksi_id", $("#interaksi_id").val());
 
-        $.ajax({
-            url: "{{ route('pasang.store') }}",
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (res) {
-                toastr.success('Pasang berhasil disimpan');
-                tableRekap.ajax.reload(null, false);
-
-                let interaksiId = $("#interaksi_id").val();
-                $("#myModal").load("{{ url('rekap') }}/" + interaksiId + "/show_ajax");
-
-                // $("#form-create-pasang").hide();
+    $.ajax({
+        url: "{{ route('pasang.store') }}",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (res) {
+            if(res.status === 'success'){
+                toastr.success(res.message);
                 $("#crudModal").modal('hide');
-            },
-            error: function (xhr) {
-                Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
-                console.error("Server Error:", xhr.responseText);
-            }
-        });
-    });
-    // Set satuan sesuai produk yang sudah terpilih (saat edit dibuka)
-    let satuanAwal = $("#produk_id").find(":selected").data("satuan") || "";
-    $("#satuan-label").text(satuanAwal);
 
-    // Update satuan setiap kali pilihan produk berubah
-    $("#produk_id").on("change", function () {
-        let satuan = $(this).find(":selected").data("satuan") || "";
-        $("#satuan-label").text(satuan);
-    }); 
+                // Ganti tbody tabel pasang dengan data terbaru
+                $("#tbody-pasang").html(res.html); 
+            } else {
+                Swal.fire("Gagal", res.message, "error");
+            }
+        },
+        error: function(xhr){
+            Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
+            console.error(xhr.responseText);
+        }
+    });
+});
 });
 </script>
