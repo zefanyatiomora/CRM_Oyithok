@@ -16,6 +16,9 @@ use App\Http\Controllers\KebutuhanController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PasangController;
+use App\Http\Controllers\Produk\AskController;
+use App\Http\Controllers\Produk\HoldController;
+use App\Http\Controllers\Produk\ClosingController;
 use Dflydev\DotAccessData\Data;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
@@ -45,6 +48,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/hold', [DashboardController::class, 'hold'])->name('dashboard.hold');
     Route::get('/dashboard/closing', [DashboardController::class, 'closing'])->name('dashboard.closing');
     Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
+
+    //broadcast//
+    Route::get('/ask/broadcast', [AskController::class, 'broadcast'])->name('ask.broadcast');
+    Route::post('/ask/send-broadcast', [AskController::class, 'sendBroadcast'])->name('ask.sendBroadcast');
+    Route::get('/broadcast/followup', [DashboardController::class, 'broadcast'])->name('broadcast.followup');
+    Route::post('/broadcast/send-followup', [DashboardController::class, 'sendBroadcast'])->name('broadcast.sendFollowup');
+    Route::get('/broadcast/hold', [HoldController::class, 'broadcast'])->name('broadcast.hold');
+    Route::post('/broadcast/hold/send', [HoldController::class, 'sendBroadcast'])->name('broadcast.sendHold');
+    Route::get('/broadcast/closing', [ClosingController::class, 'broadcast'])->name('broadcast.closing');
+    Route::post('/broadcast/closing/send', [ClosingController::class, 'sendBroadcast'])->name('broadcast.sendClosing');
+
 
     //customer//
     Route::post('/customers/list', [CustomersController::class, 'data'])->name('customers.data');
@@ -129,7 +143,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/edit', [RekapController::class, 'editRincian'])->name('rincian.edit');
         Route::put('/{id}/update', [RekapController::class, 'updateRincian'])->name('rincian.update');
         Route::get('/rekap/{interaksi_id}/rincian/list', [RekapController::class, 'getRincianList'])->name('rincian.list');
-
     });
     Route::prefix('survey')->group(function () {
         Route::get('/{id}/create', [RekapController::class, 'createSurvey'])->name('survey.create');
