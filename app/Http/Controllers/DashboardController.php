@@ -585,7 +585,6 @@ class DashboardController extends Controller
         $activeMenu = 'dashboard';
         return view('dashboard.ghost', compact('activeMenu'));
     }
-
     public function ask(Request $request)
     {
         $query = InteraksiModel::with('customer')->where('status', 'ask');
@@ -751,4 +750,59 @@ class DashboardController extends Controller
             'message' => 'Broadcast berhasil diproses, cek log untuk hasil detail'
         ]);
     }
+    public function ghostBroadcast()
+{
+    return view('broadcast.ghost_broadcast');
+}
+
+// Mengirim broadcast untuk customer GHOST
+public function sendGhostBroadcast()
+{
+    $token = env('WABLAS_API_TOKEN', 'rsOFZQEEWNCTK3BRb5vijjQ0xCo59C32OqSh8yYmdhkyPS6cOSx7eZa');
+    $secret = env('WABLAS_SECRET_KEY', 'IXMoblCR');
+
+    // Ambil semua customer dengan status ghost
+    $customers = InteraksiModel::with('customer')->where('status', 'ghost')->get();
+
+    foreach ($customers as $item) {
+        $customer = $item->customer;
+        if (!$customer || !$customer->customer_nohp) {
+            continue;
+        }
+
+        $nama = $customer->customer_nama;
+        $nohp = preg_replace('/^0/', '62', preg_replace('/\D/', '', $customer->customer_nohp));
+
+        $pesan = "Halo kak {$nama}👋, gimana kabarnya hari ini? Semoga sehat selalu ya 🙏\n"
+            . "Beberapa waktu lalu kakak sempat hubungi kami.\n"
+            . "Kalau sekarang lagi belum butuh, nggak apa-apa kak 😊 Tapi kalau masih ada rencana, kami siap bantu kasih katalog & rekomendasi sesuai kebutuhan kakak.";
+
+        try {
+            $headers = ['Authorization' => $token];
+            if ($secret) $headers['Secret'] = $secret;
+
+            $response = Http::withHeaders($headers)->post('https://sby.wablas.com/api/send-message', [
+                'phone' => $nohp,
+                'message' => $pesan,
+            ]);
+
+            $result = $response->json();
+            Log::info("WA Ghost Broadcast -> {$nohp}", $result);
+
+            if (!isset($result['status']) || $result['status'] !== true) {
+                Log::error("Gagal kirim ke {$nohp}", $result);
+            }
+
+            sleep(1); // jeda agar tidak dianggap spam
+
+        } catch (\Exception $e) {
+            Log::error("Exception kirim WA ke {$nohp}: " . $e->getMessage());
+        }
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Broadcast GHOST berhasil diproses, cek log untuk detail.'
+    ]);
+}
 }
