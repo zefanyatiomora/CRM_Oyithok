@@ -17,17 +17,21 @@ class UserSeeder extends Seeder
     {
         $data = [
             [
-                'user_id' => 1,
-                'level_id' => 1,
-                'username' => 'admin',
-                'nama' => 'Administrator',
+                'user_id' => 2,
+                'level_id' => 2,
+                'username' => 'anisa',
+                'nama' => 'Anisa Rahman',
+                'alamat' => 'Jl.Raya Bululawang',
+                'nohp' => '085859133815',
                 'password' => Hash::make('123456'),
             ],
             [
-                'user_id' => 2,
-                'level_id' => 2,
-                'username' => 'cs',
-                'nama' => 'Customer Service',
+                'user_id' => 1,
+                'level_id' => 1,
+                'username' => 'oktrin',
+                'nama' => 'Oktrin Rustika',
+                'alamat' => 'Villa Bukit Tidar',
+                'nohp' => '0812345677',
                 'password' => Hash::make('123456'),
             ],
         ];
