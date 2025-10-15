@@ -97,35 +97,42 @@ $(function () {
         let tomorrow = d.toISOString().split('T')[0];
         $('#jadwal_pasang_kirim').val(tomorrow);
     });
+
     // Submit Form dengan AJAX
-$("#form-create-pasang").submit(function (e) {
-    e.preventDefault();
+    $("#form-create-pasang").submit(function (e) {
+        e.preventDefault();
 
-    let formData = new FormData(this);
-    formData.append("interaksi_id", $("#interaksi_id").val());
+        let formData = new FormData(this);
+        formData.append("interaksi_id", $("#interaksi_id").val());
 
-    $.ajax({
-        url: "{{ route('pasang.store') }}",
-        type: "POST",
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function (res) {
-            if(res.status === 'success'){
-                toastr.success(res.message);
-                $("#crudModal").modal('hide');
+        $.ajax({
+            url: "{{ route('pasang.store') }}",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                if(res.status === 'success'){
+                    toastr.success(res.message);
+                    $("#crudModal").modal('hide');
 
-                // Ganti tbody tabel pasang dengan data terbaru
-                $("#tbody-pasang").html(res.html); 
-            } else {
-                Swal.fire("Gagal", res.message, "error");
+                    // Pastikan card Pasang tetap terbuka
+                    let cardPasang = $("#card-pasang");
+                    if (cardPasang.hasClass("collapsed-card")) {
+                        cardPasang.CardWidget('expand'); // gunakan fungsi AdminLTE
+                    }
+
+                    // Ganti tbody tabel pasang dengan data terbaru
+                    $("#tbody-pasang").html(res.html);
+                } else {
+                    Swal.fire("Gagal", res.message, "error");
+                }
+            },
+            error: function(xhr){
+                Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
+                console.error(xhr.responseText);
             }
-        },
-        error: function(xhr){
-            Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
-            console.error(xhr.responseText);
-        }
+        });
     });
-});
 });
 </script>

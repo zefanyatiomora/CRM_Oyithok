@@ -383,9 +383,9 @@
                                 <th>Aksi</th>
                             </tr>
                         </thead>
-                        <tbody>
-                           @include('rekap.partials.pasang_tabel', ['interaksi' => $interaksi])
-                        </tbody>
+                                                <tbody id="tbody-pasang">
+    @include('rekap.partials.pasang_tabel', ['interaksi' => $interaksi])
+</tbody>
                     </table>
                     </table>
                     <h4 class="mt-4 d-flex justify-content-end gap-2">

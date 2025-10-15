@@ -202,28 +202,34 @@
             type: this.method,
             data: $(this).serialize(),
             success: function(response) {
-                if (response.status) {
-                    Swal.fire({
-                        title: 'Customer berhasil tersimpan',
-                        text: "Lanjut isi data interaksi?",
-                        icon: 'success',
-                        showCancelButton: true,
-                        confirmButtonText: 'Ya',
-                        cancelButtonText: 'Tidak',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // If yes, open a new modal for the next step
-                            // Assumes you have a function to open the modal
-                            $('#myModal .modal-content').load("{{ url('/rekap')}}/" + response.interaksi_id + "/show_ajax");
-                            $('#myModal').modal('show');
+if (response.status) {
+    Swal.fire({
+        title: 'Customer berhasil tersimpan',
+        text: "Lanjut isi data interaksi?",
+        icon: 'success',
+        showCancelButton: true,
+        confirmButtonText: 'Ya',
+        cancelButtonText: 'Tidak',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Load form interaksi ke modal
+            $('#myModal .modal-content').html('<div class="text-center p-5">Loading...</div>');
+            $.get("{{ url('/rekap') }}/" + response.interaksi_id + "/show_ajax", function(html){
+                $('#myModal .modal-content').html(html);
 
-                        } else {
-                            // If not, redirect back to the index page
-                            window.location.href = "{{ route('rekap.index') }}";
-                        }
-                    });
-                } else {
+                // Jika ada JS di dalam partial, panggil ulang inisialisasi
+                if (typeof initRekapForm === 'function') {
+                    initRekapForm();
+                }
+            });
+            $('#myModal').modal('show');
+        } else {
+            window.location.href = "{{ route('rekap.index') }}";
+        }
+    });
+}
+ else {
                     Swal.fire({
                         icon: 'error',
                         title: 'Terjadi Kesalahan',

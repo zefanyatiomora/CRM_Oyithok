@@ -454,11 +454,11 @@ public function getRealtimeList($interaksi_id)
         ], 500);
     }
 }
-    public function storePasang(Request $request)
+public function storePasang(Request $request)
 {
     $request->validate([
         'interaksi_id'        => 'required|integer|exists:interaksi,interaksi_id',
-        'produk_id'           => 'required|integer|exists:produk,produk_id',
+        'produk_id'           => 'required|integer|exists:produks,produk_id',
         'kuantitas'           => 'required|numeric|min:1',
         'deskripsi'           => 'nullable|string|max:255',
         'jadwal_pasang_kirim' => 'required|date',
@@ -468,20 +468,19 @@ public function getRealtimeList($interaksi_id)
 
     try {
         $data = $request->only([
-            'interaksi_id', 'produk_id', 'kuantitas', 
+            'interaksi_id', 'produk_id', 'kuantitas',
             'deskripsi', 'jadwal_pasang_kirim', 'alamat', 'status'
         ]);
 
-        // Normalisasi tanggal
-        $data['jadwal_pasang_kirim'] = \Carbon\Carbon::parse($data['jadwal_pasang_kirim'])->toDateTimeString();
+        // Normalisasi format tanggal
+        $data['jadwal_pasang_kirim'] = \Carbon\Carbon::createFromFormat('Y-m-d', $data['jadwal_pasang_kirim'])->format('Y-m-d H:i:s');
 
         // Simpan data pasang
         $pasang = \App\Models\PasangKirimModel::create($data);
 
-        // Ambil interaksi terbaru beserta relasi pasang
+        // Ambil interaksi terbaru beserta relasi
         $interaksi = \App\Models\InteraksiModel::with('pasang.produk.kategori')->find($data['interaksi_id']);
 
-        // Render partial tabel pasang
         $html = view('rekap.partials.pasang_tabel', compact('interaksi'))->render();
 
         return response()->json([
@@ -489,7 +488,6 @@ public function getRealtimeList($interaksi_id)
             'message' => 'Pasang/Kirim berhasil disimpan!',
             'html' => $html
         ]);
-
     } catch (\Exception $e) {
         Log::error('Store Pasang - Error: ' . $e->getMessage(), [
             'trace' => $e->getTraceAsString(),
@@ -499,7 +497,7 @@ public function getRealtimeList($interaksi_id)
         return response()->json([
             'status' => 'error',
             'message' => 'Terjadi kesalahan saat menyimpan Pasang/Kirim.',
-            'error' => $e->getMessage()
+            'error_detail' => $e->getMessage()
         ], 500);
     }
 }
