@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Log;
 
 use App\Models\InteraksiModel;
@@ -21,6 +22,7 @@ use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class RekapController extends Controller
 {
@@ -113,18 +115,18 @@ class RekapController extends Controller
         }
 
         return DataTables::of($query)
-    ->addIndexColumn()
-    ->editColumn('tanggal_chat', function ($row) {
-        return \Carbon\Carbon::parse($row->tanggal_chat)->format('d-m-Y');
-    })
-    ->addColumn('aksi', function ($row) {
-        return '<button onclick="modalAction(\'' . url('/rekap/' . $row->interaksi_id . '/show_ajax') . '\')" 
+            ->addIndexColumn()
+            ->editColumn('tanggal_chat', function ($row) {
+                return \Carbon\Carbon::parse($row->tanggal_chat)->format('d-m-Y');
+            })
+            ->addColumn('aksi', function ($row) {
+                return '<button onclick="modalAction(\'' . url('/rekap/' . $row->interaksi_id . '/show_ajax') . '\')" 
                 class="btn btn-info btn-sm">Detail</button>';
-    })
-    ->rawColumns(['aksi'])
-    ->make(true);
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
     }
-  public function show_ajax($interaksi_id)
+    public function show_ajax($interaksi_id)
     {
         $interaksi = InteraksiModel::with('customer', 'survey', 'rincian', 'pasang')
             ->findOrFail($interaksi_id);
@@ -189,7 +191,7 @@ class RekapController extends Controller
 
         return response()->json(['success' => true]);
     }
- public function createIdentifikasiAwal(Request $request)
+    public function createIdentifikasiAwal(Request $request)
     {
         $interaksi_id = $request->interaksi_id;
         $kategoriList = KategoriModel::all(); // ambil semua kategori
@@ -257,62 +259,62 @@ class RekapController extends Controller
 
         return view('rekap.partials.identifikasi_tabel', compact('interaksiAwalList'));
     }
-public function storeRealtime(Request $request)
-{
-    $request->validate([
-        'interaksi_id' => 'required|exists:interaksi,interaksi_id',
-        'tanggal' => 'required|date',
-        'keterangan' => 'required|string',
-        'user_id' => 'required|exists:m_user,user_id',
-    ]);
+    public function storeRealtime(Request $request)
+    {
+        $request->validate([
+            'interaksi_id' => 'required|exists:interaksi,interaksi_id',
+            'tanggal' => 'required|date',
+            'keterangan' => 'required|string',
+            'user_id' => 'required|exists:m_user,user_id',
+        ]);
 
-    // Simpan data baru
-    $realtime = InteraksiRealtime::create([
-        'interaksi_id' => $request->interaksi_id,
-        'tanggal' => $request->tanggal,
-        'keterangan' => $request->keterangan,
-        'user_id' => $request->user_id,
-    ]);
+        // Simpan data baru
+        $realtime = InteraksiRealtime::create([
+            'interaksi_id' => $request->interaksi_id,
+            'tanggal' => $request->tanggal,
+            'keterangan' => $request->keterangan,
+            'user_id' => $request->user_id,
+        ]);
 
-    // Ambil data realtime terbaru untuk interaksi ini
-    $realtimeList = InteraksiRealtime::with('user')
-        ->where('interaksi_id', $request->interaksi_id)
-        ->orderBy('tanggal', 'desc')
-        ->get();
-
-    // Render ulang partial tabel realtime
-    $html = view('rekap.partials.realtime_tabel', compact('realtimeList'))->render();
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Data realtime berhasil disimpan.',
-        'html' => $html
-    ]);
-}
-public function getRealtimeList($interaksi_id)
-{
-    try {
+        // Ambil data realtime terbaru untuk interaksi ini
         $realtimeList = InteraksiRealtime::with('user')
-            ->where('interaksi_id', $interaksi_id)
+            ->where('interaksi_id', $request->interaksi_id)
             ->orderBy('tanggal', 'desc')
             ->get();
 
-        // ✅ Gunakan view() yang menghasilkan HTML partial
+        // Render ulang partial tabel realtime
         $html = view('rekap.partials.realtime_tabel', compact('realtimeList'))->render();
 
         return response()->json([
             'status' => 'success',
+            'message' => 'Data realtime berhasil disimpan.',
             'html' => $html
         ]);
-    } catch (\Exception $e) {
-        Log::error("Gagal load realtime list: " . $e->getMessage());
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Terjadi kesalahan server',
-            'error' => $e->getMessage()
-        ], 500);
     }
-}
+    public function getRealtimeList($interaksi_id)
+    {
+        try {
+            $realtimeList = InteraksiRealtime::with('user')
+                ->where('interaksi_id', $interaksi_id)
+                ->orderBy('tanggal', 'desc')
+                ->get();
+
+            // ✅ Gunakan view() yang menghasilkan HTML partial
+            $html = view('rekap.partials.realtime_tabel', compact('realtimeList'))->render();
+
+            return response()->json([
+                'status' => 'success',
+                'html' => $html
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Gagal load realtime list: " . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan server',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
     public function createRealtime($id_interaksi)
     {
         try {
@@ -354,18 +356,18 @@ public function getRealtimeList($interaksi_id)
         }
     }
     public function getRincianList($interaksi_id)
-{
-    $rincianList = \App\Models\RincianModel::with(['produk.kategori'])
-        ->where('interaksi_id', $interaksi_id)
-        ->get();
+    {
+        $rincianList = \App\Models\RincianModel::with(['produk.kategori'])
+            ->where('interaksi_id', $interaksi_id)
+            ->get();
 
-    $html = view('rekap.partials.rincian_tabel', compact('rincianList'))->render();
+        $html = view('rekap.partials.rincian_tabel', compact('rincianList'))->render();
 
-    return response()->json([
-        'status' => 'success',
-        'html' => $html
-    ]);
-}
+        return response()->json([
+            'status' => 'success',
+            'html' => $html
+        ]);
+    }
     public function createPasang($id_interaksi)
     {
         try {
@@ -420,87 +422,92 @@ public function getRealtimeList($interaksi_id)
         return view('rekap.edit_pasang', compact('pasang', 'produk'));
     }
     public function storeRincian(Request $request)
-{
-    $request->validate([
-        'interaksi_id' => 'required|integer',
-        'produk_id' => 'required|integer',
-        'kuantitas' => 'required|numeric',
-        'deskripsi' => 'required|string|max:255'
-    ]);
-
-    try {
-        $rincian = RincianModel::create($request->all());
-
-        // Panggil fungsi updateTahapan (jika ada)
-        $this->updateTahapan($rincian->interaksi_id, 'Rincian');
-
-        // Ambil tabel terbaru setelah insert
-        $rincianList = RincianModel::with(['produk.kategori'])
-            ->where('interaksi_id', $rincian->interaksi_id)
-            ->get();
-
-        $html = view('rekap.partials.rincian_tabel', compact('rincianList'))->render();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Rincian berhasil disimpan!',
-            'html' => $html
+    {
+        $request->validate([
+            'interaksi_id' => 'required|integer',
+            'produk_id' => 'required|integer',
+            'kuantitas' => 'required|numeric',
+            'deskripsi' => 'required|string|max:255'
         ]);
-    } catch (\Exception $e) {
-        Log::error('Store Rincian - Error:', ['message' => $e->getMessage()]);
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Terjadi kesalahan saat menyimpan rincian.'
-        ], 500);
+
+        try {
+            $rincian = RincianModel::create($request->all());
+
+            // Panggil fungsi updateTahapan (jika ada)
+            $this->updateTahapan($rincian->interaksi_id, 'Rincian');
+
+            // Ambil tabel terbaru setelah insert
+            $rincianList = RincianModel::with(['produk.kategori'])
+                ->where('interaksi_id', $rincian->interaksi_id)
+                ->get();
+
+            $html = view('rekap.partials.rincian_tabel', compact('rincianList'))->render();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Rincian berhasil disimpan!',
+                'html' => $html
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Store Rincian - Error:', ['message' => $e->getMessage()]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan saat menyimpan rincian.'
+            ], 500);
+        }
     }
-}
-public function storePasang(Request $request)
-{
-    $request->validate([
-        'interaksi_id'        => 'required|integer|exists:interaksi,interaksi_id',
-        'produk_id'           => 'required|integer|exists:produks,produk_id',
-        'kuantitas'           => 'required|numeric|min:1',
-        'deskripsi'           => 'nullable|string|max:255',
-        'jadwal_pasang_kirim' => 'required|date',
-        'alamat'              => 'required|string|max:255',
-        'status'              => 'required|string',
-    ]);
-
-    try {
-        $data = $request->only([
-            'interaksi_id', 'produk_id', 'kuantitas',
-            'deskripsi', 'jadwal_pasang_kirim', 'alamat', 'status'
+    public function storePasang(Request $request)
+    {
+        $request->validate([
+            'interaksi_id'        => 'required|integer|exists:interaksi,interaksi_id',
+            'produk_id'           => 'required|integer|exists:produks,produk_id',
+            'kuantitas'           => 'required|numeric|min:1',
+            'deskripsi'           => 'nullable|string|max:255',
+            'jadwal_pasang_kirim' => 'required|date',
+            'alamat'              => 'required|string|max:255',
+            'status'              => 'required|string',
         ]);
 
-        // Normalisasi format tanggal
-        $data['jadwal_pasang_kirim'] = \Carbon\Carbon::createFromFormat('Y-m-d', $data['jadwal_pasang_kirim'])->format('Y-m-d H:i:s');
+        try {
+            $data = $request->only([
+                'interaksi_id',
+                'produk_id',
+                'kuantitas',
+                'deskripsi',
+                'jadwal_pasang_kirim',
+                'alamat',
+                'status'
+            ]);
 
-        // Simpan data pasang
-        $pasang = \App\Models\PasangKirimModel::create($data);
+            // Normalisasi tanggal + waktu secara otomatis
+            $data['jadwal_pasang_kirim'] = Carbon::parse($data['jadwal_pasang_kirim'])->format('Y-m-d H:i:s');
 
-        // Ambil interaksi terbaru beserta relasi
-        $interaksi = \App\Models\InteraksiModel::with('pasang.produk.kategori')->find($data['interaksi_id']);
+            // Simpan data pasang
+            $pasang = \App\Models\PasangKirimModel::create($data);
 
-        $html = view('rekap.partials.pasang_tabel', compact('interaksi'))->render();
+            // Ambil interaksi terbaru beserta relasi
+            $interaksi = \App\Models\InteraksiModel::with('pasang.produk.kategori')->find($data['interaksi_id']);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Pasang/Kirim berhasil disimpan!',
-            'html' => $html
-        ]);
-    } catch (\Exception $e) {
-        Log::error('Store Pasang - Error: ' . $e->getMessage(), [
-            'trace' => $e->getTraceAsString(),
-            'request' => $request->all()
-        ]);
+            $html = view('rekap.partials.pasang_tabel', compact('interaksi'))->render();
 
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Terjadi kesalahan saat menyimpan Pasang/Kirim.',
-            'error_detail' => $e->getMessage()
-        ], 500);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Pasang/Kirim berhasil disimpan!',
+                'html' => $html
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Store Pasang - Error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan saat menyimpan Pasang/Kirim.',
+                'error_detail' => $e->getMessage()
+            ], 500);
+        }
     }
-}
     public function storeInvoice(Request $request)
     {
         $request->validate([
@@ -591,69 +598,69 @@ public function storePasang(Request $request)
             ], 500);
         }
     }
-public function storeSurvey(Request $request)
-{
-    // Validasi input
-    $request->validate([
-        'interaksi_id'   => 'required|integer|exists:interaksi,interaksi_id',
-        'alamat_survey'  => 'required|string|max:255',
-        'jadwal_survey'  => 'required|date',
-    ]);
-
-    try {
-        // Ambil data yang valid
-        $data = $request->only(['interaksi_id', 'alamat_survey', 'jadwal_survey']);
-
-        // Normalisasi jadwal_survey ke format datetime MySQL
-        try {
-            $data['jadwal_survey'] = \Carbon\Carbon::parse($data['jadwal_survey'])->toDateTimeString();
-        } catch (\Exception $e) {
-            throw new \Exception('Format tanggal/waktu tidak valid: ' . $data['jadwal_survey']);
-        }
-
-        // Set status default
-        $data['status'] = 'closing survey';
-
-        // Simpan survey
-        $survey = \App\Models\SurveyModel::create($data);
-
-        // Update tahapan interaksi (fungsi sudah ada)
-        $this->updateTahapan($survey->interaksi_id, 'Survey');
-
-        // Ambil interaksi terbaru beserta survey untuk partial
-        $interaksi = \App\Models\InteraksiModel::with('survey')->find($survey->interaksi_id);
-
-        // Render partial survey_tabel
-        $html = view('rekap.partials.survey_tabel', compact('interaksi'))->render();
-
-        // Jika request via AJAX, kirim JSON
-        if ($request->ajax()) {
-            return response()->json([
-                'status'  => 'success',
-                'message' => 'Survey berhasil disimpan!',
-                'html'    => $html
-            ]);
-        }
-
-        // Jika bukan AJAX, redirect biasa
-        return redirect()->back()->with('success', 'Survey berhasil disimpan!');
-    } catch (\Exception $e) {
-        Log::error('Store Survey - Error: ' . $e->getMessage(), [
-            'trace' => $e->getTraceAsString(),
-            'request' => $request->all()
+    public function storeSurvey(Request $request)
+    {
+        // Validasi input
+        $request->validate([
+            'interaksi_id'   => 'required|integer|exists:interaksi,interaksi_id',
+            'alamat_survey'  => 'required|string|max:255',
+            'jadwal_survey'  => 'required|date',
         ]);
 
-        if ($request->ajax()) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'Terjadi kesalahan saat menyimpan Survey.',
-                'error'   => $e->getMessage()
-            ], 500);
-        }
+        try {
+            // Ambil data yang valid
+            $data = $request->only(['interaksi_id', 'alamat_survey', 'jadwal_survey']);
 
-        return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan Survey.');
+            // Normalisasi jadwal_survey ke format datetime MySQL
+            try {
+                $data['jadwal_survey'] = \Carbon\Carbon::parse($data['jadwal_survey'])->toDateTimeString();
+            } catch (\Exception $e) {
+                throw new \Exception('Format tanggal/waktu tidak valid: ' . $data['jadwal_survey']);
+            }
+
+            // Set status default
+            $data['status'] = 'closing survey';
+
+            // Simpan survey
+            $survey = \App\Models\SurveyModel::create($data);
+
+            // Update tahapan interaksi (fungsi sudah ada)
+            $this->updateTahapan($survey->interaksi_id, 'Survey');
+
+            // Ambil interaksi terbaru beserta survey untuk partial
+            $interaksi = \App\Models\InteraksiModel::with('survey')->find($survey->interaksi_id);
+
+            // Render partial survey_tabel
+            $html = view('rekap.partials.survey_tabel', compact('interaksi'))->render();
+
+            // Jika request via AJAX, kirim JSON
+            if ($request->ajax()) {
+                return response()->json([
+                    'status'  => 'success',
+                    'message' => 'Survey berhasil disimpan!',
+                    'html'    => $html
+                ]);
+            }
+
+            // Jika bukan AJAX, redirect biasa
+            return redirect()->back()->with('success', 'Survey berhasil disimpan!');
+        } catch (\Exception $e) {
+            Log::error('Store Survey - Error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Terjadi kesalahan saat menyimpan Survey.',
+                    'error'   => $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan Survey.');
+        }
     }
-}
     public function editRincian(string $rincian_id)
     {
         $rincian = RincianModel::findOrFail($rincian_id);

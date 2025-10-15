@@ -1,11 +1,10 @@
 <!-- resources/views/rekap/edit_invoice.blade.php -->
-<div class="modal-header">
+<div class="modal-header bg-wallpaper-gradient text-white">
     <h5 class="modal-title">Edit Invoice</h5>
-    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true" class="text-white">&times;</span>
     </button>
 </div>
-
 <form id="form-edit-invoice" action="{{ route('invoice.update', $invoice->invoice_id) }}" method="POST">
     @csrf
     @method('PUT')
@@ -194,11 +193,12 @@
                 <div class="input-group mb-2">
                     <input type="number" id="ppn" name="ppn" class="form-control no-arrow text-center"
                         min="0" step="0.01"
-                        value="{{ isset($invoice->ppn) ? (floatval($invoice->ppn) == intval($invoice->ppn) ? intval($invoice->ppn) : rtrim(rtrim(number_format($invoice->ppn, 2, '.', ''), '0'), '.')) : '' }}">
+                        value="{{ isset($invoice->ppn) ? (intval($invoice->ppn) == $invoice->ppn ? intval($invoice->ppn) : $invoice->ppn) : '' }}">
                     <div class="input-group-append"><span class="input-group-text">%</span></div>
 
-                    <input type="text" id="ppn_nominal_display" class="form-control rupiah ml-2" readonly
-                        placeholder="Nominal PPN">
+                    <input type="text" id="ppn_nominal_display" class="form-control rupiah ml-2"
+                        placeholder="Nominal PPN"
+                        value="{{ isset($invoice->nominal_ppn) ? number_format($invoice->nominal_ppn, 0, ',', '.') : '' }}">
                     <input type="hidden" name="nominal_ppn" id="ppn_nominal"
                         value="{{ isset($invoice->nominal_ppn) ? (int) $invoice->nominal_ppn : 0 }}">
                 </div>
@@ -266,14 +266,6 @@
         return parseInt(String(str).replace(/[^0-9]/g, '')) || 0;
     }
 
-    function calculatePpnNominal(subtotalBefore) {
-        let percentRaw = $('#ppn').val();
-        if (percentRaw === '' || percentRaw === null || typeof percentRaw === 'undefined') return 0;
-        let percent = parseFloat(percentRaw);
-        if (isNaN(percent) || percent <= 0) return 0;
-        return Math.round(subtotalBefore * (percent / 100));
-    }
-
     /* === Row & Summary (with PPN + total_produk) === */
     function hitungRow($row) {
         let qty = parseInt($row.find('input[name="kuantitas[]"]').val()) || 0;
@@ -307,9 +299,6 @@
         let pot = parseRupiah($('#potongan_display').val() || '') || 0;
         let cash = parseRupiah($('#cashback_display').val() || '') || 0;
         let dpVal = parseRupiah($('#dp_display').val() || '') || 0;
-
-        // nominal PPN dihitung dari grandSum
-        let nominalPpn = calculatePpnNominal(grandSum);
 
         // total akhir: gross + ppn - pot - cash
         let totalAkhir = (grandSum + nominalPpn) - pot - cash;

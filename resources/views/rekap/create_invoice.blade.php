@@ -1,11 +1,10 @@
 <!-- resources/views/rekap/create_invoice.blade.php -->
-<div class="modal-header">
+<div class="modal-header bg-wallpaper-gradient text-white">
     <h5 class="modal-title">Tambah Invoice</h5>
-    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true" class="text-white">&times;</span>
     </button>
 </div>
-
 <form id="form-create-invoice" action="{{ route('invoice.store') }}" method="POST">
     @csrf
     <input type="hidden" id="interaksi_id" name="interaksi_id" value="{{ $interaksi->interaksi_id ?? '' }}">
