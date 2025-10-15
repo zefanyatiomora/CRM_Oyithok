@@ -292,7 +292,7 @@
                 </div>
                 <div class="card-body">
                     <h4 class="mt-4 d-flex justify-content-between">
-                        <span style="font-size:17px;">Survey</span>
+                        <span style="font-size:17px;">Jadwal Survey</span>
 
                         {{-- Icon Tambah Survey hanya muncul kalau BELUM ada survey --}}
                         @if (!$interaksi->survey)
