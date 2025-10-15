@@ -362,7 +362,7 @@
                 </div>
                 <div class="card-body">
                     <h4 class="mt-4 d-flex justify-content-between">
-                        <span style="font-size:17px;">Jadwal Pasang</span>
+                        <span style="font-size:17px;"></span>
                         <!-- Icon Tambah Pasang -->
                         <a href="javascript:void(0);"
                             onclick="openModal('{{ route('pasang.create', $interaksi->interaksi_id) }}')"
