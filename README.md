@@ -18,11 +18,19 @@ Sebelum melanjutkan ke proses instalasi, pastikan lingkungan pengembangan Anda t
 
 ### Prasyarat
 
--   **PHP** &ge; 8.1
--   **Composer** (Manajer dependensi untuk PHP)
--   **Node.js** & **NPM** (untuk manajemen aset frontend)
--   **Database Server** (contoh: MySQL, MariaDB, PostgreSQL)
--   **Web Server** (contoh: Nginx, Apache) - _Opsional jika menggunakan `php artisan serve`_
+-   **Laragon** (Server Lokal)
+-   **Git**
+    Jika belum punya Git (untuk clone repository), unduh di:
+    👉 https://git-scm.com/downloads
+-   **Composer**
+    Pastikan Composer sudah terinstal di sistem:
+
+    ```bash
+    composer-v
+    ```
+
+    Jika belum ada, install di:
+    https://getcomposer.org/download/
 
 ---
 

@@ -83,7 +83,9 @@
         <div class="row mb-2">
             <div class="col-md-6">
                 <label>Pesanan Masuk</label>
-                <input type="date" name="pesanan_masuk" class="form-control">
+                <input type="text" name="pesanan_masuk_display" id="pesanan_masuk_display"
+                    class="form-control date-input" autocomplete="off">
+                <input type="hidden" name="pesanan_masuk" id="pesanan_masuk">
             </div>
             <div class="col-md-6">
                 <label>Batas Pelunasan</label>
@@ -163,9 +165,13 @@
         <div class="row">
             <div class="col-md-6">
                 <label>Tanggal DP</label>
-                <input type="date" name="tanggal_dp" class="form-control">
+                <input type="text" name="tanggal_dp_display" id="tanggal_dp_display"
+                    class="form-control date-input" autocomplete="off">
+                <input type="hidden" name="tanggal_dp" id="tanggal_dp">
                 <label class="mt-2">Tanggal Pelunasan</label>
-                <input type="date" name="tanggal_pelunasan" class="form-control">
+                <input type="text" name="tanggal_pelunasan_display" id="tanggal_pelunasan_display"
+                    class="form-control date-input" autocomplete="off">
+                <input type="hidden" name="tanggal_pelunasan" id="tanggal_pelunasan">
             </div>
             <div class="col-md-6">
                 <!-- PPN -->
@@ -334,6 +340,13 @@
     });
 
     $(document).ready(function() {
+        if (!$('#pesanan_masuk_display').val()) {
+            let today = new Date();
+            let d = String(today.getDate()).padStart(2, '0');
+            let m = String(today.getMonth() + 1).padStart(2, '0');
+            let y = today.getFullYear();
+            $('#pesanan_masuk_display').val(`${d}-${m}-${y}`);
+        }
         $('#tablePasang tbody tr').each(function() {
             let $r = $(this);
             if ($r.find('input[name="harga_satuan[]"]').length && $r.find(
@@ -433,7 +446,48 @@
             }
         });
         /* === END suggestion === */
+        /* === Konversi tanggal d-m-y <-> y-m-d === */
+        function toYMD(dmy) {
+            if (!dmy) return '';
+            let parts = dmy.split('-');
+            if (parts.length !== 3) return '';
+            let [d, m, y] = parts.map(p => p.trim());
+            if (d.length !== 2 || m.length !== 2 || y.length !== 4) return '';
+            return `${y}-${m}-${d}`;
+        }
 
+        function toDMY(ymd) {
+            if (!ymd) return '';
+            let parts = ymd.split('-');
+            if (parts.length !== 3) return '';
+            let [y, m, d] = parts.map(p => p.trim());
+            if (d.length !== 2 || m.length !== 2 || y.length !== 4) return '';
+            return `${d}-${m}-${y}`;
+        }
+
+        /* === Input tanggal bebas (editable dan bisa dihapus) === */
+        $(document).on('input', '.date-input', function() {
+            let val = $(this).val().replace(/[^\d-]/g, ''); // hanya angka dan '-'
+            $(this).val(val);
+        });
+
+        /* === Tambahkan placeholder === */
+        $(document).ready(function() {
+            $('.date-input').attr('placeholder', 'dd-mm-yyyy');
+        });
+
+        /* === Sebelum submit, ubah d-m-y ke y-m-d === */
+        $("#form-create-invoice").on("submit", function(e) {
+            let pesananMasuk = $('#pesanan_masuk_display').val();
+            let tanggalDP = $('#tanggal_dp_display').val();
+            let tanggalPelunasan = $('#tanggal_pelunasan_display').val();
+
+            $('#pesanan_masuk').val(toYMD(pesananMasuk));
+            $('#tanggal_dp').val(toYMD(tanggalDP));
+            $('#tanggal_pelunasan').val(toYMD(tanggalPelunasan));
+
+            // lanjut ke proses AJAX submit
+        });
         /* === SUBMIT AJAX === */
         $("#form-create-invoice").on("submit", function(e) {
             e.preventDefault();
