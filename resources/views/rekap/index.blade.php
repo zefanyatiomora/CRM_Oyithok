@@ -91,23 +91,32 @@
                     orderable: false, 
                     searchable: false,
                     render: function(data, type, row) {
-    if (!data) return ''; // antisipasi null/undefined
+                    if (!data) return ''; // antisipasi null/undefined
 
-    let status = data.toLowerCase().trim();
+                    // ubah ke lowercase dulu lalu trim
+                    let status = data.toLowerCase().trim();
 
-    if (status === 'ask') {
-        return `<span class="badge badge-warning">${data}</span>`;
-    } else if (status === 'follow up') {
-        return `<span class="badge badge-info">${data}</span>`;
-    } else if (status === 'hold') {
-        return `<span class="badge badge-danger">${data}</span>`;
-    } else if (status === 'closing') {
-        return `<span class="badge badge-success">${data}</span>`;
-    } else {
-        return data;
-    }
-}
+                    // fungsi untuk kapital di awal setiap kata
+                    function toTitleCase(str) {
+                        return str.replace(/\w\S*/g, (txt) => {
+                            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+                        });
+                    }
 
+                    let displayText = toTitleCase(status);
+
+                    if (status === 'ask') {
+                        return `<span class="badge badge-warning">${displayText}</span>`;
+                    } else if (status === 'follow up') {
+                        return `<span class="badge badge-info">${displayText}</span>`;
+                    } else if (status === 'hold') {
+                        return `<span class="badge badge-danger">${displayText}</span>`;
+                    } else if (status === 'closing') {
+                        return `<span class="badge badge-success">${displayText}</span>`;
+                    } else {
+                        return displayText;
+                    }
+                }
                 },
                 { data: "aksi", orderable: false, searchable: false }
             ] 

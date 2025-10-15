@@ -74,7 +74,7 @@ class KebutuhanController extends Controller
             'produk_id' => 11,
             'tanggal_chat' => $tanggalChat,
             'original_step' => 0,
-            'status' => 'ask',
+            'status' => 'Follow Up',
             'tahapan' => 'identifikasi',
         ]);
 
