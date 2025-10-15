@@ -3,9 +3,11 @@
         {{-- Header Profesional --}}
         <div class="modal-header bg-wallpaper-gradient position-relative border-bottom-0" style="padding: 1rem 1.5rem;">
             <h5 class="modal-title fw-bold text-white">
-                <i class="fas fa-user-check me-2"></i> Detail Kebutuhan Customer
-                : {{ $interaksi->customer->customer_nama ?? '-' }}
-            </h5>
+    <i class="fas fa-user-check me-2"></i> Detail Kebutuhan Customer:
+    {{ $interaksi->customer->customer_kode ?? '-' }} -
+    {{ $interaksi->customer->customer_nama ?? '-' }} -
+    {{ $interaksi->customer->customer_alamat ?? '-' }}
+</h5>
             <button type="button" class="close position-absolute" style="top: 10px; right: 15px;" data-dismiss="modal">
                 <span>&times;</span>
             </button>
@@ -292,7 +294,7 @@
                 </div>
                 <div class="card-body">
                     <h4 class="mt-4 d-flex justify-content-between">
-                        <span style="font-size:17px;">Survey</span>
+                        <span style="font-size:17px;">Jadwal Survey</span>
 
                         {{-- Icon Tambah Survey hanya muncul kalau BELUM ada survey --}}
                         @if (!$interaksi->survey)
@@ -362,7 +364,7 @@
                 </div>
                 <div class="card-body">
                     <h4 class="mt-4 d-flex justify-content-between">
-                        <span style="font-size:17px;">Jadwal Pasang</span>
+                        <span style="font-size:17px;"></span>
                         <!-- Icon Tambah Pasang -->
                         <a href="javascript:void(0);"
                             onclick="openModal('{{ route('pasang.create', $interaksi->interaksi_id) }}')"
@@ -421,7 +423,6 @@
             </div> {{-- end card --}}
         </div>
     </div>
-
 
     @push('css')
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -485,7 +486,6 @@
                     width: '100%'
                 }); // re-init select2
             });
-
             // Hapus baris produk survey
             $(document).on('click', '.remove-row-survey', function() {
                 let tbody = $(this).closest('tbody');
@@ -495,8 +495,10 @@
                     alert('Minimal 1 produk harus ada.');
                 }
             });
-
-
+$(document).on('click', '#modal-master .close', function(){
+    $('#show_ajax_container').removeClass('active').empty();
+    $('#formKebutuhan').css('filter','none');
+});
             // Simpan kebutuhan harian
             $(document).on('submit', '#form-kebutuhan-harian', function(e) {
                 e.preventDefault();
