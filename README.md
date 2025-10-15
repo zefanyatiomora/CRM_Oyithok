@@ -129,6 +129,14 @@ Langkah ini akan membuat struktur tabel di database dan mengisinya dengan data a
 
     ```
 
+### 6. Buatkan Symbolic Link
+
+Ini memastikan file yang seharusnya bisa diakses publik (seperti gambar ttd dan foto profil) dapat ditampilkan di browser.
+
+```bash
+php artisan storage:link
+```
+
 ### 6. Jalankan Server
 
 Terakhir, jalankan server pengembangan lokal bawaan Laravel.
