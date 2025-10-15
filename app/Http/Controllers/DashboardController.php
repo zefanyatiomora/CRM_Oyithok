@@ -24,7 +24,7 @@ class DashboardController extends Controller
     {
         $activeMenu = 'dashboard';
         $breadcrumb = (object) [
-            'title' => 'Selamat Datang, Wallpaper Indonesia ID',
+            'title' => 'Selamat Datang, Wallpaper Malang ID',
             'list'  => ['Home', 'Dashboard']
         ];
         $page = (object) ['title' => 'Selamat Datang, Wallpaper Indonesia ID!'];
