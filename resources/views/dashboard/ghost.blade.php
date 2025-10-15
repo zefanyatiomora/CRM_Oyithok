@@ -8,13 +8,12 @@
         <h3 class="card-title mb-0">
             Daftar Customer Status <span class="text-secondary">GHOST</span>
         </h3>
-        {{-- kalau mau ada tombol broadcast khusus ghost bisa aktifkan di sini --}}
-        {{-- 
+        {{-- Tombol Broadcast untuk Customer GHOST --}}
         <button class="btn btn-sm btn-dark" onclick="modalAction('{{ route('ghost.broadcast') }}')">
             <i class="fas fa-paper-plane"></i> 👻 Broadcast Ghost
-        </button> 
-        --}}
+        </button>
     </div>
+
     <div class="card-body">
         <table class="table table-bordered table-striped table-hover table-sm" id="table-interaksi-ghost">
             <thead class="text-center">
