@@ -67,17 +67,22 @@ class KebutuhanController extends Controller
         }
 
         // -- BAGIAN INI BERJALAN UNTUK KEDUA SCENARIO --
-        $tanggalChat = $request->input('tanggal_chat', now()->format('Y-m-d'));
+
+        // Ambil tanggal dari request (yang formatnya 'd-m-Y')
+        $tanggalInput = $request->input('tanggal_chat');
+
+        // Ubah formatnya menjadi 'Y-m-d' agar bisa disimpan ke database
+        $tanggalChat = \Carbon\Carbon::createFromFormat('d-m-Y', $tanggalInput)->format('Y-m-d');
+
         // Buat interaksi menggunakan customerId yang sudah didapat
         $interaksi = InteraksiModel::create([
             'customer_id' => $customerId,
             'produk_id' => 11,
-            'tanggal_chat' => $tanggalChat,
+            'tanggal_chat' => $tanggalChat, // <-- Gunakan variabel yang sudah diformat
             'original_step' => 0,
             'status' => 'Follow Up',
             'tahapan' => 'identifikasi',
         ]);
-
         Log::info('Interaksi berhasil disimpan.', ['interaksi_id' => $interaksi->interaksi_id]);
 
         return response()->json([
