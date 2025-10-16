@@ -176,17 +176,38 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(function() {
+    // TAMBAHAN: Fungsi untuk membuat kode customer dari tanggal
+    function updateCustomerCodeFromDate() {
+        let tanggal = $('#tanggal_chat').val(); // Contoh: "15-10-2025"
+        if (tanggal) {
+            // Memecah string tanggal menjadi array ["15", "10", "2025"]
+            let parts = tanggal.split('-');
+            if (parts.length === 3) {
+                // Mengambil 2 digit terakhir dari tahun ("2025" -> "25")
+                let yy = parts[2].slice(-2); 
+                // Menggabungkan dd, mm, dan yy
+                let kode = parts[0] + parts[1] + yy; // Hasil: "151025"
+                $('#customer_kode').val(kode);
+            }
+        }
+    }
+
     $("#tanggal_chat").datepicker({
         dateFormat: "dd-mm-yy",
         changeMonth: true,
         changeYear: true,
-        maxDate: 0
+        maxDate: 0,
+        // TAMBAHAN: Panggil fungsi saat tanggal dipilih dari kalender
+        onSelect: function(dateText) {
+            updateCustomerCodeFromDate();
+        }
     });
 
     // Tombol tanggal
     $(document).on('click', '#btn-today', function() {
         let today = $.datepicker.formatDate('dd-mm-yy', new Date());
         $('#tanggal_chat').val(today);
+        updateCustomerCodeFromDate(); // TAMBAHAN: Panggil fungsi setelah mengubah tanggal
     });
 
     $(document).on('click', '#btn-yesterday', function() {
@@ -194,7 +215,11 @@ $(function() {
         d.setDate(d.getDate() - 1);
         let yesterday = $.datepicker.formatDate('dd-mm-yy', d);
         $('#tanggal_chat').val(yesterday);
+        updateCustomerCodeFromDate(); // TAMBAHAN: Panggil fungsi setelah mengubah tanggal
     });
+
+    // TAMBAHAN: Panggil fungsi saat halaman pertama kali dimuat
+    updateCustomerCodeFromDate();
 
     // Cari customer
     $(document).on('input', '#customer_nama', function() {
@@ -273,17 +298,17 @@ $(function() {
                             // Form blur, overlay tampil
                             $('#formKebutuhan').css('pointer-events', 'none');
                             $('#show_ajax_container').show().html('<div class="text-center p-5">Memuat data interaksi...</div>');
-$.get(showUrl, function(html) {
-    $('#show_ajax_container')
-        .css('display', 'flex') // aktifkan flex centering
-        .html(`
-            <div class="overlay-content fade-in w-100">
-                ${html}
-            </div>
-        `)
-        .hide()
-        .fadeIn(300);
-});
+                            $.get(showUrl, function(html) {
+                                $('#show_ajax_container')
+                                    .css('display', 'flex') // aktifkan flex centering
+                                    .html(`
+                                        <div class="overlay-content fade-in w-100">
+                                            ${html}
+                                        </div>
+                                    `)
+                                    .hide()
+                                    .fadeIn(300);
+                            });
                         } else {
                             window.location.href = "{{ route('rekap.index') }}";
                         }
@@ -298,12 +323,14 @@ $.get(showUrl, function(html) {
             }
         });
     });
-$(document).on('click', '#btnKembaliForm', function() {
-    $('#show_ajax_container').fadeOut(300, function() {
-        $('#formKebutuhan').css('pointer-events', 'auto');
-        $('#show_ajax_container').empty();
+    
+    $(document).on('click', '#btnKembaliForm', function() {
+        $('#show_ajax_container').fadeOut(300, function() {
+            $('#formKebutuhan').css('pointer-events', 'auto');
+            $('#show_ajax_container').empty();
+        });
     });
-});
+    
     // Format no HP
     $(document).on('input', '#customer_nohp', function() {
         let val = $(this).val().replace(/\D/g, '');
