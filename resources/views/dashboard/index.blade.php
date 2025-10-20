@@ -264,7 +264,7 @@
     <div class="row">
 <!-- STATUS ASK PRODUK -->
 <div class="col-lg-4 col-6">
-    <a href="{{ route('ask.index') }}" 
+    <a href="{{ route('ask.index', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
        class="small-box bg-custom-ask box-hover text-decoration-none text-dark"
        data-bs-toggle="tooltip" 
        title="Total ASK produk yang tersedia">
@@ -278,7 +278,7 @@
 
 <!-- STATUS HOLD PRODUK -->
 <div class="col-lg-4 col-6">
-    <a href="{{ route('hold.index') }}" 
+    <a href="{{ route('hold.index',['tahun' => $tahun, 'bulan' => $bulan]) }}" 
        class="small-box bg-custom-hold box-hover text-decoration-none text-dark"
        data-bs-toggle="tooltip" 
        title="Total HOLD produk (semua)">
@@ -292,7 +292,7 @@
 
 <!-- STATUS CLOSING PRODUK -->
 <div class="col-lg-4 col-6">
-    <a href="{{ route('closing.index') }}" 
+    <a href="{{ route('closing.index', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
        class="small-box bg-danger box-hover text-decoration-none text-dark"
        data-bs-toggle="tooltip" 
        title="Total CLOSING produk (semua)">
