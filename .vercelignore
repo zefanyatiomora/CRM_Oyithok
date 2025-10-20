@@ -1,1 +1,28 @@
+# Git / dev
+.git
+.gitignore
+node_modules/
+tests/
+docs/
+.idea/
+.vscode/
+docker-compose.yml
+
+# Laravel runtime / data
+/storage
+/storage/*
+!storage/.gitkeep
+/public/storage
+.env
+.env.*
+.env.local
+
+# optional heavy files
+public/adminlte/**/*.map
+public/adminlte/docs/
+package-lock.json
+
+# not necessary to deploy
+composer.phar
+
 /vendor
