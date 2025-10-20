@@ -1,44 +1,8 @@
 # ========================================
-# 🧠 GIT / DEVELOPMENT FILES
-# ========================================
-.git
-.gitignore
-.idea/
-.vscode/
-tests/
-docs/
-
-# ========================================
-# 🧱 NODE MODULES / CACHE
-# ========================================
-node_modules/
-npm-debug.log
-yarn-debug.log
-yarn-error.log
-
-# ========================================
-# ⚙️ LARAVEL ENVIRONMENT FILES
-# ========================================
-.env
-.env.*
-.env.local
-
-# ========================================
-# 🧾 LOG FILES
-# ========================================
-*.log
-storage/logs/*
-!storage/logs/.gitkeep
-
-# ========================================
 # 🚫 FILE OPSIONAL YANG BERAT
 # (tidak dibutuhkan di server produksi)
 # ========================================
 composer.phar
 package-lock.json
-
-# Map & Docs file dari AdminLTE (berat, tidak diperlukan)
-public/adminlte/**/*.map
-public/adminlte/docs/
 
 /vendor
