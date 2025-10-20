@@ -1,28 +1,44 @@
-# Git / dev
+# ========================================
+# 🧠 GIT / DEVELOPMENT FILES
+# ========================================
 .git
 .gitignore
-node_modules/
-tests/
-docs/
 .idea/
 .vscode/
-docker-compose.yml
+tests/
+docs/
 
-# Laravel runtime / data
-/storage
-/storage/*
-!storage/.gitkeep
-/public/storage
+# ========================================
+# 🧱 NODE MODULES / CACHE
+# ========================================
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# ========================================
+# ⚙️ LARAVEL ENVIRONMENT FILES
+# ========================================
 .env
 .env.*
 .env.local
 
-# optional heavy files
-public/adminlte/**/*.map
-public/adminlte/docs/
+# ========================================
+# 🧾 LOG FILES
+# ========================================
+*.log
+storage/logs/*
+!storage/logs/.gitkeep
+
+# ========================================
+# 🚫 FILE OPSIONAL YANG BERAT
+# (tidak dibutuhkan di server produksi)
+# ========================================
+composer.phar
 package-lock.json
 
-# not necessary to deploy
-composer.phar
+# Map & Docs file dari AdminLTE (berat, tidak diperlukan)
+public/adminlte/**/*.map
+public/adminlte/docs/
 
 /vendor
