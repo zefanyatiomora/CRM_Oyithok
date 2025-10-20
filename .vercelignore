@@ -1,8 +1,9 @@
 # ========================================
-# ⚙️ LARAVEL ENVIRONMENT FILES
+# 🧱 NODE MODULES / CACHE
 # ========================================
-.env
-.env.*
-.env.local
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
 
 /vendor
