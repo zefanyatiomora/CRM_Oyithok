@@ -349,9 +349,14 @@ class DashboardController extends Controller
             'closingKategori' => $closingKategori,
 
             // Data untuk summary card (total tanpa filter)
-            'jumlahProdukAsk' => $jumlahProdukAskTotal,
-            'jumlahProdukHold' => $jumlahProdukHoldTotal,
-            'jumlahProdukClosing' => $jumlahProdukClosingTotal,
+            // 'jumlahProdukAsk' => $jumlahProdukAskTotal,
+            // 'jumlahProdukHold' => $jumlahProdukHoldTotal,
+            // 'jumlahProdukClosing' => $jumlahProdukClosingTotal,
+
+            // Data untuk summary card (total di filter)
+            'jumlahProdukAsk' => array_sum($dataAsk),
+            'jumlahProdukHold' => array_sum($dataHold),
+            'jumlahProdukClosing' => array_sum($dataClosing),
         ];
     }
 
@@ -377,68 +382,75 @@ class DashboardController extends Controller
             'customerDoughnutColors' => ['#9a9d9eff', '#87CEEB', '#A374FF', '#5C54AD', '#FF7373'],
         ];
     }
+    public function askIndex(Request $request)
+    {
+        $tahun = $request->get('tahun');
+        $bulan = $request->get('bulan');
+        $activeMenu = 'dashboard';
 
+        return view('dashboardproduk.ask.index', compact('activeMenu', 'tahun', 'bulan'));
+    }
+    public function holdIndex(Request $request)
+    {
+        $tahun = $request->get('tahun');
+        $bulan = $request->get('bulan');
+        $activeMenu = 'dashboard';
+
+        return view('dashboardproduk.hold.index', compact('activeMenu', 'tahun', 'bulan'));
+    }
+    public function closingIndex(Request $request)
+    {
+        $tahun = $request->get('tahun');
+        $bulan = $request->get('bulan');
+        $activeMenu = 'dashboard';
+
+        return view('dashboardproduk.closing.index', compact('activeMenu', 'tahun', 'bulan'));
+    }
 
     public function askProduk(Request $request)
     {
-        // Log 1: Memastikan method ini terpanggil oleh request yang benar.
         Log::info('--- Method askProduk() Dipanggil ---', [
             'url' => $request->fullUrl(),
             'ajax' => $request->ajax()
         ]);
 
-        // --- PERBAIKAN QUERY & EAGER LOADING ---
-        // 1. Eager load relasi yang dibutuhkan: 'kategori' dan 'interaksi.customer'.
-        // 2. Jangan langsung ->get() agar kita bisa log SQL mentahnya.
-        $queryBuilder = InteraksiAwalModel::with(['kategori', 'interaksi.customer'])
-            ->whereHas('interaksi');
+        $tahun = $request->get('tahun');
+        $bulan = $request->get('bulan');
 
-        // Log 2: Menampilkan SQL query mentah dan bindings-nya. Ini SANGAT PENTING.
-        // Anda bisa salin query ini dan jalankan langsung di database client (misal: phpMyAdmin).
-        Log::info('SQL Query Dijalankan:', [
-            'sql' => $queryBuilder->toSql(),
-            'bindings' => $queryBuilder->getBindings()
+        Log::info('Parameter Filter Diterima (askProduk):', [
+            'tahun_filter' => $tahun,
+            'bulan_filter' => $bulan,
         ]);
 
-        // Eksekusi query untuk mendapatkan collection
-        $results = $queryBuilder->get();
+        $queryBuilder = InteraksiAwalModel::with(['kategori', 'interaksi.customer']);
 
-        // Log 3: Cek berapa jumlah data yang berhasil diambil dari database.
-        Log::info('Jumlah data setelah query:', ['count' => $results->count()]);
-
-        // Log 4 (Opsional): Jika data ada, tampilkan contoh data pertama untuk memeriksa strukturnya.
-        if ($results->isNotEmpty()) {
-            Log::info('Contoh data pertama yang didapat:', $results->first()->toArray());
-        }
+        $queryBuilder->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
+            if ($tahun) $q->whereYear('tanggal_chat', $tahun);
+            if ($bulan) $q->whereMonth('tanggal_chat', $bulan);
+        });
 
         if ($request->ajax()) {
-            // Log 5: Memastikan program masuk ke dalam blok AJAX untuk DataTables.
-            Log::info('Request adalah AJAX, memproses DataTables...');
+            $results = $queryBuilder->get();
 
-            return DataTables::of($results) // Gunakan collection $results yang sudah dieksekusi
+            return DataTables::of($results)
                 ->addIndexColumn()
-                // --- PERBAIKAN AKSES RELASI ---
-                // Akses customer melalui relasi interaksi
                 ->addColumn('customer_kode', fn($row) => $row->interaksi->customer->customer_kode ?? '-')
                 ->addColumn('customer_nama', fn($row) => $row->interaksi->customer->customer_nama ?? '-')
                 ->addColumn('kategori_nama', fn($row) => $row->kategori->kategori_nama ?? 'Tanpa Kategori')
                 ->addColumn('aksi', function ($row) {
-                    // Pastikan interaksi_id ada sebelum membuat route
                     if (isset($row->interaksi_id)) {
                         $url = route('rekap.show_ajax', $row->interaksi_id);
                         return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-primary">
-                            <i class="fas fa-eye"></i> Detail
-                        </button>';
+                        <i class="fas fa-eye"></i> Detail
+                    </button>';
                     }
                     return 'N/A';
                 })
                 ->rawColumns(['aksi'])
                 ->make(true);
         }
-
-        $activeMenu = 'dashboard';
-        return view('dashboardproduk.ask.index', compact('activeMenu'));
     }
+
 
     public function holdProduk(Request $request)
     {
@@ -448,43 +460,34 @@ class DashboardController extends Controller
             'ajax' => $request->ajax()
         ]);
 
-        // --- QUERY & EAGER LOADING ---
-        // 1. Mulai dari RincianModel dengan status 'hold'.
-        // 2. Eager load relasi yang dibutuhkan: 'interaksi.customer' dan 'produk.kategori'.
+        // Ambil parameter filter dari request
+        $tahun = $request->get('tahun');
+        $bulan = $request->get('bulan');
+
+        // Query builder dasar
         $queryBuilder = RincianModel::with(['interaksi.customer', 'produk.kategori'])
             ->where('status', 'hold');
 
-        // Log 2: Menampilkan SQL query mentah.
-        Log::info('SQL Query Dijalankan (holdProduk):', [
-            'sql' => $queryBuilder->toSql(),
-            'bindings' => $queryBuilder->getBindings()
-        ]);
+        // Terapkan filter waktu pada relasi 'interaksi'
+        $queryBuilder->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
+            if ($tahun) {
+                $q->whereYear('tanggal_chat', $tahun);
+            }
+            if ($bulan) {
+                $q->whereMonth('tanggal_chat', $bulan);
+            }
+        });
 
-        // Eksekusi query hanya jika request adalah AJAX, untuk efisiensi
+        // Proses AJAX untuk DataTables
         if ($request->ajax()) {
             $results = $queryBuilder->get();
-
-            // Log 3: Cek jumlah data yang berhasil diambil.
-            Log::info('Jumlah data setelah query (holdProduk):', ['count' => $results->count()]);
-
-            // Log 4 (Opsional): Tampilkan contoh data pertama.
-            if ($results->isNotEmpty()) {
-                Log::info('Contoh data pertama (holdProduk):', $results->first()->toArray());
-            }
-
-            // Log 5: Memproses DataTables.
-            Log::info('Request adalah AJAX, memproses DataTables (holdProduk)...');
-
             return DataTables::of($results)
                 ->addIndexColumn()
-                // Akses data customer melalui relasi interaksi
                 ->addColumn('customer_kode', fn($row) => $row->interaksi->customer->customer_kode ?? '-')
                 ->addColumn('customer_nama', fn($row) => $row->interaksi->customer->customer_nama ?? '-')
-                // Akses data produk dan kategori
                 ->addColumn('produk_nama', fn($row) => $row->produk->produk_nama ?? 'Tanpa Produk')
                 ->addColumn('kategori_nama', fn($row) => $row->produk->kategori->kategori_nama ?? 'Tanpa Kategori')
                 ->addColumn('aksi', function ($row) {
-                    // Pastikan interaksi_id ada
                     if (isset($row->interaksi->interaksi_id)) {
                         $url = route('rekap.show_ajax', $row->interaksi->interaksi_id);
                         return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-info">
@@ -496,11 +499,6 @@ class DashboardController extends Controller
                 ->rawColumns(['aksi'])
                 ->make(true);
         }
-
-        // Untuk initial page load (non-AJAX)
-        $activeMenu = 'dashboard';
-        // Pastikan Anda memiliki view ini
-        return view('dashboardproduk.hold.index', compact('activeMenu'));
     }
 
     public function closingProduk(Request $request)
@@ -511,37 +509,34 @@ class DashboardController extends Controller
             'ajax' => $request->ajax()
         ]);
 
-        // --- QUERY & EAGER LOADING ---
-        // 1. Mulai dari PasangKirimModel dengan status closing.
-        // 2. Eager load relasi yang dibutuhkan.
+        // Ambil parameter filter dari request
+        $tahun = $request->get('tahun');
+        $bulan = $request->get('bulan');
+
+        // Query builder dasar
         $queryBuilder = PasangKirimModel::with(['interaksi.customer', 'produk.kategori'])
             ->whereIn('status', ['closing produk', 'closing pasang', 'closing all']);
 
-        // Log 2: Menampilkan SQL query mentah.
-        Log::info('SQL Query Dijalankan (closingProduk):', [
-            'sql' => $queryBuilder->toSql(),
-            'bindings' => $queryBuilder->getBindings()
-        ]);
+        // Terapkan filter waktu pada relasi 'interaksi'
+        $queryBuilder->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
+            if ($tahun) {
+                $q->whereYear('tanggal_chat', $tahun);
+            }
+            if ($bulan) {
+                $q->whereMonth('tanggal_chat', $bulan);
+            }
+        });
 
-        // Eksekusi query hanya jika request adalah AJAX.
+        // Proses AJAX untuk DataTables
         if ($request->ajax()) {
             $results = $queryBuilder->get();
-
-            // Log 3: Cek jumlah data yang berhasil diambil.
-            Log::info('Jumlah data setelah query (closingProduk):', ['count' => $results->count()]);
-
             return DataTables::of($results)
                 ->addIndexColumn()
-                // Akses data customer melalui relasi interaksi
                 ->addColumn('customer_kode', fn($row) => $row->interaksi->customer->customer_kode ?? '-')
                 ->addColumn('customer_nama', fn($row) => $row->interaksi->customer->customer_nama ?? '-')
-                // Akses data produk dan kategori
                 ->addColumn('produk_nama', fn($row) => $row->produk->produk_nama ?? 'Tanpa Produk')
                 ->addColumn('kategori_nama', fn($row) => $row->produk->kategori->kategori_nama ?? 'Tanpa Kategori')
-                // Menambahkan kolom status untuk kejelasan
-                ->addColumn('status', fn($row) => ucwords($row->status) ?? '-')
                 ->addColumn('aksi', function ($row) {
-                    // Pastikan interaksi_id ada
                     if (isset($row->interaksi->interaksi_id)) {
                         $url = route('rekap.show_ajax', $row->interaksi->interaksi_id);
                         return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-success">
@@ -553,11 +548,6 @@ class DashboardController extends Controller
                 ->rawColumns(['aksi'])
                 ->make(true);
         }
-
-        // Untuk initial page load (non-AJAX)
-        $activeMenu = 'dashboard';
-        // Pastikan Anda memiliki view ini
-        return view('dashboardproduk.closing.index', compact('activeMenu'));
     }
     // ===========================
     // Route endpoints untuk setiap status
@@ -751,58 +741,58 @@ class DashboardController extends Controller
         ]);
     }
     public function ghostBroadcast()
-{
-    return view('broadcast.ghost_broadcast');
-}
-
-// Mengirim broadcast untuk customer GHOST
-public function sendGhostBroadcast()
-{
-    $token = env('WABLAS_API_TOKEN', 'rsOFZQEEWNCTK3BRb5vijjQ0xCo59C32OqSh8yYmdhkyPS6cOSx7eZa');
-    $secret = env('WABLAS_SECRET_KEY', 'IXMoblCR');
-
-    // Ambil semua customer dengan status ghost
-    $customers = InteraksiModel::with('customer')->where('status', 'ghost')->get();
-
-    foreach ($customers as $item) {
-        $customer = $item->customer;
-        if (!$customer || !$customer->customer_nohp) {
-            continue;
-        }
-
-        $nama = $customer->customer_nama;
-        $nohp = preg_replace('/^0/', '62', preg_replace('/\D/', '', $customer->customer_nohp));
-
-        $pesan = "Halo kak {$nama}👋, gimana kabarnya hari ini? Semoga sehat selalu ya 🙏\n"
-            . "Beberapa waktu lalu kakak sempat hubungi kami.\n"
-            . "Kalau sekarang lagi belum butuh, nggak apa-apa kak 😊 Tapi kalau masih ada rencana, kami siap bantu kasih katalog & rekomendasi sesuai kebutuhan kakak.";
-
-        try {
-            $headers = ['Authorization' => $token];
-            if ($secret) $headers['Secret'] = $secret;
-
-            $response = Http::withHeaders($headers)->post('https://sby.wablas.com/api/send-message', [
-                'phone' => $nohp,
-                'message' => $pesan,
-            ]);
-
-            $result = $response->json();
-            Log::info("WA Ghost Broadcast -> {$nohp}", $result);
-
-            if (!isset($result['status']) || $result['status'] !== true) {
-                Log::error("Gagal kirim ke {$nohp}", $result);
-            }
-
-            sleep(1); // jeda agar tidak dianggap spam
-
-        } catch (\Exception $e) {
-            Log::error("Exception kirim WA ke {$nohp}: " . $e->getMessage());
-        }
+    {
+        return view('broadcast.ghost_broadcast');
     }
 
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Broadcast GHOST berhasil diproses, cek log untuk detail.'
-    ]);
-}
+    // Mengirim broadcast untuk customer GHOST
+    public function sendGhostBroadcast()
+    {
+        $token = env('WABLAS_API_TOKEN', 'rsOFZQEEWNCTK3BRb5vijjQ0xCo59C32OqSh8yYmdhkyPS6cOSx7eZa');
+        $secret = env('WABLAS_SECRET_KEY', 'IXMoblCR');
+
+        // Ambil semua customer dengan status ghost
+        $customers = InteraksiModel::with('customer')->where('status', 'ghost')->get();
+
+        foreach ($customers as $item) {
+            $customer = $item->customer;
+            if (!$customer || !$customer->customer_nohp) {
+                continue;
+            }
+
+            $nama = $customer->customer_nama;
+            $nohp = preg_replace('/^0/', '62', preg_replace('/\D/', '', $customer->customer_nohp));
+
+            $pesan = "Halo kak {$nama}👋, gimana kabarnya hari ini? Semoga sehat selalu ya 🙏\n"
+                . "Beberapa waktu lalu kakak sempat hubungi kami.\n"
+                . "Kalau sekarang lagi belum butuh, nggak apa-apa kak 😊 Tapi kalau masih ada rencana, kami siap bantu kasih katalog & rekomendasi sesuai kebutuhan kakak.";
+
+            try {
+                $headers = ['Authorization' => $token];
+                if ($secret) $headers['Secret'] = $secret;
+
+                $response = Http::withHeaders($headers)->post('https://sby.wablas.com/api/send-message', [
+                    'phone' => $nohp,
+                    'message' => $pesan,
+                ]);
+
+                $result = $response->json();
+                Log::info("WA Ghost Broadcast -> {$nohp}", $result);
+
+                if (!isset($result['status']) || $result['status'] !== true) {
+                    Log::error("Gagal kirim ke {$nohp}", $result);
+                }
+
+                sleep(1); // jeda agar tidak dianggap spam
+
+            } catch (\Exception $e) {
+                Log::error("Exception kirim WA ke {$nohp}: " . $e->getMessage());
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Broadcast GHOST berhasil diproses, cek log untuk detail.'
+        ]);
+    }
 }
