@@ -1,8 +1,9 @@
 # ========================================
-# 🚫 FILE OPSIONAL YANG BERAT
-# (tidak dibutuhkan di server produksi)
+# 🧾 LOG FILES
 # ========================================
-composer.phar
-package-lock.json
+*.log
+storage/logs/*
+!storage/logs/.gitkeep
+
 
 /vendor
