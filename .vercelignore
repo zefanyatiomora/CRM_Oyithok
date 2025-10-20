@@ -1,9 +1,8 @@
 # ========================================
-# 🧾 LOG FILES
+# ⚙️ LARAVEL ENVIRONMENT FILES
 # ========================================
-*.log
-storage/logs/*
-!storage/logs/.gitkeep
-
+.env
+.env.*
+.env.local
 
 /vendor
