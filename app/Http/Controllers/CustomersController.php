@@ -54,61 +54,61 @@ class CustomersController extends Controller
     {
         return view('customers.create');
     }
-
-    // Proses simpan customer baru
-    // Proses simpan customer baru
-    public function store(Request $request)
+     public function getNextCustomerCode()
     {
-        $request->validate([
-            'customer_nama' => 'required|string|max:255',
-            'customer_kode' => 'required|string|max:100',
-            'customer_nohp' => 'required|string|max:20',
-            'customer_alamat' => 'required|string',
-            'informasi_media' => 'nullable|string|max:100',
-            'tanggal_chat' => 'required|date',
-            'produk_id' => 'required|integer',
-            'identifikasi_kebutuhan' => 'required|string',
-            'media' => 'nullable|string'
-        ]);
+        $lastCustomer = CustomersModel::orderBy('customer_id', 'desc')->first();
+        $nextId = $lastCustomer ? $lastCustomer->customer_id + 1 : 1;
 
-        // Simpan atau update customer
-        if ($request->customer_id) {
-            $customer = CustomersModel::find($request->customer_id);
-            if ($customer) {
-                $customer->update([
-                    'customer_nama' => $request->customer_nama,
-                    'customer_kode' => $request->customer_kode,
-                    'customer_nohp' => '+62' . ltrim($request->customer_nohp, '0'),
-                    'customer_alamat' => $request->customer_alamat,
-                    'informasi_media' => $request->informasi_media
-                ]);
-            }
-        } else {
-            $customer = CustomersModel::create([
-                'customer_nama' => $request->customer_nama,
-                'customer_kode' => $request->customer_kode,
-                'customer_nohp' => '+62' . ltrim($request->customer_nohp, '0'),
-                'customer_alamat' => $request->customer_alamat,
-                'informasi_media' => $request->informasi_media,
-                'loyalty_point' => 0
-            ]);
-        }
+        $tanggal = now()->format('dmy');
+        $kode = $tanggal . '-' . $nextId;
 
-        // Simpan kebutuhan
-        InteraksiModel::create([
-            'customer_id' => $customer->customer_id ?? $request->customer_id,
-            'tanggal_chat' => $request->tanggal_chat,
-            'produk_id' => $request->produk_id,
-            'identifikasi_kebutuhan' => $request->identifikasi_kebutuhan,
-            'media' => $request->media
-        ]);
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Data kebutuhan dan customer berhasil disimpan.'
-        ]);
+        return response()->json(['kode' => $kode]);
     }
+public function store(Request $request)
+{
+    $request->validate([
+        'customer_nama' => 'required|string|max:255',
+        'customer_kode' => 'nullable|string|max:100',
+        'customer_nohp' => 'required|string|max:20',
+        'customer_alamat' => 'required|string',
+        'informasi_media' => 'nullable|string|max:100',
+        'tanggal_chat' => 'required|date',
+        'produk_id' => 'required|integer',
+        'identifikasi_kebutuhan' => 'required|string',
+        'media' => 'nullable|string'
+    ]);
 
+    // Simpan customer dulu untuk mendapatkan customer_id
+    $customer = CustomersModel::create([
+        'customer_nama' => $request->customer_nama,
+        'customer_kode' => '', // sementara kosong, nanti di-update
+        'customer_nohp' => '+62' . ltrim($request->customer_nohp, '0'),
+        'customer_alamat' => $request->customer_alamat,
+        'informasi_media' => $request->informasi_media,
+        'loyalty_point' => 0
+    ]);
+
+    // Buat format kode baru: dmy-customer_id
+    $tanggal = now()->format('dmy');
+    $kodePelanggan = $tanggal . '-' . $customer->customer_id;
+
+    // Update kode pelanggan dengan format baru
+    $customer->update(['customer_kode' => $kodePelanggan]);
+
+    // Simpan kebutuhan
+    InteraksiModel::create([
+        'customer_id' => $customer->customer_id,
+        'tanggal_chat' => $request->tanggal_chat,
+        'produk_id' => $request->produk_id,
+        'identifikasi_kebutuhan' => $request->identifikasi_kebutuhan,
+        'media' => $request->media
+    ]);
+return response()->json([
+    'status' => true,
+    'message' => 'Data kebutuhan dan customer berhasil disimpan.',
+    'customer_kode' => $kodePelanggan // tambahkan ini
+]);
+}
     public function edit($id)
     {
         $customer = CustomersModel::find($id);

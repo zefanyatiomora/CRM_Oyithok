@@ -14,8 +14,8 @@
                     <label for="tanggal_chat">Tanggal Interaksi</label>
                     <div class="input-group">
                         <input type="text" class="form-control" id="tanggal_chat" name="tanggal_chat"
-                            value="{{ old('tanggal_chat', \Carbon\Carbon::today()->format('d-m-Y')) }}" required
-                            placeholder="dd-mm-yyyy">
+                            value="{{ old('tanggal_chat', \Carbon\Carbon::today()->format('d-m-Y')) }}"
+                            required placeholder="dd-mm-yyyy">
                         <button type="button" class="btn btn-outline-purple" id="btn-today">Hari Ini</button>
                         <button type="button" class="btn btn-outline-purple" id="btn-yesterday">Kemarin</button>
                     </div>
@@ -36,7 +36,7 @@
                         <div class="form-group">
                             <label for="customer_kode">Kode Pelanggan</label>
                             <input type="text" class="form-control" id="customer_kode" name="customer_kode"
-                                value="{{ old('customer_kode') }}" required>
+                            value="{{ old('customer_kode') }}" required placeholder="Otomatis (mis. 201025-8)">
                         </div>
 
                         <div class="form-group">
@@ -77,7 +77,6 @@
         </div>
     </form>
 
-    <!-- Container untuk menampilkan show_ajax (overlay menimpa form tapi transparan) -->
     <div id="show_ajax_container"></div>
 </div>
 @endsection
@@ -86,49 +85,35 @@
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
-    .bg-gradient-purple {
-        background: linear-gradient(135deg, #8147be, #c97aeb, #a661c2) !important;
-        border-radius: 15px 15px 0 0 !important;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15) !important;
-        color: #fff !important;
-        font-weight: bold;
-        font-size: 1.1rem;
-    }
-
-    .btn-outline-purple {
-        color: #A374FF;
-        border: 1px solid #A374FF;
-        background-color: #fff;
-    }
-
-    .btn-outline-purple:hover {
-        color: #fff;
-        background-color: #A374FF;
-        border-color: #A374FF;
-    }
-
-    .btn-purple {
-        color: #fff;
-        background-color: #A374FF;
-    }
-
-    .btn-purple:hover {
-        background-color: #9364f2;
-    }
-
-    #customer_list {
-        max-height: 200px;
-        overflow-y: auto;
-        background-color: white;
-        border: 1px solid #ced4da;
-        z-index: 9999;
-    }
-
-    /* Hilangkan backdrop */
-    .modal-backdrop {
-        display: none !important;
-    }
-/* === Overlay blur ringan dan show_ajax di tengah === */
+.bg-gradient-purple {
+    background: linear-gradient(135deg, #8147be, #c97aeb, #a661c2) !important;
+    border-radius: 15px 15px 0 0 !important;
+    color: #fff !important;
+    font-weight: bold;
+}
+.btn-outline-purple {
+    color: #A374FF;
+    border: 1px solid #A374FF;
+    background-color: #fff;
+}
+.btn-outline-purple:hover {
+    color: #fff;
+    background-color: #A374FF;
+}
+.btn-purple {
+    color: #fff;
+    background-color: #A374FF;
+}
+.btn-purple:hover {
+    background-color: #9364f2;
+}
+#customer_list {
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #ced4da;
+    z-index: 9999;
+}
 #show_ajax_container {
     position: fixed;
     top: 0;
@@ -137,15 +122,12 @@
     height: 100%;
     background: rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
     z-index: 1050;
-    display: none; /* awalnya hidden */
+    display: none;
     justify-content: center;
     align-items: center;
     padding: 30px;
 }
-
-/* kotak konten di tengah overlay */
 #show_ajax_container > .overlay-content {
     background: #fff;
     border-radius: 15px;
@@ -157,16 +139,9 @@
     overflow-y: auto;
     animation: fadeIn 0.3s ease forwards;
 }
-/* Animasi muncul halus */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 </style>
 @endpush
@@ -176,173 +151,130 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(function() {
-    // TAMBAHAN: Fungsi untuk membuat kode customer dari tanggal
-    function updateCustomerCodeFromDate() {
-        let tanggal = $('#tanggal_chat').val(); // Contoh: "15-10-2025"
-        if (tanggal) {
-            // Memecah string tanggal menjadi array ["15", "10", "2025"]
-            let parts = tanggal.split('-');
-            if (parts.length === 3) {
-                // Mengambil 2 digit terakhir dari tahun ("2025" -> "25")
-                let yy = parts[2].slice(-2); 
-                // Menggabungkan dd, mm, dan yy
-                let kode = parts[0] + parts[1] + yy; // Hasil: "151025"
-                $('#customer_kode').val(kode);
-            }
+    // === AUTO-GENERATE KODE CUSTOMER ===
+function updateCustomerCodeFromDate() {
+    let tanggal = $('#tanggal_chat').val();
+    if (tanggal) {
+        let parts = tanggal.split('-');
+        if (parts.length === 3) {
+            let yy = parts[2].slice(-2);
+            let kode = parts[0] + parts[1] + yy;
+            // Hapus baris ini 👇
+            // $('#customer_kode').val(kode + '-AUTO');
         }
     }
-
+}
+   // 🔹 Ambil kode customer default saat form dibuka
+    $.get("{{ route('customers.nextCode') }}", function(data) {
+        if (data.kode) {
+            $('#customer_kode').val(data.kode);
+        }
+    });
     $("#tanggal_chat").datepicker({
         dateFormat: "dd-mm-yy",
         changeMonth: true,
         changeYear: true,
         maxDate: 0,
-        // TAMBAHAN: Panggil fungsi saat tanggal dipilih dari kalender
-        onSelect: function(dateText) {
-            updateCustomerCodeFromDate();
-        }
+        onSelect: updateCustomerCodeFromDate
     });
 
-    // Tombol tanggal
-    $(document).on('click', '#btn-today', function() {
+    $('#btn-today').click(function() {
         let today = $.datepicker.formatDate('dd-mm-yy', new Date());
         $('#tanggal_chat').val(today);
-        updateCustomerCodeFromDate(); // TAMBAHAN: Panggil fungsi setelah mengubah tanggal
+        updateCustomerCodeFromDate();
     });
 
-    $(document).on('click', '#btn-yesterday', function() {
+    $('#btn-yesterday').click(function() {
         let d = new Date();
         d.setDate(d.getDate() - 1);
         let yesterday = $.datepicker.formatDate('dd-mm-yy', d);
         $('#tanggal_chat').val(yesterday);
-        updateCustomerCodeFromDate(); // TAMBAHAN: Panggil fungsi setelah mengubah tanggal
+        updateCustomerCodeFromDate();
     });
 
-    // TAMBAHAN: Panggil fungsi saat halaman pertama kali dimuat
     updateCustomerCodeFromDate();
 
-    // Cari customer
+    // === AUTOCOMPLETE CUSTOMER ===
     $(document).on('input', '#customer_nama', function() {
         let keyword = $(this).val();
         let customerList = $('#customer_list');
         if (keyword.length >= 2) {
-            $.get('{{ route('kebutuhan.searchCustomer') }}', { keyword: keyword }, function(data) {
-                let list = '';
-                if (data.length > 0) {
-                    data.forEach(customer => {
-                        list += `<a href="#" class="list-group-item list-group-item-action"
-                            data-id="${customer.customer_id}"
-                            data-nama="${customer.customer_nama}"
-                            data-kode="${customer.customer_kode}"
-                            data-nohp="${customer.customer_nohp}"
-                            data-alamat="${customer.customer_alamat}"
-                            data-media="${customer.informasi_media}">
-                            ${customer.customer_nama} - ${customer.customer_nohp}
-                        </a>`;
-                    });
-                } else {
-                    list = `<a href="#" class="list-group-item list-group-item-action disabled">Tidak ditemukan</a>`;
-                }
+            $.get('{{ route('kebutuhan.searchCustomer') }}', { keyword }, function(data) {
+                let list = data.length
+                    ? data.map(c => `
+                        <a href="#" class="list-group-item list-group-item-action"
+                            data-id="${c.customer_id}"
+                            data-nama="${c.customer_nama}"
+                            data-kode="${c.customer_kode}"
+                            data-nohp="${c.customer_nohp}"
+                            data-alamat="${c.customer_alamat}"
+                            data-media="${c.informasi_media}">
+                            ${c.customer_nama} - ${c.customer_nohp}
+                        </a>`).join('')
+                    : `<a href="#" class="list-group-item list-group-item-action disabled">Tidak ditemukan</a>`;
                 customerList.html(list).show();
             });
-        } else {
-            customerList.hide();
-        }
+        } else customerList.hide();
     });
 
-    // Pilih customer
     $(document).on('click', '#customer_list .list-group-item', function(e) {
         e.preventDefault();
         if ($(this).hasClass('disabled')) return;
-
         $('#customer_id').val($(this).data('id'));
         $('#customer_nama').val($(this).data('nama'));
         $('#customer_kode').val($(this).data('kode'));
-
-        let nohp = $(this).data('nohp');
-        if (nohp) {
-            nohp = nohp.toString().replace(/\D/g, '');
-            if (nohp.startsWith('0')) nohp = nohp.substring(1);
-            $('#customer_nohp').val(nohp);
-        } else {
-            $('#customer_nohp').val('');
-        }
-
+        $('#customer_nohp').val($(this).data('nohp').replace(/\D/g, '').replace(/^0/, ''));
         $('#customer_alamat').val($(this).data('alamat'));
         $('#informasi_media').val($(this).data('media')).trigger('change');
         $('#customer_list').hide();
     });
 
-    // Submit form AJAX
-    $(document).on('submit', '#formKebutuhan', function(e) {
+    // === SUBMIT FORM ===
+    $('#formKebutuhan').submit(function(e) {
         e.preventDefault();
-        $.ajax({
-            url: this.action,
-            type: this.method,
-            data: $(this).serialize(),
-            success: function(response) {
-                if (response.status) {
-                    Swal.fire({
-                        title: 'Customer berhasil tersimpan',
-                        text: "Lanjut isi data interaksi?",
-                        icon: 'success',
-                        showCancelButton: true,
-                        confirmButtonText: 'Ya',
-                        cancelButtonText: 'Tidak',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            let showUrl = "{{ route('rekap.show_ajax', ['interaksi_id' => '__ID__']) }}"
-                                .replace('__ID__', response.interaksi_id);
-
-                            // Form blur, overlay tampil
-                            $('#formKebutuhan').css('pointer-events', 'none');
-                            $('#show_ajax_container').show().html('<div class="text-center p-5">Memuat data interaksi...</div>');
-                            $.get(showUrl, function(html) {
-                                $('#show_ajax_container')
-                                    .css('display', 'flex') // aktifkan flex centering
-                                    .html(`
-                                        <div class="overlay-content fade-in w-100">
-                                            ${html}
-                                        </div>
-                                    `)
-                                    .hide()
-                                    .fadeIn(300);
-                            });
-                        } else {
-                            window.location.href = "{{ route('rekap.index') }}";
-                        }
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Terjadi Kesalahan',
-                        text: response.message
-                    });
-                }
+        $.post(this.action, $(this).serialize(), function(response) {
+            if (response.status) {
+                if (response.customer_kode) {
+        $('#customer_kode').val(response.customer_kode);
+    }
+                Swal.fire({
+                    title: 'Customer berhasil tersimpan',
+                    text: 'Lanjut isi data interaksi?',
+                    icon: 'success',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak'
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        let showUrl = "{{ route('rekap.show_ajax', ['interaksi_id' => '__ID__']) }}"
+                            .replace('__ID__', response.interaksi_id);
+                        $('#formKebutuhan').css('pointer-events', 'none');
+                        $('#show_ajax_container').show().html('<div class="text-center p-5">Memuat data interaksi...</div>');
+                        $.get(showUrl, function(html) {
+                            $('#show_ajax_container').css('display', 'flex').html(`<div class="overlay-content">${html}</div>`).hide().fadeIn(300);
+                        });
+                    } else window.location.href = "{{ route('rekap.index') }}";
+                });
+            } else {
+                Swal.fire('Terjadi Kesalahan', response.message, 'error');
             }
         });
     });
-    
+
     $(document).on('click', '#btnKembaliForm', function() {
         $('#show_ajax_container').fadeOut(300, function() {
             $('#formKebutuhan').css('pointer-events', 'auto');
             $('#show_ajax_container').empty();
         });
     });
-    
-    // Format no HP
+
     $(document).on('input', '#customer_nohp', function() {
-        let val = $(this).val().replace(/\D/g, '');
-        if (val.startsWith('0')) val = val.substring(1);
+        let val = $(this).val().replace(/\D/g, '').replace(/^0/, '');
         $(this).val(val);
     });
 
-    // Tutup autosuggest bila klik luar
-    $(document).on('click', function(e) {
-        if (!$(e.target).closest('#customer_nama, #customer_list').length) {
-            $('#customer_list').hide();
-        }
+    $(document).click(function(e) {
+        if (!$(e.target).closest('#customer_nama, #customer_list').length) $('#customer_list').hide();
     });
 });
 </script>

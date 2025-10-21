@@ -40,6 +40,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 Route::middleware(['auth'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/ghost', [DashboardController::class, 'ghost'])->name('dashboard.ghost');
+    Route::get('/dashboard/askProduk', [DashboardController::class, 'askProduk'])->name('ask.index');
+    Route::get('/dashboard/holdProduk', [DashboardController::class, 'holdProduk'])->name('hold.index');
+    Route::get('/dashboard/closingProduk', [DashboardController::class, 'closingProduk'])->name('closing.index');
     Route::get('/dashboard/ask', [DashboardController::class, 'ask'])->name('dashboard.ask');
     Route::get('/dashboard/followup', [DashboardController::class, 'followup'])->name('dashboard.followup');
     Route::get('/dashboard/hold', [DashboardController::class, 'hold'])->name('dashboard.hold');
@@ -58,6 +61,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/ghost', [DashboardController::class, 'ghost'])->name('dashboard.ghost');
     Route::get('/dashboard/ghost/broadcast', [DashboardController::class, 'ghostBroadcast'])->name('ghost.broadcast');
     Route::post('/dashboard/ghost/send-broadcast', [DashboardController::class, 'sendGhostBroadcast'])->name('ghost.sendBroadcast');
+    // routes/web.php
+    Route::post('/dashboard/ghost/broadcast/{kode}', [DashboardController::class, 'sendGhostSingle'])->name('ghost.broadcast.single');
+Route::get('/dashboard/ask', [DashboardController::class, 'ask'])->name('dashboard.ask');
+Route::post('/ask/broadcast/{id}', [DashboardController::class, 'sendAskSingle'])->name('ask.broadcastCustomer');
+Route::get('/dashboard/followup', [DashboardController::class, 'followup'])->name('dashboard.followup');
+Route::post('/followup/broadcast/{id}', [DashboardController::class, 'sendFollowupSingle'])->name('followup.broadcastCustomer');
+Route::post('/broadcast/hold/send/{id}', [DashboardController::class, 'sendHoldSingle'])->name('hold.broadcast.single');
 
     //broadcast//
     Route::get('/ask/broadcast', [AskController::class, 'broadcast'])->name('ask.broadcast');
@@ -76,6 +86,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/customers/{id}/show_ajax', [CustomersController::class, 'show_ajax']);
     Route::get('/customers/{id}/edit_ajax', [CustomersController::class, 'edit'])->name('customers.edit_ajax');
     Route::put('/customers/{id}/update', [CustomersController::class, 'update'])->name('customers.update');
+    Route::get('/customers/next-code', [CustomersController::class, 'getNextCustomerCode'])->name('customers.nextCode');
     //kebutuhan//
     // routes/web.php
     Route::get('/kebutuhan', [KebutuhanController::class, 'index'])->name('kebutuhan.index'); // daftar semua customer
