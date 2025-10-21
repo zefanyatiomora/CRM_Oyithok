@@ -52,7 +52,13 @@
         $('#table-interaksi-hold').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('hold.index') }}", // route untuk data interaksi status GHOST
+            ajax: {
+                url:"{{ route('hold.data') }}", 
+                data: function (d) {
+                    d.tahun = "{{ $tahun ?? '' }}";
+                    d.bulan = "{{ $bulan ?? '' }}";
+                }
+            },
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', className: 'text-center', orderable: false, searchable: false },
                 { data: 'customer_kode', name: 'customer_kode' },

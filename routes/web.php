@@ -43,9 +43,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/askProduk', [DashboardController::class, 'askProduk'])->name('ask.index');
     Route::get('/dashboard/holdProduk', [DashboardController::class, 'holdProduk'])->name('hold.index');
     Route::get('/dashboard/closingProduk', [DashboardController::class, 'closingProduk'])->name('closing.index');
+    Route::get('/dashboard/ask', [DashboardController::class, 'ask'])->name('dashboard.ask');
     Route::get('/dashboard/followup', [DashboardController::class, 'followup'])->name('dashboard.followup');
     Route::get('/dashboard/hold', [DashboardController::class, 'hold'])->name('dashboard.hold');
     Route::get('/dashboard/closing', [DashboardController::class, 'closing'])->name('dashboard.closing');
+
+    // Route::get('/dashboard/askProduk', [DashboardController::class, 'askProduk'])->name('ask.index');
+    // 2️⃣ ASK untuk PRODUK
+    Route::get('/dashboard/ask-produk', [DashboardController::class, 'askIndex'])->name('ask.index');
+    // 3️⃣ DataTables AJAX untuk ASK PRODUK
+    Route::get('/dashboard/ask-produk/data', [DashboardController::class, 'askProduk'])->name('ask.data');
+    Route::get('/dashboard/hold-produk', [DashboardController::class, 'holdIndex'])->name('hold.index');
+    Route::get('/dashboard/hold-produk/data', [DashboardController::class, 'holdProduk'])->name('hold.data');
+    Route::get('/dashboard/closing-produk', [DashboardController::class, 'closingIndex'])->name('closing.index');
+    Route::get('/dashboard/closing-produk/data', [DashboardController::class, 'closingProduk'])->name('closing.data');
     Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
     Route::get('/dashboard/ghost', [DashboardController::class, 'ghost'])->name('dashboard.ghost');
     Route::get('/dashboard/ghost/broadcast', [DashboardController::class, 'ghostBroadcast'])->name('ghost.broadcast');
