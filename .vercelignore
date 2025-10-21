@@ -2,5 +2,10 @@
 # 🧠 GIT / DEVELOPMENT FILES
 # ========================================
 .git
+.gitignore
+.idea/
+.vscode/
+tests/
+docs/
 
 /vendor
