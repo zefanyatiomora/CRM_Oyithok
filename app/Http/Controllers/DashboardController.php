@@ -11,6 +11,7 @@ use App\Models\SurveyModel;
 use App\Models\InteraksiAwalModel;
 use App\Models\InteraksiRealtime;
 use App\Helpers\FormatHelper;
+use App\Models\CustomersModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
@@ -564,50 +565,74 @@ class DashboardController extends Controller
     // (tidak di-filter di sini — DataTables akan menampilkan semua record dengan status tersebut)
     // ===========================
     public function ghost(Request $request)
-    {
-        $query = InteraksiModel::with('customer')->where('status', 'ghost');
+{
+    $query = InteraksiModel::with('customer')->where('status', 'ghost');
 
-        if ($request->ajax()) {
-            return DataTables::of($query)
-                ->addIndexColumn()
-                ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
-                ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
-                ->addColumn('aksi', function ($row) {
-                    $url = route('rekap.show_ajax', $row->interaksi_id);
-                    return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-primary">
-                        <i class="fas fa-eye"></i> Detail
-                    </button>';
-                })
-                ->rawColumns(['aksi'])
-                ->make(true);
-        }
+    if ($request->ajax()) {
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
+            ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
+->addColumn('aksi', function ($row) {
+    $urlDetail = route('rekap.show_ajax', $row->interaksi_id);
+    $urlBroadcast = route('ghost.broadcast.single', $row->customer->customer_kode ?? '');
+    $nama = e($row->customer->customer_nama ?? '-');
 
-        $activeMenu = 'dashboard';
-        return view('dashboard.ghost', compact('activeMenu'));
-    }
-    public function ask(Request $request)
-    {
-        $query = InteraksiModel::with('customer')->where('status', 'ask');
+    return '
+        <div class="btn-group" role="group">
+            <button onclick="modalAction(\'' . $urlDetail . '\')" 
+                class="btn btn-sm btn-primary">
+                <i class="fas fa-eye"></i> Detail
+            </button>
 
-        if ($request->ajax()) {
-            return DataTables::of($query)
-                ->addIndexColumn()
-                ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
-                ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
-                ->addColumn('aksi', function ($row) {
-                    $url = route('rekap.show_ajax', $row->interaksi_id);
-                    return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-primary">
-                        <i class="fas fa-eye"></i> Detail
-                    </button>';
-                })
-                ->rawColumns(['aksi'])
-                ->make(true);
-        }
-
-        $activeMenu = 'dashboard';
-        return view('dashboard.ask', compact('activeMenu'));
+            <button onclick="openBroadcastModal(\'' . $urlBroadcast . '\', \'' . $nama . '\')" 
+                class="btn btn-sm btn-dark">
+                <i class="fas fa-paper-plane"></i> Broadcast
+            </button>
+        </div>
+    ';
+})
+            ->rawColumns(['aksi'])
+            ->make(true);
     }
 
+    $activeMenu = 'dashboard';
+    return view('dashboard.ghost', compact('activeMenu'));
+}
+ public function ask(Request $request)
+{
+    $query = InteraksiModel::with('customer')->where('status', 'ask');
+
+    if ($request->ajax()) {
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
+            ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
+->addColumn('aksi', function ($row) {
+    $urlDetail = route('rekap.show_ajax', $row->interaksi_id);
+    $broadcastUrl = route('ask.broadcastCustomer', $row->interaksi_id);
+    $nama = e($row->customer->customer_nama ?? '-');
+
+    return '
+        <div class="btn-group" role="group">
+            <button onclick="modalAction(\'' . $urlDetail . '\')" 
+                class="btn btn-sm btn-primary">
+                <i class="fas fa-eye"></i> Detail
+            </button>
+
+            <button onclick="openBroadcastModal(\'' . $broadcastUrl . '\', \'' . $nama . '\')" 
+                class="btn btn-sm btn-dark">
+                <i class="fas fa-paper-plane"></i> Broadcast
+            </button>
+        </div>
+    ';
+})
+            ->rawColumns(['aksi'])
+            ->make(true);
+    }
+    $activeMenu = 'dashboard';
+    return view('dashboard.ask', compact('activeMenu'));
+}
     public function followup(Request $request)
     {
         $query = InteraksiModel::with('customer')->whereIn('status', ['followup', 'follow up']);
@@ -618,15 +643,27 @@ class DashboardController extends Controller
                 ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
                 ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
                 ->addColumn('aksi', function ($row) {
-                    $url = route('rekap.show_ajax', $row->interaksi_id);
-                    return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-primary">
-                        <i class="fas fa-eye"></i> Detail
-                    </button>';
-                })
-                ->rawColumns(['aksi'])
-                ->make(true);
-        }
+    $urlDetail = route('rekap.show_ajax', $row->interaksi_id);
+    $broadcastUrl = route('followup.broadcastCustomer', $row->interaksi_id);
+    $nama = e($row->customer->customer_nama ?? '-');
 
+    return '
+        <div class="btn-group" role="group">
+            <button onclick="modalAction(\'' . $urlDetail . '\')" 
+                class="btn btn-sm btn-primary">
+                <i class="fas fa-eye"></i> Detail
+            </button>
+
+            <button onclick="openBroadcastModal(\'' . $broadcastUrl . '\', \'' . $nama . '\')" 
+                class="btn btn-sm btn-dark">
+                <i class="fas fa-paper-plane"></i> Broadcast
+            </button>
+        </div>
+    ';
+})
+            ->rawColumns(['aksi'])
+            ->make(true);
+    }
         $activeMenu = 'dashboard';
         return view('dashboard.followup', compact('activeMenu'));
     }
@@ -641,11 +678,24 @@ class DashboardController extends Controller
                 ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
                 ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
                 ->addColumn('aksi', function ($row) {
-                    $url = route('rekap.show_ajax', $row->interaksi_id);
-                    return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-sm btn-primary">
-                        <i class="fas fa-eye"></i> Detail
-                    </button>';
-                })
+    $urlDetail = route('rekap.show_ajax', $row->interaksi_id);
+    $urlBroadcast = route('hold.broadcast.single', $row->customer->customer_kode ?? '');
+    $nama = e($row->customer->customer_nama ?? '-');
+
+    return '
+        <div class="btn-group" role="group">
+            <button onclick="modalAction(\'' . $urlDetail . '\')" 
+                class="btn btn-sm btn-primary">
+                <i class="fas fa-eye"></i> Detail
+            </button>
+
+            <button onclick="openBroadcastModal(\'' . $urlBroadcast . '\', \'' . $nama . '\')" 
+                class="btn btn-sm btn-dark">
+                <i class="fas fa-paper-plane"></i> Broadcast
+            </button>
+        </div>
+    ';
+})
                 ->rawColumns(['aksi'])
                 ->make(true);
         }
@@ -681,128 +731,246 @@ class DashboardController extends Controller
         // Modal konfirmasi broadcast
         return view('broadcast.followup_broadcast');
     }
-    public function sendBroadcast(Request $request)
-    {
-        $tahun = $request->input('tahun', date('Y'));
-        $bulan = $request->input('bulan');
+        public function askBroadcast()
+{
+    return view('broadcast.ask_broadcast');
+}
+public function sendAskSingle(Request $request, $id)
+{
+    $interaksi = InteraksiModel::with('customer')->find($id);
+    if (!$interaksi || !$interaksi->customer) {
+        return response()->json(['status' => 'error', 'message' => 'Customer tidak ditemukan']);
+    }
 
-        $token = env('WABLAS_API_TOKEN', 'rsOFZQEEWNCTK3BRb5vijjQ0xCo59C32OqSh8yYmdhkyPS6cOSx7eZa');
-        $secret = env('WABLAS_SECRET_KEY', 'IXMoblCR'); // kalau ada secret key
+    $customer = $interaksi->customer;
+    $nama = $customer->customer_nama;
 
-        $interaksi = InteraksiAwalModel::with(['interaksi.customer'])
-            ->whereHas('interaksi', function ($q) use ($tahun, $bulan) {
-                $q->whereYear('tanggal_chat', $tahun);
-                if ($bulan) {
-                    $q->whereMonth('tanggal_chat', $bulan);
-                }
-                $q->where('status', 'follow up');
-            })
-            ->get();
+    // Normalisasi nomor HP
+    $nohp = preg_replace('/\D/', '', $customer->customer_nohp);
+    if (substr($nohp, 0, 1) === '0') {
+        $nohp = '62' . substr($nohp, 1);
+    } elseif (substr($nohp, 0, 2) !== '62') {
+        $nohp = '62' . $nohp;
+    }
 
-        foreach ($interaksi as $item) {
-            $customer = $item->interaksi->customer ?? null;
-            if (!$customer || !$customer->customer_nohp) {
-                continue;
-            }
+    $pesan = $request->input('pesan');
+    $token = env('WABLAS_TOKEN');
+    $secret = env('WABLAS_SECRET');
 
-            $nama = $customer->customer_nama;
-            $nohp = $customer->customer_nohp;
+    try {
+       $headers = [
+    'Authorization' => 'Bearer ' . $token
+];
+if ($secret) $headers['Secret'] = $secret;
 
-            // ✅ Normalisasi nomor: ubah 08xxx jadi 62xxx
-            $nohp = preg_replace('/\D/', '', $nohp); // buang non digit
-            $nohp = preg_replace('/^0/', '62', $nohp);
+        $response = Http::withHeaders($headers)->post('https://sby.wablas.com/api/send-message', [
+            'phone'   => $nohp,
+            'message' => $pesan,
+        ]);
 
-            $pesan = "Halo kak {$nama}👋, kami mau follow up terkait katalog & inspirasi desain yang sudah kami kirim kemarin.\n"
-                . "Kalau ada desain atau produk yang kak {$nama} suka, bisa langsung balas ya 🙌. Kalau masih bingung, tim kami siap bantu kasih rekomendasi sesuai kebutuhan.\n\n"
-                . "Kalau mau lanjut, tinggal balas aja:\n"
-                . "✅ Ya — untuk dibantu rekomendasi produk/desain\n"
-                . "❌ Tidak — kalau belum butuh saat ini";
+        $result = $response->json();
+        Log::info("Broadcast ASK -> {$nohp}", $result);
 
-            try {
-                $headers = [
-                    'Authorization' => $token,
-                ];
-                if ($secret) {
-                    $headers['Secret'] = $secret;
-                }
-
-                $response = Http::withHeaders($headers)->post('https://sby.wablas.com/api/send-message', [
-                    'phone'   => $nohp,
-                    'message' => $pesan,
-                ]);
-
-                $result = $response->json();
-                Log::info("WA Broadcast -> {$nohp}", $result);
-
-                if (!isset($result['status']) || $result['status'] !== true) {
-                    Log::error("Gagal kirim ke {$nohp}", $result);
-                }
-
-                sleep(1); // jeda agar tidak dianggap spam
-
-            } catch (\Exception $e) {
-                Log::error("Exception kirim WA ke {$nohp}: " . $e->getMessage());
-            }
+        if (isset($result['status']) && $result['status'] === true) {
+            return response()->json([
+                'status'  => 'success',
+                'message' => "Pesan berhasil dikirim ke {$nama}"
+            ]);
+        } else {
+            $errorMsg = $result['message'] ?? 'Unknown error';
+            return response()->json([
+                'status'  => 'error',
+                'message' => "Gagal mengirim pesan ke {$nama}: {$errorMsg}"
+            ]);
         }
-
+    } catch (\Throwable $e) {
+        Log::error("Exception kirim WA ke {$nohp}: " . $e->getMessage());
         return response()->json([
-            'status'  => 'success',
-            'message' => 'Broadcast berhasil diproses, cek log untuk hasil detail'
+            'status'  => 'error',
+            'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
         ]);
     }
+}
     public function ghostBroadcast()
 {
     return view('broadcast.ghost_broadcast');
 }
-
-// Mengirim broadcast untuk customer GHOST
-public function sendGhostBroadcast()
+public function sendGhostSingle(Request $request, $kode)
 {
-    $token = env('WABLAS_API_TOKEN', 'rsOFZQEEWNCTK3BRb5vijjQ0xCo59C32OqSh8yYmdhkyPS6cOSx7eZa');
-    $secret = env('WABLAS_SECRET_KEY', 'IXMoblCR');
+    // Cari customer berdasarkan kode
+    $customer = CustomersModel::where('customer_kode', $kode)->first();
 
-    // Ambil semua customer dengan status ghost
-    $customers = InteraksiModel::with('customer')->where('status', 'ghost')->get();
-
-    foreach ($customers as $item) {
-        $customer = $item->customer;
-        if (!$customer || !$customer->customer_nohp) {
-            continue;
-        }
-
-        $nama = $customer->customer_nama;
-        $nohp = preg_replace('/^0/', '62', preg_replace('/\D/', '', $customer->customer_nohp));
-
-        $pesan = "Halo kak {$nama}👋, gimana kabarnya hari ini? Semoga sehat selalu ya 🙏\n"
-            . "Beberapa waktu lalu kakak sempat hubungi kami.\n"
-            . "Kalau sekarang lagi belum butuh, nggak apa-apa kak 😊 Tapi kalau masih ada rencana, kami siap bantu kasih katalog & rekomendasi sesuai kebutuhan kakak.";
-
-        try {
-            $headers = ['Authorization' => $token];
-            if ($secret) $headers['Secret'] = $secret;
-
-            $response = Http::withHeaders($headers)->post('https://sby.wablas.com/api/send-message', [
-                'phone' => $nohp,
-                'message' => $pesan,
-            ]);
-
-            $result = $response->json();
-            Log::info("WA Ghost Broadcast -> {$nohp}", $result);
-
-            if (!isset($result['status']) || $result['status'] !== true) {
-                Log::error("Gagal kirim ke {$nohp}", $result);
-            }
-
-            sleep(1); // jeda agar tidak dianggap spam
-
-        } catch (\Exception $e) {
-            Log::error("Exception kirim WA ke {$nohp}: " . $e->getMessage());
-        }
+    if (!$customer) {
+        return response()->json(['status' => 'error', 'message' => 'Customer tidak ditemukan']);
     }
 
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Broadcast GHOST berhasil diproses, cek log untuk detail.'
-    ]);
+    $nama = $customer->customer_nama;
+
+    // Normalisasi nomor HP
+    $nohp = preg_replace('/\D/', '', $customer->customer_nohp);
+    if (substr($nohp, 0, 1) === '0') {
+        $nohp = '62' . substr($nohp, 1);
+    } elseif (substr($nohp, 0, 2) !== '62') {
+        $nohp = '62' . $nohp;
+    }
+
+    $pesan = $request->input('pesan');
+    $token = env('WABLAS_TOKEN');
+    $secret = env('WABLAS_SECRET');
+    $baseUrl = 'https://sby.wablas.com'; // sesuaikan dengan base URL device kamu di Wablas
+
+    try {
+        $headers = [
+            'Authorization' => 'Bearer ' . $token
+        ];
+        if ($secret) $headers['Secret'] = $secret;
+
+        $response = Http::withHeaders($headers)->post($baseUrl . '/api/send-message', [
+            'phone'   => $nohp,
+            'message' => $pesan,
+        ]);
+
+        $result = $response->json();
+        Log::info("Broadcast Ghost -> {$nohp}", $result);
+
+        if (isset($result['status']) && $result['status'] === true) {
+            return response()->json([
+                'status'  => 'success',
+                'message' => "Pesan berhasil dikirim ke {$nama}"
+            ]);
+        } else {
+            $errorMsg = $result['message'] ?? 'Unknown error';
+            return response()->json([
+                'status'  => 'error',
+                'message' => "Gagal mengirim pesan ke {$nama}: {$errorMsg}"
+            ]);
+        }
+    } catch (\Throwable $e) {
+        Log::error("Exception kirim WA ke {$nohp}: " . $e->getMessage());
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
+        ]);
+    }
+}
+        public function askFollowup()
+{
+    return view('broadcast.ask_broadcast');
+}
+public function sendFollowUpSingle(Request $request, $id)
+{
+    $interaksi = InteraksiModel::with('customer')->find($id);
+    if (!$interaksi || !$interaksi->customer) {
+        return response()->json(['status' => 'error', 'message' => 'Customer tidak ditemukan']);
+    }
+
+    $customer = $interaksi->customer;
+    $nama = $customer->customer_nama;
+
+    // Normalisasi nomor HP
+    $nohp = preg_replace('/\D/', '', $customer->customer_nohp);
+    if (substr($nohp, 0, 1) === '0') {
+        $nohp = '62' . substr($nohp, 1);
+    } elseif (substr($nohp, 0, 2) !== '62') {
+        $nohp = '62' . $nohp;
+    }
+
+    $pesan = $request->input('pesan');
+    $token = env('WABLAS_TOKEN');
+    $secret = env('WABLAS_SECRET');
+
+    try {
+       $headers = [
+    'Authorization' => 'Bearer ' . $token
+];
+if ($secret) $headers['Secret'] = $secret;
+
+        $response = Http::withHeaders($headers)->post('https://sby.wablas.com/api/send-message', [
+            'phone'   => $nohp,
+            'message' => $pesan,
+        ]);
+
+        $result = $response->json();
+        Log::info("Broadcast Follow Up -> {$nohp}", $result);
+
+        if (isset($result['status']) && $result['status'] === true) {
+            return response()->json([
+                'status'  => 'success',
+                'message' => "Pesan berhasil dikirim ke {$nama}"
+            ]);
+        } else {
+            $errorMsg = $result['message'] ?? 'Unknown error';
+            return response()->json([
+                'status'  => 'error',
+                'message' => "Gagal mengirim pesan ke {$nama}: {$errorMsg}"
+            ]);
+        }
+    } catch (\Throwable $e) {
+        Log::error("Exception kirim WA ke {$nohp}: " . $e->getMessage());
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
+        ]);
+    }
+}
+        public function askHold()
+{
+    return view('broadcast.ask_broadcast');
+}
+public function sendHoldSingle(Request $request, $id)
+{
+    $interaksi = InteraksiModel::with('customer')->find($id);
+    if (!$interaksi || !$interaksi->customer) {
+        return response()->json(['status' => 'error', 'message' => 'Customer tidak ditemukan']);
+    }
+
+    $customer = $interaksi->customer;
+    $nama = $customer->customer_nama;
+
+    // Normalisasi nomor HP
+    $nohp = preg_replace('/\D/', '', $customer->customer_nohp);
+    if (substr($nohp, 0, 1) === '0') {
+        $nohp = '62' . substr($nohp, 1);
+    } elseif (substr($nohp, 0, 2) !== '62') {
+        $nohp = '62' . $nohp;
+    }
+
+    $pesan = $request->input('pesan');
+    $token = env('WABLAS_TOKEN');
+    $secret = env('WABLAS_SECRET');
+
+    try {
+       $headers = [
+    'Authorization' => 'Bearer ' . $token
+];
+if ($secret) $headers['Secret'] = $secret;
+
+        $response = Http::withHeaders($headers)->post('https://sby.wablas.com/api/send-message', [
+            'phone'   => $nohp,
+            'message' => $pesan,
+        ]);
+
+        $result = $response->json();
+        Log::info("Broadcast Hold -> {$nohp}", $result);
+
+        if (isset($result['status']) && $result['status'] === true) {
+            return response()->json([
+                'status'  => 'success',
+                'message' => "Pesan berhasil dikirim ke {$nama}"
+            ]);
+        } else {
+            $errorMsg = $result['message'] ?? 'Unknown error';
+            return response()->json([
+                'status'  => 'error',
+                'message' => "Gagal mengirim pesan ke {$nama}: {$errorMsg}"
+            ]);
+        }
+    } catch (\Throwable $e) {
+        Log::error("Exception kirim WA ke {$nohp}: " . $e->getMessage());
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
+        ]);
+    }
 }
 }
