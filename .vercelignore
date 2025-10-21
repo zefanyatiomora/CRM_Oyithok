@@ -2,8 +2,5 @@
 # 🧠 GIT / DEVELOPMENT FILES
 # ========================================
 .git
-.idea/
-.vscode/
-tests/
 
 /vendor
