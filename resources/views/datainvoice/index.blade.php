@@ -42,7 +42,7 @@
                                         data-id="{{ $inv->invoice_id }}">
                                         <i class="fas fa-eye fa-sm"></i> Detail
                                     </button>
-                                    <a href="{{ route('invoice.export_pdf', $inv->invoice_id) }}"
+                                    <a href="{{ route('datainvoice.export_pdf', $inv->invoice_id) }}"
                                         class="btn btn-sm btn-danger" target="_blank">
                                         <i class="fas fa-file-pdf fa-sm"></i> PDF
                                     </a>
@@ -148,59 +148,11 @@
                     },
                     // 🔹 Tombol PDF
                     {
-                        extend: 'pdfHtml5',
-                        title: 'Data Invoice',
-                        filename: 'Data_Invoice',
                         text: '<i class="fas fa-file-pdf"></i> PDF',
                         className: 'btn btn-danger btn-sm',
-                        orientation: 'landscape',
-                        pageSize: 'A4',
-                        exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5]
-                        },
-                        customize: function(doc) {
-                            doc.styles.title = {
-                                fontSize: 14,
-                                bold: true,
-                                alignment: 'center',
-                                margin: [0, 0, 0, 15]
-                            };
-                            doc.styles.tableHeader = {
-                                bold: true,
-                                fontSize: 11,
-                                color: 'white',
-                                fillColor: '#8147be',
-                                alignment: 'center'
-                            };
-                            var objLayout = {};
-                            objLayout['hLineWidth'] = function(i) {
-                                return .5;
-                            };
-                            objLayout['vLineWidth'] = function(i) {
-                                return .5;
-                            };
-                            objLayout['hLineColor'] = function(i) {
-                                return '#aaa';
-                            };
-                            objLayout['vLineColor'] = function(i) {
-                                return '#aaa';
-                            };
-                            objLayout['paddingLeft'] = function(i) {
-                                return 4;
-                            };
-                            objLayout['paddingRight'] = function(i) {
-                                return 4;
-                            };
-                            doc.content[1].layout = objLayout;
-                            doc.pageMargins = [40, 60, 40, 40];
-                            doc.footer = function(currentPage, pageCount) {
-                                return {
-                                    text: currentPage.toString() + ' / ' + pageCount,
-                                    alignment: 'center',
-                                    fontSize: 9,
-                                    margin: [0, 10, 0, 0]
-                                };
-                            };
+                        action: function (e, dt, node, config) {
+                            // Mengarahkan ke route yang Anda tentukan
+                            window.location.href="{{ route('datainvoice.export_pdf') }}";
                         }
                     }
                 ]
