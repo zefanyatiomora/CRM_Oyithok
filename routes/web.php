@@ -62,12 +62,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/ghost/broadcast', [DashboardController::class, 'ghostBroadcast'])->name('ghost.broadcast');
     Route::post('/dashboard/ghost/send-broadcast', [DashboardController::class, 'sendGhostBroadcast'])->name('ghost.sendBroadcast');
     // routes/web.php
-    Route::post('/dashboard/ghost/broadcast/{kode}', [DashboardController::class, 'sendGhostSingle'])->name('ghost.broadcast.single');
+Route::post('/dashboard/ghost/broadcast/{kode}', [DashboardController::class, 'sendGhostSingle'])->name('ghost.broadcast.single');
 Route::get('/dashboard/ask', [DashboardController::class, 'ask'])->name('dashboard.ask');
 Route::post('/ask/broadcast/{id}', [DashboardController::class, 'sendAskSingle'])->name('ask.broadcastCustomer');
 Route::get('/dashboard/followup', [DashboardController::class, 'followup'])->name('dashboard.followup');
 Route::post('/followup/broadcast/{id}', [DashboardController::class, 'sendFollowupSingle'])->name('followup.broadcastCustomer');
 Route::post('/broadcast/hold/send/{id}', [DashboardController::class, 'sendHoldSingle'])->name('hold.broadcast.single');
+
 
     //broadcast//
     Route::get('/ask/broadcast', [AskController::class, 'broadcast'])->name('ask.broadcast');
@@ -79,7 +80,6 @@ Route::post('/broadcast/hold/send/{id}', [DashboardController::class, 'sendHoldS
     Route::get('/broadcast/closing', [ClosingController::class, 'broadcast'])->name('broadcast.closing');
     Route::post('/broadcast/closing/send', [ClosingController::class, 'sendBroadcast'])->name('broadcast.sendClosing');
 
-
     //customer//
     Route::post('/customers/list', [CustomersController::class, 'data'])->name('customers.data');
     Route::get('/customers', [CustomersController::class, 'index'])->name('customers.index');
@@ -87,6 +87,9 @@ Route::post('/broadcast/hold/send/{id}', [DashboardController::class, 'sendHoldS
     Route::get('/customers/{id}/edit_ajax', [CustomersController::class, 'edit'])->name('customers.edit_ajax');
     Route::put('/customers/{id}/update', [CustomersController::class, 'update'])->name('customers.update');
     Route::get('/customers/next-code', [CustomersController::class, 'getNextCustomerCode'])->name('customers.nextCode');
+    Route::get('/cek-token', function() {
+    return env('FONNTE_TOKEN');
+});
     //kebutuhan//
     // routes/web.php
     Route::get('/kebutuhan', [KebutuhanController::class, 'index'])->name('kebutuhan.index'); // daftar semua customer
@@ -199,4 +202,10 @@ Route::post('/broadcast/hold/send/{id}', [DashboardController::class, 'sendHoldS
     Route::post('/profil/update_image', [ProfilController::class, 'update_image']);
     Route::post('/profil/update_data_diri', [ProfilController::class, 'update_data_diri']);
     Route::post('/profil/update_password', [ProfilController::class, 'updatePassword']);
+});
+Route::get('/cek-token', function () {
+    return response()->json([
+        'env_value' => env('FONNTE_TOKEN'),
+        'config_value' => config('app.fonnte_token')
+    ]);
 });
