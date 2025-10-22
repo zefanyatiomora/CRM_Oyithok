@@ -7,6 +7,7 @@ use App\Models\KategoriModel;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 class ProdukController extends Controller
@@ -134,52 +135,65 @@ class ProdukController extends Controller
         return redirect('/');
     }
     // Menampilkan form edit produk
-public function edit_ajax(string $id)
-{
-    $produk = ProdukModel::find($id);
-    if (!$produk) {
-        return response()->json(['status' => false, 'message' => 'Produk tidak ditemukan'], 404);
-    }
-    $kategori = KategoriModel::select('kategori_id', 'kategori_nama')->get();
-    return view('produk.edit_ajax', compact('produk', 'kategori'));
-}
-
-// Update produk via AJAX
-public function update_ajax(Request $request, string $id)
-{
-    if ($request->ajax() || $request->wantsJson()) {
-        $rules = [
-            'produk_nama' => 'required|string|max:255',
-            'kategori_id' => 'required|exists:kategoris,kategori_id',
-            'satuan'      => 'required|string|max:50'
-        ];
-
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Validasi Gagal',
-                'msgField' => $validator->errors(),
-            ]);
-        }
-
+    public function edit_ajax(string $id)
+    {
         $produk = ProdukModel::find($id);
         if (!$produk) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Produk tidak ditemukan'
-            ], 404);
+            return response()->json(['status' => false, 'message' => 'Produk tidak ditemukan'], 404);
         }
-
-        $produk->update($request->all());
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Data produk berhasil diupdate'
-        ]);
+        $kategori = KategoriModel::select('kategori_id', 'kategori_nama')->get();
+        return view('produk.edit_ajax', compact('produk', 'kategori'));
     }
-    return redirect('/');
-}
 
+    // Update produk via AJAX
+    public function update_ajax(Request $request, string $id)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'produk_nama' => 'required|string|max:255',
+                'kategori_id' => 'required|exists:kategoris,kategori_id',
+                'satuan'      => 'required|string|max:50'
+            ];
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi Gagal',
+                    'msgField' => $validator->errors(),
+                ]);
+            }
+
+            $produk = ProdukModel::find($id);
+            if (!$produk) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Produk tidak ditemukan'
+                ], 404);
+            }
+
+            $produk->update($request->all());
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Data produk berhasil diupdate'
+            ]);
+        }
+        return redirect('/');
+    }
+    public function export_pdf()
+    {
+        $produk = ProdukModel::select('kategori_id', 'produk_nama', 'satuan')
+            ->orderBy('kategori_id')
+            ->with('kategori')
+            ->get();
+
+        $pdf = Pdf::loadView('produk.export_pdf', ['produk' => $produk]);
+        $pdf->setPaper('a4', 'portrait'); //set ukuran kertas dan orientasi
+        $pdf->setOption("isRemoteEnabled", true); //set true jika ada gambar dari url
+        $pdf->render();
+
+        return $pdf->stream('Data produk ' . date('Y-m-d H:i:s') . 'pdf');
+    }
 }

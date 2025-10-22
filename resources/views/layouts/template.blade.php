@@ -32,6 +32,7 @@
 <!-- Select2 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 
   {{-- Stack tambahan CSS dari child --}}
@@ -131,6 +132,7 @@
 <script src="{{ asset('adminlte/plugins/jquery-validation/additional-methods.min.js') }}"></script>
 <script src="{{ asset('adminlte/plugins/sweetalert2/sweetalert2.min.js')}}"></script>
 <script src="{{ asset('adminlte/dist/js/adminlte.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <script>
   // Tambahkan CSRF token ke semua request ajax

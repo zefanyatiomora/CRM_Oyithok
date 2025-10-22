@@ -114,6 +114,7 @@ Route::post('/broadcast/hold/send/{id}', [DashboardController::class, 'sendHoldS
         Route::get('/{id}/show_ajax', [ProdukController::class, 'show_ajax']);
         Route::get('{id}/edit_ajax', [ProdukController::class, 'edit_ajax']);
         Route::post('{id}/update_ajax', [ProdukController::class, 'update_ajax']);
+        Route::get('/export_pdf', [ProdukController::class, 'export_pdf'])->name('produk.export_pdf');
     });
 
     Route::prefix('rekap')->group(function () {

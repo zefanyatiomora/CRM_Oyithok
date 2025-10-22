@@ -11,12 +11,22 @@
     "APP_ENV": "production",
     "APP_DEBUG": "false",
     "APP_URL": "https://crm-oyithok.vercel.app",
+    "APP_KEY": "base64:o0ZuokXK7FBGW1shJbreB5pR+CMPTx1g+6WnxUNy77E=",
+
+    "DB_CONNECTION": "mysql",
+    "DB_HOST": "hl43zo.h.filess.io",
+    "DB_PORT": "3307",
+    "DB_DATABASE": "crm_oyithok_scaredplus",
+    "DB_USERNAME": "crm_oyithok_scaredplus",
+    "DB_PASSWORD": "6a2037db26ef80926bb490a3dc2f44f1c2839077",
+
     "APP_CONFIG_CACHE": "/tmp/config.php",
     "APP_EVENTS_CACHE": "/tmp/events.php",
     "APP_PACKAGES_CACHE": "/tmp/packages.php",
     "APP_ROUTES_CACHE": "/tmp/routes.php",
     "APP_SERVICES_CACHE": "/tmp/services.php",
     "VIEW_COMPILED_PATH": "/tmp",
+
     "CACHE_DRIVER": "array",
     "LOG_CHANNEL": "stderr",
     "SESSION_DRIVER": "cookie"
