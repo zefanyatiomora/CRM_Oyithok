@@ -7,6 +7,7 @@ use App\Models\InteraksiModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class CustomersController extends Controller
 {
@@ -204,4 +205,19 @@ return response()->json([
 
         return view('customers.confirm', compact('customer'));
     }
+public function export_pdf()
+{
+    // Ambil data customer yang ingin ditampilkan
+    $customers = CustomersModel::select('customer_kode', 'customer_nama', 'customer_nohp', 'customer_alamat', 'informasi_media')
+        ->orderBy('customer_nama', 'asc')
+        ->get();
+
+    // Generate PDF
+    $pdf = Pdf::loadView('customers.export_pdf', ['customers' => $customers])
+        ->setPaper('a4', 'portrait')
+        ->setOption('isRemoteEnabled', true);
+
+    return $pdf->stream('Data Customer ' . date('Y-m-d_H-i-s') . '.pdf');
+}
+
 }

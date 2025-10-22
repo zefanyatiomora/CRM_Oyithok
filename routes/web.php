@@ -87,6 +87,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/customers/{id}/edit_ajax', [CustomersController::class, 'edit'])->name('customers.edit_ajax');
     Route::put('/customers/{id}/update', [CustomersController::class, 'update'])->name('customers.update');
     Route::get('/customers/next-code', [CustomersController::class, 'getNextCustomerCode'])->name('customers.nextCode');
+    Route::get('/export_pdf', [CustomersController::class, 'export_pdf'])->name('customers.export_pdf');
     //kebutuhan//
     // routes/web.php
     Route::get('/kebutuhan', [KebutuhanController::class, 'index'])->name('kebutuhan.index'); // daftar semua customer
