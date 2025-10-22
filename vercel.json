@@ -9,7 +9,7 @@
   ],
   "env": {
     "APP_ENV": "production",
-    "APP_DEBUG": "true",
+    "APP_DEBUG": "false",
     "APP_URL": "https://crm-oyithok.vercel.app",
     "APP_KEY": "base64:o0ZuokXK7FBGW1shJbreB5pR+CMPTx1g+6WnxUNy77E=",
 
