@@ -657,7 +657,6 @@ class DashboardController extends Controller
         $activeMenu = 'dashboard';
         return view('dashboard.followup', compact('activeMenu'));
     }
-
     public function hold(Request $request)
     {
         $query = InteraksiModel::with('customer')->where('status', 'hold');
@@ -743,116 +742,105 @@ class DashboardController extends Controller
             $nohp = '62' . $nohp;
         }
 
-        $pesan = $request->input('pesan');
-        $token = env('WABLAS_TOKEN');
-        $secret_key = env('WABLAS_SECRET');
+    $pesan = $request->input('pesan');
+    $token = env('FONNTE_TOKEN');
 
-        try {
-            $headers = [
-                'Authorization' => 'Bearer ' . $token
-            ];
-            if ($secret_key) $headers['Secret'] = $secret_key;
-
-            $response = Http::withHeaders($headers)->post('https://sby.wablas.com/api/send-message', [
-                'phone'   => $nohp,
-                'message' => $pesan,
-            ]);
+     try {
+        // Kirim request ke API Fonnte
+        $response = Http::withHeaders([
+            'Authorization' => $token, // tanpa "Bearer "
+        ])->asForm()->post('https://api.fonnte.com/send', [
+            'target' => $nohp,
+            'message' => $pesan,
+        ]);
 
             $result = $response->json();
             Log::info("Broadcast ASK -> {$nohp}", $result);
 
-            if (isset($result['status']) && $result['status'] === true) {
-                return response()->json([
-                    'status'  => 'success',
-                    'message' => "Pesan berhasil dikirim ke {$nama}"
-                ]);
-            } else {
-                $errorMsg = $result['message'] ?? 'Unknown error';
-                return response()->json([
-                    'status'  => 'error',
-                    'message' => "Gagal mengirim pesan ke {$nama}: {$errorMsg}"
-                ]);
-            }
-        } catch (\Throwable $e) {
-            Log::error("Exception kirim WA ke {$nohp}: " . $e->getMessage());
+        if (isset($result['status']) && $result['status'] === true) {
             return response()->json([
-                'status'  => 'error',
-                'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
+                'status' => 'success',
+                'message' => "Pesan berhasil dikirim ke {$nama}"
             ]);
-        }
-    }
-    public function ghostBroadcast()
-    {
-        return view('broadcast.ghost_broadcast');
-    }
-    public function sendGhostSingle(Request $request, $kode)
-    {
-        // Cari customer berdasarkan kode
-        $customer = CustomersModel::where('customer_kode', $kode)->first();
-
-        if (!$customer) {
-            return response()->json(['status' => 'error', 'message' => 'Customer tidak ditemukan']);
-        }
-
-        $nama = $customer->customer_nama;
-
-        // Normalisasi nomor HP
-        $nohp = preg_replace('/\D/', '', $customer->customer_nohp);
-        if (substr($nohp, 0, 1) === '0') {
-            $nohp = '62' . substr($nohp, 1);
-        } elseif (substr($nohp, 0, 2) !== '62') {
-            $nohp = '62' . $nohp;
-        }
-
-        $pesan = $request->input('pesan');
-        $token = env('WABLAS_TOKEN');
-        $secret_key = env('WABLAS_SECRET');
-        $baseUrl = 'https://sby.wablas.com'; // sesuaikan dengan base URL device kamu di Wablas
-
-        try {
-            $headers = [
-                'Authorization' => 'Bearer ' . $token
-            ];
-            if ($secret_key) $headers['Secret'] = $secret_key;
-
-            $response = Http::withHeaders($headers)->post($baseUrl . '/api/send-message', [
-                'phone'   => $nohp,
-                'message' => $pesan,
-            ]);
-
-            $result = $response->json();
-            Log::info("Broadcast Ghost -> {$nohp}", $result);
-
-            if (isset($result['status']) && $result['status'] === true) {
-                return response()->json([
-                    'status'  => 'success',
-                    'message' => "Pesan berhasil dikirim ke {$nama}"
-                ]);
-            } else {
-                $errorMsg = $result['message'] ?? 'Unknown error';
-                return response()->json([
-                    'status'  => 'error',
-                    'message' => "Gagal mengirim pesan ke {$nama}: {$errorMsg}"
-                ]);
-            }
-        } catch (\Throwable $e) {
-            Log::error("Exception kirim WA ke {$nohp}: " . $e->getMessage());
+        } else {
+            $errorMsg = $result['reason'] ?? ($result['message'] ?? 'Unknown error');
             return response()->json([
-                'status'  => 'error',
-                'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
+                'status' => 'error',
+                'message' => "Gagal mengirim pesan ke {$nama}: {$errorMsg}"
             ]);
         }
+    } catch (\Throwable $e) {
+        Log::error("Exception kirim WA ke {$nohp}: " . $e->getMessage());
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
+        ]);
     }
-    public function askFollowup()
-    {
-        return view('broadcast.ask_broadcast');
+}
+public function ghostBroadcast()
+{
+    return view('broadcast.ghost_broadcast');
+}
+public function sendGhostSingle(Request $request, $kode)
+{
+    $token = env('FONNTE_TOKEN');
+
+    $customer = CustomersModel::where('customer_kode', $kode)->first();
+
+    if (!$customer) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Customer tidak ditemukan.'
+        ]);
     }
-    public function sendFollowUpSingle(Request $request, $id)
-    {
-        $interaksi = InteraksiModel::with('customer')->find($id);
-        if (!$interaksi || !$interaksi->customer) {
-            return response()->json(['status' => 'error', 'message' => 'Customer tidak ditemukan']);
+    
+    // Format nomor otomatis biar ke format 62...
+    $nohp = preg_replace('/\D/', '', $customer->customer_nohp);
+    if (substr($nohp, 0, 1) === '0') {
+        $nohp = '62' . substr($nohp, 1);
+    } elseif (substr($nohp, 0, 2) !== '62') {
+        $nohp = '62' . $nohp;
+    }
+    $pesan = $request->input('pesan');
+
+    try {
+        $response = Http::withHeaders([
+            'Authorization' => $token
+        ])->asForm()->post('https://api.fonnte.com/send', [
+            'target' => $nohp,
+            'message' => $pesan,
+        ]);
+
+        $result = $response->json();
+
+        if (isset($result['status']) && $result['status'] == true) {
+            return response()->json([
+                'status' => 'success',
+                'message' => "Pesan berhasil dikirim ke {$customer->customer_nama}"
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => "Gagal mengirim pesan ke {$customer->customer_nama}: " . ($result['reason'] ?? 'Tidak diketahui')
+            ]);
         }
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
+        ]);
+    }
+}
+        public function askFollowup()
+{
+    return view('broadcast.ask_broadcast');
+}
+public function sendFollowUpSingle(Request $request, $id)
+{
+    $interaksi = InteraksiModel::with('customer')->find($id);
+    if (!$interaksi || !$interaksi->customer) {
+        return response()->json(['status' => 'error', 'message' => 'Customer tidak ditemukan']);
+    }
 
         $customer = $interaksi->customer;
         $nama = $customer->customer_nama;
