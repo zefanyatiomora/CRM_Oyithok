@@ -66,9 +66,11 @@ Route::post('/dashboard/ghost/broadcast/{kode}', [DashboardController::class, 's
 Route::get('/dashboard/ask', [DashboardController::class, 'ask'])->name('dashboard.ask');
 Route::post('/ask/broadcast/{id}', [DashboardController::class, 'sendAskSingle'])->name('ask.broadcastCustomer');
 Route::get('/dashboard/followup', [DashboardController::class, 'followup'])->name('dashboard.followup');
-Route::post('/followup/broadcast/{id}', [DashboardController::class, 'sendFollowupSingle'])->name('followup.broadcastCustomer');
+Route::post('/followup/broadcast/{id}', [DashboardController::class, 'sendFollowUpSingle'])->name('followup.broadcastCustomer');
 Route::post('/broadcast/hold/send/{id}', [DashboardController::class, 'sendHoldSingle'])->name('hold.broadcast.single');
-
+Route::get('/dashboard/closing', [DashboardController::class, 'closing'])->name('dashboard.closing');
+Route::post('/broadcast/closing/send/{id}', [DashboardController::class, 'sendClosingSingle'])
+    ->name('closing.broadcast.single');
 
     //broadcast//
     Route::get('/ask/broadcast', [AskController::class, 'broadcast'])->name('ask.broadcast');
@@ -87,8 +89,6 @@ Route::post('/broadcast/hold/send/{id}', [DashboardController::class, 'sendHoldS
     Route::get('/customers/{id}/edit_ajax', [CustomersController::class, 'edit'])->name('customers.edit_ajax');
     Route::put('/customers/{id}/update', [CustomersController::class, 'update'])->name('customers.update');
     Route::get('/customers/next-code', [CustomersController::class, 'getNextCustomerCode'])->name('customers.nextCode');
-    Route::get('/cek-token', function() {
-    return env('FONNTE_TOKEN');
 });
     //kebutuhan//
     // routes/web.php
@@ -203,7 +203,6 @@ Route::post('/broadcast/hold/send/{id}', [DashboardController::class, 'sendHoldS
     Route::post('/profil/update_image', [ProfilController::class, 'update_image']);
     Route::post('/profil/update_data_diri', [ProfilController::class, 'update_data_diri']);
     Route::post('/profil/update_password', [ProfilController::class, 'updatePassword']);
-});
 Route::get('/cek-token', function () {
     return response()->json([
         'env_value' => env('FONNTE_TOKEN'),
