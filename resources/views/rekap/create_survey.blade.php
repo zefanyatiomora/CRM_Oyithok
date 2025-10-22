@@ -15,12 +15,13 @@
         <label>Jadwal Survey</label>
         <div class="input-group mb-2">
             <input type="text" class="form-control" id="jadwal_survey" name="jadwal_survey"
-                placeholder="dd-mm-yyyy, hh:mm WIB"
-                value="{{ old('jadwal_survey', \Carbon\Carbon::now()->format('d-m-Y, H:i')) . ' WIB' }}" required>
+                placeholder="Pilih tanggal dan waktu..." required>
+            <div class="input-group-append">
+                <span class="input-group-text">WIB</span>
+            </div>
         </div>
         <small id="error-jadwal" class="text-danger"></small>
     </div>
-
     <!-- Alamat Survey -->
     <div class="form-group">
         <label>Alamat Survey</label>
@@ -33,31 +34,28 @@
 </form>
 
 <script>
+$(function() {
+    // 1. Inisialisasi Flatpickr pada input jadwal survey
+    flatpickr("#jadwal_survey", {
+        enableTime: true,           // Mengaktifkan pilihan waktu
+        dateFormat: "Y-m-d H:i:S",  // Format yang dikirim ke server (database)
+        altInput: true,             // Membuat input visual yang berbeda untuk pengguna
+        altFormat: "d-m-Y, H:i",    // Format yang dilihat oleh pengguna (dd-mm-yyyy, hh:mm)
+        time_24hr: true,            // Menggunakan format waktu 24 jam
+        defaultDate: new Date(),    // Default tanggal dan waktu saat ini
+        minuteIncrement: 1,
+    });
+
+    // 2. Submit form menggunakan AJAX
     $("#form-create-survey").submit(function(e) {
         e.preventDefault();
 
         let formData = new FormData(this);
         formData.append("interaksi_id", $("#interaksi_id").val());
 
-        // Ambil dan ubah format tanggal (d-m-Y, H:i WIB -> Y-m-d H:i:s)
-        let tglInput = $("#jadwal_survey").val().trim();
-
-        if (tglInput) {
-            // Pisahkan tanggal dan waktu menggunakan koma
-            let [tgl, waktu] = tglInput.split(',');
-            if (tgl && waktu) {
-                tgl = tgl.trim(); // contoh: "15-10-2025"
-                waktu = waktu.replace('WIB', '').trim(); // contoh: "14:30"
-
-                // Pecah tanggal
-                let [d, m, y] = tgl.split('-');
-
-                // Format ke MySQL datetime (Y-m-d H:i:s)
-                let iso = `${y}-${m}-${d} ${waktu}:00`;
-
-                formData.set("jadwal_survey", iso);
-            }
-        }
+        // TIDAK PERLU LAGI PARSING TANGGAL MANUAL!
+        // Flatpickr sudah otomatis menyimpan format yang benar (Y-m-d H:i:s)
+        // di input `jadwal_survey` yang asli.
 
         $.ajax({
             url: "{{ route('survey.store') }}",
@@ -69,11 +67,12 @@
                 if (res.status === 'success') {
                     toastr.success(res.message || 'Survey berhasil disimpan');
                     $("#crudModal").modal('hide');
-                    $("#survey-tabel-body").html(res.html);
+                    if (res.html) {
+                        $("#survey-tabel-body").html(res.html);
+                    }
                     $("a[title='Tambah Survey']").hide();
                 } else {
-                    Swal.fire("Gagal", res.message || "Terjadi kesalahan saat menyimpan data.",
-                        "error");
+                    Swal.fire("Gagal", res.message || "Terjadi kesalahan.", "error");
                 }
             },
             error: function(xhr) {
@@ -87,4 +86,5 @@
             }
         });
     });
+});
 </script>

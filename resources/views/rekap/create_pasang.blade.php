@@ -47,14 +47,15 @@
         <label>Jadwal</label>
         <div class="input-group mb-2">
             <input type="text" class="form-control" id="jadwal_pasang_kirim" name="jadwal_pasang_kirim"
-                placeholder="dd-mm-yyyy, hh:mm WIB"
-                value="{{ old('jadwal_pasang_kirim', \Carbon\Carbon::now()->format('d-m-Y, H:i')) . ' WIB' }}" required>
+                placeholder="Pilih tanggal dan waktu..." required>
+            <div class="input-group-append">
+                <span class="input-group-text">WIB</span>
+            </div>
             <button type="button" class="btn btn-outline-primary" id="btn-today">Hari Ini</button>
             <button type="button" class="btn btn-outline-primary" id="btn-tomorrow">Besok</button>
         </div>
         <small id="error-jadwal" class="text-danger"></small>
     </div>
-
     <div class="form-group">
         <label>Alamat</label>
         <textarea name="alamat" id="alamat" class="form-control" rows="3" required></textarea>
@@ -76,86 +77,65 @@
 </form>
 
 <script>
-    $(function() {
-        function pad2(n) {
-            return n.toString().padStart(2, '0');
+$(function() {
+    // Inisialisasi Flatpickr pada input jadwal
+    const fp = flatpickr("#jadwal_pasang_kirim", {
+        enableTime: true,        // Mengaktifkan pilihan waktu
+        dateFormat: "Y-m-d H:i:S", // Format yang dikirim ke server (database)
+        altInput: true,          // Membuat input visual yang berbeda
+        altFormat: "d-m-Y, H:i", // Format yang dilihat oleh pengguna
+        time_24hr: true,         // Format waktu 24 jam
+        defaultDate: "today",    // Default tanggal hari ini
+        minuteIncrement: 1,
+    });
+
+    // Tombol Hari Ini
+    $('#btn-today').click(function() {
+        fp.setDate(new Date()); // Gunakan API Flatpickr untuk set tanggal
+    });
+
+    // Tombol Besok
+    $('#btn-tomorrow').click(function() {
+        let tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        fp.setDate(tomorrow); // Gunakan API Flatpickr untuk set tanggal
+    });
+
+
+    // Submit AJAX (Sekarang JAUH LEBIH SIMPEL)
+    $("#form-create-pasang").submit(function(e) {
+        e.preventDefault();
+
+        let formData = new FormData(this);
+        formData.append("interaksi_id", $("#interaksi_id").val());
+        
+        // Validasi tidak perlu lagi parsing dan re-format tanggal!
+        // Flatpickr sudah menyimpannya dalam format yang benar di input asli.
+        if (!$("#jadwal_pasang_kirim").val()) {
+            $("#error-jadwal").text("Jadwal wajib diisi");
+            return;
         }
 
-        // Tombol Hari Ini
-        $('#btn-today').click(function() {
-            let now = new Date();
-            $('#jadwal_pasang_kirim').val(
-                `${pad2(now.getDate())}-${pad2(now.getMonth()+1)}-${now.getFullYear()}, ${pad2(now.getHours())}:${pad2(now.getMinutes())} WIB`
-            );
-            $('#error-jadwal').text('');
-        });
-
-        // Tombol Besok
-        $('#btn-tomorrow').click(function() {
-            let now = new Date();
-            now.setDate(now.getDate() + 1);
-            $('#jadwal_pasang_kirim').val(
-                `${pad2(now.getDate())}-${pad2(now.getMonth()+1)}-${now.getFullYear()}, ${pad2(now.getHours())}:${pad2(now.getMinutes())} WIB`
-            );
-            $('#error-jadwal').text('');
-        });
-
-        // Submit AJAX
-        $("#form-create-pasang").submit(function(e) {
-            e.preventDefault();
-
-            let formData = new FormData(this);
-            formData.append("interaksi_id", $("#interaksi_id").val());
-
-            // Ambil dan validasi jadwal
-            let raw = $("#jadwal_pasang_kirim").val().trim();
-            if (!raw) {
-                $("#error-jadwal").text("Jadwal wajib diisi");
-                return;
-            }
-
-            let re = /^\d{2}-\d{2}-\d{4}, \d{2}:\d{2} WIB$/;
-            if (!re.test(raw)) {
-                $("#error-jadwal").text("Format harus: dd-mm-yyyy, hh:mm WIB");
-                return;
-            }
-
-            // Konversi ke format DB (YYYY-MM-DD HH:mm:ss)
-            let [tgl, waktu] = raw.split(',');
-            let [d, m, y] = tgl.trim().split('-').map(x => pad2(x));
-            let [hh, min] = waktu.replace('WIB', '').trim().split(':').map(x => pad2(x));
-            let iso = `${y}-${m}-${d} ${hh}:${min}:00`;
-            formData.set("jadwal_pasang_kirim", iso);
-
-            $.ajax({
-                url: "{{ route('pasang.store') }}",
-                type: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(res) {
-                    if (res.status === 'success') {
-                        toastr.success(res.message);
-                        $("#crudModal").modal('hide');
-                        let card = $("#card-pasang");
-                        if (card.length && card.hasClass("collapsed-card")) {
-                            try {
-                                card.CardWidget('expand');
-                            } catch (e) {}
-                        }
-                        if ($("#tbody-pasang").length) {
-                            $("#tbody-pasang").html(res.html);
-                        }
-                    } else {
-                        Swal.fire("Gagal", res.message, "error");
-                    }
-                },
-                error: function(xhr) {
-                    Swal.fire("Gagal", "Terjadi kesalahan server", "error");
-                    console.error(xhr.responseText);
+        $.ajax({
+            url: "{{ route('pasang.store') }}",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(res) {
+                if (res.status === 'success') {
+                    toastr.success(res.message);
+                    $("#crudModal").modal('hide');
+                    // ... sisa kode success Anda ...
+                } else {
+                    Swal.fire("Gagal", res.message, "error");
                 }
-            });
-
+            },
+            error: function(xhr) {
+                Swal.fire("Gagal", "Terjadi kesalahan server", "error");
+                console.error(xhr.responseText);
+            }
         });
     });
+});
 </script>

@@ -63,11 +63,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/dashboard/ghost/send-broadcast', [DashboardController::class, 'sendGhostBroadcast'])->name('ghost.sendBroadcast');
     // routes/web.php
     Route::post('/dashboard/ghost/broadcast/{kode}', [DashboardController::class, 'sendGhostSingle'])->name('ghost.broadcast.single');
-Route::get('/dashboard/ask', [DashboardController::class, 'ask'])->name('dashboard.ask');
-Route::post('/ask/broadcast/{id}', [DashboardController::class, 'sendAskSingle'])->name('ask.broadcastCustomer');
-Route::get('/dashboard/followup', [DashboardController::class, 'followup'])->name('dashboard.followup');
-Route::post('/followup/broadcast/{id}', [DashboardController::class, 'sendFollowupSingle'])->name('followup.broadcastCustomer');
-Route::post('/broadcast/hold/send/{id}', [DashboardController::class, 'sendHoldSingle'])->name('hold.broadcast.single');
+    Route::get('/dashboard/ask', [DashboardController::class, 'ask'])->name('dashboard.ask');
+    Route::post('/ask/broadcast/{id}', [DashboardController::class, 'sendAskSingle'])->name('ask.broadcastCustomer');
+    Route::get('/dashboard/followup', [DashboardController::class, 'followup'])->name('dashboard.followup');
+    Route::post('/followup/broadcast/{id}', [DashboardController::class, 'sendFollowupSingle'])->name('followup.broadcastCustomer');
+    Route::post('/broadcast/hold/send/{id}', [DashboardController::class, 'sendHoldSingle'])->name('hold.broadcast.single');
 
     //broadcast//
     Route::get('/ask/broadcast', [AskController::class, 'broadcast'])->name('ask.broadcast');
@@ -111,6 +111,7 @@ Route::post('/broadcast/hold/send/{id}', [DashboardController::class, 'sendHoldS
         Route::get('/{id}/show_ajax', [ProdukController::class, 'show_ajax']);
         Route::get('{id}/edit_ajax', [ProdukController::class, 'edit_ajax']);
         Route::post('{id}/update_ajax', [ProdukController::class, 'update_ajax']);
+        Route::get('/export_pdf', [ProdukController::class, 'export_pdf'])->name('produk.export_pdf');
     });
 
     Route::prefix('rekap')->group(function () {
