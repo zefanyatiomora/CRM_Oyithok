@@ -168,6 +168,7 @@ class DashboardController extends Controller
         ];
 
         $rateClosing = $this->getRateClosingData($tahun, $bulan ?? date('m'));
+        $kategoriMingguan = $this->getKategoriMingguanData($tahun, $bulan);
 
         // -------------------------
         // KIRIM KE VIEW
@@ -175,7 +176,7 @@ class DashboardController extends Controller
         //   => sengaja kita kirim sebagai GLOBAL COUNTS (tidak terfilter) untuk card status
         // - customerDoughnut* => data yang terfilter untuk chart doughnut
         // -------------------------
-        return view('dashboard.index', [
+        $viewData = [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
@@ -224,7 +225,17 @@ class DashboardController extends Controller
 
             'rateClosingLabels' => $rateClosing['rateClosingLabels'],
             'rateClosingDatasets' => $rateClosing['rateClosingDatasets'],
-        ]);
+            // TAMBAHKAN DATA BARU INI UNTUK VIEW
+            'kategoriMingguanLabels' => $kategoriMingguan['labels'],
+            'kategoriMingguanCounts' => $kategoriMingguan['counts'],
+            'kategoriMingguanNames' => $kategoriMingguan['kategoriNames'],
+            'kategoriMingguanColors' => $kategoriMingguan['kategoriColors'],
+            'kategoriMingguanMaxY' => $kategoriMingguan['maxYAxis'],
+        ];
+        Log::info('DEBUG INDEX: Data final yang dikirim ke view', $viewData);
+        // ================================================================
+
+        return view('dashboard.index', $viewData);
     }
 
     // ===========================
@@ -383,6 +394,101 @@ class DashboardController extends Controller
             'customerDoughnutColors' => ['#9a9d9eff', '#87CEEB', '#A374FF', '#5C54AD', '#FF7373'],
         ];
     }
+
+    private function getKategoriMingguanData($tahun, $bulan)
+    {
+        if (!$bulan) {
+            return ['labels' => [], 'counts' => [], 'kategoriNames' => [], 'kategoriColors' => []];
+        }
+
+        $startOfMonth = Carbon::create($tahun, $bulan, 1);
+        $endOfMonth   = $startOfMonth->copy()->endOfMonth();
+
+        $weeks = [];
+        $current = $startOfMonth->copy()->startOfWeek(Carbon::MONDAY);
+        while ($current <= $endOfMonth) {
+            $weeks[] = [
+                'start' => $current->copy(),
+                'end'   => $current->copy()->endOfWeek(Carbon::SUNDAY),
+            ];
+            $current->addWeek();
+        }
+
+        // -- PERUBAHAN 1: Gunakan palet warna yang Anda berikan --
+        $colorPalette = ['#5C54AD', '#6690FF', '#A374FF', '#FF7373', '#A26360', '#D4A29C', '#E8B298', '#C6A0D4', '#BDE1B3', '#8DD6E2'];
+        #6690ff
+        $categoryColorMap = [];
+        $colorIndex = 0;
+
+        $topKategoriPerMinggu = [];
+
+        foreach ($weeks as $week) {
+            $startDate = $week['start'];
+            $endDate   = $week['end'];
+
+            $topKategori = InteraksiAwalModel::query() // <-- Tanpa '\'
+                ->whereHas('interaksi', function ($query) use ($startDate, $endDate) {
+                    $query->whereBetween('tanggal_chat', [$startDate, $endDate]);
+                })
+                ->select('kategori_nama', DB::raw('COUNT(*) as total')) // <-- Tanpa '\'
+                ->groupBy('kategori_nama')
+                ->orderBy('total', 'desc')
+                ->first();
+
+            if ($topKategori) {
+                $kategoriNama = $topKategori->kategori_nama;
+
+                if (!isset($categoryColorMap[$kategoriNama])) {
+                    $categoryColorMap[$kategoriNama] = $colorPalette[$colorIndex % count($colorPalette)];
+                    $colorIndex++;
+                }
+
+                $topKategoriPerMinggu[] = [
+                    'nama'  => $kategoriNama,
+                    'total' => $topKategori->total,
+                    'color' => $categoryColorMap[$kategoriNama]
+                ];
+            } else {
+                $topKategoriPerMinggu[] = [
+                    'nama'  => 'Tidak ada data',
+                    'total' => 0,
+                    'color' => '#E0E0E0'
+                ];
+            }
+        }
+
+        $chartLabels = [];
+        $chartCounts = [];
+        $chartKategoriNames = [];
+        $chartKategoriColors = [];
+
+        foreach ($topKategoriPerMinggu as $i => $data) {
+            $chartLabels[] = "Minggu " . ($i + 1);
+            $chartCounts[] = $data['total'];
+            $chartKategoriNames[] = $data['nama'];
+            $chartKategoriColors[] = $data['color'];
+        }
+        // 1. Cari nilai tertinggi dari data
+        $maxCount = !empty($chartCounts) ? max($chartCounts) : 0;
+
+        // 2. Tentukan batas atas Y-axis.
+        // Jika max count < 5, kita set batas atas 5 agar chart tidak terlalu pendek.
+        // Jika lebih, kita tambah 1 (atau lebih) agar ada ruang di atas bar.
+        $maxYAxis = $maxCount < 5 ? 5 : $maxCount + ceil($maxCount * 0.2);
+
+        $returnData = [
+            'labels'         => $chartLabels,
+            'counts'         => $chartCounts,
+            'kategoriNames'  => $chartKategoriNames,
+            'kategoriColors' => $chartKategoriColors,
+            'maxYAxis'       => $maxYAxis,
+        ];
+        Log::info('DEBUG CHART: Data yang dikirim ke view', $returnData);
+
+        return $returnData;
+    }
+
+    // ... (sisa method di controller Anda)
     public function askIndex(Request $request)
     {
         $tahun = $request->get('tahun');
@@ -742,105 +848,105 @@ class DashboardController extends Controller
             $nohp = '62' . $nohp;
         }
 
-    $pesan = $request->input('pesan');
-    $token = env('FONNTE_TOKEN');
+        $pesan = $request->input('pesan');
+        $token = env('FONNTE_TOKEN');
 
-     try {
-        // Kirim request ke API Fonnte
-        $response = Http::withHeaders([
-            'Authorization' => $token, // tanpa "Bearer "
-        ])->asForm()->post('https://api.fonnte.com/send', [
-            'target' => $nohp,
-            'message' => $pesan,
-        ]);
+        try {
+            // Kirim request ke API Fonnte
+            $response = Http::withHeaders([
+                'Authorization' => $token, // tanpa "Bearer "
+            ])->asForm()->post('https://api.fonnte.com/send', [
+                'target' => $nohp,
+                'message' => $pesan,
+            ]);
 
             $result = $response->json();
             Log::info("Broadcast ASK -> {$nohp}", $result);
 
-        if (isset($result['status']) && $result['status'] === true) {
-            return response()->json([
-                'status' => 'success',
-                'message' => "Pesan berhasil dikirim ke {$nama}"
-            ]);
-        } else {
-            $errorMsg = $result['reason'] ?? ($result['message'] ?? 'Unknown error');
-            return response()->json([
-                'status' => 'error',
-                'message' => "Gagal mengirim pesan ke {$nama}: {$errorMsg}"
-            ]);
-        }
-    } catch (\Throwable $e) {
-        Log::error("Exception kirim WA ke {$nohp}: " . $e->getMessage());
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
-        ]);
-    }
-}
-public function ghostBroadcast()
-{
-    return view('broadcast.ghost_broadcast');
-}
-public function sendGhostSingle(Request $request, $kode)
-{
-    $token = env('FONNTE_TOKEN');
-
-    $customer = CustomersModel::where('customer_kode', $kode)->first();
-
-    if (!$customer) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Customer tidak ditemukan.'
-        ]);
-    }
-    
-    // Format nomor otomatis biar ke format 62...
-    $nohp = preg_replace('/\D/', '', $customer->customer_nohp);
-    if (substr($nohp, 0, 1) === '0') {
-        $nohp = '62' . substr($nohp, 1);
-    } elseif (substr($nohp, 0, 2) !== '62') {
-        $nohp = '62' . $nohp;
-    }
-    $pesan = $request->input('pesan');
-
-    try {
-        $response = Http::withHeaders([
-            'Authorization' => $token
-        ])->asForm()->post('https://api.fonnte.com/send', [
-            'target' => $nohp,
-            'message' => $pesan,
-        ]);
-
-        $result = $response->json();
-
-        if (isset($result['status']) && $result['status'] == true) {
-            return response()->json([
-                'status' => 'success',
-                'message' => "Pesan berhasil dikirim ke {$customer->customer_nama}"
-            ]);
-        } else {
+            if (isset($result['status']) && $result['status'] === true) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => "Pesan berhasil dikirim ke {$nama}"
+                ]);
+            } else {
+                $errorMsg = $result['reason'] ?? ($result['message'] ?? 'Unknown error');
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Gagal mengirim pesan ke {$nama}: {$errorMsg}"
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::error("Exception kirim WA ke {$nohp}: " . $e->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => "Gagal mengirim pesan ke {$customer->customer_nama}: " . ($result['reason'] ?? 'Tidak diketahui')
+                'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
             ]);
         }
-    } catch (\Throwable $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
-        ]);
     }
-}
-        public function askFollowup()
-{
-    return view('broadcast.ask_broadcast');
-}
-public function sendFollowUpSingle(Request $request, $id)
-{
-    $interaksi = InteraksiModel::with('customer')->find($id);
-    if (!$interaksi || !$interaksi->customer) {
-        return response()->json(['status' => 'error', 'message' => 'Customer tidak ditemukan']);
+    public function ghostBroadcast()
+    {
+        return view('broadcast.ghost_broadcast');
     }
+    public function sendGhostSingle(Request $request, $kode)
+    {
+        $token = env('FONNTE_TOKEN');
+
+        $customer = CustomersModel::where('customer_kode', $kode)->first();
+
+        if (!$customer) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Customer tidak ditemukan.'
+            ]);
+        }
+
+        // Format nomor otomatis biar ke format 62...
+        $nohp = preg_replace('/\D/', '', $customer->customer_nohp);
+        if (substr($nohp, 0, 1) === '0') {
+            $nohp = '62' . substr($nohp, 1);
+        } elseif (substr($nohp, 0, 2) !== '62') {
+            $nohp = '62' . $nohp;
+        }
+        $pesan = $request->input('pesan');
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => $token
+            ])->asForm()->post('https://api.fonnte.com/send', [
+                'target' => $nohp,
+                'message' => $pesan,
+            ]);
+
+            $result = $response->json();
+
+            if (isset($result['status']) && $result['status'] == true) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => "Pesan berhasil dikirim ke {$customer->customer_nama}"
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Gagal mengirim pesan ke {$customer->customer_nama}: " . ($result['reason'] ?? 'Tidak diketahui')
+                ]);
+            }
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
+            ]);
+        }
+    }
+    public function askFollowup()
+    {
+        return view('broadcast.ask_broadcast');
+    }
+    public function sendFollowUpSingle(Request $request, $id)
+    {
+        $interaksi = InteraksiModel::with('customer')->find($id);
+        if (!$interaksi || !$interaksi->customer) {
+            return response()->json(['status' => 'error', 'message' => 'Customer tidak ditemukan']);
+        }
 
         $customer = $interaksi->customer;
         $nama = $customer->customer_nama;
