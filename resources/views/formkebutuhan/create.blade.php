@@ -220,10 +220,12 @@ function updateCustomerCodeFromDate() {
     $(document).on('click', '#customer_list .list-group-item', function(e) {
         e.preventDefault();
         if ($(this).hasClass('disabled')) return;
+        // Ambil data nohp dengan aman
+        let nohp = String($(this).data('nohp') || '');
         $('#customer_id').val($(this).data('id'));
         $('#customer_nama').val($(this).data('nama'));
         $('#customer_kode').val($(this).data('kode'));
-        $('#customer_nohp').val($(this).data('nohp').replace(/\D/g, '').replace(/^0/, ''));
+        $('#customer_nohp').val(nohp.replace(/\D/g, '').replace(/^0/, ''));        
         $('#customer_alamat').val($(this).data('alamat'));
         $('#informasi_media').val($(this).data('media')).trigger('change');
         $('#customer_list').hide();

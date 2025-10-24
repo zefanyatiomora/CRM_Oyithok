@@ -329,57 +329,80 @@ $(function () {
 @endpush
         {{-- Baris BARU untuk menyejajarkan kedua chart --}}
        <div class="row mt-3">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title font-weight-bold" 
-                    style="color: #5C54AD;"
-                    data-bs-toggle="tooltip"
-                    title="Diagram menunjukkan perolehan data penjualan setiap kategori produk">
-                    Data Penjualan
-                </h3>
-                <div style="height: 300px;">
-                    <canvas id="penjualanChart"></canvas>
-                </div>
-            </div>
-            <div class="card-footer">
-                <div id="penjualanChartLegend" class="row">
-                    {{-- Loop melalui setiap label untuk membuat legend --}}
-                    @foreach ($doughnutLabels as $index => $label)
-                        <div class="col-md-4 col-6 mb-2 d-flex align-items-center">
-                            {{-- Kotak Warna --}}
-                            <span class="d-inline-block me-2" 
-                                style="width: 12px; height: 12px; background-color: {{ $doughnutColors[$index] }}; border-radius:3px; margin-right: 5px;">
-                            </span>
-                            
-                            {{-- Nama Label/Kategori --}}
-                            <span class="fw-bold" style="font-size: 0.7rem;">
-                                {{ $label }}
-                            </span>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title font-weight-bold" 
+                            style="color: #5C54AD;"
+                            data-bs-toggle="tooltip"
+                            title="Diagram menunjukkan perolehan data penjualan setiap kategori produk">
+                            Data Penjualan
+                        </h3>
+                        <div style="height: 300px;">
+                            <canvas id="penjualanChart"></canvas>
                         </div>
-                    @endforeach
+                    </div>
+                    <div class="card-footer">
+                        <div id="penjualanChartLegend" class="row">
+                            {{-- Loop melalui setiap label untuk membuat legend --}}
+                            @foreach ($doughnutLabels as $index => $label)
+                                <div class="col-md-4 col-6 mb-2 d-flex align-items-center">
+                                    {{-- Kotak Warna --}}
+                                    <span class="d-inline-block me-2" 
+                                        style="width: 12px; height: 12px; background-color: {{ $doughnutColors[$index] }}; border-radius:3px; margin-right: 5px;">
+                                    </span>
+                                    
+                                    {{-- Nama Label/Kategori --}}
+                                    <span class="fw-bold" style="font-size: 0.7rem;">
+                                        {{ $label }}
+                                    </span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <p class="text-muted mb-2">
-        > Diagram dibawah adalah perolehan data setiap produk yang telah teridentifikasi.
-    </p>
-        <div class="card">
-            <div class="card-header bg-white border-0">
-                <h3 class="card-title font-weight-bold">
-                    Data per-Produk
-                </h3>
-            </div>
-            <div class="card-body">
-                <div style="height: 350px;">
-                    <canvas id="produkChart"></canvas>
+            <div class="col-md-6">
+                <p class="text-muted mb-2">> Diagram dibawah adalah perolehan data setiap produk yang telah teridentifikasi.</p>
+                <div class="card">
+                    <div class="card-header bg-white border-0">
+                        <h3 class="card-title font-weight-bold">
+                            Data per-Produk
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="height: 350px;">
+                            <canvas id="produkChart"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
        </div>
+       {{-- BARIS BARU UNTUK DIAGRAM MINGGUAN --}}
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title font-weight-bold">
+                            <i class="fas fa-tags mr-1"></i>
+                            Kategori Paling Banyak Dicari per Minggu
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart">
+                            {{-- Cek jika filter bulan sudah dipilih untuk menampilkan chart --}}
+                            @if($bulan)
+                                <canvas id="kategoriMingguanChart" style="min-height: 250px; height: 300px; max-height: 350px; max-width: 100%;"></canvas>
+                            @else
+                                <p class="text-center text-muted py-5">
+                                    Silakan pilih filter bulan untuk menampilkan diagram tren mingguan.
+                                </p>
+                            @endif
+                        </div>
+                    </div>
+                    </div>
+                </div>
+        </div>
     </div>
 </div>
 </div>
@@ -726,6 +749,90 @@ if (rateClosingCanvas) {
                         }
                     });
                 }
+                // --- 3. Render Chart Kategori Mingguan ---
+                // Logika untuk chart mingguan dipindahkan ke sini
+                // --- Render Chart Kategori Mingguan ---
+                @if ($bulan && !empty($kategoriMingguanLabels))
+                    const kategoriMingguanCanvas = document.getElementById('kategoriMingguanChart');
+                    if (kategoriMingguanCanvas && !Chart.getChart(kategoriMingguanCanvas)) {
+                        
+                        const kategoriMingguanLabels = {!! json_encode($kategoriMingguanLabels) !!};
+                        const kategoriMingguanCounts = {!! json_encode($kategoriMingguanCounts) !!};
+                        const kategoriMingguanNames = {!! json_encode($kategoriMingguanNames) !!};
+                        const kategoriMingguanColors = {!! json_encode($kategoriMingguanColors) !!};
+                        const kategoriMingguanMaxY = {!! json_encode($kategoriMingguanMaxY) !!};
+
+                        new Chart(kategoriMingguanCanvas, {
+                            type: 'bar',
+                            data: {
+                                labels: kategoriMingguanLabels,
+                                datasets: [{
+                                    label: 'Jumlah Dicari',
+                                    data: kategoriMingguanCounts,
+                                    backgroundColor: kategoriMingguanColors, 
+                                    borderColor: kategoriMingguanColors,
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        max: kategoriMingguanMaxY,
+                                        ticks: {
+                                            precision: 0,
+                                            stepSize: 1
+                                        }
+                                    },
+                                    x: {
+                                        grid: {
+                                            display: false
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    legend: { display: false },
+                                    tooltip: {
+                                        enabled: true,
+                                        backgroundColor: '#242a39',
+                                        titleFont: { size: 14, weight: 'bold' },
+                                        bodyFont: { size: 12 },
+                                        displayColors: false, // Sembunyikan kotak warna di tooltip
+                                        callbacks: {
+                                            // Kosongkan title agar tidak menampilkan "Minggu X"
+                                            title: function() {
+                                                return '';
+                                            },
+                                            // Format isi dari tooltip
+                                            label: function(context) {
+                                                const namaKategori = kategoriMingguanNames[context.dataIndex];
+                                                const jumlah = context.parsed.y;
+                                                if (namaKategori === 'Tidak ada data') {
+                                                    return 'Tidak ada data';
+                                                }
+                                                return `${namaKategori}: ${jumlah} kali dicari`;
+                                            }
+                                        }
+                                    },
+                                    datalabels: {
+                                        display: context => context.dataset.data[context.dataIndex] > 0,
+                                        anchor: 'end',
+                                        align: 'top',
+                                        color: '#444',
+                                        font: {
+                                            weight: 'bold',
+                                            size: 11,
+                                        },
+                                        formatter: (value, context) => {
+                                            return kategoriMingguanNames[context.dataIndex];
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                @endif
             }
 
             // Event listener yang HANYA memanggil satu fungsi render di atas
