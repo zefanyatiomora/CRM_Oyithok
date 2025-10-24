@@ -110,18 +110,32 @@ $('#broadcastForm').on('submit', function (e) {
         }
     });
 });
-    $(document).ready(function () {
-        $('#table-interaksi-ghost').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: "{{ route('dashboard.ghost') }}", // route untuk data interaksi status GHOST
-            columns: [
-                { data: 'DT_RowIndex', name: 'DT_RowIndex', className: 'text-center', orderable: false, searchable: false },
-                { data: 'customer_kode', name: 'customer_kode' },
-                { data: 'customer_nama', name: 'customer_nama' },
-                { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'text-center' }
-            ]
-        });
+
+$(document).ready(function () {
+    const tableGhost = $('#table-interaksi-ghost').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '{{ route("dashboard.ghost") }}',
+            data: function (d) {
+                // Pastikan filter ini ADA dan BERUBAH saat filter di dashboard diubah
+                d.bulan = $('#filter-bulan').val();
+                d.tahun = $('#filter-tahun').val();
+            }
+        },
+        columns: [
+            {data: 'DT_RowIndex', name: 'DT_RowIndex', className: 'text-center', orderable: false, searchable: false},
+            {data: 'customer_kode', name: 'customer_kode'},
+            {data: 'customer_nama', name: 'customer_nama'},
+            {data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'text-center'}
+        ]
     });
+
+    // refresh otomatis saat filter bulan/tahun diubah
+    $(document).on('change', '#filter-bulan, #filter-tahun', function () {
+        console.log('Filter berubah:', $('#filter-bulan').val(), $('#filter-tahun').val());
+        tableGhost.ajax.reload();
+    });
+});
 </script>
 @endpush
