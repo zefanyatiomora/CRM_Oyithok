@@ -48,4 +48,25 @@ class DataInvoiceController extends Controller
         'html'   => $html
     ]);
 }
+    public function export_pdf()
+    {
+        $invoices = InvoiceModel::select(
+                'pesanan_masuk',
+                'nomor_invoice',
+                'customer_invoice',
+                'total_akhir',
+                'sisa_pelunasan',
+                'tanggal_pelunasan'
+            )
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $pdf = Pdf::loadView('datainvoice.export_pdf', ['invoices' => $invoices]);
+        $pdf->setPaper('a4', 'portrait');
+        $pdf->setOption("isRemoteEnabled", true);
+        $pdf->render();
+
+        return $pdf->stream('Data invoice ' . date('Y-m-d H:i:s') . '.pdf');
+    }
+
 }

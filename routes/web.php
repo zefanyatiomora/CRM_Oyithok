@@ -153,10 +153,13 @@ Route::post('/broadcast/closing/send/{id}', [DashboardController::class, 'sendCl
         Route::get('/{id}/delete_ajax', [UserController::class, 'confirm_ajax']);  //tampilan form confirm delete user Ajax
         Route::delete('/{id}/delete_ajax', [UserController::class, 'delete_ajax']); //menghapus data user Ajax
     });
-
-    Route::get('/datainvoice', [DataInvoiceController::class, 'index'])->name('datainvoice.index');
-    Route::get('datainvoice/{id}', [DataInvoiceController::class, 'show'])->name('datainvoice.show');
-
+    
+    Route::group(['prefix' => 'datainvoice'], function () {
+        Route::get('/', [DataInvoiceController::class, 'index'])->name('datainvoice.index');
+        Route::get('/export-pdf', [DataInvoiceController::class, 'export_pdf'])
+        ->name('datainvoice.export_pdf');
+        Route::get('/{id}', [DataInvoiceController::class, 'show'])->name('datainvoice.show');
+    });
 
     Route::prefix('realtime')->group(function () {
         Route::get('/create/{id_interaksi}', [RekapController::class, 'createRealtime'])->name('realtime.create');
