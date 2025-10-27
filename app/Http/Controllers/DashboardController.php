@@ -395,10 +395,17 @@ class DashboardController extends Controller
         ];
     }
 
+
     private function getKategoriMingguanData($tahun, $bulan)
     {
         if (!$bulan) {
-            return ['labels' => [], 'counts' => [], 'kategoriNames' => [], 'kategoriColors' => []];
+            return [
+                'labels'        => [],
+                'counts'        => [],
+                'kategoriNames' => [],
+                'kategoriColors' => [],
+                'maxYAxis'      => 5 // <-- TAMBAHKAN INI
+            ];
         }
 
         $startOfMonth = Carbon::create($tahun, $bulan, 1);
@@ -414,9 +421,7 @@ class DashboardController extends Controller
             $current->addWeek();
         }
 
-        // -- PERUBAHAN 1: Gunakan palet warna yang Anda berikan --
         $colorPalette = ['#5C54AD', '#6690FF', '#A374FF', '#FF7373', '#A26360', '#D4A29C', '#E8B298', '#C6A0D4', '#BDE1B3', '#8DD6E2'];
-        #6690ff
         $categoryColorMap = [];
         $colorIndex = 0;
 
@@ -426,13 +431,16 @@ class DashboardController extends Controller
             $startDate = $week['start'];
             $endDate   = $week['end'];
 
-            $topKategori = InteraksiAwalModel::query() // <-- Tanpa '\'
+            // --- PERUBAHAN UTAMA ADA DI SINI ---
+            $topKategori = InteraksiAwalModel::query()
                 ->whereHas('interaksi', function ($query) use ($startDate, $endDate) {
                     $query->whereBetween('tanggal_chat', [$startDate, $endDate]);
                 })
-                ->select('kategori_nama', DB::raw('COUNT(*) as total')) // <-- Tanpa '\'
+                // Mengganti DB::raw dengan selectRaw
+                ->selectRaw('kategori_nama, COUNT(*) as total')
                 ->groupBy('kategori_nama')
-                ->orderBy('total', 'desc')
+                // Menggunakan orderByDesc agar lebih ringkas
+                ->orderByDesc('total')
                 ->first();
 
             if ($topKategori) {
@@ -468,12 +476,8 @@ class DashboardController extends Controller
             $chartKategoriNames[] = $data['nama'];
             $chartKategoriColors[] = $data['color'];
         }
-        // 1. Cari nilai tertinggi dari data
-        $maxCount = !empty($chartCounts) ? max($chartCounts) : 0;
 
-        // 2. Tentukan batas atas Y-axis.
-        // Jika max count < 5, kita set batas atas 5 agar chart tidak terlalu pendek.
-        // Jika lebih, kita tambah 1 (atau lebih) agar ada ruang di atas bar.
+        $maxCount = !empty($chartCounts) ? max($chartCounts) : 0;
         $maxYAxis = $maxCount < 5 ? 5 : $maxCount + ceil($maxCount * 0.2);
 
         $returnData = [
