@@ -34,14 +34,33 @@ class DashboardController extends Controller
         $bulan = $request->get('bulan');
 
         // -------------------------
-        // 1) GLOBAL COUNTS (TANPA FILTER)
+        // 1) GLOBAL COUNTS (PAKAI FILTER)
         // -------------------------
-        // Card status harus menunjukkan total seluruh data (tidak terfilter)
-        $jumlahGhostGlobal    = InteraksiModel::where('status', 'ghost')->count();
-        $jumlahAskGlobal      = InteraksiModel::where('status', 'ask')->count();
-        $jumlahFollowUpGlobal = InteraksiModel::whereIn('status', ['followup', 'follow up'])->count();
-        $jumlahHoldGlobal     = InteraksiModel::where('status', 'hold')->count();
-        $jumlahClosingGlobal  = InteraksiModel::where('status', 'closing')->count();
+// CARD STATUS TERFILTER
+$jumlahGhost = InteraksiModel::where('status', 'ghost')
+    ->when($tahun, fn($q) => $q->whereYear('tanggal_chat', $tahun))
+    ->when($bulan, fn($q) => $q->whereMonth('tanggal_chat', $bulan))
+    ->count();
+
+$jumlahAsk = InteraksiModel::where('status', 'ask')
+    ->when($tahun, fn($q) => $q->whereYear('tanggal_chat', $tahun))
+    ->when($bulan, fn($q) => $q->whereMonth('tanggal_chat', $bulan))
+    ->count();
+
+$jumlahFollowUp = InteraksiModel::whereIn('status', ['followup', 'follow up'])
+    ->when($tahun, fn($q) => $q->whereYear('tanggal_chat', $tahun))
+    ->when($bulan, fn($q) => $q->whereMonth('tanggal_chat', $bulan))
+    ->count();
+
+$jumlahHold = InteraksiModel::where('status', 'hold')
+    ->when($tahun, fn($q) => $q->whereYear('tanggal_chat', $tahun))
+    ->when($bulan, fn($q) => $q->whereMonth('tanggal_chat', $bulan))
+    ->count();
+
+$jumlahClosing = InteraksiModel::where('status', 'closing')
+    ->when($tahun, fn($q) => $q->whereYear('tanggal_chat', $tahun))
+    ->when($bulan, fn($q) => $q->whereMonth('tanggal_chat', $bulan))
+    ->count();
 
         // -------------------------
         // 2) QUERY BASE UNTUK DATA YANG MEMBUTUHKAN FILTER (YEAR/MONTH)
@@ -192,11 +211,11 @@ class DashboardController extends Controller
             // ------------------
             // CARD STATUS: GLOBAL (TANPA FILTER)
             // ------------------
-            'jumlahGhost' => $jumlahGhostGlobal,
-            'jumlahAsk' => $jumlahAskGlobal,
-            'jumlahFollowUp' => $jumlahFollowUpGlobal,
-            'jumlahHold' => $jumlahHoldGlobal,
-            'jumlahClosing' => $jumlahClosingGlobal,
+            'jumlahGhost' => $jumlahGhost,
+            'jumlahAsk' => $jumlahAsk,
+            'jumlahFollowUp' => $jumlahFollowUp,
+            'jumlahHold' => $jumlahHold,
+            'jumlahClosing' => $jumlahClosing,
 
             // leads / charts (mengikuti filter)
             'chartLabels' => $chartLabels,
@@ -664,44 +683,74 @@ class DashboardController extends Controller
     // Route endpoints untuk setiap status
     // (tidak di-filter di sini — DataTables akan menampilkan semua record dengan status tersebut)
     // ===========================
-    public function ghost(Request $request)
-    {
-        $query = InteraksiModel::with('customer')->where('status', 'ghost');
+public function ghost(Request $request)
+{
+    $bulan = $request->input('bulan');
+    $tahun = $request->input('tahun');
 
-        if ($request->ajax()) {
-            return DataTables::of($query)
-                ->addIndexColumn()
-                ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
-                ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
-                ->addColumn('aksi', function ($row) {
-                    $urlDetail = route('rekap.show_ajax', $row->interaksi_id);
-                    $urlBroadcast = route('ghost.broadcast.single', $row->customer->customer_kode ?? '');
-                    $nama = e($row->customer->customer_nama ?? '-');
+    Log::info('🎯 Filter diterima di ghost():', ['bulan' => $bulan, 'tahun' => $tahun]);
 
-                    return '
-        <div class="btn-group" role="group">
-            <button onclick="modalAction(\'' . $urlDetail . '\')" 
-                class="btn btn-sm btn-primary">
-                <i class="fas fa-eye"></i> Detail
-            </button>
+    // Query dasar
+    $query = InteraksiModel::with('customer')
+        ->where('status', 'ghost')
+        ->when($bulan, function ($q) use ($bulan) {
+            $q->whereMonth('tanggal_chat', $bulan);
+        })
+        ->when($tahun, function ($q) use ($tahun) {
+            $q->whereYear('tanggal_chat', $tahun);
+        })
+        ->orderBy('tanggal_chat', 'desc');
 
-            <button onclick="openBroadcastModal(\'' . $urlBroadcast . '\', \'' . $nama . '\')" 
-                class="btn btn-sm btn-dark">
-                <i class="fas fa-paper-plane"></i> Broadcast
-            </button>
-        </div>
-    ';
-                })
-                ->rawColumns(['aksi'])
-                ->make(true);
-        }
+    if ($request->ajax()) {
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('customer_kode', fn($row) => $row->customer->customer_kode ?? '-')
+            ->addColumn('customer_nama', fn($row) => $row->customer->customer_nama ?? '-')
+            ->addColumn('aksi', function ($row) {
+                $urlDetail = route('rekap.show_ajax', $row->interaksi_id);
+                $urlBroadcast = route('ghost.broadcast.single', $row->customer->customer_kode ?? '');
+                $nama = e($row->customer->customer_nama ?? '-');
 
-        $activeMenu = 'dashboard';
-        return view('dashboard.ghost', compact('activeMenu'));
+                return '
+                    <div class="btn-group" role="group">
+                        <button onclick="modalAction(\'' . $urlDetail . '\')" 
+                            class="btn btn-sm btn-primary">
+                            <i class="fas fa-eye"></i> Detail
+                        </button>
+                        <button onclick="openBroadcastModal(\'' . $urlBroadcast . '\', \'' . $nama . '\')" 
+                            class="btn btn-sm btn-dark">
+                            <i class="fas fa-paper-plane"></i> Broadcast
+                        </button>
+                    </div>
+                ';
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
     }
+  $tahunList = InteraksiModel::selectRaw('YEAR(tanggal_chat) as tahun')
+        ->where('status', 'ghost')
+        ->distinct()
+        ->pluck('tahun');
+
+    $bulanList = collect(range(1, 12))->mapWithKeys(function ($m) {
+        return [$m => \Carbon\Carbon::create()->month($m)->translatedFormat('F')];
+    });
+
+   return view('dashboard.ghost', [
+    'tahunList' => $tahunList,
+    'bulanList' => $bulanList,
+    'activeMenu' => 'ghost'
+]);
+}
     public function ask(Request $request)
     {
-        $query = InteraksiModel::with('customer')->where('status', 'ask');
+        $bulan = $request->bulan;
+        $tahun = $request->tahun;
+
+    $query = InteraksiModel::with('customer')
+        ->where('status', 'ask')
+        ->when($bulan, fn($q) => $q->whereMonth('created_at', $bulan))
+        ->when($tahun, fn($q) => $q->whereYear('created_at', $tahun));
 
         if ($request->ajax()) {
             return DataTables::of($query)
@@ -735,7 +784,13 @@ class DashboardController extends Controller
     }
     public function followup(Request $request)
     {
-        $query = InteraksiModel::with('customer')->whereIn('status', ['followup', 'follow up']);
+        $bulan = $request->bulan;
+        $tahun = $request->tahun;
+
+    $query = InteraksiModel::with('customer')
+        ->whereIn('status', ['followup', 'follow up'])
+        ->when($bulan, fn($q) => $q->whereMonth('created_at', $bulan))
+        ->when($tahun, fn($q) => $q->whereYear('created_at', $tahun));
 
         if ($request->ajax()) {
             return DataTables::of($query)
@@ -769,7 +824,13 @@ class DashboardController extends Controller
     }
     public function hold(Request $request)
     {
-        $query = InteraksiModel::with('customer')->where('status', 'hold');
+ $bulan = $request->bulan;
+    $tahun = $request->tahun;
+
+    $query = InteraksiModel::with('customer')
+        ->whereIn('status', ['hold'])
+        ->when($bulan, fn($q) => $q->whereMonth('created_at', $bulan))
+        ->when($tahun, fn($q) => $q->whereYear('created_at', $tahun));
 
         if ($request->ajax()) {
             return DataTables::of($query)
@@ -805,7 +866,13 @@ class DashboardController extends Controller
 
     public function closing(Request $request)
     {
-        $query = InteraksiModel::with('customer')->where('status', 'closing');
+        $bulan = $request->bulan;
+        $tahun = $request->tahun;
+
+    $query = InteraksiModel::with('customer')
+        ->whereIn('status', ['closing'])
+        ->when($bulan, fn($q) => $q->whereMonth('created_at', $bulan))
+        ->when($tahun, fn($q) => $q->whereYear('created_at', $tahun));
 
         if ($request->ajax()) {
             return DataTables::of($query)
