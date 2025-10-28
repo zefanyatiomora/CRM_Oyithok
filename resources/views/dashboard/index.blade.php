@@ -12,12 +12,12 @@
             <div class="form-row align-items-end">
                 <!-- Pilih Tahun -->
                 <div class="col-md-3 mb-3">
-                    <label for="tahun" class="small text-muted font-weight-bold">
-    Tahun
-    <i class="fas fa-question-circle text-secondary ml-1" 
-       data-bs-toggle="tooltip" 
-       title="Pilih tahun untuk menampilkan data dashboard"></i>
-</label>
+                    <label for="tahun" class="small text-muted font-weight-bold">Tahun
+                        <i class="fas fa-question-circle text-secondary ml-1" 
+                        data-bs-toggle="tooltip" 
+                        title="Pilih tahun untuk menampilkan data dashboard">
+                        </i>
+                    </label>
                     <select name="tahun" id="tahun" class="form-control rounded-pill shadow-sm" required>
                         <option value="">-- Pilih Tahun --</option>
                         @foreach($availableYears as $year)
@@ -27,15 +27,14 @@
                         @endforeach
                     </select>
                 </div>
-
                 <!-- Pilih Bulan -->
                 <div class="col-md-3 mb-3">
-                    <label for="bulan" class="small text-muted font-weight-bold">
-    Bulan
-    <i class="fas fa-question-circle text-secondary ml-1" 
-       data-bs-toggle="tooltip" 
-       title="Pilih bulan untuk menampilkan data dashboard (opsional)"></i>
-</label>
+                    <label for="bulan" class="small text-muted font-weight-bold">Bulan
+                        <i class="fas fa-question-circle text-secondary ml-1" 
+                        data-bs-toggle="tooltip" 
+                        title="Pilih bulan untuk menampilkan data dashboard (opsional)">
+                        </i>
+                    </label>
                     <select name="bulan" id="bulan" class="form-control rounded-pill shadow-sm">
                         <option value="">-- Semua Bulan --</option>
                         @foreach($bulanList as $key => $label)
@@ -45,7 +44,6 @@
                         @endforeach
                     </select>
                 </div>
-
                 <!-- Tombol Aksi -->
                 <div class="col-md-4 mb-3">
                     <div class="btn-group w-100">
@@ -73,8 +71,7 @@
         </form>
     </div>
 </div>
-
-       <!-- JUMLAH INTERAKSI -->
+<!-- JUMLAH INTERAKSI -->
 <div class="row">
     <div class="col-12">
         <a href="{{ route('rekap.index', ['tahun' => $tahun, 'bulan' => $bulan]) }}" 
@@ -100,7 +97,7 @@
         </a>
     </div>
 </div>
-        <!-- Tabs Customer & Produk -->
+<!-- Tabs Customer & Produk -->
 <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
   <li class="nav-item">
     <a class="nav-link active" id="customer-tab" data-toggle="tab" href="#customer" role="tab">Customer</a>
@@ -327,10 +324,12 @@ $(function () {
 });
 </script>
 @endpush
-        {{-- Baris BARU untuk menyejajarkan kedua chart --}}
-       <div class="row mt-3">
-            <div class="col-md-6">
-                <div class="card">
+        {{-- GABUNGKAN SEMUA DIAGRAM DALAM SATU BARIS --}}
+        <div class="row mt-4">
+
+            {{-- DIAGRAM 1: DATA PENJUALAN (4 KOLOM) --}}
+            <div class="col-md-4">
+                <div class="card h-100"> {{-- Tambahkan class h-100 agar tinggi card sama --}}
                     <div class="card-body">
                         <h3 class="card-title font-weight-bold" 
                             style="color: #5C54AD;"
@@ -344,15 +343,11 @@ $(function () {
                     </div>
                     <div class="card-footer">
                         <div id="penjualanChartLegend" class="row">
-                            {{-- Loop melalui setiap label untuk membuat legend --}}
                             @foreach ($doughnutLabels as $index => $label)
-                                <div class="col-md-4 col-6 mb-2 d-flex align-items-center">
-                                    {{-- Kotak Warna --}}
+                                <div class="col-md-6 col-6 mb-2 d-flex align-items-center">
                                     <span class="d-inline-block me-2" 
                                         style="width: 12px; height: 12px; background-color: {{ $doughnutColors[$index] }}; border-radius:3px; margin-right: 5px;">
                                     </span>
-                                    
-                                    {{-- Nama Label/Kategori --}}
                                     <span class="fw-bold" style="font-size: 0.7rem;">
                                         {{ $label }}
                                     </span>
@@ -362,10 +357,12 @@ $(function () {
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <p class="text-muted mb-2">> Diagram dibawah adalah perolehan data setiap produk yang telah teridentifikasi.</p>
-                <div class="card">
+
+            {{-- DIAGRAM 2: DATA PER-PRODUK (4 KOLOM) --}}
+            <div class="col-md-4">
+                <div class="card h-100"> {{-- Tambahkan class h-100 agar tinggi card sama --}}
                     <div class="card-header bg-white border-0">
+                        <p class="text-muted mb-2">> Perolehan data setiap produk yang teridentifikasi.</p>
                         <h3 class="card-title font-weight-bold">
                             Data per-Produk
                         </h3>
@@ -377,20 +374,18 @@ $(function () {
                     </div>
                 </div>
             </div>
-       </div>
-       {{-- BARIS BARU UNTUK DIAGRAM MINGGUAN --}}
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="card">
+
+            {{-- DIAGRAM 3: KATEGORI MINGGUAN (4 KOLOM) --}}
+            <div class="col-md-4">
+                <div class="card h-100"> {{-- Tambahkan class h-100 agar tinggi card sama --}}
                     <div class="card-header">
                         <h3 class="card-title font-weight-bold">
                             <i class="fas fa-tags mr-1"></i>
-                            Kategori Paling Banyak Dicari per Minggu
+                            Kategori Paling Dicari per Minggu
                         </h3>
                     </div>
-                    <div class="card-body">
-                        <div class="chart">
-                            {{-- Cek jika filter bulan sudah dipilih untuk menampilkan chart --}}
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div class="chart w-100">
                             @if($bulan)
                                 <canvas id="kategoriMingguanChart" style="min-height: 250px; height: 300px; max-height: 350px; max-width: 100%;"></canvas>
                             @else
@@ -400,8 +395,9 @@ $(function () {
                             @endif
                         </div>
                     </div>
-                    </div>
                 </div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -815,17 +811,27 @@ if (rateClosingCanvas) {
                                             }
                                         }
                                     },
+                                    // --- KONFIGURASI PLUGIN DATALABELS ---
                                     datalabels: {
-                                        display: context => context.dataset.data[context.dataIndex] > 0,
-                                        anchor: 'end',
-                                        align: 'top',
+                                        // Anchor: posisi label relatif terhadap bar
+                                        anchor: 'end', // 'end' berarti di ujung atas bar
+                                        
+                                        // Align: perataan label
+                                        align: 'end',  // 'end' berarti di luar bar (di atas)
+                                        
+                                        // Ambil nama kategori dari array `kategoriMingguanNames`
+                                        formatter: function(value, context) {
+                                            return kategoriMingguanNames[context.dataIndex];
+                                        },
+                                        
+                                        // Atur rotasi agar tidak tumpang tindih
+                                        rotation: -45, // Putar 45 derajat
+                                        
+                                        // Atur warna dan ukuran font
                                         color: '#444',
                                         font: {
-                                            weight: 'bold',
-                                            size: 11,
-                                        },
-                                        formatter: (value, context) => {
-                                            return kategoriMingguanNames[context.dataIndex];
+                                            size: 9,
+                                            weight: 'bold'
                                         }
                                     }
                                 }
