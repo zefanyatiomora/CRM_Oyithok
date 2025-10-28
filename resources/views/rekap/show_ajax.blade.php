@@ -196,12 +196,13 @@
     </div>
 
     <div class="card-body">
+        
         <button type="button" class="btn btn-sm btn-success" id="btn-toggle-identifikasi">
             <i class="fas fa-plus"></i> Tambah Kategori
         </button>
+
         <div id="form-identifikasi-container" style="display:none; margin-top:10px;"></div>
 
-        <!-- Container tabel (selalu ada, bisa kosong) -->
         <div id="identifikasi-tabel-container" class="mt-2">
             @if ($interaksiAwalList->isEmpty())
                 <div class="alert alert-secondary">Belum ada data identifikasi awal.</div>
@@ -228,7 +229,6 @@
 </div>
 
 <script>
-    // Handler tombol tambah kategori
     $('#btn-toggle-identifikasi').click(function() {
         let interaksi_id = "{{ $interaksi->interaksi_id }}";
         $.get("{{ route('rekap.createIdentifikasiAwal') }}", { interaksi_id: interaksi_id }, function(res) {
@@ -239,45 +239,93 @@
         });
     });
 </script>
-<!-- ================= KEBUTUHAN HARIAN ================= -->
-<div class="card card-purple collapsed-card shadow-sm border-0">
-    <div class="card-header bg-gradient-purple position-relative"
-        style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
-        <h3 class="card-title fw-bold text-white mb-0">
-            <i class="fas fa-calendar-day me-2"></i> Identifikasi Harian
-        </h3>
-        <div class="card-tools position-absolute" style="top: 12px; right: 15px;">
-            <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
-                <i class="fas fa-plus"></i>
-            </button>
+    <!-- ================= KEBUTUHAN HARIAN ================= -->
+    <div class="card card-purple collapsed-card shadow-sm border-0">
+        <div class="card-header bg-gradient-purple position-relative"
+            style="border-radius: 0.5rem 0.5rem 0 0; padding: 0.75rem 1.25rem;">
+            <h3 class="card-title fw-bold text-white mb-0">
+                <i class="fas fa-calendar-day me-2"></i> Identifikasi Harian
+            </h3>
+            <div class="card-tools position-absolute" style="top: 12px; right: 15px;">
+                <button type="button" class="btn btn-tool text-white" data-card-widget="collapse">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <!-- Tombol Tambah -->
+            <a href="javascript:void(0);" 
+            onclick="openModal('{{ route('realtime.create', $interaksi->interaksi_id) }}')" 
+            class="text-primary" title="Tambah Rincian">
+                <i class="fas fa-plus fa-xs"></i>
+            </a>
+
+            <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
+
+            <table id="tabel-realtime" class="table table-bordered table-striped table-hover table-sm mt-2">
+                <thead>
+    <tr>
+        <th>No</th>
+        <th>Tanggal</th>
+        <th>Keterangan</th>
+        <th>PIC</th>
+        <th>Aksi</th>
+    </tr>
+    </thead>
+                <tbody id="realtime-tabel-container">
+                    @include('rekap.partials.realtime_tabel', ['realtimeList' => $realtimeList])
+                </tbody>
+            </table>
         </div>
     </div>
-
-    <div class="card-body">
-        <!-- Tombol Tambah -->
-        <a href="javascript:void(0);" 
-           onclick="openModal('{{ route('realtime.create', $interaksi->interaksi_id) }}')" 
-           class="text-primary" title="Tambah Rincian">
-            <i class="fas fa-plus fa-xs"></i>
-        </a>
-
-        <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
-
-        <table id="tabel-realtime" class="table table-bordered table-striped table-hover table-sm mt-2">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Tanggal</th>
-                    <th>Keterangan</th>
-                    <th>PIC</th>
-                </tr>
-            </thead>
-            <tbody id="realtime-tabel-container">
-                @include('rekap.partials.realtime_tabel', ['realtimeList' => $realtimeList])
-            </tbody>
-        </table>
+    <!-- Modal CRUD Realtime -->
+    <div class="modal fade" id="crudModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content"></div>
+        </div>
     </div>
-</div>
+    <script>
+        function openModal(url) {
+    $.get(url, function(res) {
+        $("#crudModal .modal-content").html(res);
+        $("#crudModal").modal('show');
+    }).fail(function(err) {
+        console.error("Modal Load Error:", err.responseText);
+        Swal.fire("Error", "Gagal membuka form. Cek console log.", "error");
+    });
+}
+function deleteRealtime(id) {
+    Swal.fire({
+        title: "Yakin hapus data?",
+        text: "Data tidak dapat dikembalikan.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Ya, hapus",
+        cancelButtonText: "Batal"
+    }).then((result) => {
+        if (result.isConfirmed) {
+
+            $.ajax({
+                url: "{{ route('realtime.delete', 'REPLACE_ID') }}".replace('REPLACE_ID', id),
+                type: "DELETE",
+                data: {
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(res) {
+                    toastr.success(res.message);
+                    $("#realtime-tabel-container").html(res.html);
+                },
+                error: function(xhr) {
+                    Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
+                    console.error("Delete Error:", xhr.responseText);
+                }
+            });
+
+        }
+    });
+}
+    </script>
             {{-- ========== DATA SURVEY ========== --}}
             <div class="card card-purple collapsed-card shadow-sm border-0">
                 <div class="card-header bg-gradient-purple position-relative"
@@ -512,7 +560,6 @@ if (res.status === 'success') {
         timer: 1500,
         showConfirmButton: false
     });
-
     // Form dikosongkan agar bisa input baru tanpa menutup modal
     $('#form-kebutuhan-harian')[0].reset();
 

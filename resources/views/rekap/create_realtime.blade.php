@@ -4,6 +4,7 @@
         <span aria-hidden="true" class="text-white">&times;</span>
     </button>
 </div>
+<div class="modal-body">
 <form id="form-create-realtime" enctype="multipart/form-data">
     @csrf
     <!-- Hidden input untuk ID Interaksi dan ID User-->
@@ -44,11 +45,49 @@
 
 
     <div class="modal-footer">
-        <button type="submit" class="btn btn-primary">Simpan</button>
+        <button type="submit" class="btn bg-wallpaper-gradient text-white border-0 fw-bold" style="border-radius: 0.35rem;">Simpan</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
     </div>
+    </div>
 </form>
+<style>
+    /* Modal body diberi padding */
+#crudModal .modal-body {
+    padding: 20px 25px;
+}
 
+/* Supaya tombol kemarin & hari ini tidak menabrak input */
+#crudModal .input-group .form-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#crudModal .btn-outline-primary {
+    border-radius: 0;
+}
+
+/* Rapikan spacing antar elemen */
+#crudModal .form-group {
+    margin-bottom: 18px;
+}
+
+/* Form di dalam modal diberi ruang ke bawah */
+#crudModal form {
+    padding-bottom: 10px;
+}
+
+/* Tinggi minimal textarea */
+#crudModal textarea {
+    min-height: 90px;
+}
+
+/* Modal header biar lebih rapi */
+.modal-header.bg-wallpaper-gradient {
+    padding: 12px 20px;
+    border-bottom: none;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+    </style>
 <script>
     $(function() {
         $('#btn-today').click(function() {

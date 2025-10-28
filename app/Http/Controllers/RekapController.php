@@ -315,6 +315,70 @@ class RekapController extends Controller
             ], 500);
         }
     }
+    public function editRealtime($id)
+{
+    $realtime = InteraksiRealtime::findOrFail($id);
+    $picList = UserModel::select('user_id', 'nama')->get();
+
+    return view('rekap.edit_realtime', compact('realtime', 'picList'));
+}
+public function updateRealtime(Request $request, $id)
+{
+    try {
+        $request->validate([
+            'tanggal' => 'required|date',
+            'keterangan' => 'required|string',
+            'user_id' => 'required|exists:m_user,user_id',
+        ]);
+
+        $realtime = InteraksiRealtime::findOrFail($id);
+        $realtime->update([
+            'tanggal' => $request->tanggal,
+            'keterangan' => $request->keterangan,
+            'user_id' => $request->user_id,
+        ]);
+
+        $realtimeList = InteraksiRealtime::with('user')
+            ->where('interaksi_id', $realtime->interaksi_id)
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        $html = view('rekap.partials.realtime_tabel', compact('realtimeList'))->render();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Berhasil update data.',
+            'html' => $html
+        ]);
+    } catch (\Throwable $e) {
+        Log::error("[UpdateRealtime Error] " . $e->getMessage(), ['trace' => $e->getTraceAsString(), 'payload' => $request->all()]);
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Terjadi kesalahan saat update.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+public function deleteRealtime($id)
+{
+    $realtime = InteraksiRealtime::findOrFail($id);
+    $interaksi_id = $realtime->interaksi_id;
+    $realtime->delete();
+
+    $realtimeList = InteraksiRealtime::with('user')
+        ->where('interaksi_id', $interaksi_id)
+        ->orderBy('tanggal', 'desc')
+        ->get();
+
+    $html = view('rekap.partials.realtime_tabel', compact('realtimeList'))->render();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Data berhasil dihapus.',
+        'html' => $html
+    ]);
+}
+
     public function createRealtime($id_interaksi)
     {
         try {

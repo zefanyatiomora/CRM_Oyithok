@@ -760,7 +760,6 @@ if (rateClosingCanvas) {
                         const kategoriMingguanCounts = {!! json_encode($kategoriMingguanCounts) !!};
                         const kategoriMingguanNames = {!! json_encode($kategoriMingguanNames) !!};
                         const kategoriMingguanColors = {!! json_encode($kategoriMingguanColors) !!};
-                        const kategoriMingguanMaxY = {!! json_encode($kategoriMingguanMaxY) !!};
 
                         new Chart(kategoriMingguanCanvas, {
                             type: 'bar',
@@ -779,7 +778,8 @@ if (rateClosingCanvas) {
                                 scales: {
                                     y: {
                                         beginAtZero: true,
-                                        max: kategoriMingguanMaxY,
+                                        // max: kategoriMingguanMaxY,
+                                        max: 9,
                                         ticks: {
                                             precision: 0,
                                             stepSize: 1

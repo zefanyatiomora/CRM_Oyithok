@@ -138,6 +138,10 @@ Route::post('/broadcast/closing/send/{id}', [DashboardController::class, 'sendCl
         Route::get('rekap/{interaksi_id}/realtime/list', [RekapController::class, 'getRealtimeList'])->name('rekap.getRealtimeList');
         Route::get('realtime/create/{id_interaksi}', [RekapController::class, 'createRealtime'])->name('realtime.create');
         Route::post('realtime/store', [RekapController::class, 'storeRealtime'])->name('realtime.store');
+        Route::get('realtime/edit/{id}', [RekapController::class, 'editRealtime'])->name('realtime.edit');
+Route::put('realtime/update/{id}', [RekapController::class, 'updateRealtime'])->name('realtime.update');
+Route::delete('realtime/delete/{id}', [RekapController::class, 'deleteRealtime'])->name('realtime.delete');
+
     });
     // TARUH DI LUAR Route::prefix('rekap')
     Route::post('/rekap/update-status/{interaksi_id}', [RekapController::class, 'updateStatus'])->name('rekap.updateStatus');

@@ -105,7 +105,6 @@
                     className: 'btn btn-danger btn-sm',
                     action: function (e, dt, node, config) {
                         // Mengarahkan ke route yang Anda tentukan
-                        window.location.href = "{{ route('customers.export_pdf') }}";
                     }
                 }
             ]
