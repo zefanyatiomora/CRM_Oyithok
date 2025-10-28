@@ -770,6 +770,46 @@ public function deleteRealtime($id)
             'message' => 'Data rincian berhasil diperbarui',
         ]);
     }
+    public function confirmRincian(string $id)
+    {
+        // 2. Log saat fungsi ini pertama kali dipanggil
+        Log::info("Mencoba memuat modal konfirmasi untuk Rincian ID: {$id}");
+
+        // Cari data rincian berdasarkan ID
+        $rincian = RincianModel::find($id);
+
+        // 3. Log hasil pencarian data dari database
+        if ($rincian) {
+            Log::info("Data Rincian dengan ID {$id} berhasil ditemukan.");
+        } else {
+            // Gunakan Log::warning untuk menandakan ada sesuatu yang tidak biasa (data tidak ada)
+            Log::warning("Data Rincian dengan ID {$id} TIDAK DITEMUKAN di database.");
+        }
+
+        // Kembalikan view seperti biasa
+        return view('rekap.confirm_rincian', ['rincian' => $rincian]);
+    }
+
+    public function deleteRincian(Request $request, $id)
+    {
+        // cek apakah request dari ajax
+        if ($request->ajax() || $request->wantsJson()) {
+            $rincian = RincianModel::find($id);
+            if ($rincian) {
+                $rincian->delete();
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Data berhasil dihapus'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data tidak ditemukan'
+                ]);
+            }
+        }
+        return redirect('/');
+    }
 
     public function updatePasang(Request $request, $pasang_id)
     {
