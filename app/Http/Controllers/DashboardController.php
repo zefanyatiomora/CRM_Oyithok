@@ -249,7 +249,7 @@ $jumlahClosing = InteraksiModel::where('status', 'closing')
             'kategoriMingguanCounts' => $kategoriMingguan['counts'],
             'kategoriMingguanNames' => $kategoriMingguan['kategoriNames'],
             'kategoriMingguanColors' => $kategoriMingguan['kategoriColors'],
-            'kategoriMingguanMaxY' => $kategoriMingguan['maxYAxis'],
+            // 'kategoriMingguanMaxY' => $kategoriMingguan['maxYAxis'],
         ];
         Log::info('DEBUG INDEX: Data final yang dikirim ke view', $viewData);
         // ================================================================
