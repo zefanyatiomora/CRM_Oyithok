@@ -164,6 +164,7 @@ Route::group(['prefix' => 'datainvoice'], function () {
     Route::get('/export-pdf', [DataInvoiceController::class, 'export_pdf'])
         ->name('datainvoice.export_pdf');
     Route::get('/{id}', [DataInvoiceController::class, 'show'])->name('datainvoice.show');
+    Route::get('/{id}/export-pdf', [RekapController::class, 'export_pdf'])->name('invoice.export_pdf');
 });
 
 Route::prefix('realtime')->group(function () {
