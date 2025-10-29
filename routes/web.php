@@ -19,6 +19,7 @@ use App\Http\Controllers\PasangController;
 use App\Http\Controllers\Produk\AskController;
 use App\Http\Controllers\Produk\HoldController;
 use App\Http\Controllers\Produk\ClosingController;
+use App\Models\CustomersModel;
 use Dflydev\DotAccessData\Data;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
@@ -89,6 +90,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/customers/{id}/edit_ajax', [CustomersController::class, 'edit'])->name('customers.edit_ajax');
     Route::put('/customers/{id}/update', [CustomersController::class, 'update'])->name('customers.update');
     Route::get('/customers/next-code', [CustomersController::class, 'getNextCustomerCode'])->name('customers.nextCode');
+    Route::get('/export_pdf', [CustomersController::class, 'export_pdf'])->name('customers.export_pdf');
 });
 //kebutuhan//
 // routes/web.php
