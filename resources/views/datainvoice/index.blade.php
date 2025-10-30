@@ -42,7 +42,7 @@
                                         data-id="{{ $inv->invoice_id }}">
                                         <i class="fas fa-eye fa-sm"></i> Detail
                                     </button>
-                                    <a href="{{ route('datainvoice.export_pdf', $inv->invoice_id) }}"
+                                    <a href="{{ route('invoice.export_pdf', $inv->invoice_id) }}"
                                         class="btn btn-sm btn-danger" target="_blank">
                                         <i class="fas fa-file-pdf fa-sm"></i> PDF
                                     </a>

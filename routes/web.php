@@ -19,6 +19,7 @@ use App\Http\Controllers\PasangController;
 use App\Http\Controllers\Produk\AskController;
 use App\Http\Controllers\Produk\HoldController;
 use App\Http\Controllers\Produk\ClosingController;
+use App\Models\CustomersModel;
 use Dflydev\DotAccessData\Data;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
@@ -62,15 +63,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/ghost/broadcast', [DashboardController::class, 'ghostBroadcast'])->name('ghost.broadcast');
     Route::post('/dashboard/ghost/send-broadcast', [DashboardController::class, 'sendGhostBroadcast'])->name('ghost.sendBroadcast');
     // routes/web.php
-Route::post('/dashboard/ghost/broadcast/{kode}', [DashboardController::class, 'sendGhostSingle'])->name('ghost.broadcast.single');
-Route::get('/dashboard/ask', [DashboardController::class, 'ask'])->name('dashboard.ask');
-Route::post('/ask/broadcast/{id}', [DashboardController::class, 'sendAskSingle'])->name('ask.broadcastCustomer');
-Route::get('/dashboard/followup', [DashboardController::class, 'followup'])->name('dashboard.followup');
-Route::post('/followup/broadcast/{id}', [DashboardController::class, 'sendFollowUpSingle'])->name('followup.broadcastCustomer');
-Route::post('/broadcast/hold/send/{id}', [DashboardController::class, 'sendHoldSingle'])->name('hold.broadcast.single');
-Route::get('/dashboard/closing', [DashboardController::class, 'closing'])->name('dashboard.closing');
-Route::post('/broadcast/closing/send/{id}', [DashboardController::class, 'sendClosingSingle'])
-    ->name('closing.broadcast.single');
+    Route::post('/dashboard/ghost/broadcast/{kode}', [DashboardController::class, 'sendGhostSingle'])->name('ghost.broadcast.single');
+    Route::get('/dashboard/ask', [DashboardController::class, 'ask'])->name('dashboard.ask');
+    Route::post('/ask/broadcast/{id}', [DashboardController::class, 'sendAskSingle'])->name('ask.broadcastCustomer');
+    Route::get('/dashboard/followup', [DashboardController::class, 'followup'])->name('dashboard.followup');
+    Route::post('/followup/broadcast/{id}', [DashboardController::class, 'sendFollowUpSingle'])->name('followup.broadcastCustomer');
+    Route::post('/broadcast/hold/send/{id}', [DashboardController::class, 'sendHoldSingle'])->name('hold.broadcast.single');
+    Route::get('/dashboard/closing', [DashboardController::class, 'closing'])->name('dashboard.closing');
+    Route::post('/broadcast/closing/send/{id}', [DashboardController::class, 'sendClosingSingle'])
+        ->name('closing.broadcast.single');
 
     //broadcast//
     Route::get('/ask/broadcast', [AskController::class, 'broadcast'])->name('ask.broadcast');
@@ -89,127 +90,130 @@ Route::post('/broadcast/closing/send/{id}', [DashboardController::class, 'sendCl
     Route::get('/customers/{id}/edit_ajax', [CustomersController::class, 'edit'])->name('customers.edit_ajax');
     Route::put('/customers/{id}/update', [CustomersController::class, 'update'])->name('customers.update');
     Route::get('/customers/next-code', [CustomersController::class, 'getNextCustomerCode'])->name('customers.nextCode');
+    Route::get('/export_pdf', [CustomersController::class, 'export_pdf'])->name('customers.export_pdf');
 });
-    //kebutuhan//
-    // routes/web.php
-    Route::get('/kebutuhan', [KebutuhanController::class, 'index'])->name('kebutuhan.index'); // daftar semua customer
-    Route::get('/kebutuhan/create', [KebutuhanController::class, 'create'])->name('kebutuhan.create');
-    Route::post('/kebutuhan', [KebutuhanController::class, 'store'])->name('kebutuhan.store');
+//kebutuhan//
+// routes/web.php
+Route::get('/kebutuhan', [KebutuhanController::class, 'index'])->name('kebutuhan.index'); // daftar semua customer
+Route::get('/kebutuhan/create', [KebutuhanController::class, 'create'])->name('kebutuhan.create');
+Route::post('/kebutuhan', [KebutuhanController::class, 'store'])->name('kebutuhan.store');
 
-    Route::get('/kebutuhan/search-customer', [KebutuhanController::class, 'searchCustomer'])->name('kebutuhan.searchCustomer');
-    Route::get('/kebutuhan/get-customer/{id}', [KebutuhanController::class, 'getCustomer'])->name('kebutuhan.getCustomer');
+Route::get('/kebutuhan/search-customer', [KebutuhanController::class, 'searchCustomer'])->name('kebutuhan.searchCustomer');
+Route::get('/kebutuhan/get-customer/{id}', [KebutuhanController::class, 'getCustomer'])->name('kebutuhan.getCustomer');
 
-    // kalau mau detail berdasarkan customer_id, kasih nama route beda
-    Route::get('/kebutuhan/customer/{customer_id}', [KebutuhanController::class, 'showByCustomer'])->name('kebutuhan.byCustomer');
-    Route::get('/rekap/{interaksi_id}/realtime', [KebutuhanController::class, 'index'])->name('rekap.realtime');
-    Route::prefix('produk')->group(function () {
-        Route::get('/', [ProdukController::class, 'index'])->name('produk.index');       // Halaman list produk
-        Route::post('/list', [ProdukController::class, 'list'])->name('produk.list');    // DataTables JSON
-        Route::get('/create', [ProdukController::class, 'create'])->name('produk.create'); // Form tambah
-        Route::post('/', [ProdukController::class, 'store'])->name('produk.store');      // Simpan produk
-        Route::get('/create_ajax', [ProdukController::class, 'create_ajax']);  //menampilkan halaman form tambah Barang Ajax
-        Route::post('/ajax', [ProdukController::class, 'store_ajax']);         //menyimpan data Produk baru Ajax
-        Route::get('/{id}/delete_ajax', [ProdukController::class, 'confirm_ajax']);  //tampilan form confirm delete Barang Ajax
-        Route::delete('/{id}/delete_ajax', [ProdukController::class, 'delete_ajax']); //menghapus data Barang Ajax
-        Route::get('/{id}/show_ajax', [ProdukController::class, 'show_ajax']);
-        Route::get('{id}/edit_ajax', [ProdukController::class, 'edit_ajax']);
-        Route::post('{id}/update_ajax', [ProdukController::class, 'update_ajax']);
-        Route::get('/export_pdf', [ProdukController::class, 'export_pdf'])->name('produk.export_pdf');
-    });
+// kalau mau detail berdasarkan customer_id, kasih nama route beda
+Route::get('/kebutuhan/customer/{customer_id}', [KebutuhanController::class, 'showByCustomer'])->name('kebutuhan.byCustomer');
+Route::get('/rekap/{interaksi_id}/realtime', [KebutuhanController::class, 'index'])->name('rekap.realtime');
+Route::prefix('produk')->group(function () {
+    Route::get('/', [ProdukController::class, 'index'])->name('produk.index');       // Halaman list produk
+    Route::post('/list', [ProdukController::class, 'list'])->name('produk.list');    // DataTables JSON
+    Route::get('/create', [ProdukController::class, 'create'])->name('produk.create'); // Form tambah
+    Route::post('/', [ProdukController::class, 'store'])->name('produk.store');      // Simpan produk
+    Route::get('/create_ajax', [ProdukController::class, 'create_ajax']);  //menampilkan halaman form tambah Barang Ajax
+    Route::post('/ajax', [ProdukController::class, 'store_ajax']);         //menyimpan data Produk baru Ajax
+    Route::get('/{id}/delete_ajax', [ProdukController::class, 'confirm_ajax']);  //tampilan form confirm delete Barang Ajax
+    Route::delete('/{id}/delete_ajax', [ProdukController::class, 'delete_ajax']); //menghapus data Barang Ajax
+    Route::get('/{id}/show_ajax', [ProdukController::class, 'show_ajax']);
+    Route::get('{id}/edit_ajax', [ProdukController::class, 'edit_ajax']);
+    Route::post('{id}/update_ajax', [ProdukController::class, 'update_ajax']);
+    Route::get('/export_pdf', [ProdukController::class, 'export_pdf'])->name('produk.export_pdf');
+});
 
-    Route::prefix('rekap')->group(function () {
-        Route::get('/', [RekapController::class, 'index'])->name('rekap.index');       // Halaman list monthrekap
-        Route::post('/list', [RekapController::class, 'list'])->name('rekap.list');
-        Route::get('/{interaksi_id}/show_ajax', [RekapController::class, 'show_ajax'])->name('rekap.show_ajax');    // Route::get('/search-product', [RekapController::class, 'searchProduct'])->name('rekap.searchProduct');
-        // web.php
-        Route::post('/rekap/update-followup', [RekapController::class, 'updateFollowUp'])->name('rekap.updateFollowUp');
-        // Route::get('realtime/list/{interaksi}', [RekapController::class, 'getRealtimeList']);
-        // Route::get('/rekap/realtime/{interaksi_id}', [RekapController::class, 'indexRealtime'])->name('rekap.indexRealtime');
-        Route::get('/rekap/{interaksi_id}/identifikasi-awal/', [RekapController::class, 'showIdentifikasiAwal'])->name('rekap.showIdentifikasiAwal');
-        Route::delete('/rekap/identifikasi-awal/{awal_id}/delete', [RekapController::class, 'deleteIdentifikasiAwal'])->name('rekap.deleteIdentifikasiAwal');
-        Route::get('/rekap/identifikasi-awal/create', [RekapController::class, 'createIdentifikasiAwal'])->name('rekap.createIdentifikasiAwal');
-        Route::post('/rekap/identifikasi-awal/store', [RekapController::class, 'storeIdentifikasiAwal'])->name('interaksiAwal.store');
-        Route::get('/rekap/identifikasi-awal/list/{interaksi_id}', [RekapController::class, 'listIdentifikasiAwal'])->name('interaksiAwal.list');
-        // Route::post('/realtime/store', [RekapController::class, 'storeRealtime'])->name('rekap.storeRealtime');
-        // Route::get('/realtime/list/{id}', [RekapController::class, 'listRealtime'])->name('rekap.listRealtime');
-        // Route::delete('/realtime/delete/{id}', [RekapController::class, 'deleteRealtime'])->name('rekap.deleteRealtime');
-        Route::get('/interaksi-awal/tabel/{id}', [RekapController::class, 'listIdentifikasiAwal'])->name('interaksiAwal.tabel');
-        Route::post('/interaksi-awal/store', [RekapController::class, 'storeIdentifikasiAwal'])->name('interaksiAwal.store');
-        Route::get('rekap/{interaksi_id}/realtime/list', [RekapController::class, 'getRealtimeList'])->name('rekap.getRealtimeList');
-        Route::get('realtime/create/{id_interaksi}', [RekapController::class, 'createRealtime'])->name('realtime.create');
-        Route::post('realtime/store', [RekapController::class, 'storeRealtime'])->name('realtime.store');
-        Route::get('realtime/edit/{id}', [RekapController::class, 'editRealtime'])->name('realtime.edit');
-Route::put('realtime/update/{id}', [RekapController::class, 'updateRealtime'])->name('realtime.update');
-Route::delete('realtime/delete/{id}', [RekapController::class, 'deleteRealtime'])->name('realtime.delete');
+Route::prefix('rekap')->group(function () {
+    Route::get('/', [RekapController::class, 'index'])->name('rekap.index');       // Halaman list monthrekap
+    Route::post('/list', [RekapController::class, 'list'])->name('rekap.list');
+    Route::get('/{interaksi_id}/show_ajax', [RekapController::class, 'show_ajax'])->name('rekap.show_ajax');    // Route::get('/search-product', [RekapController::class, 'searchProduct'])->name('rekap.searchProduct');
+    // web.php
+    Route::post('/rekap/update-followup', [RekapController::class, 'updateFollowUp'])->name('rekap.updateFollowUp');
+    // Route::get('realtime/list/{interaksi}', [RekapController::class, 'getRealtimeList']);
+    // Route::get('/rekap/realtime/{interaksi_id}', [RekapController::class, 'indexRealtime'])->name('rekap.indexRealtime');
+    Route::get('/rekap/{interaksi_id}/identifikasi-awal/', [RekapController::class, 'showIdentifikasiAwal'])->name('rekap.showIdentifikasiAwal');
+    Route::delete('/rekap/identifikasi-awal/{awal_id}/delete', [RekapController::class, 'deleteIdentifikasiAwal'])->name('rekap.deleteIdentifikasiAwal');
+    Route::get('/rekap/identifikasi-awal/create', [RekapController::class, 'createIdentifikasiAwal'])->name('rekap.createIdentifikasiAwal');
+    Route::post('/rekap/identifikasi-awal/store', [RekapController::class, 'storeIdentifikasiAwal'])->name('interaksiAwal.store');
+    Route::get('/rekap/identifikasi-awal/list/{interaksi_id}', [RekapController::class, 'listIdentifikasiAwal'])->name('interaksiAwal.list');
+    // Route::post('/realtime/store', [RekapController::class, 'storeRealtime'])->name('rekap.storeRealtime');
+    // Route::get('/realtime/list/{id}', [RekapController::class, 'listRealtime'])->name('rekap.listRealtime');
+    // Route::delete('/realtime/delete/{id}', [RekapController::class, 'deleteRealtime'])->name('rekap.deleteRealtime');
+    Route::get('/interaksi-awal/tabel/{id}', [RekapController::class, 'listIdentifikasiAwal'])->name('interaksiAwal.tabel');
+    Route::post('/interaksi-awal/store', [RekapController::class, 'storeIdentifikasiAwal'])->name('interaksiAwal.store');
+    Route::get('rekap/{interaksi_id}/realtime/list', [RekapController::class, 'getRealtimeList'])->name('rekap.getRealtimeList');
+    Route::get('realtime/create/{id_interaksi}', [RekapController::class, 'createRealtime'])->name('realtime.create');
+    Route::post('realtime/store', [RekapController::class, 'storeRealtime'])->name('realtime.store');
+    Route::get('realtime/edit/{id}', [RekapController::class, 'editRealtime'])->name('realtime.edit');
+    Route::put('realtime/update/{id}', [RekapController::class, 'updateRealtime'])->name('realtime.update');
+    Route::delete('realtime/delete/{id}', [RekapController::class, 'deleteRealtime'])->name('realtime.delete');
+});
+// TARUH DI LUAR Route::prefix('rekap')
+Route::post('/rekap/update-status/{interaksi_id}', [RekapController::class, 'updateStatus'])->name('rekap.updateStatus');
 
-    });
-    // TARUH DI LUAR Route::prefix('rekap')
-    Route::post('/rekap/update-status/{interaksi_id}', [RekapController::class, 'updateStatus'])->name('rekap.updateStatus');
+Route::group(['prefix' => 'user'], function () {
+    Route::get('/', [UserController::class, 'index'])->name('user.index');
+    Route::post('/list', [UserController::class, 'list']);      //menampilkan data user dalam bentuk json untuk datatables
+    Route::get('/create_ajax', [UserController::class, 'create_ajax']);  //menampilkan halaman form tambah user Ajax
+    Route::post('/ajax', [UserController::class, 'store_ajax']);         //menyimpan data user baru Ajax
+    Route::get('/{id}/edit_ajax', [UserController::class, 'edit_ajax']);  //menampilkan halaman form edit user Ajax
+    Route::get('/{id}/detail_ajax', [UserController::class, 'detail_ajax']);  //tampilan form confirm show Level Ajax
+    Route::put('/{id}/update_ajax', [UserController::class, 'update_ajax']);  //Menyimpan halaman form edit user Ajax
+    Route::get('/{id}/delete_ajax', [UserController::class, 'confirm_ajax']);  //tampilan form confirm delete user Ajax
+    Route::delete('/{id}/delete_ajax', [UserController::class, 'delete_ajax']); //menghapus data user Ajax
+});
 
-    Route::group(['prefix' => 'user'], function () {
-        Route::get('/', [UserController::class, 'index'])->name('user.index');
-        Route::post('/list', [UserController::class, 'list']);      //menampilkan data user dalam bentuk json untuk datatables
-        Route::get('/create_ajax', [UserController::class, 'create_ajax']);  //menampilkan halaman form tambah user Ajax
-        Route::post('/ajax', [UserController::class, 'store_ajax']);         //menyimpan data user baru Ajax
-        Route::get('/{id}/edit_ajax', [UserController::class, 'edit_ajax']);  //menampilkan halaman form edit user Ajax
-        Route::get('/{id}/detail_ajax', [UserController::class, 'detail_ajax']);  //tampilan form confirm show Level Ajax
-        Route::put('/{id}/update_ajax', [UserController::class, 'update_ajax']);  //Menyimpan halaman form edit user Ajax
-        Route::get('/{id}/delete_ajax', [UserController::class, 'confirm_ajax']);  //tampilan form confirm delete user Ajax
-        Route::delete('/{id}/delete_ajax', [UserController::class, 'delete_ajax']); //menghapus data user Ajax
-    });
-    
-    Route::group(['prefix' => 'datainvoice'], function () {
-        Route::get('/', [DataInvoiceController::class, 'index'])->name('datainvoice.index');
-        Route::get('/export-pdf', [DataInvoiceController::class, 'export_pdf'])
+Route::group(['prefix' => 'datainvoice'], function () {
+    Route::get('/', [DataInvoiceController::class, 'index'])->name('datainvoice.index');
+    Route::get('/export-pdf', [DataInvoiceController::class, 'export_pdf'])
         ->name('datainvoice.export_pdf');
-        Route::get('/{id}', [DataInvoiceController::class, 'show'])->name('datainvoice.show');
-    });
+    Route::get('/{id}', [DataInvoiceController::class, 'show'])->name('datainvoice.show');
+    Route::get('/{id}/export-pdf', [RekapController::class, 'export_pdf'])->name('invoice.export_pdf');
+});
 
-    Route::prefix('realtime')->group(function () {
-        Route::get('/create/{id_interaksi}', [RekapController::class, 'createRealtime'])->name('realtime.create');
-        Route::post('/store', [RekapController::class, 'storeRealtime'])->name('realtime.store');
-    });
-    Route::prefix('rincian')->group(function () {
-        Route::get('/create/{id_interaksi}', [RekapController::class, 'createRincian'])->name('rincian.create');
-        Route::post('/store', [RekapController::class, 'storeRincian'])->name('rincian.store');
-        Route::get('/{id}/edit', [RekapController::class, 'editRincian'])->name('rincian.edit');
-        Route::put('/{id}/update', [RekapController::class, 'updateRincian'])->name('rincian.update');
-        Route::get('/rekap/{interaksi_id}/rincian/list', [RekapController::class, 'getRincianList'])->name('rincian.list');
-    });
-    Route::prefix('survey')->group(function () {
-        Route::get('/{id}/create', [RekapController::class, 'createSurvey'])->name('survey.create');
-        Route::post('/store', [RekapController::class, 'storeSurvey'])->name('survey.store');
-        Route::get('/rekap/{interaksi_id}/survey/list', [SurveyController::class, 'getSurveyList'])->name('survey.list');
-    });
-    Route::prefix('pasang')->group(function () {
-        Route::get('/{id}/create', [RekapController::class, 'createPasang'])->name('pasang.create');
-        Route::post('/store', [RekapController::class, 'storePasang'])->name('pasang.store');
-        Route::get('/{id}/edit', [RekapController::class, 'editPasang'])->name('pasang.edit');
-        Route::put('/{id}/update', [RekapController::class, 'updatePasang'])->name('pasang.update');
-    });
-    Route::prefix('invoice')->group(function () {
-        Route::get('/{id}/export-pdf', [RekapController::class, 'export_pdf'])->name('invoice.export_pdf');
-        Route::get('/{id}/create', [RekapController::class, 'createInvoice'])->name('invoice.create');
-        Route::post('/store', [RekapController::class, 'storeInvoice'])->name('invoice.store');
-        Route::get('/{id}/edit', [RekapController::class, 'editInvoice'])->name('invoice.edit');
-        Route::put('/{id}/update', [RekapController::class, 'updateInvoice'])->name('invoice.update');
-    });
+Route::prefix('realtime')->group(function () {
+    Route::get('/create/{id_interaksi}', [RekapController::class, 'createRealtime'])->name('realtime.create');
+    Route::post('/store', [RekapController::class, 'storeRealtime'])->name('realtime.store');
+});
+Route::prefix('rincian')->group(function () {
+    Route::get('/create/{id_interaksi}', [RekapController::class, 'createRincian'])->name('rincian.create');
+    Route::post('/store', [RekapController::class, 'storeRincian'])->name('rincian.store');
+    Route::get('/{id}/edit', [RekapController::class, 'editRincian'])->name('rincian.edit');
+    Route::put('/{id}/update', [RekapController::class, 'updateRincian'])->name('rincian.update');
+    Route::get('/{id}/confirm', [RekapController::class, 'confirmRincian'])->name('rincian.confirm');
+    Route::delete('/{id}/delete_ajax', [RekapController::class, 'deleteRincian'])->name('rincian.delete');
+    Route::get('/rekap/{interaksi_id}/rincian/list', [RekapController::class, 'getRincianList'])->name('rincian.list');
+});
+Route::prefix('survey')->group(function () {
+    Route::get('/{id}/create', [RekapController::class, 'createSurvey'])->name('survey.create');
+    Route::post('/store', [RekapController::class, 'storeSurvey'])->name('survey.store');
+    Route::get('/rekap/{interaksi_id}/survey/list', [SurveyController::class, 'getSurveyList'])->name('survey.list');
+});
+Route::prefix('pasang')->group(function () {
+    Route::get('/{id}/create', [RekapController::class, 'createPasang'])->name('pasang.create');
+    Route::post('/store', [RekapController::class, 'storePasang'])->name('pasang.store');
+    Route::get('/{id}/edit', [RekapController::class, 'editPasang'])->name('pasang.edit');
+    Route::put('/{id}/update', [RekapController::class, 'updatePasang'])->name('pasang.update');
+});
+Route::prefix('invoice')->group(function () {
+    Route::get('/{id}/export-pdf', [RekapController::class, 'export_pdf'])->name('invoice.export_pdf');
+    Route::get('/{id}/create', [RekapController::class, 'createInvoice'])->name('invoice.create');
+    Route::post('/store', [RekapController::class, 'storeInvoice'])->name('invoice.store');
+    Route::get('/{id}/edit', [RekapController::class, 'editInvoice'])->name('invoice.edit');
+    Route::put('/{id}/update', [RekapController::class, 'updateInvoice'])->name('invoice.update');
+});
 
-    Route::prefix('keterangan-invoice')->group(function () {
-        Route::get('/', [InvoiceKeteranganController::class, 'index'])
-            ->name('keterangan_invoice.index');
+Route::prefix('keterangan-invoice')->group(function () {
+    Route::get('/', [InvoiceKeteranganController::class, 'index'])
+        ->name('keterangan_invoice.index');
 
-        Route::get('/{id}/edit_ajax', [InvoiceKeteranganController::class, 'edit_ajax'])
-            ->name('keterangan_invoice.edit_ajax');
+    Route::get('/{id}/edit_ajax', [InvoiceKeteranganController::class, 'edit_ajax'])
+        ->name('keterangan_invoice.edit_ajax');
 
-        Route::put('/{id}', [InvoiceKeteranganController::class, 'update'])
-            ->name('keterangan_invoice.update');
-    });
+    Route::put('/{id}', [InvoiceKeteranganController::class, 'update'])
+        ->name('keterangan_invoice.update');
+});
 
-    Route::get('/profil', [ProfilController::class, 'index']);
-    Route::post('/profil/update_image', [ProfilController::class, 'update_image']);
-    Route::post('/profil/update_data_diri', [ProfilController::class, 'update_data_diri']);
-    Route::post('/profil/update_password', [ProfilController::class, 'updatePassword']);
+Route::get('/profil', [ProfilController::class, 'index']);
+Route::post('/profil/update_image', [ProfilController::class, 'update_image']);
+Route::post('/profil/update_data_diri', [ProfilController::class, 'update_data_diri']);
+Route::post('/profil/update_password', [ProfilController::class, 'updatePassword']);
 Route::get('/cek-token', function () {
     return response()->json([
         'env_value' => env('FONNTE_TOKEN'),
