@@ -4,6 +4,7 @@
         <span aria-hidden="true" class="text-white">&times;</span>
     </button>
 </div>
+<div class="modal-body">
 <form id="form-create-pasang" enctype="multipart/form-data">
     @csrf
     <input type="hidden" id="interaksi_id" value="{{ $interaksi->interaksi_id }}">
@@ -74,7 +75,46 @@
     </div>
 
     <button type="submit" class="btn btn-success">Simpan</button>
+     </div>
 </form>
+<style>
+    /* Modal body diberi padding */
+#crudModal .modal-body {
+    padding: 20px 25px;
+}
+
+/* Supaya tombol kemarin & hari ini tidak menabrak input */
+#crudModal .input-group .form-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#crudModal .btn-outline-primary {
+    border-radius: 0;
+}
+
+/* Rapikan spacing antar elemen */
+#crudModal .form-group {
+    margin-bottom: 18px;
+}
+
+/* Form di dalam modal diberi ruang ke bawah */
+#crudModal form {
+    padding-bottom: 10px;
+}
+
+/* Tinggi minimal textarea */
+#crudModal textarea {
+    min-height: 90px;
+}
+
+/* Modal header biar lebih rapi */
+.modal-header.bg-wallpaper-gradient {
+    padding: 12px 20px;
+    border-bottom: none;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+    </style>
 
 <script>
 $(function() {
@@ -123,14 +163,17 @@ $(function() {
             processData: false,
             contentType: false,
             success: function(res) {
-                if (res.status === 'success') {
-                    toastr.success(res.message);
-                    $("#crudModal").modal('hide');
-                    // ... sisa kode success Anda ...
-                } else {
-                    Swal.fire("Gagal", res.message, "error");
-                }
-            },
+    if (res.status === 'success') {
+        toastr.success(res.message);
+        $("#crudModal").modal('hide');
+
+        $("#tbody-pasang").html(res.html);
+
+        // Update tombol invoice & PDF
+        $("#invoice-buttons-container").html(res.invoice_buttons);
+    }
+},
+
             error: function(xhr) {
                 Swal.fire("Gagal", "Terjadi kesalahan server", "error");
                 console.error(xhr.responseText);
@@ -138,4 +181,5 @@ $(function() {
         });
     });
 });
+
 </script>

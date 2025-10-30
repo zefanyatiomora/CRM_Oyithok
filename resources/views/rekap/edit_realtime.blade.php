@@ -24,7 +24,7 @@
     </div>
 
     <div class="modal-footer">
-       <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+        <button type="submit" class="btn bg-wallpaper-gradient text-white border-0 fw-bold" style="border-radius: 0.35rem;">Simpan Perubahan</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
     </div>
     </div>

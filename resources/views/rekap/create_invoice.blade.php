@@ -52,9 +52,12 @@
             margin-top: 6px;
             display: none;
         }
+.modal-body {
+    max-height: 75vh;
+    overflow-y: auto;
+}
     </style>
-
-    <div class="modal-body">
+        <div class="modal-body">
         <!-- Nomor & Customer -->
         <div class="row mb-2">
             <div class="col-md-6">
@@ -219,6 +222,7 @@
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
         <button type="submit" class="btn btn-success">Simpan</button>
+    </div>
     </div>
 </form>
 

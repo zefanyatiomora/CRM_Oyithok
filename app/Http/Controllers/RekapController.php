@@ -553,7 +553,17 @@ public function deleteRealtime($id)
             $interaksi = \App\Models\InteraksiModel::with('pasang.produk.kategori')->find($data['interaksi_id']);
 
             $html = view('rekap.partials.pasang_tabel', compact('interaksi'))->render();
+$listButton = view('rekap.partials.invoice_buttons', [
+    'interaksi' => $interaksi,
+    'invoices' => $interaksi->invoice ?? null
+])->render();
 
+return response()->json([
+    'status' => 'success',
+    'message' => 'Pasang/Kirim berhasil disimpan!',
+    'html' => $html,
+    'invoice_buttons' => $listButton
+]);
             return response()->json([
                 'status' => 'success',
                 'message' => 'Pasang/Kirim berhasil disimpan!',

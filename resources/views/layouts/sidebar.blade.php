@@ -8,9 +8,15 @@
             {{-- <img src="{{ auth()->user()->image_url }}"alt="User Image" class="rounded-circle" --}}
                 style="width: 30px; height: 30px; object-fit: cover;">
         </div>
-        <div class="info">
+        <div class="user-panel mt-2 pb-2 mb-1 d-flex">
+    <div class="info">
+        @auth
             <a href="{{ url('/profil') }}" class="d-block user-name">{{ Auth::user()->nama }}</a>
-        </div>
+        @else
+            <a href="{{ route('login') }}" class="d-block text-white">Guest</a>
+        @endauth
+    </div>
+</div>
     </div>
     <hr class="my-0 border-purple mx-n3">
     <nav class="mt-2">
@@ -68,15 +74,15 @@
                             <p>Data Produk</p>
                         </a>
                     </li>
-                    @if (Auth::user()->level->level_kode == 'ADM')
-                        <li class="nav-item">
-                            <a href="{{ url('/user') }}"
-                                class="nav-link {{ $activeMenu == 'user' ? 'active' : '' }}">
-                                <i class="fas fa-user-tie nav-icon"></i>
-                                <p>Data User</p>
-                            </a>
-                        </li>
-                    @endif
+                    @if (auth()->check() && auth()->user()->level?->level_kode === 'ADM')
+    <li class="nav-item">
+        <a href="{{ url('/user') }}"
+           class="nav-link {{ $activeMenu == 'user' ? 'active' : '' }}">
+            <i class="fas fa-user-tie nav-icon"></i>
+            <p>Data User</p>
+        </a>
+    </li>
+@endif
                 </ul>
             </li>
 

@@ -296,22 +296,25 @@
     });
 }
 function deleteRealtime(id) {
+    const themeColor = "#C76CFF"; // ungu terang glossy
+
     Swal.fire({
         title: "Yakin hapus data?",
         text: "Data tidak dapat dikembalikan.",
         icon: "warning",
+        iconColor: themeColor, // icon warning jadi terang
         showCancelButton: true,
         confirmButtonText: "Ya, hapus",
-        cancelButtonText: "Batal"
+        cancelButtonText: "Batal",
+        confirmButtonColor: themeColor, // tombol konfirmasi seirama dengan tombol Simpan
+        cancelButtonColor: "#5a5a5a", // abu-abu gelap elegan untuk tombol Batal
+        background: "#ffffff"
     }).then((result) => {
         if (result.isConfirmed) {
-
             $.ajax({
                 url: "{{ route('realtime.delete', 'REPLACE_ID') }}".replace('REPLACE_ID', id),
                 type: "DELETE",
-                data: {
-                    _token: "{{ csrf_token() }}"
-                },
+                data: { _token: "{{ csrf_token() }}" },
                 success: function(res) {
                     toastr.success(res.message);
                     $("#realtime-tabel-container").html(res.html);
@@ -321,7 +324,6 @@ function deleteRealtime(id) {
                     console.error("Delete Error:", xhr.responseText);
                 }
             });
-
         }
     });
 }
@@ -437,36 +439,9 @@ function deleteRealtime(id) {
     @include('rekap.partials.pasang_tabel', ['interaksi' => $interaksi])
 </tbody>
                     </table>
-                    </table>
-                    <h4 class="mt-4 d-flex justify-content-end gap-2">
-                        {{-- Tombol Buat Invoice --}}
-                        @if($interaksi->pasang && $interaksi->pasang->count() > 0)
-                            <a href="javascript:void(0);"
-                                onclick="openModal('{{ route('invoice.create', $interaksi->interaksi_id) }}')"
-                                class="btn btn-sm btn-primary" title="Buat Invoice">
-                                <i class="fas fa-plus fa-sm"></i> Buat Invoice
-                            </a>
-                        @else
-                            <button class="btn btn-sm btn-primary" disabled
-                                    data-toggle="tooltip" data-placement="top"
-                                    title="Belum ada closing untuk interaksi ini">
-                                <i class="fas fa-plus fa-sm"></i> Buat Invoice
-                            </button>
-                        @endif
-                        {{-- Tombol PDF --}}
-                        @if($invoices)
-                            <a href="{{ route('invoice.export_pdf', $invoices->invoice_id) }}"
-                                class="btn btn-sm btn-danger" title="Export PDF" target="_blank">
-                                <i class="fas fa-file-pdf fa-sm"></i> PDF
-                            </a>
-                        @else
-                            <button class="btn btn-sm btn-danger" disabled 
-                                    data-toggle="tooltip" data-placement="top" 
-                                    title="Belum ada invoice untuk interaksi ini">
-                                <i class="fas fa-file-pdf fa-sm"></i> PDF
-                            </button>
-                        @endif
-                    </h4>
+                    <h4 class="mt-4 d-flex justify-content-end gap-2" id="invoice-buttons-container">
+    @include('rekap.partials.invoice_buttons', ['interaksi' => $interaksi, 'invoices' => $invoices])
+</h4>
                 </div> {{-- end modal-body --}}
             </div> {{-- end card --}}
         </div>
