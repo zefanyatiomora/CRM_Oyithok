@@ -190,6 +190,8 @@ Route::prefix('pasang')->group(function () {
     Route::post('/store', [RekapController::class, 'storePasang'])->name('pasang.store');
     Route::get('/{id}/edit', [RekapController::class, 'editPasang'])->name('pasang.edit');
     Route::put('/{id}/update', [RekapController::class, 'updatePasang'])->name('pasang.update');
+    Route::get('/{id}/confirm', [RekapController::class, 'confirmPasang'])->name('pasang.confirm');
+    Route::delete('/{id}/delete_ajax', [RekapController::class, 'deletePasang'])->name('pasang.delete');
 });
 Route::prefix('invoice')->group(function () {
     Route::get('/{id}/export-pdf', [RekapController::class, 'export_pdf'])->name('invoice.export_pdf');
