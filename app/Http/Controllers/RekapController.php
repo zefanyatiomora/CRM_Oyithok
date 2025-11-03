@@ -819,46 +819,49 @@ class RekapController extends Controller
         return view('rekap.confirm_rincian', ['rincian' => $rincian]);
     }
 
-    public function deletePasang(Request $request, $id)
+    public function deletePasang($id)
     {
-        // cek apakah request dari ajax
-        if ($request->ajax() || $request->wantsJson()) {
-            $pasang = PasangKirimModel::find($id);
-            if ($pasang) {
-                $pasang->delete();
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Data berhasil dihapus'
-                ]);
-            } else {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Data tidak ditemukan'
-                ]);
-            }
-        }
-        return redirect('/');
+        $pasang = PasangKirimModel::findOrFail($id);
+        $interaksi_id = $pasang->interaksi_id;
+
+        $pasang->delete();
+
+        $pasangList = PasangKirimModel::with('produk.kategori')
+            ->where('interaksi_id', $interaksi_id)
+            ->orderBy('pasangkirim_id', 'desc')
+            ->get();
+
+        $html = view('rekap.partials.pasang_tabel', compact('pasangList'))->render();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data pemasangan berhasil dihapus.',
+            'html'   => $html
+        ]);
     }
-    public function deleteRincian(Request $request, $id)
+
+    public function deleteRincian($id)
     {
-        // cek apakah request dari ajax
-        if ($request->ajax() || $request->wantsJson()) {
-            $rincian = RincianModel::find($id);
-            if ($rincian) {
-                $rincian->delete();
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Data berhasil dihapus'
-                ]);
-            } else {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Data tidak ditemukan'
-                ]);
-            }
-        }
-        return redirect('/');
+        $rincian = RincianModel::findOrFail($id);
+        $interaksi_id = $rincian->interaksi_id; // ambil interaksi id sebelum delete
+        $rincian->delete();
+
+        // ambil ulang rincian berdasarkan interaksi_id
+        $rincianList = RincianModel::with('produk.kategori')
+            ->where('interaksi_id', $interaksi_id)
+            ->orderBy('rincian_id', 'desc')
+            ->get();
+
+        // render ulang html table
+        $html = view('rekap.partials.rincian_tabel', compact('rincianList'))->render();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data berhasil dihapus.',
+            'html' => $html
+        ]);
     }
+
 
     public function updatePasang(Request $request, $pasang_id)
     {

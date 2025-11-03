@@ -18,10 +18,13 @@
             </a>
             
             {{-- Tombol Hapus --}}
-            <a href="javascript:void(0);" class="btn btn-danger btn-sm"
-                onclick="openModal('{{ url('/rincian/' . $rincian->rincian_id . '/confirm') }}')">
+            <a href="javascript:void(0);" 
+            class="btn btn-danger btn-sm"
+            onclick="deleteRincian('{{ $rincian->rincian_id }}', `{{ $rincian->produk->kategori->kategori_nama }} {{ $rincian->produk->produk_nama }}`)">
                 <i class="fas fa-trash"></i>
             </a>
+
+
         </td>
     </tr>
 @empty

@@ -1,4 +1,4 @@
-@forelse($interaksi->pasang as $pasang)
+@forelse($pasangList as $pasang)
 <tr>
     <td>{{ $pasang->produk->kategori->kategori_nama ?? '' }} {{ $pasang->produk->produk_nama ?? '' }}</td>
     <td>{{ $pasang->kuantitas }} {{ $pasang->produk->satuan }}</td>
@@ -20,10 +20,12 @@
            <i class="fas fa-edit"></i>
         </a>
         {{-- Tombol Hapus --}}
-        <a href="javascript:void(0);" class="btn btn-danger btn-sm"
-            onclick="openModal('{{ url('/pasang/' . $pasang->pasangkirim_id . '/confirm') }}')">
+        <a href="javascript:void(0);" 
+        class="btn btn-danger btn-sm"
+        onclick="deletePasang('{{ $pasang->pasangkirim_id }}', `{{ $pasang->produk->produk_nama }}`)">
             <i class="fas fa-trash"></i>
         </a>
+
     </td>
 </tr>
 @empty

@@ -265,14 +265,14 @@
 
             <table id="tabel-realtime" class="table table-bordered table-striped table-hover table-sm mt-2">
                 <thead>
-    <tr>
-        <th>No</th>
-        <th>Tanggal</th>
-        <th>Keterangan</th>
-        <th>PIC</th>
-        <th>Aksi</th>
-    </tr>
-    </thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Tanggal</th>
+                        <th>Keterangan</th>
+                        <th>PIC</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
                 <tbody id="realtime-tabel-container">
                     @include('rekap.partials.realtime_tabel', ['realtimeList' => $realtimeList])
                 </tbody>
@@ -287,46 +287,46 @@
     </div>
     <script>
         function openModal(url) {
-    $.get(url, function(res) {
-        $("#crudModal .modal-content").html(res);
-        $("#crudModal").modal('show');
-    }).fail(function(err) {
-        console.error("Modal Load Error:", err.responseText);
-        Swal.fire("Error", "Gagal membuka form. Cek console log.", "error");
-    });
-}
-function deleteRealtime(id) {
-    const themeColor = "#C76CFF"; // ungu terang glossy
+            $.get(url, function(res) {
+                $("#crudModal .modal-content").html(res);
+                $("#crudModal").modal('show');
+            }).fail(function(err) {
+                console.error("Modal Load Error:", err.responseText);
+                Swal.fire("Error", "Gagal membuka form. Cek console log.", "error");
+            });
+        }
+        function deleteRealtime(id) {
+            const themeColor = "#C76CFF"; // ungu terang glossy
 
-    Swal.fire({
-        title: "Yakin hapus data?",
-        text: "Data tidak dapat dikembalikan.",
-        icon: "warning",
-        iconColor: themeColor, // icon warning jadi terang
-        showCancelButton: true,
-        confirmButtonText: "Ya, hapus",
-        cancelButtonText: "Batal",
-        confirmButtonColor: themeColor, // tombol konfirmasi seirama dengan tombol Simpan
-        cancelButtonColor: "#5a5a5a", // abu-abu gelap elegan untuk tombol Batal
-        background: "#ffffff"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: "{{ route('realtime.delete', 'REPLACE_ID') }}".replace('REPLACE_ID', id),
-                type: "DELETE",
-                data: { _token: "{{ csrf_token() }}" },
-                success: function(res) {
-                    toastr.success(res.message);
-                    $("#realtime-tabel-container").html(res.html);
-                },
-                error: function(xhr) {
-                    Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
-                    console.error("Delete Error:", xhr.responseText);
+            Swal.fire({
+                title: "Yakin hapus data?",
+                text: "Data tidak dapat dikembalikan.",
+                icon: "warning",
+                iconColor: themeColor, // icon warning jadi terang
+                showCancelButton: true,
+                confirmButtonText: "Ya, hapus",
+                cancelButtonText: "Batal",
+                confirmButtonColor: themeColor, // tombol konfirmasi seirama dengan tombol Simpan
+                cancelButtonColor: "#5a5a5a", // abu-abu gelap elegan untuk tombol Batal
+                background: "#ffffff"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('realtime.delete', 'REPLACE_ID') }}".replace('REPLACE_ID', id),
+                        type: "DELETE",
+                        data: { _token: "{{ csrf_token() }}" },
+                        success: function(res) {
+                            toastr.success(res.message);
+                            $("#realtime-tabel-container").html(res.html);
+                        },
+                        error: function(xhr) {
+                            Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
+                            console.error("Delete Error:", xhr.responseText);
+                        }
+                    });
                 }
             });
         }
-    });
-}
     </script>
             {{-- ========== DATA SURVEY ========== --}}
             <div class="card card-purple collapsed-card shadow-sm border-0">
@@ -368,8 +368,8 @@ function deleteRealtime(id) {
                             </tr>
                         </thead>
                        <tbody id="survey-tabel-body">
-    @include('rekap.partials.survey_tabel', ['interaksi' => $interaksi])                        
-</tbody>
+                            @include('rekap.partials.survey_tabel', ['interaksi' => $interaksi])                        
+                        </tbody>
                     </table>
                     <h4 class="mt-4 d-flex justify-content-between">
                         <span style="font-size:17px;">Rincian Produk</span>
@@ -397,6 +397,40 @@ function deleteRealtime(id) {
                     </table>
                 </div> {{-- card-body rincian --}}
             </div> {{-- card rincian produk --}}
+            <script>
+                function deleteRincian(id, productName) {
+                    const themeColor = "#C76CFF"; // ungu glossy
+
+                    Swal.fire({
+                        title: `Yakin menghapus rincian produk "${productName}" ini?`,
+                        text: "Data tidak dapat dikembalikan.",
+                        icon: "warning",
+                        iconColor: themeColor,
+                        showCancelButton: true,
+                        confirmButtonText: "Ya, hapus",
+                        cancelButtonText: "Batal",
+                        confirmButtonColor: themeColor,
+                        cancelButtonColor: "#5a5a5a",
+                        background: "#ffffff",
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: "{{ route('rincian.delete', 'REPLACE_ID') }}".replace("REPLACE_ID", id),
+                                type: "DELETE",
+                                data: { _token: "{{ csrf_token() }}" },
+                                success: function(res) {
+                                    toastr.success(res.message);
+                                    $(".table-rincian tbody").html(res.html);
+                                },
+                                error: function(xhr) {
+                                    Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
+                                    console.error("Delete Error:", xhr.responseText);
+                                }
+                            });
+                        }
+                    });
+                }
+            </script>
 
             {{-- ========== DATA PASANG ========== --}}
             <div class="card card-purple collapsed-card shadow-sm border-0">
@@ -423,7 +457,7 @@ function deleteRealtime(id) {
                         </a>
                     </h4>
                     <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
-                    <table class="table table-bordered table-striped table-hover table-sm mb-4">
+                    <table class="table table-bordered table-striped table-hover table-sm table-pasang">
                         <thead>
                             <tr>
                                 <th>Produk</th>
@@ -435,15 +469,50 @@ function deleteRealtime(id) {
                                 <th>Aksi</th>
                             </tr>
                         </thead>
-                                                <tbody id="tbody-pasang">
-    @include('rekap.partials.pasang_tabel', ['interaksi' => $interaksi])
-</tbody>
+                        <tbody id="tbody-pasang">
+                            @include('rekap.partials.pasang_tabel', ['pasangList' => $interaksi->pasang])
+                        </tbody>
                     </table>
                     <h4 class="mt-4 d-flex justify-content-end gap-2" id="invoice-buttons-container">
-    @include('rekap.partials.invoice_buttons', ['interaksi' => $interaksi, 'invoices' => $invoices])
-</h4>
+                        @include('rekap.partials.invoice_buttons', ['interaksi' => $interaksi, 'invoices' => $invoices])
+                    </h4>
                 </div> {{-- end modal-body --}}
             </div> {{-- end card --}}
+            <script>
+                function deletePasang(id, productName) {
+                    const themeColor = "#C76CFF";
+
+                    Swal.fire({
+                        title: `Yakin menghapus pemasangan produk "${productName}" ini?`,
+                        text: "Data tidak dapat dikembalikan.",
+                        icon: "warning",
+                        iconColor: themeColor,
+                        showCancelButton: true,
+                        confirmButtonText: "Ya, hapus",
+                        cancelButtonText: "Batal",
+                        confirmButtonColor: themeColor,
+                        cancelButtonColor: "#5a5a5a",
+                        background: "#ffffff",
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: "{{ route('pasang.delete', 'REPLACE_ID') }}".replace("REPLACE_ID", id),
+                                type: "DELETE",
+                                data: { _token: "{{ csrf_token() }}" },
+                                success: function(res) {
+                                    toastr.success(res.message);
+                                    $(".table-pasang tbody").html(res.html);
+                                },
+                                error: function(xhr) {
+                                    Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
+                                    console.error("Delete Error:", xhr.responseText);
+                                }
+                            });
+                        }
+                    });
+                }
+
+            </script>
         </div>
     </div>
 
