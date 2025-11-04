@@ -543,16 +543,25 @@ class RekapController extends Controller
                 'status'
             ]);
 
-            // Normalisasi tanggal + waktu secara otomatis
+            // Format tanggal
             $data['jadwal_pasang_kirim'] = Carbon::parse($data['jadwal_pasang_kirim'])->format('Y-m-d H:i:s');
 
-            // Simpan data pasang
-            $pasang = \App\Models\PasangKirimModel::create($data);
+            // Simpan pasang
+            $pasang = PasangKirimModel::create($data);
 
-            // Ambil interaksi terbaru beserta relasi
-            $interaksi = \App\Models\InteraksiModel::with('pasang.produk.kategori')->find($data['interaksi_id']);
+            // ✅ Update tahapan ke Pasang/Kirim
+            $this->updateTahapan($data['interaksi_id'], 'Pasang/Kirim');
 
-            $html = view('rekap.partials.pasang_tabel', compact('interaksi'))->render();
+            // Ambil interaksi & daftar pasang
+            $interaksi = InteraksiModel::with('pasang.produk.kategori')->find($data['interaksi_id']);
+
+            $pasangList = PasangKirimModel::with('produk.kategori')
+                ->where('interaksi_id', $data['interaksi_id'])
+                ->orderBy('pasangkirim_id', 'desc')
+                ->get();
+
+            $html = view('rekap.partials.pasang_tabel', compact('pasangList'))->render();
+
             $listButton = view('rekap.partials.invoice_buttons', [
                 'interaksi' => $interaksi,
                 'invoices' => $interaksi->invoice ?? null
@@ -564,16 +573,8 @@ class RekapController extends Controller
                 'html' => $html,
                 'invoice_buttons' => $listButton
             ]);
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Pasang/Kirim berhasil disimpan!',
-                'html' => $html
-            ]);
         } catch (\Exception $e) {
-            Log::error('Store Pasang - Error: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-                'request' => $request->all()
-            ]);
+            Log::error('Store Pasang - Error: ' . $e->getMessage());
 
             return response()->json([
                 'status' => 'error',
@@ -582,6 +583,8 @@ class RekapController extends Controller
             ], 500);
         }
     }
+
+
     public function storeInvoice(Request $request)
     {
         $request->validate([
