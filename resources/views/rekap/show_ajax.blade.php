@@ -457,22 +457,24 @@
                         </a>
                     </h4>
                     <input type="hidden" name="interaksi_id" value="{{ $interaksi->interaksi_id }}">
-                    <table class="table table-bordered table-striped table-hover table-sm table-pasang">
-                        <thead>
-                            <tr>
-                                <th>Produk</th>
-                                <th>Kuantitas</th>
-                                <th>Deskripsi</th>
-                                <th>Jadwal</th>
-                                <th>Alamat</th>
-                                <th>Status</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbody-pasang">
-                            @include('rekap.partials.pasang_tabel', ['pasangList' => $interaksi->pasang])
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-hover table-sm table-pasang">
+                            <thead>
+                                <tr>
+                                    <th>Produk</th>
+                                    <th>Kuantitas</th>
+                                    <th>Deskripsi</th>
+                                    <th>Jadwal</th>
+                                    <th>Alamat</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-pasang">
+                                @include('rekap.partials.pasang_tabel', ['pasangList' => $interaksi->pasang])
+                            </tbody>
+                        </table>
+                    </div>
                     <h4 class="mt-4 d-flex justify-content-end gap-2" id="invoice-buttons-container">
                         @include('rekap.partials.invoice_buttons', ['interaksi' => $interaksi, 'invoices' => $invoices])
                     </h4>
