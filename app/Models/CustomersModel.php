@@ -49,8 +49,7 @@ class CustomersModel extends Model
         //     return $sum;
         // });
         $totalCashSpent = $closingInteraksi
-            ->flatMap(fn($interaksi) => $interaksi->pasang->map(fn($p) => optional($p->invoiceDetail->invoice)->invoice_id))
-            ->unique()
+            ->flatMap(fn($interaksi) => $interaksi->pasang->map(fn($p) => $p->invoiceDetail?->invoice?->invoice_id))->unique()
             ->filter()
             ->map(fn($id) => InvoiceModel::find($id)?->total_akhir ?? 0)
             ->sum();

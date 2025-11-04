@@ -3,11 +3,11 @@
         {{-- Header Profesional --}}
         <div class="modal-header bg-wallpaper-gradient position-relative border-bottom-0" style="padding: 1rem 1.5rem;">
             <h5 class="modal-title fw-bold text-white">
-    <i class="fas fa-user-check me-2"></i> Detail Kebutuhan Customer:
-    {{ $interaksi->customer->customer_kode ?? '-' }} -
-    {{ $interaksi->customer->customer_nama ?? '-' }} -
-    {{ $interaksi->customer->customer_alamat ?? '-' }}
-</h5>
+                <i class="fas fa-user-check me-2"></i> Detail Kebutuhan Customer:
+                {{ $interaksi->customer->customer_kode ?? '-' }} -
+                {{ $interaksi->customer->customer_nama ?? '-' }} -
+                {{ $interaksi->customer->customer_alamat ?? '-' }}
+            </h5>
             <button type="button" class="close position-absolute" style="top: 10px; right: 15px;" data-dismiss="modal">
                 <span>&times;</span>
             </button>
