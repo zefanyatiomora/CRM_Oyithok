@@ -55,12 +55,12 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="customer_alamat">Alamat</label>
-                            <textarea class="form-control" name="customer_alamat" id="customer_alamat" required>{{ old('customer_alamat') }}</textarea>
+                            <textarea class="form-control" name="customer_alamat" id="customer_alamat">{{ old('customer_alamat') }}</textarea>
                         </div>
 
                         <div class="form-group">
                             <label for="informasi_media">Informasi Media</label>
-                            <select class="form-control" name="informasi_media" id="informasi_media" required>
+                            <select class="form-control" name="informasi_media" id="informasi_media">
                                 <option value="">-- Pilih Media --</option>
                                 <option value="google" {{ old('informasi_media') == 'google' ? 'selected' : '' }}>Google</option>
                                 <option value="medsos" {{ old('informasi_media') == 'medsos' ? 'selected' : '' }}>Media Sosial</option>
