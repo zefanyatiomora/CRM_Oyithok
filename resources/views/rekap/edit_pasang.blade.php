@@ -113,9 +113,12 @@
                     </select>
                     <small id="error-status" class="text-danger"></small>
                 </div>
-
-                <button type="submit" class="btn btn-primary">Update</button>
-            </form>
+    <div class="modal-footer">
+    <button type="submit" class="btn btn-success">Simpan</button>
+        <button type="button" class="btn btn-secondary btn-close-modal">Batal</button>
+    </div>
+    </div>
+</form>
         </div> {{-- end modal-body --}}
 
 
@@ -180,7 +183,11 @@
             tomorrow.setDate(tomorrow.getDate() + 1);
             fp.setDate(tomorrow);
         });
-        
+             // Tombol Batal / Close
+    $(document).on('click', '.btn-close-modal', function() {
+        // Tutup modal tanpa reload
+        $('#crudModal').modal('hide');
+    });
         // === Submit Form Edit via AJAX ===
         $("#form-edit-pasang").submit(function(e) {
             e.preventDefault();
@@ -201,14 +208,28 @@
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: function(res) {
-                    if (res.status === 'success') {
-                        toastr.success(res.message);
-                        $("#crudModal").modal('hide'); // Ini akan menutup modal setelah sukses
-                        $("#tbody-pasang").html(res.html);
-                        $("#invoice-buttons-container").html(res.invoice_buttons);
-                    }
-                },
+success: function(res) {
+    if (res.status === 'success') {
+        toastr.success(res.message);
+
+        // Tutup hanya modal edit, bukan card
+        $("#crudModal").modal('hide');
+
+        // Update tabel pasang tanpa menutup card
+        if (res.html) {
+            $(".table-pasang tbody").html(res.html);
+        } else {
+            // fallback kalau controller tidak mengirim html
+            let interaksiId = $("#interaksi_id").val();
+            $(".table-pasang tbody").load("{{ url('rekap') }}/" + interaksiId + " .table-pasang tbody > *");
+        }
+
+        // Update tombol invoice kalau dikirim dari controller
+        if (res.invoice_buttons) {
+            $("#invoice-buttons-container").html(res.invoice_buttons);
+        }
+    }
+},
                 error: function(xhr) {
                     Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
                     console.error("Server Error:", xhr.responseText);

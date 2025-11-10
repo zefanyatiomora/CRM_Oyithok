@@ -1,8 +1,5 @@
 <div class="modal-header bg-wallpaper-gradient text-white">
     <h5 class="modal-title">Tambah Survey</h5>
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true" class="text-white">&times;</span>
-    </button>
 </div>
 <div class="modal-body">
 <form id="form-create-survey" enctype="multipart/form-data">
@@ -30,7 +27,9 @@
     </div>
 
     <!-- Submit Button -->
-    <button type="submit" class="btn btn-success">Simpan</button>
+     <div class="modal-footer">
+        <button type="submit" class="btn btn-success">Simpan</button>
+        <button type="button" class="btn btn-secondary btn-close-modal">Batal</button>
     </div>
 </form>
 <style>
@@ -82,7 +81,10 @@ $(function() {
         defaultDate: new Date(),    // Default tanggal dan waktu saat ini
         minuteIncrement: 1,
     });
-
+  // Tutup modal tanpa reload
+    $(document).on('click', '.btn-close-modal', function() {
+        $('#crudModal').modal('hide');
+    });
     // 2. Submit form menggunakan AJAX
     $("#form-create-survey").submit(function(e) {
         e.preventDefault();

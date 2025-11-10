@@ -264,7 +264,16 @@ class RekapController extends Controller
         $request->validate([
             'interaksi_id' => 'required|exists:interaksi,interaksi_id',
             'tanggal' => 'required|date',
-            'keterangan' => 'required|string',
+             'keterangan' => [
+        'required',
+        'string',
+        function ($attribute, $value, $fail) {
+            $wordCount = str_word_count(strip_tags($value));
+            if ($wordCount > 500) {
+                $fail('Keterangan tidak boleh lebih dari 500 kata.');
+            }
+        },
+    ],
             'user_id' => 'required|exists:m_user,user_id',
         ]);
 
@@ -760,6 +769,7 @@ class RekapController extends Controller
         ];
 
         $validator = Validator::make($request->all(), $rules);
+        $interaksi = $rincian->interaksi; // ambil relasi interaksi dari rincian    
 
         if ($validator->fails()) {
             return response()->json([
@@ -781,7 +791,10 @@ class RekapController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Data rincian berhasil diperbarui',
-        ]);
+            'html' => view('rekap.partials.rincian_tabel', [
+        'rincianList' => $interaksi->rincian
+    ])->render()
+]);
     }
     public function confirmPasang(string $id)
     {
@@ -866,72 +879,53 @@ class RekapController extends Controller
     }
 
 
-    public function updatePasang(Request $request, $pasang_id)
-    {
-        $pasang = PasangKirimModel::findOrFail($pasang_id);
+public function updatePasang(Request $request, $pasang_id)
+{
+    $pasang = PasangKirimModel::findOrFail($pasang_id);
 
-        $rules = [
-            'interaksi_id'        => 'required|integer',
-            'produk_id'           => 'required|integer',
-            'kuantitas'           => 'required|numeric',
-            'deskripsi'           => 'required|string|max:255',
-            'alamat'              => 'required|string|max:255',
-            'jadwal_pasang_kirim' => 'required|date',
-            'status'              => 'required|in:closing all,closing produk,closing pasang',
-        ];
+    $rules = [
+        'interaksi_id'        => 'required|integer',
+        'produk_id'           => 'required|integer',
+        'kuantitas'           => 'required|numeric',
+        'deskripsi'           => 'required|string|max:255',
+        'alamat'              => 'required|string|max:255',
+        'jadwal_pasang_kirim' => 'required|date',
+        'status'              => 'required|in:closing all,closing produk,closing pasang',
+    ];
 
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            // Tambahkan log alasan validasi gagal
-            Log::warning('Update Pasang - Validasi gagal', [
-                'errors'   => $validator->errors()->toArray(),
-                'payload'  => $request->all(),
-                'pasangId' => $pasang_id
-            ]);
-
-            return response()->json([
-                'status'   => false,
-                'message'  => 'Validasi gagal.',
-                'msgField' => $validator->errors(),
-            ]);
-        }
-
-        try {
-            $pasang->update([
-                'interaksi_id'        => $request->interaksi_id,
-                'produk_id'           => $request->produk_id,
-                'kuantitas'           => $request->kuantitas,
-                'deskripsi'           => $request->deskripsi,
-                'alamat'              => $request->alamat,
-                'jadwal_pasang_kirim' => $request->jadwal_pasang_kirim,
-                'status'              => $request->status,
-            ]);
-
-            // update tahapan (biar sama kayak store)
-            $this->updateTahapan($pasang->interaksi_id, 'Pasang/Kirim');
-
-            return response()->json([
-                'status'  => true,
-                'message' => 'Data Pasang/Kirim berhasil diperbarui',
-            ]);
-        } catch (\Exception $e) {
-            // Tambahkan log error lengkap
-            Log::error('Update Pasang - Error', [
-                'message'  => $e->getMessage(),
-                'trace'    => $e->getTraceAsString(),
-                'payload'  => $request->all(),
-                'pasangId' => $pasang_id
-            ]);
-
-            return response()->json([
-                'status'  => false,
-                'message' => 'Terjadi kesalahan saat memperbarui Pasang/Kirim.',
-            ]);
-        }
+    $validator = Validator::make($request->all(), $rules);
+    if ($validator->fails()) {
+        return response()->json([
+            'status'   => 'error',
+            'message'  => 'Validasi gagal.',
+            'msgField' => $validator->errors(),
+        ]);
     }
 
+    try {
+        $pasang->update($request->only([
+            'interaksi_id', 'produk_id', 'kuantitas',
+            'deskripsi', 'alamat', 'jadwal_pasang_kirim', 'status'
+        ]));
 
+        $interaksi = $pasang->interaksi ?? InteraksiModel::find($request->interaksi_id);
+        $this->updateTahapan($pasang->interaksi_id, 'Pasang/Kirim');
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data Pasang/Kirim berhasil diperbarui',
+            'html' => view('rekap.partials.pasang_tabel', [
+                'pasangList' => $interaksi->pasang
+            ])->render(),
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Update Pasang - Error', ['message' => $e->getMessage()]);
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'Terjadi kesalahan saat memperbarui Pasang/Kirim.',
+        ]);
+    }
+}
     public function updateTahapan($interaksi_id, $tahapanBaru)
     {
         $steps = ['Identifikasi', 'Survey', 'Rincian', 'Pasang/Kirim'];

@@ -2,6 +2,7 @@
 <hr class="my-0 border-purple">
 <div class="sidebar">
     <!-- Sidebar Menu -->
+    
     <!-- Sidebar user panel (optional) -->
     <div class="user-panel mt-2 pb-2 mb-1 d-flex">
         <div class="image">

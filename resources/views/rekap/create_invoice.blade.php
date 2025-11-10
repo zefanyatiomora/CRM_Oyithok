@@ -220,11 +220,21 @@
     </div>
 
     <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-        <button type="submit" class="btn btn-success">Simpan</button>
+    <button type="submit" class="btn btn-success">Simpan</button>
+        <button type="button" class="btn btn-secondary btn-close-modal">Batal</button>
     </div>
     </div>
 </form>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Bootstrap JS (wajib kalau belum ada) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Bootstrap Datepicker CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
+
+<!-- Bootstrap Datepicker JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 
 {{-- inject lastInvoice ke javascript --}}
 <script>
@@ -238,7 +248,23 @@
         num = parseInt(num) || 0;
         return 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
-
+$(document).ready(function () {
+    // Inisialisasi datepicker
+    $('.date-input').datepicker({
+        format: 'dd-mm-yyyy',        // Format tampilan
+        autoclose: true,             // Tutup otomatis setelah pilih
+        todayHighlight: true,        // Sorot tanggal hari ini
+        orientation: "bottom auto",  // Posisi dropdown
+        clearBtn: true               // Tombol hapus tanggal
+    }).on('changeDate', function (e) {
+        // Simpan ke input hidden dalam format yyyy-mm-dd
+        const inputId = $(this).attr('id');              // contoh: tanggal_dp_display
+        const hiddenId = inputId.replace('_display', ''); // hasil: tanggal_dp
+        const dateParts = e.format().split('-');          // [dd, mm, yyyy]
+        const formatted = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+        $(`#${hiddenId}`).val(formatted);
+    });
+});
     function parseRupiah(str) {
         if (str === '' || str === null || typeof str === 'undefined') return 0;
         return parseInt(String(str).replace(/[^0-9]/g, '')) || 0;
@@ -342,7 +368,10 @@
         $(this).val(v === '' ? '' : v);
         // tidak memicu perubahan nominal_ppn secara otomatis
     });
-
+    $(document).on('click', '.btn-close-modal', function() {
+        // Tutup modal tanpa reload
+        $('#crudModal').modal('hide');
+    });
     $(document).ready(function() {
         if (!$('#pesanan_masuk_display').val()) {
             let today = new Date();

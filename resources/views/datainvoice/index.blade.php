@@ -38,20 +38,20 @@
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-info btn-show-invoice"
-                                        data-id="{{ $inv->invoice_id }}">
-                                        <i class="fas fa-eye fa-sm"></i> Detail
-                                    </button>
-                                    <a href="{{ route('invoice.export_pdf', $inv->invoice_id) }}"
-                                        class="btn btn-sm btn-danger" target="_blank">
-                                        <i class="fas fa-file-pdf fa-sm"></i> PDF
-                                    </a>
-                                    <a href="javascript:void(0);" class="btn btn-warning btn-sm"
-                                        onclick="openModal('{{ url('/invoice/' . $inv->invoice_id . '/edit') }}')"
-                                        title="Edit Invoice">
-                                        <i class="fas fa-edit fa-sm"></i> Edit
-                                    </a>
-                                </td>
+                                     <a href="javascript:void(0);" class="btn btn-secondary btn-sm"
+        onclick="openModal('{{ url('/invoice/' . $inv->invoice_id . '/edit') }}')"
+        title="Edit Invoice">
+        <i class="fas fa-edit fa-sm"></i> Edit
+    </a>
+    <button type="button" class="btn btn-sm btn-dark btn-show-invoice"
+        data-id="{{ $inv->invoice_id }}">
+        <i class="fas fa-eye fa-sm"></i> Detail
+    </button>
+    <a href="{{ route('invoice.export_pdf', $inv->invoice_id) }}"
+        class="btn btn-sm btn-danger" target="_blank">
+        <i class="fas fa-file-pdf fa-sm"></i> PDF
+    </a>
+</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -85,6 +85,7 @@
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
             color: #fff;
         }
+
     </style>
 @endpush
 

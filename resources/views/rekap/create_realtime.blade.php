@@ -1,8 +1,5 @@
 <div class="modal-header bg-wallpaper-gradient text-white">
     <h5 class="modal-title">Interaksi Harian</h5>
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true" class="text-white">&times;</span>
-    </button>
 </div>
 <div class="modal-body">
 <form id="form-create-realtime" enctype="multipart/form-data">
@@ -46,7 +43,7 @@
 
     <div class="modal-footer">
         <button type="submit" class="btn bg-wallpaper-gradient text-white border-0 fw-bold" style="border-radius: 0.35rem;">Simpan</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+        <button type="button" class="btn btn-secondary btn-close-modal">Batal</button>
     </div>
     </div>
 </form>
@@ -89,15 +86,33 @@
 }
     </style>
 <script>
-    $(function() {
-        $('#btn-today').click(function() {
-            let today = new Date();
-            let formatted = String(today.getDate()).padStart(2, '0') + '-' +
-                String(today.getMonth() + 1).padStart(2, '0') + '-' +
-                today.getFullYear();
-            $('#tanggal').val(formatted);
-        });
+$(function() {
+    // Inisialisasi Flatpickr (tanpa waktu, format dd-mm-yyyy)
+    const fp = flatpickr("#tanggal", {
+        dateFormat: "d-m-Y",     // Format tampilan untuk user
+        altInput: false,
+        defaultDate: "{{ \Carbon\Carbon::today()->format('d-m-Y') }}",
+        allowInput: true,
+        clickOpens: true,
+        locale: "id"
+    });
 
+    // Tombol "Hari Ini"
+    $('#btn-today').click(function() {
+        fp.setDate(new Date()); // Flatpickr API (langsung update kalender & input)
+    });
+
+    // Tombol "Kemarin"
+    $('#btn-yesterday').click(function() {
+        let yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        fp.setDate(yesterday);
+    });
+ // Tombol Batal / Close
+    $(document).on('click', '.btn-close-modal', function() {
+        // Tutup modal tanpa reload
+        $('#crudModal').modal('hide');
+    });
         $('#btn-yesterday').click(function() {
             let d = new Date();
             d.setDate(d.getDate() - 1);

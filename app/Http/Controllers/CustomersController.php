@@ -39,17 +39,18 @@ class CustomersController extends Controller
             'loyalty_point'
         ]);
 
-        return DataTables::of($customer)
-            ->addIndexColumn()
-            ->addColumn('aksi', function ($customer) {
-                $btn  = '<button onclick="modalAction(\'' . url('/customers/' . $customer->customer_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</i></button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/customers/' . $customer->customer_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button>';
-                return $btn;
-            })
-            ->rawColumns(['aksi'])
-            ->make(true);
+      return DataTables::of($customer)
+    ->addIndexColumn()
+    ->addColumn('aksi', function ($customer) {
+        $btn  = '<button onclick="modalAction(\'' . url('/customers/' . $customer->customer_id . '/edit_ajax') . '\')" 
+                    class="btn btn-secondary btn-sm">Edit</button> ';
+        $btn .= '<button onclick="modalAction(\'' . url('/customers/' . $customer->customer_id . '/show_ajax') . '\')" 
+                    class="btn btn-dark btn-sm">Detail</button>';
+        return $btn;
+    })
+    ->rawColumns(['aksi'])
+    ->make(true);
     }
-
     // Tampilkan form tambah customer
     public function create()
     {

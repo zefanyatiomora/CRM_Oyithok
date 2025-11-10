@@ -1,164 +1,191 @@
 @extends('layouts.template')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid py-3">
     <div class="row">
-        <div class="col-md-3">
-            <!-- Profile Image -->
-            <div class="card card-primary card-outline">
-                <div class="card-body box-profile">
-                    <div class="text-center">
+        <!-- PROFIL KIRI -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="modal-header bg-wallpaper-gradient text-white rounded-top position-relative border-bottom-0" style="padding: 1rem 1.5rem;">
+                    <h5 class="modal-title mb-0">Profil Anda</h5>
+                </div>
+                <div class="card-body text-center">
                     <img src="{{ auth()->user()->image_url }}"
-                    id="profile-image-preview" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px;" alt="Image">
-                    </div>
+                         id="profile-image-preview"
+                         class="rounded-circle img-fluid mb-3 shadow-sm"
+                         style="width: 130px; height: 130px; object-fit: cover;"
+                         alt="Foto Profil">
 
-                    <h3 class="profile-username text-center">{{ auth()->user()->nama }}</h3>
-                    <p class="text-muted text-center">{{ auth()->user()->level->level_nama }}</p>
+                    <h4 class="fw-bold mb-1">{{ auth()->user()->nama }}</h4>
+                    <p class="text-muted mb-3">{{ auth()->user()->level->level_nama }}</p>
 
-                    <ul class="list-group list-group-unbordered mb-3">
-                        <form action="{{ url('/profil/update_image') }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                        <div class="form-group row">
-                            <div class="col-sm-10">
-                                <div class="input-group">
-                                    <input type="file" name="image" id="image" class="form-control" required>
-                                    <div class="input-group-append">
-                                    </div>
-                                </div>
-                            </div>
+                    <form action="{{ url('/profil/update_image') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="input-group mb-3">
+                            <input type="file" name="image" id="image" class="form-control form-control-sm" required>
                         </div>
-                        <button type="submit" class="btn btn-primary">Ganti Foto Profil</button>
-                        </form>
-                        
-                    </ul>
-
+                        <button type="submit" class="btn btn-primary btn-block btn-sm rounded-pill">
+                            <i class="fas fa-sync-alt me-1"></i> Ganti Foto Profil
+                        </button>
+                    </form>
                 </div>
-                <!-- /.card-body -->
             </div>
-            <!-- /.card -->
         </div>
-        <!-- /.col -->
 
+        <!-- DATA DIRI DAN PASSWORD -->
         <div class="col-md-9">
-            <div class="card card-primary card-outline">
-                <div class="card-header p-2">
+            <div class="card shadow-sm border-0">
+                <div class="modal-header bg-wallpaper-gradient text-white rounded-top position-relative border-bottom-0" style="padding: 1rem 1.5rem;">
+                    <h5 class="modal-title mb-0">Pengaturan Profil</h5>
+                </div>
+
+                <div class="card-header bg-light border-0 p-2">
                     <ul class="nav nav-pills">
-                        <li class="nav-item"><a class="nav-link active" href="#editdatadiri" data-toggle="tab">Edit Data Diri</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#editpw" data-toggle="tab">Edit Password</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#editdatadiri" data-toggle="tab">
+                                <i class="fas fa-user-edit me-1"></i> Edit Data Diri
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#editpw" data-toggle="tab">
+                                <i class="fas fa-lock me-1"></i> Edit Password
+                            </a>
+                        </li>
                     </ul>
                 </div>
-                <!-- /.card-header -->
 
                 <div class="card-body">
                     <div class="tab-content">
+
+                        <!-- TAB EDIT DATA DIRI -->
                         <div class="active tab-pane" id="editdatadiri">
                             <form action="{{ url('/profil/update_data_diri') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
-                                <div class="form-group row">
+                                <div class="mb-3 row">
                                     <label class="col-sm-2 col-form-label">Username</label>
                                     <div class="col-sm-10">
-                                        <input type="text" class="form-control" value="{{ $profil->username }}" disabled>
+                                        <input type="text" class="form-control bg-light" value="{{ $profil->username }}" disabled>
                                     </div>
                                 </div>
-                                
-                                <div class="form-group row">
+
+                                <div class="mb-3 row">
                                     <label for="nama" class="col-sm-2 col-form-label">Nama</label>
                                     <div class="col-sm-10">
                                         <input type="text" name="nama" id="nama" class="form-control" value="{{ $profil->nama }}" required>
-                                        <small id="error-nama" class="error-text form-text text-danger"></small>
                                     </div>
                                 </div>
-                                <div class="form-group row">
+
+                                <div class="mb-3 row">
                                     <label for="ttd" class="col-sm-2 col-form-label">Tanda Tangan</label>
                                     <div class="col-sm-10">
-
-                                        {{-- Tampilkan TTD lama kalau ada --}}
                                         @if(Auth::user()->ttd)
                                             <div class="mb-2">
-                                                <img src="{{ asset('storage/' . $profil->ttd) }}"id="ttd-image-preview" alt="TTD" width="200">
+                                                <img src="{{ asset('storage/' . $profil->ttd) }}"
+                                                     id="ttd-image-preview"
+                                                     class="border rounded shadow-sm"
+                                                     alt="TTD" width="200">
                                             </div>
                                         @endif
-
-                                        {{-- Input untuk upload TTD baru --}}
-                                        <input type="file" name="ttd" id="ttd" class="form-control" accept="image/*">
-                                        <small id="error-ttd" class="error-text form-text text-danger"></small>
+                                        <input type="file" name="ttd" id="ttd" class="form-control form-control-sm" accept="image/*">
                                     </div>
                                 </div>
 
-                                <div class="form-group row">
+                                <div class="mb-3 row">
                                     <label for="nohp" class="col-sm-2 col-form-label">No. HP</label>
                                     <div class="col-sm-10">
                                         <input type="text" name="nohp" id="nohp" class="form-control" value="{{ $profil->nohp ?? '' }}">
                                     </div>
                                 </div>
-                        
-                                <div class="form-group row">
+
+                                <div class="mb-3 row">
                                     <label for="alamat" class="col-sm-2 col-form-label">Alamat</label>
                                     <div class="col-sm-10">
-                                        <textarea name="alamat" id="alamat" class="form-control">{{ $profil->alamat ?? '' }}</textarea>
+                                        <textarea name="alamat" id="alamat" class="form-control" rows="3">{{ $profil->alamat ?? '' }}</textarea>
                                     </div>
                                 </div>
-                        
-                                <div class="form-group row">
-                                    <div class="col-sm-10 offset-sm-2">
-                                        <button type="submit" class="btn btn-primary">Update Profil</button>
-                                    </div>
+
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary rounded-pill">
+                                        <i class="fas fa-save me-1"></i> Simpan Perubahan
+                                    </button>
                                 </div>
                             </form>
                         </div>
-                        
-                        <!-- /.tab-pane -->
 
+                        <!-- TAB EDIT PASSWORD -->
                         <div class="tab-pane" id="editpw">
                             <form action="{{ url('/profil/update_password') }}" method="POST" class="form-horizontal">
                                 @csrf
-                                <div class="form-group row">
-                                    <label for="oldPassword" class="col-sm-2 col-form-label">Password Lama</label>
-                                    <div class="col-sm-10">
-                                        <input type="password" name="old_password" class="form-control" id="oldPassword" placeholder="Masukkan password lama" required>
-                                        @if($errors->has('old_password'))
-                                            <small class="text-danger">{{ $errors->first('old_password') }}</small>
-                                        @endif
+                                <div class="mb-3 row">
+                                    <label for="oldPassword" class="col-sm-3 col-form-label">Password Lama</label>
+                                    <div class="col-sm-9">
+                                        <input type="password" name="old_password" class="form-control" placeholder="Masukkan password lama" required>
                                     </div>
                                 </div>
-                                <div class="form-group row">
-                                    <label for="newPassword" class="col-sm-2 col-form-label">Password Baru</label>
-                                    <div class="col-sm-10">
-                                        <input type="password" name="new_password" class="form-control" id="newPassword" placeholder="Masukkan password baru" required>
-                                        @if($errors->has('new_password'))
-                                            <small class="text-danger">{{ $errors->first('new_password') }}</small>
-                                        @endif
+                                <div class="mb-3 row">
+                                    <label for="newPassword" class="col-sm-3 col-form-label">Password Baru</label>
+                                    <div class="col-sm-9">
+                                        <input type="password" name="new_password" class="form-control" placeholder="Masukkan password baru" required>
                                     </div>
                                 </div>
-                                <div class="form-group row">
-                                    <label for="confirmPassword" class="col-sm-2 col-form-label">Ulangi Password Baru</label>
-                                    <div class="col-sm-10">
-                                        <input type="password" name="confirm_password" class="form-control" id="confirmPassword" placeholder="Ulangi password baru" required>
-                                        @if($errors->has('confirm_password'))
-                                            <small class="text-danger">{{ $errors->first('confirm_password') }}</small>
-                                        @endif
+                                <div class="mb-3 row">
+                                    <label for="confirmPassword" class="col-sm-3 col-form-label">Ulangi Password</label>
+                                    <div class="col-sm-9">
+                                        <input type="password" name="confirm_password" class="form-control" placeholder="Ulangi password baru" required>
                                     </div>
                                 </div>
-                                <div class="form-group row">
-                                    <div class="offset-sm-2 col-sm-10">
-                                        <button type="submit" class="btn btn-primary">Update Password</button>
-                                    </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary rounded-pill">
+                                        <i class="fas fa-key me-1"></i> Update Password
+                                    </button>
                                 </div>
                             </form>
                         </div>
-                        
-                        <!-- /.tab-pane -->
+
                     </div>
-                    <!-- /.tab-content -->
-                </div><!-- /.card-body -->
+                </div>
             </div>
-            <!-- /.card -->
         </div>
-        <!-- /.col -->
     </div>
-    <!-- /.row -->
-</div><!-- /.container-fluid -->
+</div>
 @endsection
+@push('css')
+<style>
+    .bg-wallpaper-gradient {
+        background: linear-gradient(135deg, #a66dd4, #7a4fcf);
+    }
+
+    .card {
+        border-radius: 0.75rem;
+    }
+
+    .form-control:focus {
+        border-color: #a66dd4;
+        box-shadow: 0 0 0 0.2rem rgba(166, 109, 212, 0.25);
+    }
+
+    .btn-primary {
+        background-color: #a66dd4;
+        border-color: #a66dd4;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #9559c3;
+        border-color: #9559c3;
+    }
+
+    .nav-pills .nav-link.active {
+        background-color: #a66dd4;
+        border-radius: 50px;
+    }
+
+    .nav-pills .nav-link:not(.active):hover {
+        color: #a66dd4;
+    }
+</style>
+@endpush
+
 @push('js')
 <script>
     document.addEventListener('DOMContentLoaded', function() {

@@ -94,9 +94,12 @@
             </select>
             <small id="error-status" class="text-danger"></small>
         </div>
-
-        <button type="submit" class="btn btn-primary">Update</button>
-    </form>
+    <div class="modal-footer">
+    <button type="submit" class="btn btn-success">Simpan</button>
+        <button type="button" class="btn btn-secondary btn-close-modal">Batal</button>
+    </div>
+    </div>
+</form>
 </div> {{-- end modal-body --}}
 
 
@@ -159,16 +162,20 @@
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: function(response) {
-                    toastr.success(response.message);
-                    
-                    // Logika sukses asli Anda (reload datatable dan modal master)
-                    tableRekap.ajax.reload(null, false);
-                    $("#myModal").load("{{ url('rekap') }}/" + interaksiId + "/show_ajax");
-                    
-                    // Tutup modal edit ini
-                    $("#crudModal").modal('hide');
-                },
+success: function(response) {
+    toastr.success(response.message);
+
+    // Tutup modal edit
+    $("#crudModal").modal('hide');
+
+    // Update tabel rincian di show_ajax tanpa reload seluruh card
+    if (response.html) {
+        $(".table-rincian tbody").html(response.html);
+    } else {
+        // fallback jika controller tidak kirim html, reload tampilan rincian aja
+        $("#myModal").find(".table-rincian tbody").load("{{ url('rekap') }}/" + interaksiId + " #myModal .table-rincian tbody > *");
+    }
+},
                 error: function(xhr) {
                     Swal.fire("Gagal", "Terjadi kesalahan server.", "error");
                     console.error("Server Error:", xhr.responseText);
@@ -184,7 +191,10 @@
             $("#satuan-label").text(satuan);
         });
 
-        
+            $(document).on('click', '.btn-close-modal', function() {
+        // Tutup modal tanpa reload
+        $('#crudModal').modal('hide');
+    });
         {{-- ====================================================== --}}
         {{-- Handler Tombol 'Close' (X) (di-copy dari edit_pasang) --}}
         {{-- ====================================================== --}}

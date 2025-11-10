@@ -1,60 +1,12 @@
 <!-- resources/views/rekap/edit_invoice.blade.php -->
 <div class="modal-header bg-wallpaper-gradient text-white">
     <h5 class="modal-title">Edit Invoice</h5>
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true" class="text-white">&times;</span>
-    </button>
 </div>
 <form id="form-edit-invoice" action="{{ route('invoice.update', $invoice->invoice_id) }}" method="POST">
     @csrf
     @method('PUT')
 
     <input type="hidden" id="editing_invoice_id" value="{{ $invoice->invoice_id }}">
-
-    <style>
-        input.form-control.no-arrow::-webkit-outer-spin-button,
-        input.form-control.no-arrow::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        input.form-control.no-arrow[type=number] {
-            -moz-appearance: textfield;
-            appearance: textfield;
-        }
-
-        .table .form-control.no-arrow {
-            padding-right: .5rem;
-        }
-
-        .suggestion-bar {
-            background: #f8f9fa;
-            border: 1px solid #e2e6ea;
-            padding: 8px;
-            border-radius: 6px;
-            margin-top: 6px;
-            display: none;
-            cursor: pointer;
-        }
-
-        .suggestion-bar small {
-            margin: 0;
-        }
-
-        .suggestion-bar:hover {
-            background: #e9f0ff;
-        }
-
-        .inline-warning {
-            color: #856404;
-            background: #fff3cd;
-            border: 1px solid #ffeeba;
-            padding: 6px 8px;
-            border-radius: 4px;
-            margin-top: 6px;
-            display: none;
-        }
-    </style>
 
     <div class="modal-body">
         <!-- Nomor & Customer -->
@@ -244,9 +196,107 @@
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
         <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-    </div>
+        </div>
+        </div>
 </form>
+<style>
+/* ========================
+   MODAL EDIT INVOICE STYLE
+======================== */
 
+/* Ukuran & posisi modal agar pas */
+#crudModal .modal-dialog {
+    max-width: 850px; /* tidak terlalu lebar */
+    margin: 1.75rem auto;
+}
+
+.modal-content {
+    border: none;
+    border-radius: 0.6rem;
+    overflow: hidden;
+    background-color: #fff;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+}
+
+/* Header gradient */
+.modal-header.bg-wallpaper-gradient {
+    background: linear-gradient(90deg, #7b2ff7, #f107a3);
+    color: white;
+    padding: 12px 20px;
+    border-bottom: none;
+}
+
+/* Judul & tombol close */
+.modal-header .modal-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+.modal-header .close {
+    color: white;
+    opacity: 0.9;
+    font-size: 1.3rem;
+}
+
+/* Body padding rapi */
+.modal-body {
+    padding: 20px 25px;
+}
+
+/* Footer rapi */
+.modal-footer {
+    border-top: 1px solid #eee;
+    padding: 12px 25px;
+}
+
+/* Form elemen spacing */
+#crudModal .form-group,
+#crudModal .row.mb-2 {
+    margin-bottom: 15px;
+}
+
+/* Table responsif rapi */
+#crudModal table.table {
+    margin-bottom: 10px;
+    font-size: 0.92rem;
+}
+
+/* Input lebih ringkas */
+#crudModal input.form-control,
+#crudModal select.form-control {
+    height: 35px;
+    font-size: 0.9rem;
+}
+
+/* Inline warning kecil dan rapi */
+.inline-warning {
+    font-size: 0.8rem;
+    color: #e74c3c;
+    margin-top: 2px;
+    display: none;
+}
+#crudModal .modal-dialog {
+    max-width: 850px;
+    margin: 1.75rem auto;
+}
+#crudModal .modal-content {
+    border: none;
+    border-radius: 0.6rem;
+    overflow: hidden;
+    background-color: #fff;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+}
+#crudModal .modal-body {
+    padding: 20px 25px;
+}
+
+/* Judul di modal utama */
+#crudModal .modal-header.bg-wallpaper-gradient {
+    background: linear-gradient(90deg, #7b2ff7, #f107a3);
+    color: #fff;
+    padding: 12px 20px;
+    border-bottom: none;
+}
+</style>
 {{-- inject lastInvoice ke javascript (dipakai untuk suggestion/quick client-side check) --}}
 <script>
     // lastInvoice berasal dari controller; null jika tidak ada

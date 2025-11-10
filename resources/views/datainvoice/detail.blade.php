@@ -1,3 +1,5 @@
+<div id="modal-user" class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
 <div class="modal-header bg-wallpaper-gradient text-white">
             <h5 class="modal-title">Detail Invoice</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -104,15 +106,46 @@
         </div>
     </div>
 
-    {{-- Catatan --}}
-    <div class="mt-3">
-        <label>Catatan</label>
-        <p class="form-control-plaintext border p-2">
-            {{ $invoice->catatan ?? '-' }}
-        </p>
-    </div>
-</div>
-
 <div class="modal-footer">
     <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
 </div>
+</div>
+<style>
+    /* Modal body diberi padding */
+#crudModal .modal-body {
+    padding: 20px 25px;
+}
+
+/* Supaya tombol kemarin & hari ini tidak menabrak input */
+#crudModal .input-group .form-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#crudModal .btn-outline-primary {
+    border-radius: 0;
+}
+
+/* Rapikan spacing antar elemen */
+#crudModal .form-group {
+    margin-bottom: 18px;
+}
+
+/* Form di dalam modal diberi ruang ke bawah */
+#crudModal form {
+    padding-bottom: 10px;
+}
+
+/* Tinggi minimal textarea */
+#crudModal textarea {
+    min-height: 90px;
+}
+
+/* Modal header biar lebih rapi */
+.modal-header.bg-wallpaper-gradient {
+    padding: 12px 20px;
+    border-bottom: none;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+    </style>
+

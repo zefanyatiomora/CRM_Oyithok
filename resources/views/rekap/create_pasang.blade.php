@@ -1,8 +1,5 @@
 <div class="modal-header bg-wallpaper-gradient text-white">
     <h5 class="modal-title">Tambah Pemasangan/Kirim</h5>
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true" class="text-white">&times;</span>
-    </button>
 </div>
 <div class="modal-body">
 <form id="form-create-pasang" enctype="multipart/form-data">
@@ -48,7 +45,7 @@
         <label>Jadwal</label>
         <div class="input-group mb-2">
             <input type="text" class="form-control" id="jadwal_pasang_kirim" name="jadwal_pasang_kirim"
-                placeholder="Pilih tanggal dan waktu..." required>
+                placeholder="Tanggal-Bulan-Tahun" required>
             <div class="input-group-append">
                 <span class="input-group-text">WIB</span>
             </div>
@@ -74,8 +71,11 @@
         <small id="error-status" class="text-danger"></small>
     </div>
 
+    <div class="modal-footer">
     <button type="submit" class="btn btn-success">Simpan</button>
-     </div>
+        <button type="button" class="btn btn-secondary btn-close-modal">Batal</button>
+    </div>
+    </div>
 </form>
 <style>
     /* Modal body diberi padding */
@@ -120,27 +120,33 @@
 $(function() {
     // Inisialisasi Flatpickr pada input jadwal
     const fp = flatpickr("#jadwal_pasang_kirim", {
-        enableTime: true,        // Mengaktifkan pilihan waktu
-        dateFormat: "Y-m-d H:i:S", // Format yang dikirim ke server (database)
-        altInput: true,          // Membuat input visual yang berbeda
-        altFormat: "d-m-Y, H:i", // Format yang dilihat oleh pengguna
-        time_24hr: true,         // Format waktu 24 jam
-        defaultDate: "today",    // Default tanggal hari ini
-        minuteIncrement: 1,
+        enableTime: true,              // Aktifkan waktu
+        dateFormat: "Y-m-d H:i:S",     // Format yang dikirim ke server
+        altInput: true,                // Input tampilan berbeda untuk user
+        altFormat: "d-m-Y, H:i",       // Format tampilan user (tanggal-bulan-tahun)
+        time_24hr: true,               // Format waktu 24 jam
+        defaultDate: null,             // Tidak isi default, user pilih sendiri
+        minuteIncrement: 1,            // Interval waktu per menit
+        allowInput: true,              // User bisa ketik manual juga
+        clickOpens: true               // Pastikan kalender muncul saat diklik
     });
 
     // Tombol Hari Ini
     $('#btn-today').click(function() {
-        fp.setDate(new Date()); // Gunakan API Flatpickr untuk set tanggal
+        fp.setDate(new Date());
     });
 
     // Tombol Besok
     $('#btn-tomorrow').click(function() {
         let tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
-        fp.setDate(tomorrow); // Gunakan API Flatpickr untuk set tanggal
+        fp.setDate(tomorrow);
     });
 
+    $(document).on('click', '.btn-close-modal', function() {
+        // Tutup modal tanpa reload
+        $('#crudModal').modal('hide');
+    });
 
     // Submit AJAX (Sekarang JAUH LEBIH SIMPEL)
     $("#form-create-pasang").submit(function(e) {

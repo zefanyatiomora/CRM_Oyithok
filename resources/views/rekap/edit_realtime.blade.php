@@ -24,8 +24,8 @@
     </div>
 
     <div class="modal-footer">
-        <button type="submit" class="btn bg-wallpaper-gradient text-white border-0 fw-bold" style="border-radius: 0.35rem;">Simpan Perubahan</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+        <button type="submit" class="btn bg-wallpaper-gradient text-white border-0 fw-bold" style="border-radius: 0.35rem;">Simpan</button>
+        <button type="button" class="btn btn-secondary btn-close-modal">Batal</button>
     </div>
     </div>
 </form>
@@ -89,7 +89,11 @@ $("#form-update-realtime").submit(function(e) {
     // NOTE: blade akan mengganti bagian REPLACE_ID, lalu kita replace dengan id JS
     let updateUrlTemplate = "{{ route('realtime.update', 'REPLACE_ID') }}";
     let updateUrl = updateUrlTemplate.replace('REPLACE_ID', id);
-
+     // Tombol Batal / Close
+    $(document).on('click', '.btn-close-modal', function() {
+        // Tutup modal tanpa reload
+        $('#crudModal').modal('hide');
+    });
     $.ajax({
         url: updateUrl,
         type: "POST", // kirim POST dengan _method=PUT

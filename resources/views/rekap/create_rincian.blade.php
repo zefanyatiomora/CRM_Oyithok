@@ -1,8 +1,5 @@
 <div class="modal-header bg-wallpaper-gradient text-white">
     <h5 class="modal-title">Tambah Rincian</h5>
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true" class="text-white">&times;</span>
-    </button>
 </div>
 <div class="modal-body">
 <form id="form-create-rincian" enctype="multipart/form-data">
@@ -48,9 +45,10 @@
         <small id="error-deskripsi" class="text-danger"></small>
     </div>
 
-    <!-- Submit Button -->
-    <button type="submit" class="btn btn-success">Simpan</button>
-</div>
+     <div class="modal-footer">
+        <button type="submit" class="btn btn-success">Simpan</button>
+        <button type="button" class="btn btn-secondary btn-close-modal">Batal</button>
+    </div>
 </form>
 <style>
     /* Modal body diberi padding */
@@ -92,6 +90,7 @@
     </style>
 
 <script>
+    
     $(function() {
         $("#form-create-rincian").submit(function(e) {
             e.preventDefault();
@@ -123,7 +122,10 @@
                 }
             });
         });
-
+ // Tutup modal tanpa reload
+    $(document).on('click', '.btn-close-modal', function() {
+        $('#crudModal').modal('hide');
+    });
         // Update label satuan
         $("#produk_id").on("change", function() {
             let satuan = $(this).find(":selected").data("satuan") || "";
