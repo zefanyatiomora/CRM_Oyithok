@@ -96,12 +96,12 @@ $(document).ready(function() {
         searchable: false
       },
       {
-        data: "image",
+        data: "image_url",
         className: "text-center",
         orderable: false,
         searchable: false,
         render: function(data) {
-          var imageUrl = data ? '{{ asset("storage/") }}/' + data : '{{ asset("adminlte/dist/img/default-avatar.png") }}';
+          var imageUrl = data;
           return '<img src="' + imageUrl + '" alt="Foto Profil" class="img-circle img-size-32" style="width: 32px; height: 32px; object-fit: cover;">';
         }
       },
