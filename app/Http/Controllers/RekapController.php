@@ -259,47 +259,54 @@ class RekapController extends Controller
 
         return view('rekap.partials.identifikasi_tabel', compact('interaksiAwalList'));
     }
-    public function storeRealtime(Request $request)
-    {
-        $request->validate([
-            'interaksi_id' => 'required|exists:interaksi,interaksi_id',
-            'tanggal' => 'required|date',
-             'keterangan' => [
-        'required',
-        'string',
-        function ($attribute, $value, $fail) {
-            $wordCount = str_word_count(strip_tags($value));
-            if ($wordCount > 500) {
-                $fail('Keterangan tidak boleh lebih dari 500 kata.');
-            }
-        },
-    ],
-            'user_id' => 'required|exists:m_user,user_id',
-        ]);
+public function storeRealtime(Request $request)
+{
+    $request->validate([
+        'interaksi_id' => 'required|exists:interaksi,interaksi_id',
+        'tanggal' => 'required|date',
 
-        // Simpan data baru
-        $realtime = InteraksiRealtime::create([
-            'interaksi_id' => $request->interaksi_id,
-            'tanggal' => $request->tanggal,
-            'keterangan' => $request->keterangan,
-            'user_id' => $request->user_id,
-        ]);
+        'keterangan' => [
+            'required',
+            'string',
+            function ($attribute, $value, $fail) {
+                // Bersihkan teks dari HTML dan spasi berlebih
+                $cleanText = trim(preg_replace('/\s+/', ' ', strip_tags($value)));
 
-        // Ambil data realtime terbaru untuk interaksi ini
-        $realtimeList = InteraksiRealtime::with('user')
-            ->where('interaksi_id', $request->interaksi_id)
-            ->orderBy('tanggal', 'desc')
-            ->get();
+                // Hitung kata
+                $wordCount = str_word_count($cleanText);
 
-        // Render ulang partial tabel realtime
-        $html = view('rekap.partials.realtime_tabel', compact('realtimeList'))->render();
+                if ($wordCount > 500) {
+                    $fail('Keterangan tidak boleh lebih dari 500 kata.');
+                }
+            },
+        ],
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Data realtime berhasil disimpan.',
-            'html' => $html
-        ]);
-    }
+        'user_id' => 'required|exists:m_user,user_id',
+    ]);
+
+    // Simpan data baru
+    $realtime = InteraksiRealtime::create([
+        'interaksi_id' => $request->interaksi_id,
+        'tanggal' => $request->tanggal,
+        'keterangan' => $request->keterangan,
+        'user_id' => $request->user_id,
+    ]);
+
+    // Ambil realtime terbaru
+    $realtimeList = InteraksiRealtime::with('user')
+        ->where('interaksi_id', $request->interaksi_id)
+        ->orderBy('tanggal', 'desc')
+        ->get();
+
+    // Render ulang tabel realtime
+    $html = view('rekap.partials.realtime_tabel', compact('realtimeList'))->render();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Data realtime berhasil disimpan.',
+        'html' => $html
+    ]);
+}
     public function getRealtimeList($interaksi_id)
     {
         try {
