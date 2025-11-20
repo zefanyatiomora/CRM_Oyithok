@@ -96,74 +96,58 @@ $jumlahClosing = InteraksiModel::where('status', 'closing')
         ];
 
         // === Leads Baru vs Lama (mengikuti filter) ===
-        $chartLabels   = [];
-        $dataLeadsBaru = [];
-        $dataLeadsLama = [];
+// === Leads Baru vs Lama (mengikuti filter) ===
+$chartLabels   = [];
+$dataLeadsBaru = [];
+$dataLeadsLama = [];
+$totalLeadsBaru = 0;
+$totalLeadsLama = 0;
 
-        if ($bulan) {
-            $jumlahHari = Carbon::create($tahun, $bulan)->daysInMonth;
-            for ($hari = 1; $hari <= $jumlahHari; $hari++) {
-                $chartLabels[] = $hari;
+// Jika bulan TIDAK dipilih → tampilkan "Tidak ada lead"
+if (!$bulan) {
 
-                $customerHariIni = DB::table('interaksi_realtime as ir')
-                    ->join('interaksi as i', 'ir.interaksi_id', '=', 'i.interaksi_id')
-                    ->whereYear('ir.tanggal', $tahun)
-                    ->whereMonth('ir.tanggal', $bulan)
-                    ->whereDay('ir.tanggal', $hari)
-                    ->pluck('i.customer_id')->unique();
+    $chartLabels = ['Tidak ada lead'];
+    $dataLeadsBaru = [0];
+    $dataLeadsLama = [0];
 
-                $leadsBaruHariIni = 0;
-                foreach ($customerHariIni as $cid) {
-                    $firstInteraksi = DB::table('interaksi')
-                        ->where('customer_id', $cid)
-                        ->orderBy('tanggal_chat', 'asc')
-                        ->value('tanggal_chat');
+} else {
 
-                    if (
-                        $firstInteraksi &&
-                        Carbon::parse($firstInteraksi)->year == $tahun &&
-                        Carbon::parse($firstInteraksi)->month == $bulan
-                    ) {
-                        $leadsBaruHariIni++;
-                    }
-                }
+    // Jika bulan dipilih → hitung per HARI
+    $jumlahHari = Carbon::create($tahun, $bulan)->daysInMonth;
 
-                $dataLeadsBaru[] = $leadsBaruHariIni;
-                $dataLeadsLama[] = count($customerHariIni) - $leadsBaruHariIni;
-            }
-        } else {
-            foreach ($bulanList as $key => $namaBulan) {
-                $chartLabels[] = $namaBulan;
+    for ($hari = 1; $hari <= $jumlahHari; $hari++) {
+        $chartLabels[] = $hari;
 
-                $customerBulanIni = DB::table('interaksi_realtime as ir')
-                    ->join('interaksi as i', 'ir.interaksi_id', '=', 'i.interaksi_id')
-                    ->whereYear('ir.tanggal', $tahun)
-                    ->whereMonth('ir.tanggal', $key)
-                    ->pluck('i.customer_id')->unique();
+        $customerHariIni = DB::table('interaksi_realtime as ir')
+            ->join('interaksi as i', 'ir.interaksi_id', '=', 'i.interaksi_id')
+            ->whereYear('ir.tanggal', $tahun)
+            ->whereMonth('ir.tanggal', $bulan)
+            ->whereDay('ir.tanggal', $hari)
+            ->pluck('i.customer_id')->unique();
 
-                $leadsBaruBulanIni = 0;
-                foreach ($customerBulanIni as $cid) {
-                    $firstInteraksi = DB::table('interaksi')
-                        ->where('customer_id', $cid)
-                        ->orderBy('tanggal_chat', 'asc')
-                        ->value('tanggal_chat');
+        $leadsBaruHariIni = 0;
+        foreach ($customerHariIni as $cid) {
+            $firstInteraksi = DB::table('interaksi')
+                ->where('customer_id', $cid)
+                ->orderBy('tanggal_chat', 'asc')
+                ->value('tanggal_chat');
 
-                    if (
-                        $firstInteraksi &&
-                        Carbon::parse($firstInteraksi)->year == $tahun &&
-                        Carbon::parse($firstInteraksi)->month == $key
-                    ) {
-                        $leadsBaruBulanIni++;
-                    }
-                }
-
-                $dataLeadsBaru[] = $leadsBaruBulanIni;
-                $dataLeadsLama[] = count($customerBulanIni) - $leadsBaruBulanIni;
+            if (
+                $firstInteraksi &&
+                Carbon::parse($firstInteraksi)->year == $tahun &&
+                Carbon::parse($firstInteraksi)->month == $bulan
+            ) {
+                $leadsBaruHariIni++;
             }
         }
 
-        $totalLeadsBaru = array_sum($dataLeadsBaru);
-        $totalLeadsLama = array_sum($dataLeadsLama);
+        $dataLeadsBaru[] = $leadsBaruHariIni;
+        $dataLeadsLama[] = count($customerHariIni) - $leadsBaruHariIni;
+    }
+
+    $totalLeadsBaru = array_sum($dataLeadsBaru);
+    $totalLeadsLama = array_sum($dataLeadsLama);
+}
 
         // Produk chart (mengikuti filter)
         $produkChart = $this->getProdukChartData($tahun, $bulan);
