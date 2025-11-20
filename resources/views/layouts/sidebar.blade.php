@@ -1,23 +1,19 @@
 <!-- Tambah garis -->
 <hr class="my-0 border-purple">
 <div class="sidebar">
-    <!-- Sidebar Menu -->
-    
     <!-- Sidebar user panel (optional) -->
     <div class="user-panel mt-2 pb-2 mb-1 d-flex">
         <div class="image">
             <img src="{{ auth()->user()->image_url }}"alt="User Image" class="rounded-circle"
                 style="width: 30px; height: 30px; object-fit: cover;">
         </div>
-        <div class="user-panel mt-2 pb-2 mb-1 d-flex">
-    <div class="info">
-        @auth
-            <a href="{{ url('/profil') }}" class="d-block user-name">{{ Auth::user()->nama }}</a>
-        @else
-            <a href="{{ route('login') }}" class="d-block text-white">Guest</a>
-        @endauth
-    </div>
-</div>
+        <div class="info">
+            @auth
+                <a href="{{ url('/profil') }}" class="d-block user-name">{{ Auth::user()->nama }}</a>
+            @else
+                <a href="{{ route('login') }}" class="d-block text-white">Guest</a>
+            @endauth
+        </div>
     </div>
     <hr class="my-0 border-purple mx-n3">
     <nav class="mt-2">
