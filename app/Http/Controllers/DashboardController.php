@@ -95,7 +95,6 @@ $jumlahClosing = InteraksiModel::where('status', 'closing')
             '12' => 'Desember'
         ];
 
-        // === Leads Baru vs Lama (mengikuti filter) ===
 // === Leads Baru vs Lama (mengikuti filter) ===
 $chartLabels   = [];
 $dataLeadsBaru = [];
@@ -103,7 +102,9 @@ $dataLeadsLama = [];
 $totalLeadsBaru = 0;
 $totalLeadsLama = 0;
 
-// Jika bulan TIDAK dipilih → tampilkan "Tidak ada lead"
+// Tracking customer yang sudah dihitung dalam bulan ini
+$customerSudahDihitungBulanIni = [];
+
 if (!$bulan) {
 
     $chartLabels = ['Tidak ada lead'];
@@ -112,37 +113,53 @@ if (!$bulan) {
 
 } else {
 
-    // Jika bulan dipilih → hitung per HARI
     $jumlahHari = Carbon::create($tahun, $bulan)->daysInMonth;
 
     for ($hari = 1; $hari <= $jumlahHari; $hari++) {
+
         $chartLabels[] = $hari;
 
+        // Ambil customer unik pada hari ini
         $customerHariIni = DB::table('interaksi_realtime as ir')
             ->join('interaksi as i', 'ir.interaksi_id', '=', 'i.interaksi_id')
             ->whereYear('ir.tanggal', $tahun)
             ->whereMonth('ir.tanggal', $bulan)
             ->whereDay('ir.tanggal', $hari)
-            ->pluck('i.customer_id')->unique();
+            ->pluck('i.customer_id')
+            ->unique();
 
         $leadsBaruHariIni = 0;
+        $leadsLamaHariIni = 0;
+
         foreach ($customerHariIni as $cid) {
+
+            // Jika customer ini sudah dihitung di hari sebelumnya IG bulan yang sama → skip
+            if (in_array($cid, $customerSudahDihitungBulanIni)) {
+                continue;
+            }
+
+            // Ambil tanggal interaksi pertama sepanjang sejarah
             $firstInteraksi = DB::table('interaksi')
                 ->where('customer_id', $cid)
                 ->orderBy('tanggal_chat', 'asc')
                 ->value('tanggal_chat');
 
-            if (
-                $firstInteraksi &&
-                Carbon::parse($firstInteraksi)->year == $tahun &&
-                Carbon::parse($firstInteraksi)->month == $bulan
-            ) {
-                $leadsBaruHariIni++;
+            if ($firstInteraksi) {
+                $firstDate = Carbon::parse($firstInteraksi);
+
+                if ($firstDate->year == $tahun && $firstDate->month == $bulan) {
+                    $leadsBaruHariIni++;
+                } else {
+                    $leadsLamaHariIni++;
+                }
             }
+
+            // Tambahkan ke daftar monthly tracking
+            $customerSudahDihitungBulanIni[] = $cid;
         }
 
         $dataLeadsBaru[] = $leadsBaruHariIni;
-        $dataLeadsLama[] = count($customerHariIni) - $leadsBaruHariIni;
+        $dataLeadsLama[] = $leadsLamaHariIni;
     }
 
     $totalLeadsBaru = array_sum($dataLeadsBaru);
